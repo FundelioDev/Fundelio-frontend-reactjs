@@ -1,0 +1,63 @@
+@import 'tailwindcss';
+
+@theme {
+  /* Primary colors with shades */
+  --color-primary-50: #f3fcf6;
+  --color-primary-100: #d5f5e2;
+  --color-primary-200: #9eeab8;
+  --color-primary-300: #67df8e;
+  --color-primary-400: #30d464;
+  --color-primary-500: #2ecc71;
+  --color-primary-600: #25a460;
+  --color-primary-700: #1c7c4f;
+  --color-primary-800: #13543e;
+  --color-primary-900: #0a2c2d;
+  --color-primary: #2ecc71;
+
+  /* Secondary colors with shades */
+  --color-secondary-50: #fdf8e7;
+  --color-secondary-100: #fbf1cf;
+  --color-secondary-200: #f7e39f;
+  --color-secondary-300: #f3d56f;
+  --color-secondary-400: #efc73f;
+  --color-secondary-500: #f1c40f;
+  --color-secondary-600: #d4a70c;
+  --color-secondary-700: #b78a09;
+  --color-secondary-800: #9a6d06;
+  --color-secondary-900: #7d5003;
+  --color-secondary: #f1c40f;
+
+  /* Text colors */
+  --color-text-primary: #000000;
+  --color-text-secondary: #4d4d4d;
+  --color-text-white: #ffffff;
+  --color-text-green: #2ecc71;
+
+  /* Border colors */
+  --color-border: #9d9d9d;
+  --color-border-light: #e5e5e5;
+
+  /* Background colors */
+  --color-white: #ffffff;
+  --color-background-light: #d5f5e2;
+  --color-background-lighter: #f3fcf6;
+
+  /* Font family */
+  --font-family-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', Roboto, sans-serif;
+}
+
+/* Global styles */
+body {
+  font-family: var(--font-family-sans);
+  line-height: 1.5;
+  font-weight: 400;
+  color: var(--color-text-primary);
+  background-color: var(--color-white);
+
+  /* Text rendering optimization */
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

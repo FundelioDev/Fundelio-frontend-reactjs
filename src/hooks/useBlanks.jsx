@@ -1,9 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { uid } from '../../utils/id';
-import StoryToolbar from './StoryToolbar';
-import SidebarTOC from './SidebarTOC';
-import BlankSection from './BlankSection';
-
+import { uid } from '@/utils/id';
+import toast from 'react-hot-toast';
 /**
  * Custom hook to manage blanks state and operations
  */
@@ -104,9 +101,7 @@ function useBlanks() {
     const payload = getPayload();
     console.log('SAVE payload:', payload);
     console.log('\n=== Mock Data JSON ===\n', JSON.stringify(payload, null, 2));
-    alert(
-      'Đã log ra console nội dung các blank (HTML). Khuyến nghị sanitize trước khi lưu.'
-    );
+    toast.success('Đã lưu thành công!');
   };
 
   return {
@@ -120,67 +115,5 @@ function useBlanks() {
     save,
   };
 }
+export default useBlanks;
 
-/**
- * CreateCampaignPage - Main page component for creating campaign stories
- */
-export default function CreateCampaignPage() {
-  const {
-    blanks,
-    activeEditorRef,
-    addBlank,
-    updateTitle,
-    updateContent,
-    setActiveEditor,
-    scrollToBlank,
-    save,
-  } = useBlanks();
-
-  const handleAddBlank = () => {
-    const newId = addBlank();
-    // Wait for DOM update then scroll
-    setTimeout(() => scrollToBlank(newId), 100);
-  };
-
-  return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      <div className="grid grid-cols-1 md:grid-cols-[280px_1fr] gap-4 p-4">
-        {/* Sidebar */}
-        <SidebarTOC
-          blanks={blanks}
-          onAddBlank={handleAddBlank}
-          onNavigate={scrollToBlank}
-        />
-
-        {/* Main Content */}
-        <main className="max-w-[980px] mx-auto w-full">
-          {/* Toolbar */}
-          <StoryToolbar activeEditorRef={activeEditorRef} onSave={save} />
-
-          {/* Blanks */}
-          <div>
-            {blanks.map((blank) => (
-              <BlankSection
-                key={blank.id}
-                blank={blank}
-                onTitleChange={updateTitle}
-                onContentChange={updateContent}
-                onFocus={setActiveEditor}
-              />
-            ))}
-          </div>
-
-          {/* Add Blank Button at Bottom */}
-          <button
-            onClick={handleAddBlank}
-            className="flex items-center justify-center w-full py-2.5 mb-5 border border-dashed border-gray-400 dark:border-gray-600 rounded-lg bg-white dark:bg-black hover:border-gray-500 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-900 cursor-pointer transition-colors"
-          >
-            <span className="text-sm text-gray-700 dark:text-gray-300">
-              + Thêm blank
-            </span>
-          </button>
-        </main>
-      </div>
-    </div>
-  );
-}

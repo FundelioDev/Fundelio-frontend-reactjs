@@ -1,5 +1,9 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
+import { Heading2, Image, Video, Save } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { buildVideoEmbed } from '../../utils/embed';
+import VideoModal from './VideoModal';
+import ColorPicker from './ColorPicker';
 
 /**
  * StoryToolbar component - Editor toolbar with formatting options
@@ -9,7 +13,7 @@ import { buildVideoEmbed } from '../../utils/embed';
  */
 export default function StoryToolbar({ activeEditorRef, onSave }) {
   const imgPickerRef = useRef(null);
-  const colorInputRef = useRef(null);
+  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
 
   const execCommand = (command, value = null) => {
     if (!activeEditorRef.current) return;
@@ -17,9 +21,17 @@ export default function StoryToolbar({ activeEditorRef, onSave }) {
     activeEditorRef.current.focus();
   };
 
-  const handleBold = () => execCommand('bold');
-  const handleItalic = () => execCommand('italic');
-  const handleUnderline = () => execCommand('underline');
+  const handleBold = () => {
+    execCommand('bold');
+  };
+
+  const handleItalic = () => {
+    execCommand('italic');
+  };
+
+  const handleUnderline = () => {
+    execCommand('underline');
+  };
 
   const handleH2 = () => {
     if (!activeEditorRef.current) return;
@@ -29,18 +41,18 @@ export default function StoryToolbar({ activeEditorRef, onSave }) {
     placeBlock(activeEditorRef.current, h2);
   };
 
-  const handleLink = () => {
+  const handleVideoSubmit = (url) => {
     if (!activeEditorRef.current) return;
-    const url = prompt('Dán link YouTube/Vimeo hoặc URL:');
-    if (!url) return;
 
     const iframe = buildVideoEmbed(url);
     if (iframe) {
       placeBlock(activeEditorRef.current, iframe);
+      toast.success('Đã thêm video thành công!');
     } else if (/^https?:\/\//i.test(url)) {
       execCommand('createLink', url);
+      toast.success('Đã thêm link thành công!');
     } else {
-      alert('URL không hợp lệ.');
+      toast.error('URL không hợp lệ. Vui lòng kiểm tra lại.');
     }
   };
 
@@ -64,8 +76,8 @@ export default function StoryToolbar({ activeEditorRef, onSave }) {
     e.target.value = '';
   };
 
-  const handleColorChange = (e) => {
-    execCommand('foreColor', e.target.value);
+  const handleColorChange = (color) => {
+    execCommand('foreColor', color);
   };
 
   const placeBlock = (editor, node) => {
@@ -91,78 +103,97 @@ export default function StoryToolbar({ activeEditorRef, onSave }) {
   };
 
   return (
-    <div className="sticky top-3 z-10 flex gap-2 flex-wrap bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-2xl p-2 mb-2.5">
-      <button
-        onClick={handleBold}
-        className="px-2.5 py-2 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg text-sm font-bold hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors dark:text-white"
-        title="Bold"
-      >
-        B
-      </button>
+    <>
+      <div className="sticky top-20 z-10 flex gap-2 flex-wrap bg-white dark:bg-black border border-gray-300 dark:border-gray-700 rounded-lg p-2 mb-4 shadow-sm">
+        {/* Text Formatting */}
+        <button
+          onClick={handleBold}
+          className="px-2.5 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-black rounded-lg text-sm font-bold hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors dark:text-white"
+          title="Bold (Ctrl+B)"
+        >
+          B
+        </button>
 
-      <button
-        onClick={handleItalic}
-        className="px-2.5 py-2 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg text-sm italic hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors dark:text-white"
-        title="Italic"
-      >
-        I
-      </button>
+        <button
+          onClick={handleItalic}
+          className="px-2.5 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-black rounded-lg text-sm italic hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors dark:text-white"
+          title="Italic (Ctrl+I)"
+        >
+          I
+        </button>
 
-      <button
-        onClick={handleUnderline}
-        className="px-2.5 py-2 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg text-sm underline hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors dark:text-white"
-        title="Underline"
-      >
-        U
-      </button>
+        <button
+          onClick={handleUnderline}
+          className="px-2.5 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-black rounded-lg text-sm underline hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors dark:text-white"
+          title="Underline (Ctrl+U)"
+        >
+          U
+        </button>
 
-      <button
-        onClick={handleH2}
-        className="px-2.5 py-2 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors dark:text-white"
-        title="Heading 2"
-      >
-        H2
-      </button>
+        {/* Divider */}
+        <div className="w-px bg-gray-300 dark:bg-gray-700 mx-1" />
 
-      <button
-        onClick={handleLink}
-        className="px-2.5 py-2 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors dark:text-white"
-        title="Add Link or Video"
-      >
-        Link
-      </button>
+        {/* Heading */}
+        <button
+          onClick={handleH2}
+          className="flex items-center gap-1.5 px-3 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-black rounded-lg text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors dark:text-white"
+          title="Heading 2"
+        >
+          <Heading2 className="w-4 h-4" />
+          <span>Tiêu đề</span>
+        </button>
 
-      <button
-        onClick={handleImagePicker}
-        className="px-2.5 py-2 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors dark:text-white"
-        title="Upload Image/GIF"
-      >
-        Ảnh/GIF
-      </button>
+        {/* Video */}
+        <button
+          onClick={() => setIsVideoModalOpen(true)}
+          className="flex items-center gap-1.5 px-3 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-black rounded-lg text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors dark:text-white"
+          title="Add Video"
+        >
+          <Video className="w-4 h-4" />
+          <span>Video</span>
+        </button>
 
-      <input
-        ref={colorInputRef}
-        type="color"
-        onChange={handleColorChange}
-        className="p-1 w-11 h-9 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg cursor-pointer"
-        title="Text Color"
+        {/* Image */}
+        <button
+          onClick={handleImagePicker}
+          className="flex items-center gap-1.5 px-3 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-black rounded-lg text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors dark:text-white"
+          title="Upload Image/GIF"
+        >
+          <Image className="w-4 h-4" />
+          <span>Ảnh/GIF</span>
+        </button>
+
+        {/* Divider */}
+        <div className="w-px bg-gray-300 dark:bg-gray-700 mx-1" />
+
+        {/* Color Picker */}
+        <ColorPicker onColorSelect={handleColorChange} />
+
+        {/* Save Button */}
+        <button
+          onClick={onSave}
+          className="flex items-center gap-1.5 px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors ml-auto"
+          title="Save (Ctrl+S)"
+        >
+          <Save className="w-4 h-4" />
+          <span>Lưu</span>
+        </button>
+
+        <input
+          ref={imgPickerRef}
+          type="file"
+          accept="image/*"
+          onChange={handleImageChange}
+          className="hidden"
+        />
+      </div>
+
+      {/* Video Modal */}
+      <VideoModal
+        isOpen={isVideoModalOpen}
+        onClose={() => setIsVideoModalOpen(false)}
+        onSubmit={handleVideoSubmit}
       />
-
-      <button
-        onClick={onSave}
-        className="px-3 py-2 border border-primary bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary-600 transition-colors ml-auto"
-        title="Save"
-      >
-        Lưu
-      </button>
-
-      <input
-        ref={imgPickerRef}
-        type="file"
-        accept="image/*"
-        onChange={handleImageChange}
-        className="hidden"
-      />
-    </div>
+    </>
   );
 }

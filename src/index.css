@@ -253,3 +253,32 @@ body {
     }
   }
 }
+
+/* ContentEditable Formatting Support */
+[contenteditable] b,
+[contenteditable] strong {
+  font-weight: bold !important;
+}
+
+[contenteditable] i,
+[contenteditable] em {
+  font-style: italic !important;
+}
+
+[contenteditable] u {
+  text-decoration: underline !important;
+}
+
+[contenteditable] a {
+  color: var(--color-primary) !important;
+  text-decoration: underline !important;
+}
+
+[contenteditable] h2 {
+  font-size: 1.5rem !important;
+  font-weight: bold !important;
+  margin-top: 1rem !important;
+  margin-bottom: 0.5rem !important;
+}
+
+

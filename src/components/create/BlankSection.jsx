@@ -91,23 +91,24 @@ function BlankSection({ blank, onTitleChange, onContentChange, onFocus }) {
     const ref = type === 'title' ? titleRef : editorRef;
     onFocus(blank.id, ref.current, type);
   };
-  console.log('Render BlankSection', blank.id);
 
   return (
     <section
       id={blank.id}
-      className="bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-2xl p-6 mb-5 scroll-mt-20"
+      className="bg-white dark:bg-black border border-gray-300 dark:border-gray-700 
+      rounded-lg p-6 mb-4 scroll-mt-32 shadow-sm hover:shadow-md transition-shadow"
     >
       {/* Title */}
       <div
         ref={titleRef}
         contentEditable
         suppressContentEditableWarning
-        className="w-full px-3 py-2.5 text-xl font-semibold border border-gray-200 dark:border-gray-700 rounded-xl mb-3.5 focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-900 dark:text-white"
+        className="w-full px-4 py-3 text-xl font-semibold border border-gray-300 dark:border-gray-700 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-950 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-600"
         placeholder="Tiêu đề blank..."
+        spellCheck={false}
         onInput={handleTitleInput}
         onFocus={() => handleFocus('title')}
-      ></div>
+      />
 
       {/* Editor */}
       <div
@@ -115,7 +116,10 @@ function BlankSection({ blank, onTitleChange, onContentChange, onFocus }) {
         contentEditable
         suppressContentEditableWarning
         spellCheck={false}
-        className="min-h-[40vh] p-4 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-900 dark:text-white"
+        className="min-h-[40vh] p-4 border border-gray-300 dark:border-gray-700 rounded-lg 
+        focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent 
+        dark:bg-gray-950 dark:text-white prose prose-sm dark:prose-invert max-w-none
+        [&_i]:italic [&_em]:italic"
         data-blank-id={blank.id}
         onInput={handleContentInput}
         onFocus={() => handleFocus('editor')}

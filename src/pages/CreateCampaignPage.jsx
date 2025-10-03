@@ -73,7 +73,7 @@ export default function CreateCampaignPage() {
                     ? 'translate-x-0'
                     : '-translate-x-full lg:translate-x-0'
                 }
-                overflow-y-auto
+               
                 lg:self-start
               `}
             >

@@ -3,6 +3,7 @@ import RootLayout from '../layouts/RootLayout';
 import BlankLayout from '../layouts/BlankLayout';
 import HomePage from '../pages/HomePage';
 import CreateCampaignPage from '../pages/CreateCampaignPage';
+import CampaignDetailPage from '../pages/CampaignDetailPage';
 
 /**
  * Application routes configuration
@@ -15,6 +16,10 @@ export const router = createBrowserRouter([
       {
         index: true,
         element: <HomePage />,
+      },
+      {
+        path: 'campaign',
+        element: <CampaignDetailPage />,
       },
     ],
   },

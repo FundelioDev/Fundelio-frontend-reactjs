@@ -48,7 +48,7 @@ export const Header = ({ variant = 'transparent' }) => {
   const headerVariants = {
     transparent: {
       container: isScrolled
-        ? 'bg-white/95 dark:bg-black/80 backdrop-blur-md text-text-primary dark:text-text-white shadow-md transition-colors duration-300'
+        ? 'bg-white/95 dark:bg-darker backdrop-blur-md text-text-primary dark:text-text-white shadow-md transition-colors duration-300'
         : 'bg-transparent text-text-white',
       title: isScrolled
         ? 'text-text-primary dark:text-text-white transition-colors duration-300'
@@ -66,7 +66,7 @@ export const Header = ({ variant = 'transparent' }) => {
     },
     light: {
       container:
-        'bg-white dark:bg-black/80 text-text-primary dark:text-text-white shadow-md transition-colors duration-300',
+        'bg-white dark:bg-darker text-text-primary dark:text-text-white shadow-md transition-colors duration-300',
       title:
         'text-text-primary dark:text-text-white transition-colors duration-300',
       navLink:

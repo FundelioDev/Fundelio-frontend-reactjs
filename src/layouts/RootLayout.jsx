@@ -17,7 +17,8 @@ export default function RootLayout() {
         <Outlet />
       </main>
 
-      <Footer />
+      {/* <Footer /> */}
+      {location.pathname !== '/landing' && <Footer />}
     </div>
   );
 }

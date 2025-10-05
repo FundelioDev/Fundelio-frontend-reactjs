@@ -3,6 +3,7 @@ import RootLayout from '../layouts/RootLayout';
 import HomePage from '../pages/HomePage';
 import CreateCampaignPage from '../pages/CreateCampaignPage';
 import CampaignDetailPage from '../pages/CampaignDetailPage';
+import LandingPage from '@/pages/LandpingPage';
 
 /**
  * Application routes configuration
@@ -23,6 +24,10 @@ export const router = createBrowserRouter([
           { path: 'create', element: <CreateCampaignPage /> },
         ],
       },
+      {
+        path: 'landing',
+        element: <LandingPage/>
+      }
     ],
   },
 ]);

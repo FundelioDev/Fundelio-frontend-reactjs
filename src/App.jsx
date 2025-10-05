@@ -1,16 +1,13 @@
 import React from 'react';
-import { HomePage } from './pages/HomePage';
-import LandingPage from './pages/LandpingPage';
+import { RouterProvider } from 'react-router-dom';
+import { ThemeProvider } from './contexts/ThemeContext';
+import { router } from './routes';
 
 function App() {
   return (
-    <div>
-      {/* Uncomment dòng dưới để xem Landing Page với animation */}
-      <LandingPage />
-
-      {/* Hoặc giữ HomePage hiện tại */}
-      {/* <HomePage /> */}
-    </div>
+    <ThemeProvider>
+      <RouterProvider router={router} />
+    </ThemeProvider>
   );
 }
 

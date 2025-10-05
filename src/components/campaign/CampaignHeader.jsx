@@ -76,7 +76,7 @@ const CampaignHeader = ({
           </h1>
 
           {/* Campaign Highlights */}
-          <p className="line-clamp-3 text-md text-secondary flex items-start mb-5 lg:mb-6">
+          <p className="line-clamp-3 text-lg text-text-secondary dark:text-text-white flex items-start mb-5 lg:mb-6">
             {highlights}
           </p>
 
@@ -110,7 +110,7 @@ const CampaignHeader = ({
           <div className="mb-5 lg:mb-6">
             {/* Amount Pledged */}
             <div className="mb-2 flex justify-between items-baseline text-text-secondary dark:text-text-white">
-              <p className="text-3xl lg:text-4xl font-semibold">
+              <p className="text-2xl lg:text-3xl font-semibold">
                 {currency} {formattedPledged}
               </p>
               <div className="flex items-center gap-1">

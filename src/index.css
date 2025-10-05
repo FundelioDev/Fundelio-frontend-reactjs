@@ -300,6 +300,56 @@ body {
       transform: translateY(-20px);
     }
   }
+
+  /* Morph Transition Effects */
+  .morph-overlay {
+    will-change: clip-path, opacity, transform, filter;
+  }
+
+  @keyframes gradient-shift {
+    0% {
+      background: linear-gradient(45deg, #0894e2 0%, #ffb700 100%);
+    }
+    50% {
+      background: linear-gradient(45deg, #ffb700 0%, #0894e2 100%);
+    }
+    100% {
+      background: linear-gradient(45deg, #0894e2 0%, #ffb700 100%);
+    }
+  }
+
+  .animate-gradient-shift {
+    animation: gradient-shift 3s ease-in-out infinite;
+  }
+
+  @keyframes noise-shift {
+    0% {
+      transform: translate(0, 0);
+    }
+    50% {
+      transform: translate(5px, 5px);
+    }
+    100% {
+      transform: translate(0, 0);
+    }
+  }
+
+  .animate-noise-shift {
+    animation: noise-shift 2s linear infinite;
+  }
+
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  .shimmer-effect {
+    animation: shimmer 2s ease-in-out infinite;
+  }
 }
 
 /* ContentEditable Formatting Support */

@@ -128,19 +128,28 @@ const BlackHoleBackground = ({
         0.85,
         lensOpacity * (isDark ? 1.25 : 1)
       );
-      const rg = ctx.createRadialGradient(m.x, m.y, 0, m.x, m.y, radius * 0.65);
+      // Kích thước lens thu nhỏ và đồng nhất giữa 2 mode
+      const LENS_RADIUS_FACTOR = 0.3; // trước đây 0.65
+      const rg = ctx.createRadialGradient(
+        m.x,
+        m.y,
+        0,
+        m.x,
+        m.y,
+        radius * LENS_RADIUS_FACTOR
+      );
       rg.addColorStop(0, `rgba(0,0,0,${effectiveLensOpacity})`);
       rg.addColorStop(1, 'rgba(0,0,0,0)');
       ctx.fillStyle = rg;
       ctx.globalCompositeOperation = 'multiply';
       ctx.beginPath();
-      ctx.arc(m.x, m.y, radius * 0.65, 0, Math.PI * 2);
+      ctx.arc(m.x, m.y, radius * LENS_RADIUS_FACTOR, 0, Math.PI * 2);
       ctx.fill();
 
       // Vòng halo sáng để nhấn biên lens trên nền tối (blend screen)
       const haloRingAlpha = isDark ? 0.18 : 0.08;
-      const ringInner = radius * 0.35;
-      const ringOuter = radius * 0.85;
+      const ringInner = radius * 0.3;
+      const ringOuter = radius * 0.4; 
       const ringGrad = ctx.createRadialGradient(
         m.x,
         m.y,

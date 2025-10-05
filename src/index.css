@@ -33,7 +33,7 @@
   /* Text colors */
   --color-text-primary: #1f1f22;
   --color-text-secondary: #4d4d4d;
-  --color-text-white: #ffffff;
+  --color-text-white: #dfdfe3;
   --color-text-blue: #0894e2;
   --color-text-orange: #ffb700;
 
@@ -44,6 +44,7 @@
   /* Background colors */
   --color-white: #ffffff;
   --color-black: #1f1f22;
+  --color-darker: #1b1b1d;
   --color-background-light: #f5f5f5;
   --color-background-lighter: #fafafa;
 
@@ -52,7 +53,7 @@
     -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
   /* Custom max-width */
-  --max-width-container: 1200px;
+  --max-width-container: 1400px;
 }
 
 /* Utility Classes */
@@ -84,6 +85,53 @@
 
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
+}
+
+/* Custom Scrollbar - Primary Blue Theme */
+.scrollbar-primary {
+  scrollbar-width: thin;
+  scrollbar-color: #0894e2 transparent;
+}
+
+.scrollbar-primary::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.scrollbar-primary::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 4px;
+}
+
+.scrollbar-primary::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #0894e2 0%, #0683ca 100%);
+  border-radius: 4px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  transition: all 0.2s ease;
+}
+
+.scrollbar-primary::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #26b0ea 0%, #0894e2 100%);
+  box-shadow: 0 0 6px rgba(8, 148, 226, 0.4);
+}
+
+.scrollbar-primary::-webkit-scrollbar-thumb:active {
+  background: #056aa4;
+}
+
+/* Dark mode scrollbar */
+.dark .scrollbar-primary {
+  scrollbar-color: #26b0ea transparent;
+}
+
+.dark .scrollbar-primary::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #26b0ea 0%, #0894e2 100%);
+}
+
+.dark .scrollbar-primary::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #4dc3f1 0%, #26b0ea 100%);
+  box-shadow: 0 0 8px rgba(38, 176, 234, 0.5);
 }
 
 /* Global styles */
@@ -252,4 +300,31 @@ body {
       transform: translateY(-20px);
     }
   }
+}
+
+/* ContentEditable Formatting Support */
+[contenteditable] b,
+[contenteditable] strong {
+  font-weight: bold !important;
+}
+
+[contenteditable] i,
+[contenteditable] em {
+  font-style: italic !important;
+}
+
+[contenteditable] u {
+  text-decoration: underline !important;
+}
+
+[contenteditable] a {
+  color: var(--color-primary) !important;
+  text-decoration: underline !important;
+}
+
+[contenteditable] h2 {
+  font-size: 1.5rem !important;
+  font-weight: bold !important;
+  margin-top: 1rem !important;
+  margin-bottom: 0.5rem !important;
 }

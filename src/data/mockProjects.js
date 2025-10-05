@@ -6,10 +6,11 @@ export const mockProjects = [
     authorAvatarUrl: 'https://i.pravatar.cc/150?img=12',
     imageUrl:
       'https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?w=800&q=80',
+    startingPrice: 100,
     daysLeft: 25,
     progressPercent: 75,
-    pledged: 150000000,
-    goal: 200000000,
+    pledged: 75000,
+    goal: 100000,
     backerCount: 342,
     description:
       'Hệ thống vườn thông minh tự động tưới nước, theo dõi độ ẩm đất và ánh sáng qua ứng dụng di động. Giúp bạn trồng rau sạch tại nhà dễ dàng.',
@@ -24,10 +25,11 @@ export const mockProjects = [
     authorAvatarUrl: 'https://i.pravatar.cc/150?img=25',
     imageUrl:
       'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800&q=80',
+    startingPrice: 180,
     daysLeft: 45,
     progressPercent: 92,
-    pledged: 460000000,
-    goal: 500000000,
+    pledged: 18400,
+    goal: 20000,
     backerCount: 678,
     description:
       'Drone thủy sinh tự động thu gom rác thải nhựa trên sông hồ. Sử dụng AI để nhận diện và phân loại rác, bảo vệ môi trường nước.',
@@ -43,9 +45,10 @@ export const mockProjects = [
     imageUrl:
       'https://images.unsplash.com/photo-1511537190424-bbbab87ac5eb?w=800&q=80',
     daysLeft: 12,
+    startingPrice: 75,
     progressPercent: 88,
-    pledged: 88000000,
-    goal: 100000000,
+    pledged: 3520,
+    goal: 4000,
     backerCount: 234,
     description:
       'Dự án mang cà phê Arabica và Robusta chất lượng cao từ Tây Nguyên đến tay người tiêu dùng. Rang xay thủ công, đóng gói thân thiện môi trường.',
@@ -61,9 +64,10 @@ export const mockProjects = [
     imageUrl:
       'https://images.unsplash.com/photo-1622979135225-d2ba269cf1ac?w=800&q=80',
     daysLeft: 60,
+    startingPrice: 80,
     progressPercent: 45,
-    pledged: 225000000,
-    goal: 500000000,
+    pledged: 9000,
+    goal: 20000,
     backerCount: 421,
     description:
       'Ứng dụng giáo dục VR giúp học sinh trải nghiệm các sự kiện lịch sử Việt Nam như đang sống trong thời đại đó. Học vui, nhớ lâu.',
@@ -79,9 +83,10 @@ export const mockProjects = [
     imageUrl:
       'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?w=800&q=80',
     daysLeft: 8,
+    startingPrice: 80,
     progressPercent: 98,
-    pledged: 49000000,
-    goal: 50000000,
+    pledged: 1960,
+    goal: 2000,
     backerCount: 187,
     description:
       'Túi xách thời trang làm từ vải thổ cẩm truyền thống của đồng bào dân tộc thiểu số. Mỗi chiếc túi là một tác phẩm nghệ thuật độc đáo.',
@@ -97,9 +102,10 @@ export const mockProjects = [
     imageUrl:
       'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=800&q=80',
     daysLeft: 30,
+    startingPrice: 120,
     progressPercent: 67,
-    pledged: 670000000,
-    goal: 1000000000,
+    pledged: 26800,
+    goal: 40000,
     backerCount: 892,
     description:
       'Phim tài liệu dài tập khám phá văn hóa, phong tục của 54 dân tộc anh em tại Việt Nam. Lưu giữ và tôn vinh di sản văn hóa dân tộc.',
@@ -115,9 +121,10 @@ export const mockProjects = [
     imageUrl:
       'https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?w=800&q=80',
     daysLeft: 18,
+    startingPrice: 90,
     progressPercent: 82,
-    pledged: 123000000,
-    goal: 150000000,
+    pledged: 4920,
+    goal: 6000,
     backerCount: 456,
     description:
       'Board game chiến thuật với chủ đề Hội An thời kỳ phồn thịnh. Người chơi vào vai thương nhân, xây dựng đế chế buôn bán qua các thế kỷ.',
@@ -133,9 +140,10 @@ export const mockProjects = [
     imageUrl:
       'https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=800&q=80',
     daysLeft: 35,
+    startingPrice: 40,
     progressPercent: 58,
-    pledged: 290000000,
-    goal: 500000000,
+    pledged: 11600,
+    goal: 20000,
     backerCount: 512,
     description:
       'Điểm thu gom và tái chế rác thải nhựa thành gạch xây dựng thân thiện môi trường. Giảm ô nhiễm, tạo vật liệu xanh cho cộng đồng.',
@@ -151,9 +159,10 @@ export const mockProjects = [
     imageUrl:
       'https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=800&q=80',
     daysLeft: 22,
+    startingPrice: 60,
     progressPercent: 73,
-    pledged: 146000000,
-    goal: 200000000,
+    pledged: 5840,
+    goal: 8000,
     backerCount: 621,
     description:
       'Album âm nhạc kết hợp giữa dân ca truyền thống với nhạc điện tử hiện đại. Bảo tồn và phát huy giá trị âm nhạc dân tộc theo cách mới mẻ.',
@@ -169,9 +178,10 @@ export const mockProjects = [
     imageUrl:
       'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=800&q=80',
     daysLeft: 40,
+    startingPrice: 50,
     progressPercent: 55,
-    pledged: 110000000,
-    goal: 200000000,
+    pledged: 4400,
+    goal: 8000,
     backerCount: 389,
     description:
       'Bộ sách tranh minh họa đẹp mắt kể lại các truyền thuyết Việt Nam như Thánh Gióng, Sơn Tinh Thủy Tinh... Giúp trẻ em yêu thích văn hóa dân tộc.',

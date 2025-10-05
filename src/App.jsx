@@ -1,12 +1,13 @@
 import React from 'react';
-import Hero from './components/common/Hero';
-import { HomePage } from './pages/HomePage';
+import { RouterProvider } from 'react-router-dom';
+import { ThemeProvider } from './contexts/ThemeContext';
+import { router } from './routes';
 
 function App() {
   return (
-    <div>
-      <HomePage />
-    </div>
+    <ThemeProvider>
+      <RouterProvider router={router} />
+    </ThemeProvider>
   );
 }
 

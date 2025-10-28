@@ -1,12 +1,13 @@
 import Hero from '@/components/common/Hero';
 import HowItWorks from '@/components/home/HowItWorks';
-import NearGoalMasonry from '@/components/home/NearGoalMasonry';
+import Rankings from '@/components/home/Rankings';
 import WhyChooseUs from '@/components/home/WhyChooseUs';
 import CrowdfundingTips from '@/components/home/CrowdfundingTips';
 import PrimaryCTA from '@/components/home/PrimaryCTA';
 import React from 'react';
 import RecentSavedCampaigns from '@/components/home/RecentSavedCampaigns';
 import PopularCampaigns from '@/components/home/PopularCampaigns';
+import FeaturedSpotlight from '@/components/home/FeaturedSpotlight';
 
 export default function HomePage() {
   return (
@@ -14,7 +15,10 @@ export default function HomePage() {
       {/* Hero Section */}
       <Hero />
 
-      {/* Featured Projects Slider */}
+      {/* Featured & Spotlight Section - Layout giống ảnh tham khảo */}
+      <FeaturedSpotlight />
+
+      {/* Popular Campaigns */}
       <PopularCampaigns />
 
       {/* How It Works */}
@@ -22,8 +26,8 @@ export default function HomePage() {
 
       <RecentSavedCampaigns />
 
-      {/* Near Goal - Masonry Layout */}
-      <NearGoalMasonry />
+      {/* Rankings - Top 10 by Funding & Audience */}
+      <Rankings />
 
       {/* Why Choose Us */}
       <WhyChooseUs />

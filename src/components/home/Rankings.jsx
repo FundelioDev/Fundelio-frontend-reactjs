@@ -1,0 +1,115 @@
+import React, { useState, useMemo } from 'react';
+import { Trophy, TrendingUp, Users } from 'lucide-react';
+import RankingItem from './RankingItem';
+import { mockProjects } from '@/data/mockProjects';
+
+export const Rankings = ({
+  projects = mockProjects,
+  title = 'Rankings',
+}) => {
+  const [timeFilter, setTimeFilter] = useState('24h');
+  const [categoryFilter, setCategoryFilter] = useState('all');
+
+  // Get top 10 by funding
+  const topByFunding = useMemo(() => {
+    return [...projects]
+      .sort((a, b) => b.pledged - a.pledged)
+      .slice(0, 10);
+  }, [projects]);
+
+  // Get top 10 by audience (backers)
+  const topByAudience = useMemo(() => {
+    return [...projects]
+      .sort((a, b) => (b.backerCount || 0) - (a.backerCount || 0))
+      .slice(0, 10);
+  }, [projects]);
+
+  return (
+    <section className="py-12 sm:py-16 lg:py-20 bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+      <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Section Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-3">
+            <Trophy className="w-8 h-8 text-yellow-400" />
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white">
+              {title}
+            </h2>
+          </div>
+
+          {/* Filters */}
+          <div className="flex items-center gap-3">
+            {/* Time Filter */}
+            <select
+              value={timeFilter}
+              onChange={(e) => setTimeFilter(e.target.value)}
+              className="px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-colors"
+            >
+              <option value="24h">Last 24 hours</option>
+              <option value="7d">Last 7 days</option>
+              <option value="30d">Last 30 days</option>
+              <option value="all">All time</option>
+            </select>
+
+            {/* Category Filter */}
+            <select
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              className="px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-colors"
+            >
+              <option value="all">All categories</option>
+              <option value="game">Game</option>
+              <option value="tech">Technology</option>
+              <option value="art">Art</option>
+              <option value="music">Music</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Two Tables Side by Side */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* By Funding Table */}
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <TrendingUp className="w-5 h-5 text-green-500 dark:text-green-400" />
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white">By funding</h3>
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-sm">
+              {topByFunding.map((project, index) => (
+                <RankingItem
+                  key={project.id}
+                  rank={index + 1}
+                  project={project}
+                  type="funding"
+                  isFirst={index === 0}
+                  isLast={index === topByFunding.length - 1}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* By Audience Table */}
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <Users className="w-5 h-5 text-blue-500 dark:text-blue-400" />
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white">By audience</h3>
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-sm">
+              {topByAudience.map((project, index) => (
+                <RankingItem
+                  key={project.id}
+                  rank={index + 1}
+                  project={project}
+                  type="audience"
+                  isFirst={index === 0}
+                  isLast={index === topByAudience.length - 1}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default Rankings;

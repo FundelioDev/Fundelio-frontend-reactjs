@@ -4,15 +4,15 @@ import PaymentPackageCard from './PaymentPackageCard';
 const PaymentPage = () => {
     // Payment packages data - 9 packages from 1 to 1000
     const packages = [
-        { id: 1, amount: 575, bonus: 0, price: 85000, image: '/packages/pack1.png' },
-        { id: 2, amount: 1275, bonus: 105, price: 195000, image: '/packages/pack2.png' },
-        { id: 3, amount: 2525, bonus: 275, price: 385000, image: '/packages/pack3.png' },
-        { id: 4, amount: 4025, bonus: 475, price: 610000, image: '/packages/pack4.png' },
-        { id: 5, amount: 5750, bonus: 750, price: 870000, image: '/packages/pack5.png' },
-        { id: 6, amount: 11525, bonus: 1975, price: 1800000, image: '/packages/pack6.png' },
-        { id: 7, amount: 29750, bonus: 3750, price: 4400000, image: '/packages/pack7.png' },
-        { id: 8, amount: 50700, bonus: 9500, price: 7500000, image: '/packages/pack8.png' },
-        { id: 9, amount: 120000, bonus: 20000, price: 15000000, image: '/packages/pack9.png' },
+        { id: 1, amount: 1, bonus: 0, price: 1, image: '/packages/pack1.png' },
+        { id: 2, amount: 5, bonus: 105, price: 5, image: '/packages/pack2.png' },
+        { id: 3, amount: 10, bonus: 275, price: 10, image: '/packages/pack3.png' },
+        { id: 4, amount: 20, bonus: 475, price: 20, image: '/packages/pack4.png' },
+        { id: 5, amount: 50, bonus: 750, price: 50, image: '/packages/pack5.png' },
+        { id: 6, amount: 100, bonus: 1975, price: 100, image: '/packages/pack6.png' },
+        { id: 7, amount: 200, bonus: 3750, price: 200, image: '/packages/pack7.png' },
+        { id: 8, amount: 500, bonus: 9500, price: 500, image: '/packages/pack8.png' },
+        { id: 9, amount: 1000, bonus: 20000, price: 1000, image: '/packages/pack9.png' },
     ];
 
     // State

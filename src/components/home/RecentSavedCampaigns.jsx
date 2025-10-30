@@ -70,7 +70,7 @@ export const RecentSavedCampaigns = () => {
   );
 
   return (
-    <section className="py-8 sm:py-10 lg:py-12 bg-background-lighter dark:bg-darker/95 transition-colors duration-300">
+    <section className="py-8 sm:py-10 lg:py-12 bg-background-lighter-2 dark:bg-darker transition-colors duration-300">
       <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header with Tabs and Pagination */}
         <div className="flex items-center justify-between mb-6 sm:mb-8 border-b border-gray-200 dark:border-gray-600 transition-colors duration-300">

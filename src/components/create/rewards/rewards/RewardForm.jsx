@@ -1,4 +1,4 @@
-import { useState, useRef } from "react"
+import { useState, useRef, forwardRef, useImperativeHandle } from "react"
 import Button from "@/components/common/Button"
 import Input from "@/components/common/Input"
 import Checkbox from "@/components/common/Checkbox"
@@ -6,8 +6,9 @@ import ItemSelector from "@/components/common/ItemSelector"
 import Textarea from "@/components/common/Textarea"
 import Tip from "@/components/common/Tip"
 
-export default function RewardForm({ reward, items, rewards, onSave, onCancel, onChange, type = 'reward' }) {
+const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onChange, type = 'reward' }, ref) => {
   const isAddon = type === 'addon'
+  const formRef = useRef(null)
 
   const [formData, setFormData] = useState(
     reward || {
@@ -28,6 +29,17 @@ export default function RewardForm({ reward, items, rewards, onSave, onCancel, o
   const [errors, setErrors] = useState({})
   const [showItemSelector, setShowItemSelector] = useState(false)
   const fileInputRef = useRef(null)
+
+  // Expose submit method to parent via ref
+  useImperativeHandle(ref, () => ({
+    submit: () => {
+      if (formRef.current) {
+        formRef.current.dispatchEvent(
+          new Event('submit', { cancelable: true, bubbles: true })
+        )
+      }
+    }
+  }))
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
@@ -111,7 +123,7 @@ export default function RewardForm({ reward, items, rewards, onSave, onCancel, o
   const years = Array.from({ length: 4 }, (_, i) => currentYear + i)
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
       {/* Basics Section */}
       <div className="rounded-sm border border-border bg-white dark:bg-darker-2 p-6">
         <h3 className="text-lg font-semibold text-foreground mb-4">Cơ bản</h3>
@@ -456,4 +468,8 @@ export default function RewardForm({ reward, items, rewards, onSave, onCancel, o
       )}
     </form>
   )
-}
+})
+
+RewardForm.displayName = 'RewardForm'
+
+export default RewardForm

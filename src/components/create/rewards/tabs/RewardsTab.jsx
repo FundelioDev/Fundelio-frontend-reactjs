@@ -1,18 +1,25 @@
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import RewardList from "../rewards/RewardList"
 import RewardForm from "../rewards/RewardForm"
 import RewardPreview from "../rewards/RewardPreview"
 
-export default function RewardTiersTab({ state, dispatch, setIsEditing }) {
+export default function RewardTiersTab({ state, dispatch, setIsEditing, setSaveCallback, setCancelCallback }) {
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingReward, setEditingReward] = useState(null)
   const [previewReward, setPreviewReward] = useState(null)
+  const formRef = useRef(null)
 
   const handleCreate = () => {
     setEditingReward(null)
     setPreviewReward(null)
     setIsFormOpen(true)
     setIsEditing?.(true)
+    
+    // Register callbacks for header buttons
+    setSaveCallback?.(() => () => {
+      formRef.current?.submit()
+    })
+    setCancelCallback?.(() => handleCancel)
   }
 
   const handleEdit = (reward) => {
@@ -20,6 +27,12 @@ export default function RewardTiersTab({ state, dispatch, setIsEditing }) {
     setPreviewReward(null)
     setIsFormOpen(true)
     setIsEditing?.(true)
+    
+    // Register callbacks for header buttons
+    setSaveCallback?.(() => () => {
+      formRef.current?.submit()
+    })
+    setCancelCallback?.(() => handleCancel)
   }
 
   const handleSave = (reward) => {
@@ -39,7 +52,19 @@ export default function RewardTiersTab({ state, dispatch, setIsEditing }) {
     setEditingReward(null)
     setPreviewReward(null)
     setIsEditing?.(false)
+    
+    // Clear callbacks
+    setSaveCallback?.(null)
+    setCancelCallback?.(null)
   }
+
+  // Clear callbacks when form closes
+  useEffect(() => {
+    if (!isFormOpen) {
+      setSaveCallback?.(null)
+      setCancelCallback?.(null)
+    }
+  }, [isFormOpen, setSaveCallback, setCancelCallback])
 
   const handleDelete = (id) => {
     if (confirm("Bạn có chắc chắn muốn xóa phần thưởng này?")) {
@@ -72,6 +97,7 @@ export default function RewardTiersTab({ state, dispatch, setIsEditing }) {
           {/* Form Column */}
           <div className="flex-1">
             <RewardForm
+              ref={formRef}
               reward={editingReward}
               items={state.items}
               rewards={state.rewards}

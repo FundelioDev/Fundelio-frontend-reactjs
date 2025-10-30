@@ -2,7 +2,7 @@ import { useState } from 'react';
 import StoryToolbar from './story/StoryToolbar';
 import SidebarTOC from './story/SidebarTOC';
 import BlankSection from './story/BlankSection';
-import RewardComingSoon from './rewards/RewardComingSoon';
+import RewardCreateTab from './rewards/RewardCreateTab';
 import BasicsContent from './basics/BasicsContent';
 
 /**
@@ -20,6 +20,8 @@ import BasicsContent from './basics/BasicsContent';
  * @param {string} props.activeTab - Current active tab from parent
  * @param {Function} props.onTabChange - Callback when tab changes (optional, for compatibility)
  * @param {Function} props.setIsEditing - Callback to set editing state in header
+ * @param {Function} props.setSaveCallback - Callback to register save handler
+ * @param {Function} props.setCancelCallback - Callback to register cancel handler
  */
 export default function CreateCampaignTabs({
   blanks,
@@ -33,6 +35,8 @@ export default function CreateCampaignTabs({
   activeTab: externalActiveTab,
   onTabChange,
   setIsEditing,
+  setSaveCallback,
+  setCancelCallback,
 }) {
   // Use external activeTab if provided, otherwise use internal state
   const [internalActiveTab, setInternalActiveTab] = useState('story');
@@ -50,7 +54,7 @@ export default function CreateCampaignTabs({
         {activeTab === 'story' && (
           <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6">
             {/* Sidebar */}
-            <aside className="lg:sticky lg:top-20 h-auto lg:max-h-[75vh] bg-white dark:bg-darker lg:self-start">
+            <aside className="lg:sticky lg:top-20 h-auto lg:max-h-[75vh] bg-white dark:bg-darker lg:self-start ">
               <SidebarTOC
                 blanks={blanks}
                 onAddBlank={onAddBlank}
@@ -90,7 +94,13 @@ export default function CreateCampaignTabs({
         )}
 
         {/* Rewards Tab */}
-        {activeTab === 'rewards' && <RewardComingSoon setIsEditing={setIsEditing} />}
+        {activeTab === 'rewards' && (
+          <RewardCreateTab 
+            setIsEditing={setIsEditing} 
+            setSaveCallback={setSaveCallback}
+            setCancelCallback={setCancelCallback}
+          />
+        )}
       </div>
     </div>
   );

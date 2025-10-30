@@ -136,7 +136,7 @@ function rewardsReducer(state, action) {
   }
 }
 
-export default function RewardComingSoon({ setIsEditing }) {
+export default function RewardCreateTab({ setIsEditing, setSaveCallback, setCancelCallback }) {
   const [state, dispatch] = useReducer(rewardsReducer, initialState)
   const [activeTab, setActiveTab] = useState("component")
   const [mounted, setMounted] = useState(false)
@@ -209,9 +209,33 @@ export default function RewardComingSoon({ setIsEditing }) {
 
       {/* Tab Content */}
       <div className="space-y-6">
-        {activeTab === "component" && <ComponentsTab state={state} dispatch={dispatch} setIsEditing={setIsEditing} />}
-        {activeTab === "rewards" && <RewardsTab state={state} dispatch={dispatch} setIsEditing={setIsEditing} />}
-        {activeTab === "addons" && <AddOnsTab state={state} dispatch={dispatch} setIsEditing={setIsEditing} />}
+        {activeTab === "component" && (
+          <ComponentsTab 
+            state={state} 
+            dispatch={dispatch} 
+            setIsEditing={setIsEditing}
+            setSaveCallback={setSaveCallback}
+            setCancelCallback={setCancelCallback}
+          />
+        )}
+        {activeTab === "rewards" && (
+          <RewardsTab 
+            state={state} 
+            dispatch={dispatch} 
+            setIsEditing={setIsEditing}
+            setSaveCallback={setSaveCallback}
+            setCancelCallback={setCancelCallback}
+          />
+        )}
+        {activeTab === "addons" && (
+          <AddOnsTab 
+            state={state} 
+            dispatch={dispatch} 
+            setIsEditing={setIsEditing}
+            setSaveCallback={setSaveCallback}
+            setCancelCallback={setCancelCallback}
+          />
+        )}
       </div>
     </div>
   )

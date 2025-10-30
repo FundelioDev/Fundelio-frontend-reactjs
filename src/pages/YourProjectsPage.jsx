@@ -119,7 +119,7 @@ const YourProjectsPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background-light-2 dark:bg-darker-2 transition-colors duration-300">
+    <div className="min-h-screen bg-background-light-2 dark:bg-darker transition-colors duration-300">
       <div className="max-w-container mx-auto px-4 sm:px-6 py-20 sm:py-26">
         {/* Header */}
         <h1 className="text-3xl sm:text-4xl font-bold text-foreground dark:text-text-white mb-8">
@@ -159,7 +159,7 @@ const YourProjectsPage = () => {
         </div>
 
         {/* Content */}
-        <div className="bg-background-light-2 dark:bg-darker-2 rounded-lg p-8">
+        <div className=" rounded-lg p-8">
           {renderProjects()}
         </div>
       </div>

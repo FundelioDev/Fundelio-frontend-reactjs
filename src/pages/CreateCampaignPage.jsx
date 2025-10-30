@@ -1,14 +1,23 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import useBlanks from '@/hooks/useBlanks';
+import { useRewardsState } from '@/hooks/useRewardsState';
+import { useLocalStorage } from '@/hooks/useLocalStorge';
 import CreateCampaignTabs from '@/components/create/CreateCampaignTabs';
 import CreateCampaignHeader from '@/components/common/CreateCampaignHeader';
 import Footer from '@/components/common/Footer';
+import { generatePreviewId, savePreviewData } from '@/utils/previewStorage';
 
 export default function CreateCampaignPage() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('story');
   const [isEditing, setIsEditing] = useState(false);
+  const [saveCallback, setSaveCallback] = useState(null);
+  const [cancelCallback, setCancelCallback] = useState(null);
 
+  // Story state management
   const {
     blanks,
     activeEditorRef,
@@ -19,6 +28,12 @@ export default function CreateCampaignPage() {
     scrollToBlank,
     save,
   } = useBlanks();
+
+  // Rewards state management
+  const { state: rewardsState, dispatch: rewardsDispatch } = useRewardsState();
+
+  // Basics data from localStorage (managed by BasicsContent component)
+  const { value: basicsData } = useLocalStorage('ff:campaign-basics', null);
 
   const handleAddBlank = () => {
     const newId = addBlank();
@@ -31,26 +46,81 @@ export default function CreateCampaignPage() {
   };
 
   const handlePreview = () => {
-    console.log('Preview campaign');
-    // TODO: Implement preview functionality
+    // Validate basics data
+    if (!basicsData || !basicsData.title || !basicsData.desc) {
+      toast.error('Vui lòng điền đầy đủ thông tin cơ bản (Tiêu đề và Mô tả)');
+      setActiveTab('basic');
+      return;
+    }
+
+    // Collect all campaign data
+    const campaignData = {
+      // Basics
+      basics: basicsData,
+      
+      // Story
+      story: {
+        blanks: blanks.map((blank, index) => ({
+          id: blank.id,
+          order: index,
+          title_text: blank.titleText,
+          title_html: blank.titleHtml,
+          content_html: blank.contentHtml,
+        })),
+      },
+      
+      // Rewards
+      rewards: rewardsState.rewards,
+      addOns: rewardsState.addOns,
+      items: rewardsState.items,
+    };
+
+    // Generate unique preview ID
+    const previewId = generatePreviewId();
+
+    // Create lighter version for sessionStorage (remove large base64 images)
+    const lightCampaignData = {
+      ...campaignData,
+      basics: {
+        ...campaignData.basics,
+        // Keep only URLs, not base64 data
+        image_url: campaignData.basics.image_url?.startsWith('data:') 
+          ? '[BASE64_IMAGE]' 
+          : campaignData.basics.image_url,
+        intro_video_url: campaignData.basics.intro_video_url?.startsWith('data:') 
+          ? '[BASE64_VIDEO]' 
+          : campaignData.basics.intro_video_url,
+      }
+    };
+
+    // Save lighter version to sessionStorage (for refresh support)
+    const saved = savePreviewData(previewId, lightCampaignData);
+    
+    if (!saved) {
+      toast.error('Không thể lưu dữ liệu preview. Vui lòng thử lại.');
+      return;
+    }
+
+    // Navigate with full state including images (for fast access)
+    navigate(`/campaigns/preview/${previewId}`, {
+      state: { campaignData, isPreview: true },
+    });
+    
+    toast.success('Đang chuyển đến trang xem trước...');
   };
 
   const handleCancel = () => {
-    console.log('Cancel editing from header');
-    // Trigger cancel button click in the form
-    const cancelButton = document.querySelector('form button[type="button"]');
-    if (cancelButton && cancelButton.textContent.includes('Hủy')) {
-      cancelButton.click();
+    if (cancelCallback && typeof cancelCallback === 'function') {
+      cancelCallback();
     }
     setIsEditing(false);
+    setSaveCallback(null);
+    setCancelCallback(null);
   };
 
   const handleSave = () => {
-    console.log('Save changes from header');
-    // Trigger form submission
-    const submitButton = document.querySelector('form button[type="submit"]');
-    if (submitButton) {
-      submitButton.click();
+    if (saveCallback && typeof saveCallback === 'function') {
+      saveCallback();
     }
     // Don't set isEditing to false here - let the form handler do it after successful save
   };
@@ -86,6 +156,10 @@ export default function CreateCampaignPage() {
               scrollToBlank={scrollToBlank}
               save={save}
               setIsEditing={setIsEditing}
+              rewardsState={rewardsState}
+              rewardsDispatch={rewardsDispatch}
+              setSaveCallback={setSaveCallback}
+              setCancelCallback={setCancelCallback}
             />
           </div>
         </main>

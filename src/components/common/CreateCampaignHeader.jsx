@@ -73,7 +73,7 @@ export const CreateCampaignHeader = ({
                 className={`px-2 py-3 font-semibold text-base transition-all relative ${
                   activeTab === tab.id
                     ? 'text-primary'
-                    : 'text-text-primary dark:text-text-white hover:text-primary dark:hover:text-primary-400'
+                    : 'text-text-primary dark:text-white hover:text-primary dark:hover:text-primary-400'
                 }`}
               >
                 {tab.label}

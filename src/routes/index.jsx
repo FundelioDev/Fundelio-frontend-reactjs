@@ -24,6 +24,7 @@ export const router = createBrowserRouter([
         path: 'campaigns',
         children: [
           { path: 'detail', element: <CampaignDetailPage /> },
+          { path: 'preview/:previewId', element: <CampaignDetailPage /> },
         ],
       },
       

@@ -199,21 +199,21 @@ export const Header = ({ variant = 'transparent', isFixed = true }) => {
 
           {/* Dropdown menu danh mục - Desktop only */}
           <div
-            className="relative hidden lg:block"
+            className='relative hidden lg:block'
             onMouseEnter={() => setIsDropdownOpen(true)}
             onMouseLeave={() => setIsDropdownOpen(false)}
           >
             <button
               className={`flex items-center space-x-2 px-3 py-2 rounded-lg ${currentVariant.navLink} hover:bg-white/10 transition-colors`}
             >
-              <span className="font-medium text-sm">Khám phá</span>
-              <ChevronDown className="w-4 h-4" />
+              <span className='font-medium text-sm'>Khám phá</span>
+              <ChevronDown className='w-4 h-4' />
             </button>
 
             {isDropdownOpen && (
               <>
                 {/* Bridge vô hình để không bị tắt menu khi di chuột */}
-                <div className="absolute top-full left-0 w-48 h-4 bg-transparent"></div>
+                <div className='absolute top-full left-0 w-48 h-4 bg-transparent'></div>
 
                 <div
                   className={`absolute top-full left-0 mt-4 w-48 rounded-lg shadow-lg z-50 ${currentVariant.dropdown}`}
@@ -230,8 +230,8 @@ export const Header = ({ variant = 'transparent', isFixed = true }) => {
                           index === categories.length - 1 ? 'rounded-b-lg' : ''
                         }`}
                       >
-                        <IconComponent className="w-4 h-4" />
-                        <span className="text-sm font-medium">
+                        <IconComponent className='w-4 h-4' />
+                        <span className='text-sm font-medium'>
                           {category.name}
                         </span>
                       </a>
@@ -417,18 +417,18 @@ export const Header = ({ variant = 'transparent', isFixed = true }) => {
             }
           >
             {isDark ? (
-              <Sun className="w-5 h-5" />
+              <Sun className='w-5 h-5' />
             ) : (
-              <Moon className="w-5 h-5" />
+              <Moon className='w-5 h-5' />
             )}
           </button>
 
           {/* Language Toggle - Desktop only */}
           <button
             className={`hidden md:block p-2 rounded-lg ${currentVariant.navLink} hover:bg-white/10 transition-colors`}
-            title="Chuyển đổi ngôn ngữ"
+            title='Chuyển đổi ngôn ngữ'
           >
-            <Globe className="w-5 h-5" />
+            <Globe className='w-5 h-5' />
           </button>
 
           {/* User Menu or Auth Buttons */}
@@ -608,12 +608,12 @@ export const Header = ({ variant = 'transparent', isFixed = true }) => {
           <button
             className={`lg:hidden p-2 rounded-lg ${currentVariant.button}`}
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            aria-label="Toggle menu"
+            aria-label='Toggle menu'
           >
             {isMobileMenuOpen ? (
-              <X className="w-6 h-6" />
+              <X className='w-6 h-6' />
             ) : (
-              <Menu className="w-6 h-6" />
+              <Menu className='w-6 h-6' />
             )}
           </button>
         </div>
@@ -621,10 +621,10 @@ export const Header = ({ variant = 'transparent', isFixed = true }) => {
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden mt-4 py-4 border-t border-white/20 dark:border-gray-700 transition-colors duration-300">
-          <nav className="space-y-2">
+        <div className='lg:hidden mt-4 py-4 border-t border-white/20 dark:border-gray-700 transition-colors duration-300'>
+          <nav className='space-y-2'>
             <Link
-              to="/home"
+              to='/home'
               className={`block px-4 py-2 rounded-lg ${
                 currentVariant.navLink
               } hover:bg-white/10 dark:hover:bg-darker-2-light/40 transition-colors font-medium ${
@@ -637,7 +637,7 @@ export const Header = ({ variant = 'transparent', isFixed = true }) => {
               Trang chủ
             </Link>
             <Link
-              to="/campaigns/create"
+              to='/campaigns/create'
               className={`block px-4 py-2 rounded-lg ${
                 currentVariant.navLink
               } hover:bg-white/10 dark:hover:bg-darker-2-light/40 transition-colors font-medium ${
@@ -651,21 +651,21 @@ export const Header = ({ variant = 'transparent', isFixed = true }) => {
             </Link>
             <a
               href="#about"
-              className={`block px-4 py-2 rounded-lg ${currentVariant.navLink} hover:bg-white/10 dark:hover:bg-darker-2-light/40 transition-colors font-medium`}
+              className={`block px-4 py-2 rounded-lg ${currentVariant.navLink} hover:bg-white/10 dark:hover:bg-darker-2 transition-colors font-medium`}
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Về chúng tôi
             </a>
             <a
               href="#contact"
-              className={`block px-4 py-2 rounded-lg ${currentVariant.navLink} hover:bg-white/10 dark:hover:bg-darker-2-light/40 transition-colors font-medium`}
+              className={`block px-4 py-2 rounded-lg ${currentVariant.navLink} hover:bg-white/10 dark:hover:bg-darker-2 transition-colors font-medium`}
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Liên hệ
             </a>
 
             {/* Categories in mobile */}
-            <div className="pt-2 border-t border-white/20 dark:border-gray-700 mt-2 transition-colors duration-300">
+            <div className='pt-2 border-t border-white/20 dark:border-gray-700 mt-2 transition-colors duration-300'>
               <p
                 className={`px-4 py-2 text-sm font-semibold ${currentVariant.title}`}
               >
@@ -679,42 +679,53 @@ export const Header = ({ variant = 'transparent', isFixed = true }) => {
                     href={category.href}
                     className={`flex items-center space-x-3 px-4 py-2 rounded-lg ${currentVariant.navLink} hover:bg-white/10 dark:hover:bg-darker-2-light/40 transition-colors`}
                   >
-                    <IconComponent className="w-4 h-4" />
-                    <span className="text-sm">{category.name}</span>
+                    <IconComponent className='w-4 h-4' />
+                    <span className='text-sm'>{category.name}</span>
                   </a>
                 );
               })}
             </div>
 
             {/* Mobile Theme Toggle */}
-            <div className="px-4 py-2 border-t border-white/20 dark:border-gray-700 mt-2 transition-colors duration-300">
+            <div className='px-4 py-2 border-t border-white/20 dark:border-gray-700 mt-2 transition-colors duration-300'>
               <button
                 onClick={toggleTheme}
                 className={`flex items-center space-x-3 w-full px-4 py-2 rounded-lg ${currentVariant.navLink} hover:bg-white/10 dark:hover:bg-darker-2-light/40 transition-colors`}
               >
                 {isDark ? (
                   <>
-                    <Sun className="w-4 h-4" />
-                    <span className="text-sm">Chế độ sáng</span>
+                    <Sun className='w-4 h-4' />
+                    <span className='text-sm'>Chế độ sáng</span>
                   </>
                 ) : (
                   <>
-                    <Moon className="w-4 h-4" />
-                    <span className="text-sm">Chế độ tối</span>
+                    <Moon className='w-4 h-4' />
+                    <span className='text-sm'>Chế độ tối</span>
                   </>
                 )}
               </button>
             </div>
 
             {/* Mobile Auth Buttons */}
-            <div className="flex gap-2 px-4 pt-4 sm:hidden">
-              <Button size="sm" className="flex-1">
+            <div className='flex gap-2 px-4 pt-4 sm:hidden'>
+              <Button
+                size='sm'
+                className='flex-1'
+                onClick={() => {
+                  navigate('/auth', { state: { mode: 'register' } });
+                  setIsMobileMenuOpen(false);
+                }}
+              >
                 Đăng ký
               </Button>
               <Button
-                variant="outline"
-                size="sm"
-                className="flex-1 border-current dark:border-gray-600"
+                variant='outline'
+                size='sm'
+                className='flex-1 border-current dark:border-gray-600'
+                onClick={() => {
+                  navigate('/auth', { state: { mode: 'login' } });
+                  setIsMobileMenuOpen(false);
+                }}
               >
                 Đăng nhập
               </Button>

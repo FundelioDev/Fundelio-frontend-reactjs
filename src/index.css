@@ -363,6 +363,21 @@ body {
     animation: shimmer 2s ease-in-out infinite;
   }
 
+
+  /* Float Animation for Auth Pages */
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-20px);
+    }
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+
   .gradient-1 {
     background: linear-gradient(90deg, hsl(228, 99%, 55%) 0.39%, hsl(232, 77%, 58%) 28.56%, hsl(323, 53%, 53%) 65.51%, hsl(27, 100%, 51%) 87.47%, hsl(36, 100%, 51%) 99.69%);
   }

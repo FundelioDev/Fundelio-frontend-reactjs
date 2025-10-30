@@ -29,7 +29,7 @@ const RewardsColumn = ({
       {/* All Rewards */}
       {rewards.map((reward) => (
         <RewardCard
-          key={reward.id}
+          key={reward.reward_id || reward.id}
           reward={reward}
           layoutMode="vertical"
           onPledge={(r) => onPledge && onPledge({ type: 'reward', reward: r })}

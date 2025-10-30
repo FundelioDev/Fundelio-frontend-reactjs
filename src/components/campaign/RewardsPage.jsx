@@ -49,13 +49,13 @@ const useScrollSpy = (sectionIds) => {
 const RewardsPage = ({ rewards = [], onPledge }) => {
   // Transform rewards to TOC menu items format
   const rewardMenuItems = rewards.map((reward) => ({
-    id: reward.id,
+    id: reward.reward_id || reward.id,
     title_text: reward.title,
     order: rewards.indexOf(reward),
   }));
 
   // Use scroll spy to track active reward
-  const activeId = useScrollSpy(rewards.map((r) => r.id));
+  const activeId = useScrollSpy(rewards.map((r) => r.reward_id || r.id));
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_280px] gap-6 lg:gap-8 ">
@@ -63,9 +63,9 @@ const RewardsPage = ({ rewards = [], onPledge }) => {
       <div className="order-1">
         <div className="space-y-8">
           {rewards.map((reward, index) => (
-            <div key={reward.id}>
+            <div key={reward.reward_id || reward.id}>
               <div
-                id={reward.id}
+                id={reward.reward_id || reward.id}
                 className="scroll-mt-28"
               >
                 <RewardDetailSection reward={reward} />

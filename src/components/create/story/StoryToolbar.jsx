@@ -104,11 +104,11 @@ export default function StoryToolbar({ activeEditorRef, onSave }) {
 
   return (
     <>
-      <div className="sticky top-20 z-10 flex gap-2 flex-wrap bg-white dark:bg-darker border border-gray-300 dark:border-gray-700 rounded-lg p-2 mb-4 shadow-sm">
+      <div className="sticky top-20 z-10 flex gap-2 flex-wrap bg-white dark:bg-darker-2 inset-shadow-2xs shadow-md rounded-sm p-2 mb-4">
         {/* Text Formatting */}
         <button
           onClick={handleBold}
-          className="px-2.5 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-darker rounded-lg text-sm font-bold hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors dark:text-white"
+          className="px-2.5 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-darker rounded-sm text-sm font-bold hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors dark:text-white"
           title="Bold (Ctrl+B)"
         >
           B
@@ -116,7 +116,7 @@ export default function StoryToolbar({ activeEditorRef, onSave }) {
 
         <button
           onClick={handleItalic}
-          className="px-2.5 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-darker rounded-lg text-sm italic hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors dark:text-white"
+          className="px-2.5 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-darker rounded-sm text-sm italic hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors dark:text-white"
           title="Italic (Ctrl+I)"
         >
           I
@@ -124,7 +124,7 @@ export default function StoryToolbar({ activeEditorRef, onSave }) {
 
         <button
           onClick={handleUnderline}
-          className="px-2.5 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-darker rounded-lg text-sm underline hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors dark:text-white"
+          className="px-2.5 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-darker rounded-sm text-sm underline hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors dark:text-white"
           title="Underline (Ctrl+U)"
         >
           U
@@ -136,7 +136,7 @@ export default function StoryToolbar({ activeEditorRef, onSave }) {
         {/* Heading */}
         <button
           onClick={handleH2}
-          className="flex items-center gap-1.5 px-3 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-darker rounded-lg text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors dark:text-white"
+          className="flex items-center gap-1.5 px-3 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-darker rounded-sm text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors dark:text-white"
           title="Heading 2"
         >
           <Heading2 className="w-4 h-4" />
@@ -146,7 +146,7 @@ export default function StoryToolbar({ activeEditorRef, onSave }) {
         {/* Video */}
         <button
           onClick={() => setIsVideoModalOpen(true)}
-          className="flex items-center gap-1.5 px-3 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-darker rounded-lg text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors dark:text-white"
+          className="flex items-center gap-1.5 px-3 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-darker rounded-sm text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors dark:text-white"
           title="Add Video"
         >
           <Video className="w-4 h-4" />
@@ -156,7 +156,7 @@ export default function StoryToolbar({ activeEditorRef, onSave }) {
         {/* Image */}
         <button
           onClick={handleImagePicker}
-          className="flex items-center gap-1.5 px-3 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-darker rounded-lg text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors dark:text-white"
+          className="flex items-center gap-1.5 px-3 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-darker rounded-sm text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors dark:text-white"
           title="Upload Image/GIF"
         >
           <Image className="w-4 h-4" />
@@ -172,7 +172,7 @@ export default function StoryToolbar({ activeEditorRef, onSave }) {
         {/* Save Button */}
         <button
           onClick={onSave}
-          className="flex items-center gap-1.5 px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors ml-auto"
+          className="flex items-center gap-1.5 px-4 py-2 bg-primary text-white rounded-sm text-sm font-medium hover:bg-primary/90 transition-colors ml-auto"
           title="Save (Ctrl+S)"
         >
           <Save className="w-4 h-4" />

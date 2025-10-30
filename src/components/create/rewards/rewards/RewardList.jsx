@@ -27,7 +27,7 @@ export default function RewardList({ rewards, items, onEdit, onDelete, onDuplica
       </div>
 
       {/* Header */}
-      <div className="hidden md:grid md:grid-cols-4 gap-6 px-6 py-3 text-sm font-medium text-muted-foreground bg-muted/30 rounded-lg">
+      <div className="hidden md:grid md:grid-cols-4 gap-6 px-6 py-3 text-sm font-medium text-muted-foreground bg-white dark:bg-darker-2 inset-shadow-2xs shadow-md rounded-sm">
         <div>Số tiền pledge</div>
         <div>Chi tiết</div>
         <div>Bao gồm</div>

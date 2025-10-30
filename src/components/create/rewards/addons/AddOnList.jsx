@@ -27,7 +27,7 @@ export default function AddOnList({ addOns, items, rewards, onEdit, onDelete, on
       </div>
 
       {/* Header - 4 columns for addons */}
-      <div className="hidden md:grid md:grid-cols-4 gap-6 px-6 py-3 text-sm font-medium text-muted-foreground bg-muted/30 rounded-lg">
+      <div className="hidden md:grid md:grid-cols-4 gap-6 px-6 py-3 text-sm font-medium text-muted-foreground bg-white dark:bg-darker-2 rounded-sm inset-shadow-2xs shadow-md">
         <div>Số tiền</div>
         <div>Chi tiết</div>
         <div>Bao gồm</div>

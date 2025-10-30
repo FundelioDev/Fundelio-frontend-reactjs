@@ -34,16 +34,16 @@ export default function ItemList({ items, onEdit, onDelete, onCreate }) {
         </Button>
       </div>
 
-      <Input
+      {/* <Input
         type="text"
         placeholder="Tìm kiếm thành phần..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         className="mb-2"
-      />
+      /> */}
 
       {/* Header - 3 columns for components */}
-      <div className="hidden md:grid md:grid-cols-3 gap-6 px-6 py-3 text-sm font-medium text-muted-foreground bg-muted/30 rounded-lg mb-4">
+      <div className="hidden md:grid md:grid-cols-3 gap-6 px-6 py-3 text-sm font-medium text-muted-foreground bg-white dark:bg-darker-2 rounded-sm inset-shadow-2xs shadow-md mb-4">
         <div>Tên thành phần</div>
         <div>Chi tiết</div>
         <div>Hình ảnh</div>

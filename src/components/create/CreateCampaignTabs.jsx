@@ -50,7 +50,7 @@ export default function CreateCampaignTabs({
         {activeTab === 'story' && (
           <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6">
             {/* Sidebar */}
-            <aside className="lg:sticky lg:top-20 h-auto lg:max-h-[75vh] bg-white dark:bg-darker border border-gray-300 dark:border-gray-700 rounded-lg p-4 lg:self-start">
+            <aside className="lg:sticky lg:top-20 h-auto lg:max-h-[75vh] bg-white dark:bg-darker lg:self-start">
               <SidebarTOC
                 blanks={blanks}
                 onAddBlank={onAddBlank}
@@ -79,7 +79,7 @@ export default function CreateCampaignTabs({
               {/* Add Blank Button at Bottom */}
               <button
                 onClick={onAddBlank}
-                className="flex items-center justify-center w-full py-3 mb-8 border-2 border-dashed border-gray-400 dark:border-gray-600 rounded-lg bg-white dark:bg-darker hover:border-primary dark:hover:border-primary hover:bg-gray-50 dark:hover:bg-gray-900 cursor-pointer transition-colors group"
+                className="flex items-center justify-center w-full py-3 mb-8 border-1 border-dashed border-gray-400 dark:border-gray-600 rounded-lg bg-white dark:bg-darker hover:border-primary dark:hover:border-primary hover:bg-gray-50 dark:hover:bg-gray-900 cursor-pointer transition-colors group"
               >
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-primary transition-colors">
                   + Thêm blank

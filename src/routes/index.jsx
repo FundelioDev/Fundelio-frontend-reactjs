@@ -38,11 +38,6 @@ export const router = createBrowserRouter([
           { path: 'preview/:previewId', element: <CampaignDetailPage /> },
         ],
       },
-    ],
-  },
-  
-]);
-
       
       { path: 'wallet', element: <WalletPage /> },
       

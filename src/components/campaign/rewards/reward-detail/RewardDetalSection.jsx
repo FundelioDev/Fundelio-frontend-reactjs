@@ -32,25 +32,25 @@ export function RewardDetailSection({ reward }) {
   const [addOns, setAddOns] = useState([
     {
       id: '1',
-      name: 'Premium Accessory Pack',
+      name: 'Gói phụ kiện cao cấp',
       price: 15,
-      description: 'Enhance your experience with our curated accessory collection.',
+      description: 'Nâng cao trải nghiệm của bạn với bộ sưu tập phụ kiện được tuyển chọn.',
       image: 'https://c.animaapp.com/mh96kubogMaabT/img/ai_1.png',
       quantity: 0,
     },
     {
       id: '2',
-      name: 'Deluxe Bundle Set',
+      name: 'Bộ gói cao cấp',
       price: 28,
-      description: 'Get two premium items at a special bundled price.',
+      description: 'Nhận hai sản phẩm cao cấp với mức giá ưu đãi theo gói.',
       image: 'https://c.animaapp.com/mh96kubogMaabT/img/ai_1.png',
       quantity: 0,
     },
     {
       id: '3',
-      name: 'Exclusive Limited Edition',
+      name: 'Ấn bản giới hạn độc quyền',
       price: 45,
-      description: 'Limited availability - collectors edition with unique features.',
+      description: 'Số lượng có hạn – phiên bản sưu tầm với các tính năng độc đáo.',
       image: 'https://c.animaapp.com/mh96kubogMaabT/img/ai_1.png',
       quantity: 0,
     },
@@ -59,19 +59,19 @@ export function RewardDetailSection({ reward }) {
   const includedItems = [
     {
       id: '1',
-      name: 'Core Product Access',
+      name: 'Quyền truy cập sản phẩm cốt lõi',
       image: 'https://c.animaapp.com/mh96kubogMaabT/img/ai_1.png',
       quantity: 1,
-      badge: 'INCLUDED',
-      description: 'Full access to the core product with all standard features',
+      badge: 'ĐÃ BAO GỒM',
+      description: 'Quyền truy cập đầy đủ vào sản phẩm cốt lõi với tất cả tính năng tiêu chuẩn',
     },
     {
       id: '2',
-      name: 'Digital Content Pack',
+      name: 'Gói nội dung số',
       quantity: 1,
       image: 'https://c.animaapp.com/mh96kubogMaabT/img/ai_1.png',
-      badge: 'BONUS',
-      description: 'Exclusive digital content and bonus materials',
+      badge: 'TẶNG KÈM',
+      description: 'Nội dung số độc quyền và tài liệu tặng kèm',
     },
   ];
 
@@ -111,7 +111,7 @@ export function RewardDetailSection({ reward }) {
         {/* Description */}
         <Card className="p-6 border border-border/50">
           <h2 className="text-xl font-bold text-foreground mb-4">
-            Customize Your Pledge with Add-ons
+            Tùy chỉnh khoản ủng hộ với tiện ích bổ sung
           </h2>
           <p className="text-muted-foreground leading-relaxed text-base">
             {reward.description}
@@ -119,132 +119,132 @@ export function RewardDetailSection({ reward }) {
         </Card>
 
         {/* Included Items */}
-          <div className="flex items-center justify-between mb-5 mt-12">
-            <h3 className="text-lg font-bold text-foreground">
-              {includedItems.length} Items Included
-            </h3>
-            <div className="w-8 h-8 rounded-sm gradient-2 flex items-center justify-center">
-              <CheckIcon className="w-5 h-5 text-white" strokeWidth={2.5} />
-            </div>
+        <div className="flex items-center justify-between mb-5 mt-12">
+          <h3 className="text-lg font-bold text-foreground">
+            {includedItems.length} mục đã bao gồm
+          </h3>
+          <div className="w-8 h-8 rounded-sm gradient-2 flex items-center justify-center">
+            <CheckIcon className="w-5 h-5 text-white" strokeWidth={2.5} />
           </div>
+        </div>
 
-          <div className="space-y-4">
-            {includedItems.map((item) => (
-              <RewardItem
-                key={item.id}
-                item={item}
-                variant="default"
-                rightContent={
-                  item.badge && (
-                    <span
-                      className="px-3 py-1 rounded-sm text-xs font-bold text-white bg-primary"
-                      
-                    >
-                      {item.badge}
-                    </span>
-                  )
-                }
-              />
-            ))}
-          </div>
-        
+        <div className="space-y-4">
+          {includedItems.map((item) => (
+            <RewardItem
+              key={item.id}
+              item={item}
+              variant="default"
+              rightContent={
+                item.badge && (
+                  <span
+                    className="px-3 py-1 rounded-sm text-xs font-bold text-white bg-primary"
+
+                  >
+                    {item.badge}
+                  </span>
+                )
+              }
+            />
+          ))}
+        </div>
+
 
         {/* Add-ons */}
-          <h3 className="text-lg font-bold text-foreground mb-5 mt-12">
-            Optional Add-ons
-          </h3>
+        <h3 className="text-lg font-bold text-foreground mb-5 mt-12">
+          Tiện ích bổ sung tùy chọn
+        </h3>
 
-          <div className="space-y-5">
-            {addOns.map((addon, index) => (
-              <motion.div
-                key={addon.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-              >
-                <RewardItem
-                  item={addon}
-                  variant="addon"
-                  showQuantity={false}
-                  rightContent={
-                    <div className="flex flex-col gap-3">
-                      <div
-                        className="px-2 py-1 rounded-sm font-bold text-white bg-primary shadow-md whitespace-nowrap text-center"
-                      >
-                        {addon.price} <img src="/packages/coin.svg" alt="Coin" className="inline-block w-5 h-5 mb-0.5" />
-                      </div>
-                      
-                      {/* Quantity Controls */}
-                      <div className="flex items-center gap-2">
-                        <Button
-                          size="icon"
-                          variant="outline"
-                          className="h-8 w-8 rounded-sm"
-                          onClick={() => updateQuantity(addon.id, -1)}
-                          disabled={addon.quantity === 0}
-                        >
-                          <MinusIcon className="w-4 h-4 text-text-primary dark:text-white" />
-                        </Button>
-                        <span className="font-semibold text-foreground min-w-[1.5rem] text-center">
-                          {addon.quantity > 0 ? `×${addon.quantity}` : '0'}
-                        </span>
-                        <Button
-                          size="icon"
-                          variant="outline"
-                          className="h-8 w-8 rounded-sm"
-                          onClick={() => updateQuantity(addon.id, 1)}
-                        >
-                          <PlusIcon className="w-4 h-4 text-text-primary dark:text-white" />
-                        </Button>
-                      </div>
-                    </div>
-                  }
-                />
-
-                {/* Selected Indicator */}
-                {addon.quantity > 0 && (
-                  <motion.div
-                    initial={{ height: 0 }}
-                    animate={{ height: 'auto' }}
-                    className="px-4 py-2 gradient-2 text-white text-sm font-semibold mt-0 rounded-b-sm flex items-center justify-between"
-                  >
-                    <span>Added: {addon.quantity} ×</span>
-                    <span className="flex items-center gap-1">
-                      {addon.price} <img src="/packages/coin.svg" alt="Coin" className="inline-block w-4 h-4" />
-                      = {addon.quantity * addon.price} <img src="/packages/coin.svg" alt="Coin" className="inline-block w-4 h-4" />
-                    </span>
-                  </motion.div>
-                )}
-              </motion.div>
-            ))}
-          </div>
-
-          {/* Total */}
-          {totalAddOnsPrice > 0 && (
+        <div className="space-y-5">
+          {addOns.map((addon, index) => (
             <motion.div
+              key={addon.id}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mt-6 p-4 rounded-sm"
-              style={{
-                background: 'linear-gradient(135deg, rgba(255, 183, 0, 0.1) 0%, rgba(255, 150, 3, 0.1) 100%)',
-                border: '2px solid rgba(255, 183, 0, 0.3)',
-              }}
+              transition={{ delay: index * 0.1 }}
             >
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-semibold text-foreground">Add-ons Total:</span>
-                <span className="text-xl font-bold text-accent flex items-center gap-1">
-                  +{totalAddOnsPrice} <img src="/packages/coin.svg" alt="Coin" className="inline-block w-5 h-5" />
-                </span>
-              </div>
-              <div className="flex items-center justify-between pt-2 border-t border-accent/20">
-                <span className="text-lg font-bold text-foreground">Grand Total:</span>
-                <span className="text-2xl font-bold text-primary flex items-center gap-1">
-                  {reward.price + totalAddOnsPrice} <img src="/packages/coin.svg" alt="Coin" className="inline-block w-6 h-6" />
-                </span>
-              </div>
+              <RewardItem
+                item={addon}
+                variant="addon"
+                showQuantity={false}
+                rightContent={
+                  <div className="flex flex-col gap-3">
+                    <div
+                      className="px-2 py-1 rounded-sm font-bold text-white bg-primary shadow-md whitespace-nowrap text-center"
+                    >
+                      {addon.price} <img src="/packages/coin.svg" alt="Coin" className="inline-block w-5 h-5 mb-0.5" />
+                    </div>
+
+                    {/* Quantity Controls */}
+                    <div className="flex items-center gap-2">
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        className="h-8 w-8 rounded-sm"
+                        onClick={() => updateQuantity(addon.id, -1)}
+                        disabled={addon.quantity === 0}
+                      >
+                        <MinusIcon className="w-4 h-4 text-text-primary dark:text-white" />
+                      </Button>
+                      <span className="font-semibold text-foreground min-w-[1.5rem] text-center">
+                        {addon.quantity > 0 ? `×${addon.quantity}` : '0'}
+                      </span>
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        className="h-8 w-8 rounded-sm"
+                        onClick={() => updateQuantity(addon.id, 1)}
+                      >
+                        <PlusIcon className="w-4 h-4 text-text-primary dark:text-white" />
+                      </Button>
+                    </div>
+                  </div>
+                }
+              />
+
+              {/* Selected Indicator */}
+              {addon.quantity > 0 && (
+                <motion.div
+                  initial={{ height: 0 }}
+                  animate={{ height: 'auto' }}
+                  className="px-4 py-2 gradient-2 text-white text-sm font-semibold mt-0 rounded-b-sm flex items-center justify-between"
+                >
+                  <span>Đã thêm: {addon.quantity} ×</span>
+                  <span className="flex items-center gap-1">
+                    {addon.price} <img src="/packages/coin.svg" alt="Coin" className="inline-block w-4 h-4" />
+                    = {addon.quantity * addon.price} <img src="/packages/coin.svg" alt="Coin" className="inline-block w-4 h-4" />
+                  </span>
+                </motion.div>
+              )}
             </motion.div>
-          )}
-       
+          ))}
+        </div>
+
+        {/* Total */}
+        {totalAddOnsPrice > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-6 p-4 rounded-sm"
+            style={{
+              background: 'linear-gradient(135deg, rgba(255, 183, 0, 0.1) 0%, rgba(255, 150, 3, 0.1) 100%)',
+              border: '2px solid rgba(255, 183, 0, 0.3)',
+            }}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span className="font-semibold text-foreground">Tổng tiện ích bổ sung:</span>
+              <span className="text-xl font-bold text-accent flex items-center gap-1">
+                +{totalAddOnsPrice} <img src="/packages/coin.svg" alt="Coin" className="inline-block w-5 h-5" />
+              </span>
+            </div>
+            <div className="flex items-center justify-between pt-2 border-t border-accent/20">
+              <span className="text-lg font-bold text-foreground">Tổng cộng:</span>
+              <span className="text-2xl font-bold text-primary flex items-center gap-1">
+                {reward.price + totalAddOnsPrice} <img src="/packages/coin.svg" alt="Coin" className="inline-block w-6 h-6" />
+              </span>
+            </div>
+          </motion.div>
+        )}
+
       </motion.div>
     </div>
   );

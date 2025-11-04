@@ -19,7 +19,7 @@ const PledgeNoRewardCard = ({ currency = 'USD', onPledge }) => {
   return (
     <div className="border border-border rounded-sm p-4 bg-white dark:bg-darker-2 shadpw-sm">
       <h3 className="text-base font-semibold text-foreground mb-3">
-        Make a pledge without a reward
+        Ủng hộ mà không chọn phần thưởng
       </h3>
 
       <form onSubmit={handleSubmit}>
@@ -29,11 +29,11 @@ const PledgeNoRewardCard = ({ currency = 'USD', onPledge }) => {
             htmlFor="pledge-amount"
             className="block text-sm font-medium text-text-secondary dark:text-white mb-2"
           >
-            Pledge amount
+            Số tiền ủng hộ
           </label>
           <div className="relative">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary dark:text-white">
-              <img src='/packages/coin.svg' alt='coin' className='w-5 h-5'/>
+              <img src='/packages/coin.svg' alt='coin' className='w-5 h-5' />
             </span>
             <input
               id="pledge-amount"
@@ -52,9 +52,7 @@ const PledgeNoRewardCard = ({ currency = 'USD', onPledge }) => {
         {/* Info Box */}
         <div className="bg-gradient-to-b from-muted to-muted/40 rounded-xl p-4 mb-4">
           <p className="text-sm text-text-secondary dark:text-white">
-            Simply want to support the project? You can pledge any amount
-            without selecting a reward tier. Your contribution will still help
-            make this campaign a success!
+            Chỉ muốn hỗ trợ dự án? Bạn có thể ủng hộ bất kỳ số tiền nào mà không cần chọn cấp phần thưởng. Sự đóng góp của bạn vẫn sẽ giúp chiến dịch này thành công!
           </p>
         </div>
 
@@ -66,7 +64,7 @@ const PledgeNoRewardCard = ({ currency = 'USD', onPledge }) => {
           className="w-full"
           disabled={!amount || parseFloat(amount) <= 0}
         >
-          Back it
+          Ủng hộ
         </Button>
       </form>
     </div>

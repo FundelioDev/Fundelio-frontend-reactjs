@@ -1,0 +1,325 @@
+ĐIỀU KHOẢN DỊCH VỤ DÀNH CHO CREATOR (TOSC)
+
+Chúng tôi rất vui vì bạn quyết định trở thành Creator và sử dụng các Dịch vụ của Fundelio. Việc bạn hiểu rõ các quy tắc hợp tác là cực kỳ quan trọng. Chúng tôi tin rằng sự minh bạch và rõ ràng là nền tảng cho một mối quan hệ lâu dài và vững chắc. Vì vậy, dưới đây là phần tóm tắt những quy định chính trong Điều khoản Dịch vụ cho Creator (“TOSC”) – là nền tảng cho việc chúng ta làm việc cùng nhau.
+
+Khi sử dụng Fundelio với tư cách Creator, Người dùng cần có tài khoản cá nhân đang hoạt động và đồng ý với Điều khoản Sử dụng Fundelio (Terms of Service – “TOS”) và TOSC này. Việc bạn chấp nhận TOSC và hoàn tất quy trình onboarding đồng nghĩa với việc giao kết Hợp đồng giữa Fundelio và bạn, cho phép bạn truy cập các tính năng dành riêng cho Creator trên Nền tảng.
+
+TOSC là một phần không tách rời của TOS và áp dụng cho các Dịch vụ liên quan đến Creator. Tất cả các thuật ngữ viết hoa sẽ có nghĩa như trong TOS của Fundelio, trừ khi được giải thích khác trong TOSC. Trong trường hợp có mâu thuẫn giữa TOS và TOSC, TOSC sẽ được ưu tiên áp dụng đối với các vấn đề liên quan đến Creator.
+
+Để sử dụng Dịch vụ Fundelio và trở thành Creator, bạn cần trải qua quy trình onboarding, bao gồm việc cung cấp thêm thông tin và tài liệu.
+
+Fundelio được xây dựng như một nền tảng crowdfunding kết hợp Pledge Manager cho các Dự án gọi vốn trên Nền tảng. Đây là công cụ giúp Creator tổ chức chiến dịch crowdfunding và quản lý hậu kỳ (ví dụ: thu thập thông tin giao hàng, quản lý đặt hàng và vận chuyển Reward cho Backer).
+
+Một số Dịch vụ của Fundelio – đặc biệt là các dịch vụ liên quan đến crowdfunding và Pledge Manager – có thể tính phí. Creator xác nhận rằng, ngoài phí hoa hồng trên số tiền huy động được, Creator còn có thể chịu phí xử lý thanh toán và các loại phí khác (nếu có).
+
+Creator chịu trách nhiệm hoàn toàn đối với mọi nội dung đăng tải trên Nền tảng liên quan đến Dự án. Fundelio không phải là một bên trong hợp đồng giữa Creator và Backer. Creator là bên duy nhất chịu trách nhiệm đối với Dự án và Reward (bao gồm lỗi vật lý, pháp lý…).
+
+Quyền sở hữu trí tuệ là cốt lõi của hoạt động sáng tạo của Creator, đồng thời cũng rất quan trọng với các Dịch vụ mà chúng tôi cung cấp. Vui lòng tôn trọng quyền sở hữu trí tuệ của Fundelio và các Creator khác. Để cung cấp Dịch vụ, trong thời gian Hợp đồng có hiệu lực, Creator cấp cho Fundelio giấy phép không độc quyền đối với các nội dung mà Creator xuất bản trên Nền tảng.
+
+Nội dung dưới đây là bản chi tiết của tài liệu này.
+
+ĐIỀU KHOẢN DỊCH VỤ DÀNH CHO CREATOR (TOSC)
+Mục lục
+
+Phạm vi Dịch vụ
+
+Crowdfunding
+
+Pledge / Pledge Manager
+
+Phí
+
+Xoá tài khoản hoặc Dự án
+
+Trách nhiệm
+
+Sở hữu trí tuệ
+
+Điều khoản cuối cùng
+
+1. PHẠM VI DỊCH VỤ
+1.1 Quy định chung
+
+Khi sử dụng Fundelio với tư cách Creator, Người dùng phải:
+
+Có tài khoản cá nhân đang hoạt động; và
+
+Đồng ý với Điều khoản Sử dụng Fundelio (TOS) và TOSC này.
+
+Việc bạn chấp nhận TOSC và hoàn tất quy trình onboarding đồng nghĩa với việc giao kết Hợp đồng giữa Fundelio và bạn, cho phép sử dụng các tính năng Creator trên Nền tảng.
+
+Fundelio cung cấp cho Creator các Dịch vụ, bao gồm nhưng không giới hạn:
+
+Tổ chức và quản lý các Dự án crowdfunding trên Nền tảng;
+
+Tạo nội dung, hình ảnh, mô tả về Dự án và Reward hiển thị cho Backer;
+
+Thiết lập quy tắc tính phí vận chuyển, phương thức giao hàng cho các đơn đặt hàng của Backer;
+
+Quản lý Dự án, bao gồm mời cộng sự tham gia đồng quản lý Dự án và phân quyền;
+
+Sử dụng các công cụ marketing hỗ trợ quảng bá Dự án;
+
+Thu thập thông tin về Reward mà Backer chọn, các đơn hàng trong Dự án;
+
+Quản lý Pledge trong phạm vi Dự án của Creator;
+
+Cung cấp công cụ để Creator nhận tiền từ Backer (nếu Creator chọn dùng dịch vụ này);
+
+Tạo link giới thiệu / referral;
+
+Hỗ trợ Creator trong việc xử lý một số tranh chấp với Backer (trong phạm vi khả năng của Fundelio);
+
+Cung cấp hạ tầng cho trao đổi thông tin, cập nhật và xử lý hoàn tiền trong Dự án.
+
+Điều khoản chi tiết giữa Creator và Backer về Dự án (bao gồm điều kiện đặt hàng, hoàn tiền, giao hàng…) do Creator tự thiết lập và phải công khai cho Backer trong suốt thời gian Dự án cho đến khi hoàn tất giao Reward. Khi ủng hộ Dự án, Backer đồng ý với điều khoản riêng của Creator và giao kết hợp đồng trực tiếp với Creator. Fundelio không phải là một bên trong hợp đồng đó.
+
+Các bên trong hợp đồng (Creator – Backer) tự chịu trách nhiệm với nhau về việc thực hiện nghĩa vụ của mình (giao Reward, hỗ trợ hậu mãi, sử dụng khoản ủng hộ đúng cam kết…). Fundelio và đơn vị trung gian thanh toán không giám sát và không chịu trách nhiệm về việc thực hiện đúng hạn các nghĩa vụ này.
+
+Creator thừa nhận rằng nếu muốn tổ chức chiến dịch crowdfunding trên Nền tảng, Creator sẽ cần sử dụng Pledge Manager cho Dự án đó (giai đoạn hậu chiến dịch). Fundelio không cung cấp dịch vụ chỉ crowdfunding mà không có Pledge Manager.
+
+1.2 Chỉnh sửa / thay đổi Dự án
+
+Tùy trạng thái Dự án, một số nội dung sẽ không thể chỉnh sửa. Creator thừa nhận rằng:
+
+URL của Dự án không thể thay đổi;
+
+Sau khi public bản nháp Dự án, không thể đổi lại trạng thái hiển thị;
+
+Sau khi bắt đầu crowdfunding, không thể thay đổi mục tiêu vốn và giá Reward (khi đã có ít nhất 01 Backer Pledge);
+
+Sau khi crowdfunding thành công, nhưng trước khi vào Pledge Manager, không thể thay đổi mô tả chi tiết Dự án và Reward (bao gồm mô tả, lựa chọn, giá add-ons, thành phần của Reward).
+
+2. CROWDFUNDING
+2.1 Onboarding
+
+Trước khi cho phép khởi chạy Dự án, Fundelio và/hoặc đối tác trung gian thanh toán có thể tiến hành xác minh thông tin Creator, mô hình kinh doanh, chủ sở hữu và người đại diện Creator.
+
+Creator có thể được yêu cầu cung cấp (tùy trường hợp):
+
+Giấy tờ pháp lý của tổ chức/doanh nghiệp (nếu Creator là pháp nhân): tên pháp lý, địa chỉ trụ sở, danh sách cổ đông chính…
+
+Giấy uỷ quyền (nếu người ký Hợp đồng không phải là đại diện pháp luật).
+
+Thông tin tài khoản ngân hàng nhận tiền: tên chủ tài khoản, số tài khoản, SWIFT/BIC (nếu có), tên ngân hàng, loại tiền tệ…
+
+Giấy tờ xác minh danh tính (CMND/CCCD/Hộ chiếu hoặc tài liệu tương đương) của:
+
+Cá nhân sở hữu từ 25% vốn/voting trở lên;
+
+Người đứng ra ký kết với Fundelio.
+
+Tài liệu cung cấp phải còn hiệu lực, rõ ràng, đầy đủ, không bị cắt xén, mờ, đen trắng, lệch, lộn ngược…
+
+Fundelio có thể yêu cầu tài liệu bằng tiếng Việt hoặc tiếng Anh (hoặc kèm bản dịch).
+
+Để đáp ứng quy định thuế tại một số quốc gia, Fundelio có thể yêu cầu Creator cung cấp thông tin về kế hoạch logistics / vận chuyển Reward, bao gồm: tuyến vận chuyển hàng hóa, quốc gia nhập khẩu, kho trung chuyển… Creator cam kết cung cấp thông tin chính xác và cập nhật khi có thay đổi.
+
+Khi cung cấp thông tin/tài liệu, Creator đồng ý cho phép Fundelio chia sẻ những dữ liệu cần thiết với đối tác trung gian thanh toán nhằm mục đích xác minh và xử lý thanh toán. Creator có thể cần chấp nhận thêm điều khoản riêng của đối tác thanh toán đó.
+
+Nếu không vượt qua bước xác minh, Fundelio có quyền từ chối cho khởi chạy Dự án.
+
+Ngay cả khi được đối tác thanh toán chấp thuận, Fundelio vẫn có thể từ chối Dự án nếu kết quả đánh giá rủi ro của Creator là tiêu cực (ví dụ: lịch sử nhiều Dự án chậm/giao thiếu Reward, nhiều tranh chấp…).
+
+Fundelio có thể yêu cầu bổ sung thông tin liên quan tới nghĩa vụ kê khai/khấu trừ/thuế. Nếu Creator không cung cấp các thông tin/bằng chứng thuế theo yêu cầu trong thời hạn hợp lý, Fundelio có thể:
+
+Tạm hoãn thanh toán tiền về cho Creator; hoặc
+
+Tạm khóa chức năng tiếp tục nhận tiền / dùng Pledge Manager cho tới khi hoàn tất.
+
+2.2 Gửi Dự án đầu tiên
+
+Sau khi hoàn tất onboarding, Creator có thể gửi Dự án để Fundelio duyệt. Tùy loại Dự án, Creator cần cung cấp tối thiểu:
+
+Tên Creator và thông tin liên hệ (email, số điện thoại, địa chỉ liên hệ);
+
+Địa chỉ trụ sở hoặc nơi cư trú (nằm trong danh sách quốc gia được hỗ trợ thanh toán – nếu Fundelio có quy định riêng);
+
+Mô tả chi tiết Dự án;
+
+Mục tiêu vốn kêu gọi;
+
+Ngày kết thúc crowdfunding trên Nền tảng;
+
+Danh sách sản phẩm/Reward trong Dự án;
+
+Thời gian dự kiến giao Reward;
+
+Track record của Creator (nếu có);
+
+Rủi ro & thách thức của Dự án;
+
+Chính sách hoàn tiền / huỷ Pledge liên quan đến Dự án.
+
+Creator không được dùng Nền tảng để:
+
+Thực hiện Dự án cho bên thứ ba mà Creator không phải chủ thể chính;
+
+Hoặc để thu tiền trả cho sản phẩm/dịch vụ đã bán ngoài Nền tảng.
+
+Fundelio sẽ thông báo cho Creator qua email về việc chấp nhận hoặc từ chối Dự án. Dự án bắt đầu vào thời điểm Creator nhận được thông báo chấp thuận, hoặc thời điểm bắt đầu do Creator đặt sau đó.
+
+2.3 Gửi các Dự án tiếp theo
+
+Khi gửi Dự án mới, Fundelio có thể yêu cầu Creator bổ sung lại một phần hoặc toàn bộ thông tin như ở mục 2.2, và có quyền cập nhật/bổ sung thông tin Creator định kỳ.
+
+2.4 Thu tiền từ Backer
+
+Fundelio và đối tác thanh toán cung cấp công cụ để Creator thu tiền ủng hộ từ Backer cho từng Dự án. Quy trình thanh toán tuân theo điều khoản riêng của đối tác thanh toán.
+
+Thông thường:
+
+Backer chỉ bị trừ tiền khi Dự án đạt mục tiêu;
+
+Nếu dùng phương thức thanh toán tức thời, Backer có thể bị trừ tiền ngay, nhưng nếu Dự án không đạt mục tiêu, khoản tiền này sẽ được hoàn lại cho Backer.
+
+Fundelio không đảm bảo toàn bộ số tiền mà Backer cam kết sẽ thu được đủ 100% (ví dụ thẻ hết hạn, tài khoản không đủ tiền, Backer không cập nhật thông tin…).
+
+Tiền sẽ được chuyển cho Creator trong thời hạn hợp lý (ví dụ trong vòng 30 ngày kể từ khi kết thúc crowdfunding), về tài khoản ngân hàng mà Creator đã đăng ký.
+
+Trong các trường hợp đặc biệt (nghi ngờ gian lận, giao dịch bất thường…), Fundelio có thể yêu cầu Creator hoàn trả một phần hoặc toàn bộ khoản tiền đã thu để xử lý hoàn tiền, chargeback… Creator có nghĩa vụ phối hợp, cung cấp thông tin và chịu các chi phí phát sinh liên quan (nếu lỗi/vi phạm thuộc về Creator).
+
+2.5 Hủy Dự án crowdfunding
+
+Creator có quyền hủy Dự án crowdfunding bất kỳ lúc nào trước ngày kết thúc. Trong trường hợp đó:
+
+Fundelio sẽ không trừ tiền Backer, hoặc
+
+Nếu tiền đã thu (thanh toán tức thời), Fundelio sẽ hoàn trả cho Backer.
+
+Việc thay đổi ngày kết thúc crowdfunding chỉ được chấp nhận trong những trường hợp đặc biệt và có thể yêu cầu Creator cung cấp thêm thông tin/chứng cứ.
+
+Khi Creator hủy crowdfunding và quyết định không tiếp tục gọi vốn trên Nền tảng, Creator có thể đăng tối đa 02 bản cập nhật (update) trên trang Dự án. Sau đó Fundelio có thể lưu trữ/đóng lưu trữ (archive) Dự án.
+
+2.6 Late Pledge
+
+Nếu Dự án crowdfunding thành công và Creator cho phép, Backer vẫn có thể Pledge muộn (Late Pledge) sau khi chiến dịch chính kết thúc (thường không kèm stretch goal...). Trong trường hợp đó, trạng thái thanh toán của Backer sẽ tương tự như lúc crowdfunding, và khi Dự án chuyển sang Pledge Manager, Backer sẽ được yêu cầu bổ sung thông tin giao hàng, thuế… nếu cần.
+
+3. PLEDGE / PLEDGE MANAGER
+3.1 Quy định chung
+
+Creator có thể lựa chọn sử dụng Pledge Manager dưới các hình thức:
+
+(a) Pledge Manager là một phần của Dự án crowdfunding trên Fundelio;
+
+(b) Pledge Manager cho các nền tảng bên ngoài (nếu Fundelio có hỗ trợ).
+
+Khi sử dụng Pledge Manager, Creator tiếp tục dùng công cụ thanh toán do Fundelio và đối tác thanh toán cung cấp để thu thêm tiền từ Backer (ví dụ: add-on, nâng cấp, phí ship…).
+
+Creator tự chịu trách nhiệm cho mọi vấn đề liên quan đến vận chuyển, giao hàng và hoàn tất Reward giữa mình và Backer.
+
+3.2 Pledge Manager cho Dự án crowdfunding trên Fundelio
+
+Creator dùng Pledge Manager để quản lý các Pledge đã thu trong chiến dịch, ví dụ:
+
+Thu thập địa chỉ giao hàng;
+
+Cho phép Backer mua thêm add-on, nâng cấp pledge;
+
+Tính toán phí ship, thuế, v.v.
+
+Một số tính năng Pledge Manager có thể tính phí (xem mục 4. PHÍ), và Creator vẫn phải chịu phí xử lý thanh toán cho các giao dịch phát sinh.
+
+3.3 Pledge Manager cho nền tảng bên ngoài (nếu có)
+
+Nếu Creator muốn dùng Pledge Manager của Fundelio cho một chiến dịch đã gọi vốn trên nền tảng khác (ví dụ Kickstarter, Gamefound…), Creator vẫn phải:
+
+Hoàn tất onboarding như mục 2.1;
+
+Gửi Dự án Pledge Manager để duyệt (không cần mục tiêu vốn và ngày kết thúc crowdfunding).
+
+Fundelio và đối tác thanh toán cung cấp công cụ thu tiền trong giai đoạn này. Creator chịu mọi khoản phí áp dụng theo mục 4. PHÍ.
+
+3.4 Quy định chung cho Pledge Manager
+
+Fundelio không đảm bảo thu đầy đủ số tiền Backer đã Pledge (ví dụ thẻ hết hạn, không đủ tiền…). Trong các trường hợp nghi ngờ gian lận, giao dịch bất thường, Fundelio có thể yêu cầu Creator hoàn trả tiền và chịu các chi phí liên quan (chargeback, phí ngân hàng…).
+
+4. PHÍ
+
+Creator phải trả phí sử dụng một số Dịch vụ trên Nền tảng liên quan đến quản lý Dự án. Creator sẽ được thông báo về các loại phí này trong quá trình tạo Dự án hoặc tại trang thông tin phí chính thức của Fundelio.
+
+Thông thường, Fundelio có thể thu:
+
+Phí hoa hồng tính trên tổng số tiền đã thu thành công trong chiến dịch crowdfunding hoặc giai đoạn Pledge Manager;
+
+Phí Pledge Manager (nếu có);
+
+Phí xử lý thanh toán do đối tác thanh toán thu.
+
+Fundelio và đối tác thanh toán sẽ khấu trừ các loại phí này trước khi chuyển tiền về cho Creator. Các khoản phí nói trên không hoàn lại. Creator tự chịu trách nhiệm đối với các loại phí, thuế bổ sung khác phát sinh theo pháp luật.
+
+Trong một số trường hợp (ví dụ phá sản, tranh chấp pháp lý…), Fundelio có thể tạm thời giữ lại tiền cho đến khi có quyết định/hướng dẫn từ cơ quan có thẩm quyền.
+
+Nếu Dự án crowdfunding không đạt mục tiêu, Fundelio thường không thu phí hoa hồng từ Creator (nhưng một số loại phí khác – nếu có quy định – vẫn có thể phát sinh).
+
+5. XOÁ TÀI KHOẢN HOẶC DỰ ÁN
+
+Creator có thể xoá tài khoản hoặc Dự án bất cứ lúc nào trong phần cài đặt tài khoản. Khi đó:
+
+Các quyền mà Fundelio đã được Creator cấp đối với nội dung trên Nền tảng vẫn tiếp tục có hiệu lực nếu được TOS/TOSC hoặc pháp luật cho phép;
+
+Nếu việc xoá diễn ra trước khi kết thúc crowdfunding, Fundelio sẽ hủy việc trừ tiền hoặc hoàn tiền cho Backer (nếu tiền đã thu).
+
+Nếu Creator xoá tài khoản hoặc Dự án khi:
+
+Crowdfunding chưa kết thúc; hoặc
+
+Dự án đang trong giai đoạn Pledge Manager,
+
+Fundelio có quyền tiếp tục lưu trữ dữ liệu liên quan đến Creator và Dự án, hoặc cung cấp thông tin đó cho Backer nhằm giúp Backer có thể liên hệ Creator để nhận Reward. Fundelio có thể archive trang Dự án và để lại lịch sử Dự án hiển thị công khai.
+
+6. TRÁCH NHIỆM
+
+Creator hoàn toàn chịu trách nhiệm đối với mọi nội dung đăng lên Nền tảng liên quan đến Dự án. Fundelio không chịu trách nhiệm pháp lý cho nội dung này, nhưng sẽ can thiệp khi phát hiện (hoặc được báo cáo) nội dung:
+
+Vi phạm pháp luật;
+
+Gian lận, lừa đảo, gây hiểu nhầm;
+
+Xâm hại quyền, lợi ích hợp pháp của bên thứ ba.
+
+Trong các trường hợp như vậy, Fundelio có quyền tạm dừng hoặc huỷ Dự án nếu việc tiếp tục triển khai có dấu hiệu vi phạm TOS, TOSC hoặc pháp luật.
+
+Các điều kiện liên quan tới trách nhiệm, bảo hành, khiếu nại về Reward do Creator tự quy định trong điều khoản riêng của mình. Khi Dự án được tài trợ thành công, Creator có nghĩa vụ:
+
+Thực hiện Dự án như đã mô tả;
+
+Giao Reward đúng như cam kết về nội dung và thời gian dự kiến.
+
+Nếu Creator không thực hiện được nghĩa vụ, Creator có thể phải chịu trách nhiệm pháp lý trước Backer. Mỗi Creator tự xây dựng và tuân thủ chính sách hoàn tiền và hủy đơn của riêng mình.
+
+Fundelio không chịu trách nhiệm về việc Creator kê khai và nộp thuế. Mọi nội dung hiển thị trên Nền tảng chỉ mang tính tham khảo và không phải là tư vấn pháp lý/thuế. Creator tự chịu rủi ro khi sử dụng Dịch vụ Fundelio và có nghĩa vụ thực hiện đầy đủ nghĩa vụ thuế, phí khác theo luật.
+
+Fundelio có thể yêu cầu Creator cung cấp tài sản bảo đảm (ví dụ cho phép Fundelio trừ từ thẻ của Creator, ký quỹ tiền mặt…) để phòng ngừa rủi ro hoàn tiền, chargeback… nếu cần.
+
+7. SỞ HỮU TRÍ TUỆ
+
+Khi sử dụng Dịch vụ Fundelio, Creator cấp cho Fundelio một giấy phép không độc quyền, trên phạm vi toàn cầu, có thể chuyển giao, được phép cấp lại, để sử dụng các quyền tác giả, nhãn hiệu, quyền về hình ảnh, quyền cơ sở dữ liệu… trong phạm vi cần thiết để cung cấp và cải thiện Dịch vụ, bao gồm nhưng không giới hạn:
+
+Sao chép nội dung Dự án và Reward để hiển thị trên mọi thiết bị (PC, điện thoại, tablet…);
+
+Phân phối, hiển thị Dự án và Reward qua Nền tảng;
+
+Tạo và sử dụng các phiên bản dẫn xuất (derivative works) từ nội dung Dự án/Reward để tối ưu UI/UX, tính năng;
+
+Sử dụng, sao chép, phổ biến thông tin về Dự án trên website, mạng xã hội, email marketing, tài liệu quảng cáo… của Fundelio.
+
+Fundelio có thể tiếp tục sử dụng thông tin về Dự án, Reward và Creator cho mục đích thương mại, truyền thông trong thời gian Dự án và trong một thời hạn hợp lý sau khi chấm dứt cung cấp Dịch vụ.
+
+Creator cam kết nội dung mình đăng tải:
+
+Không xâm phạm quyền của User khác hoặc bên thứ ba (quyền tác giả, nhãn hiệu, kiểu dáng, sáng chế…);
+
+Không sao chép trái phép nội dung được bảo hộ.
+
+Nếu bên thứ ba/khiếu nại cho rằng Fundelio vi phạm quyền sở hữu trí tuệ do nội dung Creator cung cấp, Creator cam kết:
+
+Chủ động đứng ra làm việc, bảo vệ Fundelio trước các khiếu nại/khởi kiện liên quan;
+
+Bồi thường cho Fundelio mọi chi phí phát sinh hợp lý (luật sư, án phí, khoản bồi thường cho bên thứ ba…) theo phán quyết/thoả thuận mà Creator tham gia.
+
+8. ĐIỀU KHOẢN CUỐI CÙNG
+
+TOSC là một phần không tách rời của Điều khoản Sử dụng Fundelio (TOS) và áp dụng cho các Dịch vụ liên quan đến Creator. Trong trường hợp có mâu thuẫn giữa TOS và TOSC, đối với các vấn đề Creator, TOSC sẽ được ưu tiên áp dụng.
+
+Phiên bản mới nhất của TOSC luôn được cập nhật trên Nền tảng. Việc bạn tiếp tục sử dụng Dịch vụ Fundelio sau khi TOSC được cập nhật đồng nghĩa với việc bạn chấp nhận phiên bản mới đó.

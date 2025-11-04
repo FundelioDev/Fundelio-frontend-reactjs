@@ -76,7 +76,7 @@ export const CrowdfundingTips = ({
   subtitle = 'Học hỏi từ những chiến dịch xuất sắc và chuyên gia hàng đầu',
 }) => {
   return (
-    <section className="py-12 sm:py-16 lg:py-20 bg-white dark:bg-darker transition-colors duration-300">
+    <section className="py-12 sm:py-16 lg:py-20 bg-background-light-2 dark:bg-darker transition-colors duration-300">
       <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-10 sm:mb-12 lg:mb-16">
@@ -93,7 +93,7 @@ export const CrowdfundingTips = ({
           {tips.map((tip) => (
             <article
               key={tip.id}
-              className="group bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-sm ring-1 ring-gray-200 dark:ring-gray-700 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:ring-black/10 dark:hover:ring-primary-500/50"
+              className="group bg-white dark:bg-darker-2 rounded-2xl overflow-hidden shadow-sm border-border transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:ring-black/10 dark:hover:ring-primary-500/50"
             >
               {/* Image */}
               <div className="relative aspect-[16/9] overflow-hidden">

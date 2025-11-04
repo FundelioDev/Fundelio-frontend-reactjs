@@ -1,9 +1,9 @@
 import React from 'react';
-import { 
-  Clock, 
-  Rocket, 
-  ShoppingBag, 
-  Store, 
+import {
+  Clock,
+  Rocket,
+  ShoppingBag,
+  Store,
   Dices,
   Sword,
   Monitor,
@@ -14,18 +14,18 @@ import {
 
 const ProjectLists = ({ className = '' }) => {
   const projectLists = [
-    { id: 'upcoming', name: 'Upcoming', icon: Clock, color: 'text-blue-400' },
-    { id: 'crowdfunding', name: 'Crowdfunding', icon: Rocket, color: 'text-green-400' },
-    { id: 'late-pledge', name: 'Late Pledge', icon: ShoppingBag, color: 'text-green-400' },
-    { id: 'preorders', name: 'Preorders & Stores', icon: Store, color: 'text-green-400' },
+    { id: 'upcoming', name: 'Sắp ra mắt', icon: Clock, color: 'text-blue-400' },
+    { id: 'crowdfunding', name: 'Gây quỹ', icon: Rocket, color: 'text-green-400' },
+    { id: 'late-pledge', name: 'Pledge muộn', icon: ShoppingBag, color: 'text-green-400' },
+    { id: 'preorders', name: 'Đặt trước & Cửa hàng', icon: Store, color: 'text-green-400' },
   ];
 
   const categories = [
-    { id: 'board-games', name: 'Board & card games', icon: Dices, color: 'text-green-400' },
+    { id: 'board-games', name: 'Trò chơi bàn & thẻ', icon: Dices, color: 'text-green-400' },
     { id: 'ttrpg', name: 'TTRPG', icon: Sword, color: 'text-green-400' },
-    { id: 'others', name: 'Others', icon: Monitor, color: 'text-green-400' },
-    { id: 'accessories', name: 'Accessories', icon: Scissors, color: 'text-green-400' },
-    { id: 'video-games', name: 'Video Games', icon: Gamepad2, color: 'text-green-400' },
+    { id: 'others', name: 'Khác', icon: Monitor, color: 'text-green-400' },
+    { id: 'accessories', name: 'Phụ kiện', icon: Scissors, color: 'text-green-400' },
+    { id: 'video-games', name: 'Trò chơi điện tử', icon: Gamepad2, color: 'text-green-400' },
   ];
 
   return (
@@ -36,7 +36,7 @@ const ProjectLists = ({ className = '' }) => {
           <div className="flex items-center gap-3 mb-5">
             <LayoutGrid className="w-6 h-6 text-text-primary dark:text-white" />
             <h2 className="text-2xl font-bold text-text-primary dark:text-white">
-              Project lists
+              Danh sách dự án
             </h2>
           </div>
 
@@ -64,7 +64,7 @@ const ProjectLists = ({ className = '' }) => {
           <div className="flex items-center gap-3 mb-5">
             <Dices className="w-6 h-6 text-text-primary dark:text-white" />
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-              Category
+              Danh mục
             </h2>
           </div>
 

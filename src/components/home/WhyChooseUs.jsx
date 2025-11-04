@@ -63,7 +63,7 @@ export const WhyChooseUs = ({
           {reasons.map((reason, index) => (
             <div
               key={index}
-              className="group relative bg-white dark:bg-gray-800 rounded-2xl p-6 sm:p-8 shadow-sm ring-1 ring-gray-200 dark:ring-gray-700 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:ring-primary/50 dark:hover:ring-primary-500/50"
+              className="group relative bg-white dark:bg-darker-2 rounded-2xl p-6 sm:p-8 shadow-sm border-border transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:ring-primary/50 dark:hover:ring-primary-500/50"
             >
               {/* Background Gradient Effect */}
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent dark:from-primary/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />

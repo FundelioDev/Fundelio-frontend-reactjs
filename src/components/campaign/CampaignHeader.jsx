@@ -12,7 +12,7 @@ import Button from '@/components/common/Button';
 const formatCurrency = (amount, currency) => {
   if (typeof amount !== 'number' || isNaN(amount)) return '0';
 
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat('vi-VN', {
     style: 'decimal',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
@@ -34,9 +34,9 @@ const clampPercent = (value) => {
  */
 const CampaignHeader = ({
   campaign = {},
-  onPickPerk = () => {},
-  onSave = () => {},
-  onShare = () => {},
+  onPickPerk = () => { },
+  onSave = () => { },
+  onShare = () => { },
 }) => {
   const {
     title = 'Campaign Title',
@@ -133,7 +133,7 @@ const CampaignHeader = ({
         {/* Title & Description Section */}
         <div className="mb-12 lg:mb-16 flex justify-center">
           <div className="max-w-4xl">
-            <motion.h1 
+            <motion.h1
               className="text-2xl lg:text-3xl xl:text-4xl font-bold text-white mb-6 leading-tight"
               style={{ fontFamily: "'Roboto Slab', serif" }}
               initial={{ opacity: 0, y: 20 }}
@@ -142,7 +142,7 @@ const CampaignHeader = ({
             >
               {title}
             </motion.h1>
-            <motion.p 
+            <motion.p
               className="text-base lg:text-lg text-gray-300 leading-relaxed"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -156,7 +156,7 @@ const CampaignHeader = ({
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
           {/* Left Column - Campaign Image (60%) */}
-          <motion.div 
+          <motion.div
             className="lg:col-span-7"
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
@@ -165,7 +165,7 @@ const CampaignHeader = ({
             <div className="aspect-video overflow-hidden rounded-sm border-2 border-white/10 shadow-2xl">
               <img
                 src={imageUrl}
-                alt={`Campaign image for ${title}`}
+                alt={`Hình ảnh chiến dịch cho ${title}`}
                 className="w-full h-full object-cover"
                 loading="eager"
               />
@@ -195,7 +195,7 @@ const CampaignHeader = ({
           </motion.div>
 
           {/* Right Column - Campaign Stats (40%) */}
-          <motion.div 
+          <motion.div
             className="lg:col-span-5"
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
@@ -210,7 +210,7 @@ const CampaignHeader = ({
                     {currency} {formattedPledged}
                   </div>
                   <div className="text-sm text-gray-300">
-                    pledged of {currency} {formattedGoal} goal
+                    đã gây quỹ trên mục tiêu {currency} {formattedGoal}
                   </div>
                 </div>
               </div>
@@ -223,7 +223,7 @@ const CampaignHeader = ({
                     <span className="text-2xl font-bold text-white">
                       {progressPercent}%
                     </span>
-                    <span className="text-sm text-gray-300">funded</span>
+                    <span className="text-sm text-gray-300">đạt được</span>
                   </div>
                   <div className="relative h-2 bg-white/10 rounded-full overflow-hidden">
                     <motion.div
@@ -242,7 +242,7 @@ const CampaignHeader = ({
                       {backers.toLocaleString()}
                     </div>
                     <div className="text-xs text-gray-300 uppercase tracking-wide">
-                      Backers
+                      Người ủng hộ
                     </div>
                   </div>
                   <div>
@@ -250,7 +250,7 @@ const CampaignHeader = ({
                       {daysLeft}
                     </div>
                     <div className="text-xs text-gray-300 uppercase tracking-wide">
-                      Days Left
+                      Ngày còn lại
                     </div>
                   </div>
                 </div>
@@ -264,33 +264,33 @@ const CampaignHeader = ({
                   className="w-full text-base font-bold shadow-lg shadow-[#0894e2]/30"
                   onClick={onPickPerk}
                 >
-                  BACK THIS PROJECT
+                  ỦNG HỘ DỰ ÁN NÀY
                 </Button>
 
-                <div className="grid grid-cols-2 gap-3">
+                {/* <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={onSave}
                     className="px-4 py-3 bg-white/5 hover:bg-white/10 text-white text-sm font-semibold rounded-lg transition-all duration-200 border border-white/10 hover:border-[#fce65a]/50 flex items-center justify-center gap-2"
-                    aria-label="Remind me"
+                    aria-label="Nhắc tôi"
                   >
                     <Bell size={16} />
-                    <span>REMIND ME</span>
+                    <span>NHẮC TÔI</span>
                   </button>
                   <button
                     onClick={onShare}
                     className="px-4 py-3 bg-white/5 hover:bg-white/10 text-white text-sm font-semibold rounded-lg transition-all duration-200 border border-white/10 hover:border-[#fce65a]/50 flex items-center justify-center gap-2"
-                    aria-label="Share campaign"
+                    aria-label="Chia sẻ chiến dịch"
                   >
                     <Share2 size={16} />
-                    <span>SHARE</span>
+                    <span>CHIA SẺ</span>
                   </button>
-                </div>
+                </div> */}
               </div>
 
               {/* Additional Info */}
-              <div className="pt-6 border-t border-white/10">
-                <p className="text-xs text-gray-300 leading-relaxed">
-                  <span className="text-[#fce65a] font-semibold">All or nothing.</span> This project will only be funded if it reaches its goal by the deadline.
+              <div className="pt-3">
+                <p className="text-xs text-center text-gray-300 leading-relaxed">
+                  <span className="text-[#fce65a] font-semibold">Tất cả hoặc không gì cả.</span> Dự án chỉ được gây quỹ nếu đạt mục tiêu trước thời hạn.
                 </p>
               </div>
             </div>

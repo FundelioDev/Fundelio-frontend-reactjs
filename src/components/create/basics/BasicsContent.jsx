@@ -3,6 +3,8 @@ import Input from '@/components/common/Input';
 import Textarea from '@/components/common/Textarea';
 import { useLocalStorage } from '@/hooks/useLocalStorge';
 import Button from '@/components/common/Button';
+import Checkbox from '@/components/common/Checkbox';
+import TermsCreator from './TermsCreator';
 const CATEGORIES = [
   'Nghệ thuật',
   'Truyện tranh & Minh họa',
@@ -25,9 +27,11 @@ export default function BasicsContent() {
     intro_video_url: null,
     start_date: '',
     end_date: '',
+    acceptedTerms: false,
   });
 
   const [mounted, setMounted] = useState(false);
+  const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
   const imageInputRef = useRef(null);
   const videoInputRef = useRef(null);
 
@@ -389,9 +393,9 @@ export default function BasicsContent() {
             </div>
           )}
           <div className="p-3 border-l-4 border-primary bg-primary/10 mt-4">
-          <p className="text-xs text-muted-foreground ">
-            Hãy cho mọi người biết bạn đang gây quỹ để làm gì, bạn có kế hoạch thực hiện nó như thế nào, bạn là ai, và tại sao bạn quan tâm đến dự án này.
-          </p>
+            <p className="text-xs text-muted-foreground ">
+              Hãy cho mọi người biết bạn đang gây quỹ để làm gì, bạn có kế hoạch thực hiện nó như thế nào, bạn là ai, và tại sao bạn quan tâm đến dự án này.
+            </p>
           </div>
 
         </div>
@@ -447,6 +451,57 @@ export default function BasicsContent() {
           )}
         </div>
       </div>
+
+      <hr className="my-12 border-t border-border" />
+
+      {/* Section 6: Terms Acceptance */}
+      <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6">
+        <div>
+          <h3 className="text-lg font-semibold text-text-primary dark:text-white mb-2">Điều khoản dịch vụ</h3>
+          <p className="text-md text-muted-foreground">
+            Vui lòng đọc và chấp nhận <strong>Điều khoản dịch vụ dành cho Creator</strong> của Fundelio trước khi tiếp tục.
+          </p>
+        </div>
+
+        <div className="bg-white dark:bg-darker-2 border border-border rounded-sm p-6">
+          <div className="flex items-start gap-3">
+            <Checkbox
+              checked={formData.acceptedTerms}
+              onCheckedChange={(checked) =>
+                setFormData(prev => ({ ...prev, acceptedTerms: checked }))
+              }
+              className="mt-1"
+            />
+            <div className="flex-1">
+              <label className="text-sm sm:text-base text-muted-foreground leading-relaxed cursor-pointer select-none">
+                Tôi chấp nhận{' '}
+                <button
+                  type="button"
+                  onClick={() => setIsTermsModalOpen(true)}
+                  className="text-primary hover:text-primary-600 dark:hover:text-primary-400 underline font-medium transition-colors"
+                >
+                  Điều khoản dịch vụ của Fundelio dành cho Người sáng tạo
+                </button>
+                .
+              </label>
+            </div>
+          </div>
+
+          {!formData.acceptedTerms && (
+            <div className="mt-4 p-3 bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-500">
+              <p className="text-sm text-amber-800 dark:text-amber-200">
+                Bạn cần chấp nhận điều khoản dịch vụ để có thể tiếp tục tạo dự án.
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Terms Modal */}
+      <TermsCreator
+        isOpen={isTermsModalOpen}
+        onClose={() => setIsTermsModalOpen(false)}
+      />
     </div>
   );
 }

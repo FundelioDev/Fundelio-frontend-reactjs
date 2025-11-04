@@ -19,14 +19,14 @@ const RewardCard = ({ reward, layoutMode, onPledge }) => {
     estimated_delivery,
   } = reward;
 
-   const isVertical = layoutMode === 'vertical';
-   
-   // Format price
+  const isVertical = layoutMode === 'vertical';
+
+  // Format price
   //  const priceLabel = `US$ ${min_pledge_amount}`;
   //  const pledgeActionLabel = `Pledge ${priceLabel}`;
-   
-   // Format delivery date
-   const eta = estimated_delivery ? new Date(estimated_delivery).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'TBD';
+
+  // Format delivery date
+  const eta = estimated_delivery ? new Date(estimated_delivery).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'TBD';
 
   return (
     <motion.div
@@ -38,9 +38,8 @@ const RewardCard = ({ reward, layoutMode, onPledge }) => {
       className="h-full group"
     >
       <Card
-        className={`overflow-hidden transition-all duration-300 h-full flex relative ${
-          isVertical ? 'flex-col' : 'flex-col sm:flex-row'
-        }`}
+        className={`overflow-hidden transition-all duration-300 h-full flex relative ${isVertical ? 'flex-col' : 'flex-col sm:flex-row'
+          }`}
       >
         {/* Gradient Border Effect on Hover */}
         {/* <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-sm">
@@ -51,19 +50,18 @@ const RewardCard = ({ reward, layoutMode, onPledge }) => {
 
         {/* Image Section */}
         <div
-          className={`relative overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 ${
-            isVertical ? 'w-full aspect-[3/2]' : 'w-full sm:w-2/5 aspect-[3/2] sm:aspect-auto'
-          }`}
+          className={`relative overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 ${isVertical ? 'w-full aspect-[3/2]' : 'w-full sm:w-2/5 aspect-[3/2] sm:aspect-auto'
+            }`}
         >
-            <img
+          <img
             src={image_url || reward.image}
             alt={title}
             className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-110"
           />
-          
+
           {/* Gradient Overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-          
+
           {/* Price Badge with Gradient */}
           {/* <motion.div
             className="absolute top-4 right-4 px-4 py-2 rounded-sm font-bold text-white shadow-lg flex items-center gap-1"
@@ -117,10 +115,10 @@ const RewardCard = ({ reward, layoutMode, onPledge }) => {
           {/* Info Section with Glassmorphism */}
           <div
             className="space-y-3 mb-5 p-4 rounded-sm backdrop-blur-sm"
-            // style={{
-            //   background: 'linear-gradient(135deg, rgba(8, 148, 226, 0.05) 0%, rgba(30, 199, 148, 0.05) 100%)',
-            //   border: '1px solid rgba(8, 148, 226, 0.1)',
-            // }}
+          // style={{
+          //   background: 'linear-gradient(135deg, rgba(8, 148, 226, 0.05) 0%, rgba(30, 199, 148, 0.05) 100%)',
+          //   border: '1px solid rgba(8, 148, 226, 0.1)',
+          // }}
           >
             <motion.div
               className="flex items-center gap-3 text-sm text-foreground"
@@ -131,7 +129,7 @@ const RewardCard = ({ reward, layoutMode, onPledge }) => {
                 <UsersIcon className="w-4 h-4 text-white" strokeWidth={2} />
               </div>
               <span className="font-medium">
-                <strong className="font-bold text-primary">{backers}</strong> backers
+                <strong className="font-bold text-primary">{backers}</strong> người ủng hộ
               </span>
             </motion.div>
 
@@ -143,7 +141,7 @@ const RewardCard = ({ reward, layoutMode, onPledge }) => {
               <div className="w-8 h-8 rounded-sm gradient-3 flex items-center justify-center">
                 <MapPinIcon className="w-4 h-4 text-white" strokeWidth={2} />
               </div>
-              <span className="font-medium">Ships to: {ships_to}</span>
+              <span className="font-medium">Giao đến: {ships_to}</span>
             </motion.div>
 
             <motion.div
@@ -154,7 +152,7 @@ const RewardCard = ({ reward, layoutMode, onPledge }) => {
               <div className="w-8 h-8 rounded-sm gradient-1 flex items-center justify-center">
                 <CalendarIcon className="w-4 h-4 text-white" strokeWidth={2} />
               </div>
-              <span className="font-medium">Delivery: {eta}</span>
+              <span className="font-medium">Giao hàng: {eta}</span>
             </motion.div>
           </div>
 
@@ -180,7 +178,7 @@ const RewardCard = ({ reward, layoutMode, onPledge }) => {
                 variant="outline"
                 className="w-full font-semibold relative overflow-hidden group/btn"
               >
-                <span className="relative z-10 group-hover/btn:text-white transition-colors duration-300">View Details</span>
+                <span className="relative z-10 group-hover/btn:text-white transition-colors duration-300">Xem chi tiết</span>
                 <motion.div
                   className="absolute inset-0 gradient-2"
                   initial={{ y: '100%' }}

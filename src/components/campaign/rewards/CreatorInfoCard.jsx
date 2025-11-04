@@ -39,7 +39,7 @@ const CreatorInfoCard = ({ creator }) => {
             {name}
           </h3>
           <p className="text-xs text-text-secondary dark:text-white">
-            {created} created • {backed} backed
+            {created} đã tạo • {backed} đã ủng hộ
           </p>
         </div>
       </div>
@@ -52,7 +52,7 @@ const CreatorInfoCard = ({ creator }) => {
         href={moreHref}
         className="text-sm text-primary hover:text-primary-600 font-medium transition-colors"
       >
-        See more →
+        Xem thêm →
       </a>
     </div>
   );

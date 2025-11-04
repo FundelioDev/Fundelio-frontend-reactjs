@@ -1,8 +1,8 @@
 import { motion } from 'framer-motion';
 
-export function RewardItem({ 
-  item, 
-  rightContent, 
+export function RewardItem({
+  item,
+  rightContent,
   showQuantity = true,
   variant = 'default'
 }) {
@@ -10,9 +10,8 @@ export function RewardItem({
 
   return (
     <motion.div
-      className={`bg-white dark:bg-darker-2 flex items-start justify-between p-5 rounded-sm ${
-        isAddon ? 'hover:border-primary/30 shadow-sm' : 'shadow-md'
-      } `}
+      className={`bg-white dark:bg-darker-2 flex items-start justify-between p-5 rounded-sm ${isAddon ? 'hover:border-primary/30 shadow-sm' : 'shadow-md'
+        } `}
       whileHover={{ scale: isAddon ? 1 : 1.01 }}
     >
       <div className="flex items-start gap-4 flex-1 min-w-0">
@@ -26,22 +25,22 @@ export function RewardItem({
             />
           </div>
         )}
-        
+
         {/* Content */}
         <div className="flex-1 min-w-0">
           <p className="font-bold text-foreground text-base">{item.name}</p>
-          
+
           {/* Description (optional) */}
           {item.description && (
             <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
               {item.description}
             </p>
           )}
-          
+
           {/* Quantity */}
           {showQuantity && (
             <p className="text-sm text-muted-foreground mt-2">
-              Quantity: {item.quantity}
+              Số lượng: {item.quantity}
             </p>
           )}
         </div>

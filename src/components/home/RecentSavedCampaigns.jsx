@@ -21,8 +21,8 @@ export const RecentSavedCampaigns = () => {
   const savedCampaigns = mockProjects.filter((p) => p.bookmarked);
 
   const tabs = [
-    { id: 'recent', label: 'Recent', count: recentCampaigns.length },
-    { id: 'saved', label: 'Saved', count: savedCampaigns.length },
+    { id: 'recent', label: 'Gần đây', count: recentCampaigns.length },
+    { id: 'saved', label: 'Đã lưu', count: savedCampaigns.length },
   ];
 
   const getCurrentCampaigns = () => {
@@ -62,15 +62,15 @@ export const RecentSavedCampaigns = () => {
         <Bookmark className="w-12 h-12 sm:w-16 sm:h-16 text-gray-400 dark:text-text-white" />
       </div>
       <h3 className="text-xl sm:text-2xl font-bold text-text-primary dark:text-white mb-3 transition-colors duration-300">
-        No Saved Campaigns Yet
+        Chưa có chiến dịch nào được lưu
       </h3>
       <p className="text-text-secondary dark:text-text-white text-center max-w-md mb-6 sm:mb-8 text-sm sm:text-base transition-colors duration-300">
-        Start exploring and bookmark campaigns you're interested in. They'll
-        appear here for easy access.
+        Bắt đầu khám phá và đánh dấu các chiến dịch bạn quan tâm. Chúng sẽ
+        xuất hiện ở đây để dễ dàng truy cập.
       </p>
       <Button variant="primary" size="lg" className="gap-2">
         <Compass className="w-5 h-5" />
-        Explore All Campaigns
+        Khám phá tất cả chiến dịch
       </Button>
     </div>
   );
@@ -86,20 +86,18 @@ export const RecentSavedCampaigns = () => {
               <button
                 key={tab.id}
                 onClick={() => handleTabChange(tab.id)}
-                className={`relative pb-4 font-medium transition-all duration-200 ${
-                  activeTab === tab.id
+                className={`relative pb-4 font-medium transition-all duration-200 ${activeTab === tab.id
                     ? 'text-text-primary dark:text-white'
                     : 'text-text-secondary dark:text-text-white hover:text-text-primary dark:hover:text-text-white'
-                }`}
+                  }`}
               >
                 <span className="flex items-center gap-2">
                   <span className="text-xl sm:text-2xl lg:text-3xl">{tab.label}</span>
                   <span
-                    className={`text-xs px-2 py-0.5 rounded-full transition-colors duration-300 ${
-                      activeTab === tab.id
+                    className={`text-xs px-2 py-0.5 rounded-full transition-colors duration-300 ${activeTab === tab.id
                         ? 'bg-primary text-white'
                         : 'bg-gray-200 dark:bg-gray-600 text-text-secondary dark:text-gray-300'
-                    }`}
+                      }`}
                   >
                     {tab.count}
                   </span>

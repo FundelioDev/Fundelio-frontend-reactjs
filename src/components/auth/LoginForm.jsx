@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
@@ -6,17 +7,29 @@ import { Label } from '../ui/label';
 import { motion } from 'framer-motion';
 import { Eye, EyeOff } from 'lucide-react';
 import { ForgotPasswordDialog } from './ForgotPasswordDialog';
+import { AuthErrorDialog } from './AuthErrorDialog';
+import { authApi } from '@/api/authApi';
+import { useAuth } from '@/contexts/AuthContext';
 
 export const LoginForm = () => {
+  const navigate = useNavigate();
+  const { login } = useAuth();
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showErrorDialog, setShowErrorDialog] = useState(false);
+  const [errorDialogMessage, setErrorDialogMessage] = useState('');
 
   const clearErrors = () => {
     setErrors({});
+  };
+
+  const isEmail = (value) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(value);
   };
 
   const handleSubmit = async (e) => {
@@ -25,19 +38,54 @@ export const LoginForm = () => {
 
     if (!identifier || !password) {
       setErrors({
-        identifier: 'Vui lòng nhập email hoặc số điện thoại',
-        password: 'Vui lòng nhập mật khẩu',
+        identifier: !identifier ? 'Vui lòng nhập email hoặc số điện thoại' : '',
+        password: !password ? 'Vui lòng nhập mật khẩu' : '',
       });
       return;
     }
 
     setIsLoading(true);
 
-    // TODO: Implement API call here
-    setTimeout(() => {
-      console.log('Login form submitted:', { identifier, password });
+    try {
+      const payload = isEmail(identifier)
+        ? { email: identifier, password }
+        : { phoneNumber: identifier, password };
+
+      const response = await authApi.login(payload);
+
+      if (response && response.data) {
+        const accessToken = response.data.data.accessToken;
+        if (accessToken) {
+          login(accessToken);
+          navigate('/home');
+        }
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+
+      const apiErrors = error?.errors;
+      const fallbackMessage =
+        error?.response?.data?.message ||
+        (Array.isArray(apiErrors) && apiErrors[0]?.message) ||
+        'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.';
+
+      if (Array.isArray(apiErrors) && apiErrors.length > 0) {
+        const combinedMessage = apiErrors
+          .map((e) => e?.message)
+          .filter(Boolean)
+          .join('\n');
+        const finalMsg = combinedMessage || fallbackMessage;
+        setErrors({ general: finalMsg });
+        setErrorDialogMessage(finalMsg);
+        setShowErrorDialog(true);
+      } else {
+        setErrors({ general: fallbackMessage });
+        setErrorDialogMessage(fallbackMessage);
+        setShowErrorDialog(true);
+      }
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -58,6 +106,7 @@ export const LoginForm = () => {
         </CardHeader>
         <CardContent className='px-2 md:px-4'>
           <form onSubmit={handleSubmit} className='space-y-5'>
+
             <div className='space-y-4'>
               <motion.div
                 className='space-y-2'
@@ -66,13 +115,13 @@ export const LoginForm = () => {
                 transition={{ delay: 0.1 }}
               >
                 <Label
-                  htmlFor='identifier'
+                  htmlFor='login-identifier'
                   className='text-sm md:text-base font-medium'
                 >
                   Email hoặc Số điện thoại
                 </Label>
                 <Input
-                  id='identifier'
+                  id='login-identifier'
                   type='text'
                   placeholder='example@email.com'
                   autoComplete='off'
@@ -106,14 +155,14 @@ export const LoginForm = () => {
                 transition={{ delay: 0.2 }}
               >
                 <Label
-                  htmlFor='password'
+                  htmlFor='login-password'
                   className='text-sm md:text-base font-medium'
                 >
                   Mật khẩu
                 </Label>
                 <div className='relative'>
                   <Input
-                    id='password'
+                    id='login-password'
                     type={showPassword ? 'text' : 'password'}
                     placeholder='••••••••'
                     value={password}
@@ -220,6 +269,14 @@ export const LoginForm = () => {
       <ForgotPasswordDialog
         open={showForgotPassword}
         onOpenChange={setShowForgotPassword}
+      />
+
+      {/* Common Error Dialog */}
+      <AuthErrorDialog
+        open={showErrorDialog}
+        onOpenChange={setShowErrorDialog}
+        title='Đăng nhập thất bại'
+        message={errorDialogMessage}
       />
     </motion.div>
   );

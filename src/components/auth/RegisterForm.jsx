@@ -9,12 +9,18 @@ import {
   PasswordStrengthIndicator,
   usePasswordValidation,
 } from './PasswordStrengthIndicator';
+import { VerifyEmailDialog } from './VerifyEmailDialog';
+import { AuthErrorDialog } from './AuthErrorDialog';
+import { authApi } from '@/api/authApi';
 
 export const RegisterForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showVerifyEmailDialog, setShowVerifyEmailDialog] = useState(false);
+  const [showErrorDialog, setShowErrorDialog] = useState(false);
+  const [errorDialogMessage, setErrorDialogMessage] = useState('');
 
   const [registerData, setRegisterData] = useState({
     email: '',
@@ -46,6 +52,27 @@ export const RegisterForm = () => {
     e.preventDefault();
     setErrors({});
 
+    // Validate các trường bắt buộc
+    if (!registerData.firstName) {
+      setErrors((prev) => ({ ...prev, firstName: 'Vui lòng nhập họ' }));
+      return;
+    }
+    if (!registerData.lastName) {
+      setErrors((prev) => ({ ...prev, lastName: 'Vui lòng nhập tên' }));
+      return;
+    }
+    if (!registerData.email) {
+      setErrors((prev) => ({ ...prev, email: 'Vui lòng nhập email' }));
+      return;
+    }
+    if (!registerData.phoneNumber) {
+      setErrors((prev) => ({
+        ...prev,
+        phoneNumber: 'Vui lòng nhập số điện thoại',
+      }));
+      return;
+    }
+
     // Validate mật khẩu
     if (!passwordValidation.isValid) {
       setErrors({
@@ -63,11 +90,48 @@ export const RegisterForm = () => {
 
     setIsLoading(true);
 
-    // TODO: Implement API call here
-    setTimeout(() => {
-      console.log('Register form submitted:', registerData);
+    try {
+      // Tạo payload theo schema RegisterPayload
+      const payload = {
+        firstName: registerData.firstName,
+        lastName: registerData.lastName,
+        email: registerData.email,
+        phoneNumber: registerData.phoneNumber,
+        password: registerData.password,
+        confirmPassword: registerData.confirmPassword,
+      };
+
+      const response = await authApi.register(payload);
+
+      if (response && response.data) {
+        // Đăng ký thành công, hiển thị dialog xác nhận email
+        setShowVerifyEmailDialog(true);
+      }
+    } catch (error) {
+      console.error('Register error:', error);
+      const backendErrors = error?.errors;
+      const fallbackMessage =
+        error?.response?.data?.message ||
+        (Array.isArray(backendErrors) && backendErrors[0]?.message) ||
+        'Đăng ký thất bại. Vui lòng kiểm tra lại thông tin.';
+
+      if (Array.isArray(backendErrors) && backendErrors.length > 0) {
+        const combinedMessage = backendErrors
+          .map((e) => e?.message)
+          .filter(Boolean)
+          .join('\n');
+        const finalMsg = combinedMessage || fallbackMessage;
+        setErrors({ general: finalMsg });
+        setErrorDialogMessage(finalMsg);
+        setShowErrorDialog(true);
+      } else {
+        setErrors({ general: fallbackMessage });
+        setErrorDialogMessage(fallbackMessage);
+        setShowErrorDialog(true);
+      }
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   const formFields = [
@@ -127,7 +191,7 @@ export const RegisterForm = () => {
                   transition={{ delay: 0.05 * index }}
                 >
                   <Label
-                    htmlFor={field.name}
+                    htmlFor={`register-${field.name}`}
                     className='text-sm md:text-base font-medium'
                   >
                     {field.label}
@@ -135,7 +199,7 @@ export const RegisterForm = () => {
                   {field.type === 'password' ? (
                     <div className='relative'>
                       <Input
-                        id={field.name}
+                        id={`register-${field.name}`}
                         type={
                           field.name === 'password'
                             ? showPassword
@@ -178,7 +242,7 @@ export const RegisterForm = () => {
                     </div>
                   ) : (
                     <Input
-                      id={field.name}
+                      id={`register-${field.name}`}
                       type={field.type}
                       name={field.name}
                       placeholder={field.placeholder}
@@ -263,6 +327,21 @@ export const RegisterForm = () => {
           </form>
         </CardContent>
       </Card>
+
+      {/* Verify Email Dialog */}
+      <VerifyEmailDialog
+        open={showVerifyEmailDialog}
+        onOpenChange={setShowVerifyEmailDialog}
+        email={registerData.email}
+      />
+
+      {/* Common Error Dialog */}
+      <AuthErrorDialog
+        open={showErrorDialog}
+        onOpenChange={setShowErrorDialog}
+        title='Đăng ký thất bại'
+        message={errorDialogMessage}
+      />
     </motion.div>
   );
 };

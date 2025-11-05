@@ -8,6 +8,7 @@ import {
   PasswordStrengthIndicator,
   usePasswordValidation,
 } from '../components/auth/PasswordStrengthIndicator';
+import { authApi } from '@/api/authApi';
 
 const ResetPasswordPage = () => {
   const navigate = useNavigate();
@@ -25,6 +26,7 @@ const ResetPasswordPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [tokenValid, setTokenValid] = useState(true);
+  const [generalError, setGeneralError] = useState('');
 
   // Sử dụng hook validation mật khẩu
   const passwordValidation = usePasswordValidation(formData.password);
@@ -82,19 +84,39 @@ const ResetPasswordPage = () => {
 
     if (!validateForm()) return;
 
+    setGeneralError('');
     setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      const payload = {
+        token,
+        newPassword: formData.password,
+        confirmPassword: formData.confirmPassword,
+      };
+      await authApi.resetPassword(payload);
       setIsSuccess(true);
-      // TODO: Implement actual reset password API call
-      console.log('Reset password with token:', token, formData.password);
-
       // Redirect to login after 3 seconds
       setTimeout(() => {
         navigate('/auth');
       }, 3000);
-    }, 1500);
+    } catch (error) {
+      const backendErrors = error?.errors;
+      const fallbackMessage =
+        error?.response?.data?.message ||
+        (Array.isArray(backendErrors) && backendErrors[0]?.message) ||
+        'Không thể đặt lại mật khẩu. Vui lòng thử lại sau.';
+
+      if (Array.isArray(backendErrors) && backendErrors.length > 0) {
+        const combinedMessage = backendErrors
+          .map((e) => e?.message)
+          .filter(Boolean)
+          .join('\n');
+        setGeneralError(combinedMessage || fallbackMessage);
+      } else {
+        setGeneralError(fallbackMessage);
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (!tokenValid) {
@@ -237,6 +259,17 @@ const ResetPasswordPage = () => {
 
             {/* Reset Password Form */}
             <form onSubmit={handleSubmit} className='space-y-6'>
+              {generalError && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className='p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800'
+                >
+                  <p className='text-sm text-red-600 dark:text-red-400 whitespace-pre-line'>
+                    {generalError}
+                  </p>
+                </motion.div>
+              )}
               {/* Password Input */}
               <div className='group'>
                 <label

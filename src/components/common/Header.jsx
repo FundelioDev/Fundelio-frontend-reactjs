@@ -526,13 +526,21 @@ export const Header = ({ variant = 'transparent', isFixed = true }) => {
             </div>
           ) : (
             <>
-              <Button size="md" className="hidden sm:inline-flex">
+              <Button size="md" className="hidden sm:inline-flex"
+                onClick={() => {
+                  navigate('/auth', { state: { mode: 'register' } });
+                  setIsMobileMenuOpen(false);
+                }}>
                 Đăng ký
               </Button>
               <Button
                 variant="outline"
                 size="md"
                 className="hidden sm:inline-flex border-current"
+                onClick={() => {
+                  navigate('/auth', { state: { mode: 'login' } });
+                  setIsMobileMenuOpen(false);
+                }}
               >
                 Đăng nhập
               </Button>

@@ -112,7 +112,7 @@ export function RewardDetailCard({ reward }) {
           className="w-full font-bold text-white bg-primary shadow-lg h-10 text-sm flex items-center justify-center gap-2"
         >
           <span>Ủng hộ {reward.min_pledge_amount}</span>
-          <img src="/packages/coin.svg" alt="Coin" className="w-5 h-5" />
+          <span className="text-sm font-semibold text-muted-foreground">VND</span>
         </Button>
       </div>
     </Card>

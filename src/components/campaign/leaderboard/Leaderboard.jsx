@@ -290,11 +290,7 @@ const Leaderboard = () => {
                     >
                       {formatCurrency(backer.amount)}
                     </span>
-                    <img
-                      src={coin}
-                      alt="Xu"
-                      className="inline-block w-5 h-5"
-                    />
+                    <span className="text-sm font-semibold text-muted-foreground">VND</span>
                   </div>
                 </div>
               </li>

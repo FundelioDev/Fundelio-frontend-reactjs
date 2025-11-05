@@ -164,7 +164,7 @@ export function RewardDetailSection({ reward, items = [], addOns: availableAddOn
                         <div
                           className="px-2 py-1 rounded-sm font-bold text-white bg-primary shadow-md whitespace-nowrap text-center"
                         >
-                          {addon.price} <img src="/packages/coin.svg" alt="Coin" className="inline-block w-5 h-5 mb-0.5" />
+                          {addon.price} <span className="text-sm font-semibold text-muted-foreground">VND</span>
                         </div>
 
                         {/* Quantity Controls */}
@@ -203,8 +203,8 @@ export function RewardDetailSection({ reward, items = [], addOns: availableAddOn
                     >
                       <span>Đã thêm: {addon.quantity} ×</span>
                       <span className="flex items-center gap-1">
-                        {addon.price} <img src="/packages/coin.svg" alt="Coin" className="inline-block w-4 h-4" />
-                        = {addon.quantity * addon.price} <img src="/packages/coin.svg" alt="Coin" className="inline-block w-4 h-4" />
+                        {addon.price} <span className="text-sm font-semibold text-muted-foreground">VND</span>
+                        = {addon.quantity * addon.price} <span className="text-sm font-semibold text-muted-foreground">VND</span>
                       </span>
                     </motion.div>
                   )}
@@ -228,13 +228,13 @@ export function RewardDetailSection({ reward, items = [], addOns: availableAddOn
             <div className="flex items-center justify-between mb-2">
               <span className="font-semibold text-foreground">Tổng tiện ích bổ sung:</span>
               <span className="text-xl font-bold text-accent flex items-center gap-1">
-                +{totalAddOnsPrice} <img src="/packages/coin.svg" alt="Coin" className="inline-block w-5 h-5" />
+                +{totalAddOnsPrice} <span className="text-sm font-semibold text-muted-foreground">VND</span>
               </span>
             </div>
             <div className="flex items-center justify-between pt-2 border-t border-accent/20">
               <span className="text-lg font-bold text-foreground">Tổng cộng:</span>
               <span className="text-2xl font-bold text-primary flex items-center gap-1">
-                {reward.price + totalAddOnsPrice} <img src="/packages/coin.svg" alt="Coin" className="inline-block w-6 h-6" />
+                {reward.price + totalAddOnsPrice} <span className="text-sm font-semibold text-muted-foreground">VND</span>
               </span>
             </div>
           </motion.div>

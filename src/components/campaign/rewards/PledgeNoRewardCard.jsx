@@ -33,7 +33,7 @@ const PledgeNoRewardCard = ({ currency = 'USD', onPledge }) => {
           </label>
           <div className="relative">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary dark:text-white">
-              <img src='/packages/coin.svg' alt='coin' className='w-5 h-5' />
+              <span className="text-sm font-semibold text-muted-foreground">VND</span>
             </span>
             <input
               id="pledge-amount"

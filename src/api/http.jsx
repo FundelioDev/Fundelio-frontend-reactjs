@@ -8,9 +8,9 @@ export const API_URL = 'https://fundelio.duckdns.org/api/v1';
 export const http = axios.create({
   baseURL: API_URL,
   timeout: 30000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  // headers: {
+  //   'Content-Type': 'application/json',
+  // },
   withCredentials: true,
 });
 

@@ -7,6 +7,8 @@ import Checkbox from '@/components/common/Checkbox';
 import TermsCreator from './TermsCreator';
 import toast from 'react-hot-toast';
 import { setBasics } from '@/store/campaignSlice';
+import { storageApi } from '@/api/storageApi';
+
 const CATEGORIES = [
   'Nghệ thuật',
   'Truyện tranh & Minh họa',
@@ -24,6 +26,7 @@ export default function BasicsContent() {
 
   const [formData, setFormData] = useState(basicsData);
   const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
   const imageInputRef = useRef(null);
   const videoInputRef = useRef(null);
 
@@ -83,19 +86,40 @@ export default function BasicsContent() {
     toast.success('Đã lưu thông tin cơ bản thành công!');
   };
 
-  const handleImageChange = (e) => {
+  const handleImageChange = async (e) => {
+
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setFormData(prev => ({
-          ...prev,
-          image_url: event.target?.result,
-        }));
-      };
-      reader.readAsDataURL(file);
+
+    if (!file) {
+      toast.error('Chưa chọn tệp ảnh');
+      return;
+    }
+
+    try {
+      setIsUploadingImage(true);
+      toast.loading('Đang tải ảnh lên...', { id: 'upload-image' });
+
+      // Gọi API upload
+      const response = await storageApi.uploadSingleFile(file, 'campaigns/images');
+      console.log('Upload response:', response);
+
+      if (response?.data?.data?.fileUrl) {
+        const imageUrl = response.data.data.fileUrl;
+        setFormData(prev => ({ ...prev, image_url: imageUrl }));
+        toast.success('Tải ảnh lên thành công!', { id: 'upload-image' });
+      } else {
+        toast.error('Không lấy được URL ảnh sau khi tải lên', { id: 'upload-image' });
+      }
+    } catch (error) {
+      console.error('Upload error:', error);
+      console.error('Response data:', error.response?.data);
+      toast.error(error.response?.data?.errors?.[0]?.message || 'Lỗi tải ảnh lên', { id: 'upload-image' });
+    } finally {
+      setIsUploadingImage(false);
+      if (imageInputRef.current) imageInputRef.current.value = '';
     }
   };
+
 
   const handleVideoChange = (e) => {
     const file = e.target.files?.[0];
@@ -239,9 +263,10 @@ export default function BasicsContent() {
                       type="button"
                       variant="gradient"
                       onClick={() => imageInputRef.current?.click()}
+                      disabled={isUploadingImage}
                       className="px-6 py-3 border border-border rounded-sm text-text-primary dark:text-white bg-background hover:bg-muted transition-colors font-medium"
                     >
-                      Tải ảnh lên
+                      {isUploadingImage ? 'Đang tải lên...' : 'Tải ảnh lên'}
                     </Button>
 
                     <p className="text-md text-muted-foreground">Chọn một tệp.</p>

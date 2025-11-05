@@ -15,6 +15,7 @@ export function generatePreviewId() {
 
 /**
  * Save campaign data to sessionStorage for preview
+ * Handles QuotaExceededError by removing base64 images if needed
  * @param {string} previewId - Unique preview ID
  * @param {Object} campaignData - Campaign data to save
  * @returns {boolean} Success status
@@ -25,8 +26,50 @@ export function savePreviewData(previewId, campaignData) {
       ...campaignData,
       savedAt: new Date().toISOString(),
     };
-    sessionStorage.setItem(previewId, JSON.stringify(dataToSave));
-    return true;
+    
+    // Try to save with full data first
+    try {
+      sessionStorage.setItem(previewId, JSON.stringify(dataToSave));
+      return true;
+    } catch (quotaError) {
+      if (quotaError.name === 'QuotaExceededError') {
+        console.warn('QuotaExceededError: Saving preview without base64 images...');
+        
+        // Create a lighter version without base64 images
+        const lightData = {
+          ...dataToSave,
+          basics: dataToSave.basics ? {
+            ...dataToSave.basics,
+            image_url: dataToSave.basics.image_url?.startsWith('data:') 
+              ? null 
+              : dataToSave.basics.image_url,
+            intro_video_url: dataToSave.basics.intro_video_url?.startsWith('data:')
+              ? null
+              : dataToSave.basics.intro_video_url,
+          } : dataToSave.basics,
+          rewards: dataToSave.rewards ? {
+            ...dataToSave.rewards,
+            items: (dataToSave.rewards.items || []).map(item => ({
+              ...item,
+              image: item.image?.startsWith('data:') ? null : item.image,
+            })),
+            rewards: (dataToSave.rewards.rewards || []).map(reward => ({
+              ...reward,
+              image: reward.image?.startsWith('data:') ? null : reward.image,
+            })),
+            addOns: (dataToSave.rewards.addOns || []).map(addon => ({
+              ...addon,
+              image: addon.image?.startsWith('data:') ? null : addon.image,
+            })),
+          } : dataToSave.rewards,
+        };
+        
+        sessionStorage.setItem(previewId, JSON.stringify(lightData));
+        console.info('✅ Preview saved without base64 images (images will be passed via router state)');
+        return true;
+      }
+      throw quotaError;
+    }
   } catch (error) {
     console.error('Error saving preview data:', error);
     return false;

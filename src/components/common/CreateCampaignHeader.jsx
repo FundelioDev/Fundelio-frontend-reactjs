@@ -10,17 +10,11 @@ import Button from './Button';
  * @param {string} props.activeTab - Current active tab ('basic' | 'story' | 'rewards')
  * @param {Function} props.onTabChange - Callback when tab changes
  * @param {Function} props.onPreview - Callback when preview button clicked
- * @param {boolean} props.isEditing - Whether user is editing/creating a reward/component/addon
- * @param {Function} props.onCancel - Callback when cancel button clicked
- * @param {Function} props.onSave - Callback when save button clicked
  */
 export const CreateCampaignHeader = ({
   activeTab = 'basic',
   onTabChange,
-  onPreview,
-  isEditing = false,
-  onCancel,
-  onSave
+  onPreview
 }) => {
   const { toggleTheme, isDark } = useTheme();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -49,9 +43,6 @@ export const CreateCampaignHeader = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Determine header height based on editing state
-  //   const headerHeight = isEditing ? 'md:h-20' : 'md:h-16';
-
   return (
     <header className={`fixed top-0 left-0 right-0 z-50 bg-white dark:bg-darker-2 border-b border-gray-200 dark:border-gray-700 transition-all duration-300 h-20`}>
       {/* Desktop - Single Row */}
@@ -69,8 +60,8 @@ export const CreateCampaignHeader = ({
                 key={tab.id}
                 onClick={() => onTabChange?.(tab.id)}
                 className={`px-2 py-3 font-semibold text-base transition-all relative ${activeTab === tab.id
-                    ? 'text-primary'
-                    : 'text-text-primary dark:text-white hover:text-primary dark:hover:text-primary-400'
+                  ? 'text-primary'
+                  : 'text-text-primary dark:text-white hover:text-primary dark:hover:text-primary-400'
                   }`}
               >
                 {tab.label}
@@ -92,40 +83,16 @@ export const CreateCampaignHeader = ({
               {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
 
-            {/* Conditional Buttons - Preview OR Cancel/Save */}
-            {!isEditing ? (
-              <Button
-                variant="gradient"
-                size="md"
-                onClick={onPreview}
-                className="flex items-center gap-2 rounded-sm"
-              >
-                <Eye className="w-4 h-4" />
-                <span>Xem trước</span>
-              </Button>
-            ) : (
-              <>
-                <Button
-                  variant="outline"
-                  size="md"
-                  onClick={onCancel}
-                  className="flex items-center gap-2 rounded-sm"
-                >
-                  <X className="w-5 h-5" />
-                  <span>Hủy</span>
-                </Button>
-
-                <Button
-                  variant="gradient"
-                  size="md"
-                  onClick={onSave}
-                  className="flex items-center gap-2 rounded-sm"
-                >
-                  <Check className="w-5 h-5" />
-                  <span>Lưu</span>
-                </Button>
-              </>
-            )}
+            {/* Preview Button */}
+            <Button
+              variant="gradient"
+              size="md"
+              onClick={onPreview}
+              className="flex items-center gap-2 rounded-sm"
+            >
+              <Eye className="w-4 h-4" />
+              <span>Xem trước</span>
+            </Button>
 
             {/* User Avatar with Dropdown */}
             <div className="relative user-menu-container">
@@ -298,33 +265,14 @@ export const CreateCampaignHeader = ({
 
           {/* Right - Actions */}
           <div className="flex items-center gap-2">
-            {/* Conditional Buttons */}
-            {!isEditing ? (
-              <button
-                onClick={onPreview}
-                className="p-2 rounded-lg border border-gray-300 dark:border-gray-600 text-text-primary dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                title="Xem trước"
-              >
-                <Eye className="w-5 h-5" />
-              </button>
-            ) : (
-              <>
-                <button
-                  onClick={onCancel}
-                  className="p-2 rounded-sm border border-gray-300 dark:border-gray-600 text-text-primary dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                  title="Hủy"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={onSave}
-                  className="p-2 rounded-sm bg-primary text-white hover:bg-primary-600 transition-colors"
-                  title="Lưu"
-                >
-                  <Check className="w-5 h-5" />
-                </button>
-              </>
-            )}
+            {/* Preview Button */}
+            <button
+              onClick={onPreview}
+              className="p-2 rounded-lg border border-gray-300 dark:border-gray-600 text-text-primary dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              title="Xem trước"
+            >
+              <Eye className="w-5 h-5" />
+            </button>
 
             {/* User Avatar */}
             <button
@@ -348,8 +296,8 @@ export const CreateCampaignHeader = ({
                 key={tab.id}
                 onClick={() => onTabChange?.(tab.id)}
                 className={`px-2 py-2 font-semibold text-sm whitespace-nowrap transition-all relative ${activeTab === tab.id
-                    ? 'text-primary'
-                    : 'text-text-primary dark:text-white hover:text-primary'
+                  ? 'text-primary'
+                  : 'text-text-primary dark:text-white hover:text-primary'
                   }`}
               >
                 {tab.label}

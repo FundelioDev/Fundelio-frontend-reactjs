@@ -28,52 +28,37 @@ import { useState } from 'react';
 //   reward: Reward;
 // }
 
-export function RewardDetailSection({ reward }) {
-  const [addOns, setAddOns] = useState([
-    {
-      id: '1',
-      name: 'Gói phụ kiện cao cấp',
-      price: 15,
-      description: 'Nâng cao trải nghiệm của bạn với bộ sưu tập phụ kiện được tuyển chọn.',
-      image: 'https://c.animaapp.com/mh96kubogMaabT/img/ai_1.png',
-      quantity: 0,
-    },
-    {
-      id: '2',
-      name: 'Bộ gói cao cấp',
-      price: 28,
-      description: 'Nhận hai sản phẩm cao cấp với mức giá ưu đãi theo gói.',
-      image: 'https://c.animaapp.com/mh96kubogMaabT/img/ai_1.png',
-      quantity: 0,
-    },
-    {
-      id: '3',
-      name: 'Ấn bản giới hạn độc quyền',
-      price: 45,
-      description: 'Số lượng có hạn – phiên bản sưu tầm với các tính năng độc đáo.',
-      image: 'https://c.animaapp.com/mh96kubogMaabT/img/ai_1.png',
-      quantity: 0,
-    },
-  ]);
-
-  const includedItems = [
-    {
-      id: '1',
-      name: 'Quyền truy cập sản phẩm cốt lõi',
-      image: 'https://c.animaapp.com/mh96kubogMaabT/img/ai_1.png',
-      quantity: 1,
+export function RewardDetailSection({ reward, items = [], addOns: availableAddOns = [] }) {
+  // Get included items from reward.items array
+  const includedItems = (reward.items || []).map((selectedItem) => {
+    const item = items.find((i) => i.id === selectedItem.itemId);
+    return {
+      id: selectedItem.itemId,
+      name: item?.title || 'Unknown Item',
+      image: item?.image || 'https://c.animaapp.com/mh96kubogMaabT/img/ai_1.png',
+      quantity: selectedItem.qty,
       badge: 'ĐÃ BAO GỒM',
-      description: 'Quyền truy cập đầy đủ vào sản phẩm cốt lõi với tất cả tính năng tiêu chuẩn',
-    },
-    {
-      id: '2',
-      name: 'Gói nội dung số',
-      quantity: 1,
-      image: 'https://c.animaapp.com/mh96kubogMaabT/img/ai_1.png',
-      badge: 'TẶNG KÈM',
-      description: 'Nội dung số độc quyền và tài liệu tặng kèm',
-    },
-  ];
+      description: item?.description || '',
+    };
+  });
+
+  // Filter add-ons that are allowed for this reward
+  const filteredAddOns = availableAddOns.filter((addon) => {
+    // If addon has offeredWithRewardIds, check if this reward is included
+    if (addon.offeredWithRewardIds && Array.isArray(addon.offeredWithRewardIds)) {
+      return addon.offeredWithRewardIds.includes(reward.id || reward.reward_id);
+    }
+    // If no offeredWithRewardIds, include all add-ons (backward compatibility)
+    return true;
+  });
+
+  // Initialize add-ons with quantity state
+  const [addOns, setAddOns] = useState(
+    filteredAddOns.map((addon) => ({
+      ...addon,
+      quantity: 0,
+    }))
+  );
 
   const updateQuantity = (id, delta) => {
     setAddOns((prev) =>
@@ -150,74 +135,84 @@ export function RewardDetailSection({ reward }) {
 
 
         {/* Add-ons */}
-        <h3 className="text-lg font-bold text-foreground mb-5 mt-12">
-          Tiện ích bổ sung tùy chọn
-        </h3>
+        {addOns.length > 0 && (
+          <>
+            <h3 className="text-lg font-bold text-foreground mb-5 mt-12">
+              Tiện ích bổ sung tùy chọn
+            </h3>
 
-        <div className="space-y-5">
-          {addOns.map((addon, index) => (
-            <motion.div
-              key={addon.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-            >
-              <RewardItem
-                item={addon}
-                variant="addon"
-                showQuantity={false}
-                rightContent={
-                  <div className="flex flex-col gap-3">
-                    <div
-                      className="px-2 py-1 rounded-sm font-bold text-white bg-primary shadow-md whitespace-nowrap text-center"
-                    >
-                      {addon.price} <img src="/packages/coin.svg" alt="Coin" className="inline-block w-5 h-5 mb-0.5" />
-                    </div>
-
-                    {/* Quantity Controls */}
-                    <div className="flex items-center gap-2">
-                      <Button
-                        size="icon"
-                        variant="outline"
-                        className="h-8 w-8 rounded-sm"
-                        onClick={() => updateQuantity(addon.id, -1)}
-                        disabled={addon.quantity === 0}
-                      >
-                        <MinusIcon className="w-4 h-4 text-text-primary dark:text-white" />
-                      </Button>
-                      <span className="font-semibold text-foreground min-w-[1.5rem] text-center">
-                        {addon.quantity > 0 ? `×${addon.quantity}` : '0'}
-                      </span>
-                      <Button
-                        size="icon"
-                        variant="outline"
-                        className="h-8 w-8 rounded-sm"
-                        onClick={() => updateQuantity(addon.id, 1)}
-                      >
-                        <PlusIcon className="w-4 h-4 text-text-primary dark:text-white" />
-                      </Button>
-                    </div>
-                  </div>
-                }
-              />
-
-              {/* Selected Indicator */}
-              {addon.quantity > 0 && (
+            <div className="space-y-5">
+              {addOns.map((addon, index) => (
                 <motion.div
-                  initial={{ height: 0 }}
-                  animate={{ height: 'auto' }}
-                  className="px-4 py-2 gradient-2 text-white text-sm font-semibold mt-0 rounded-b-sm flex items-center justify-between"
+                  key={addon.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
                 >
-                  <span>Đã thêm: {addon.quantity} ×</span>
-                  <span className="flex items-center gap-1">
-                    {addon.price} <img src="/packages/coin.svg" alt="Coin" className="inline-block w-4 h-4" />
-                    = {addon.quantity * addon.price} <img src="/packages/coin.svg" alt="Coin" className="inline-block w-4 h-4" />
-                  </span>
+                  <RewardItem
+                    item={{
+                      id: addon.id,
+                      name: addon.title,
+                      image: addon.image,
+                      description: addon.description,
+                      quantity: 1,
+                    }}
+                    variant="addon"
+                    showQuantity={false}
+                    rightContent={
+                      <div className="flex flex-col gap-3">
+                        <div
+                          className="px-2 py-1 rounded-sm font-bold text-white bg-primary shadow-md whitespace-nowrap text-center"
+                        >
+                          {addon.price} <img src="/packages/coin.svg" alt="Coin" className="inline-block w-5 h-5 mb-0.5" />
+                        </div>
+
+                        {/* Quantity Controls */}
+                        <div className="flex items-center gap-2">
+                          <Button
+                            size="icon"
+                            variant="outline"
+                            className="h-8 w-8 rounded-sm"
+                            onClick={() => updateQuantity(addon.id, -1)}
+                            disabled={addon.quantity === 0}
+                          >
+                            <MinusIcon className="w-4 h-4 text-text-primary dark:text-white" />
+                          </Button>
+                          <span className="font-semibold text-foreground min-w-[1.5rem] text-center">
+                            {addon.quantity > 0 ? `×${addon.quantity}` : '0'}
+                          </span>
+                          <Button
+                            size="icon"
+                            variant="outline"
+                            className="h-8 w-8 rounded-sm"
+                            onClick={() => updateQuantity(addon.id, 1)}
+                          >
+                            <PlusIcon className="w-4 h-4 text-text-primary dark:text-white" />
+                          </Button>
+                        </div>
+                      </div>
+                    }
+                  />
+
+                  {/* Selected Indicator */}
+                  {addon.quantity > 0 && (
+                    <motion.div
+                      initial={{ height: 0 }}
+                      animate={{ height: 'auto' }}
+                      className="px-4 py-2 gradient-2 text-white text-sm font-semibold mt-0 rounded-b-sm flex items-center justify-between"
+                    >
+                      <span>Đã thêm: {addon.quantity} ×</span>
+                      <span className="flex items-center gap-1">
+                        {addon.price} <img src="/packages/coin.svg" alt="Coin" className="inline-block w-4 h-4" />
+                        = {addon.quantity * addon.price} <img src="/packages/coin.svg" alt="Coin" className="inline-block w-4 h-4" />
+                      </span>
+                    </motion.div>
+                  )}
                 </motion.div>
-              )}
-            </motion.div>
-          ))}
-        </div>
+              ))}
+            </div>
+          </>
+        )}
 
         {/* Total */}
         {totalAddOnsPrice > 0 && (

@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import Input from '@/components/common/Input';
 import Textarea from '@/components/common/Textarea';
-import { useLocalStorage } from '@/hooks/useLocalStorge';
 import Button from '@/components/common/Button';
 import Checkbox from '@/components/common/Checkbox';
 import TermsCreator from './TermsCreator';
+import toast from 'react-hot-toast';
+import { setBasics } from '@/store/campaignSlice';
 const CATEGORIES = [
   'Nghệ thuật',
   'Truyện tranh & Minh họa',
@@ -17,31 +19,17 @@ const CATEGORIES = [
 ];
 
 export default function BasicsContent() {
-  const { value: savedData, setValue: setSavedData } = useLocalStorage('ff:campaign-basics', null);
+  const dispatch = useDispatch();
+  const basicsData = useSelector((state) => state.campaign.basics);
 
-  const [formData, setFormData] = useState({
-    title: '',
-    desc: '',
-    category: '',
-    image_url: null,
-    intro_video_url: null,
-    start_date: '',
-    end_date: '',
-    acceptedTerms: false,
-  });
-
-  const [mounted, setMounted] = useState(false);
+  const [formData, setFormData] = useState(basicsData);
   const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
   const imageInputRef = useRef(null);
   const videoInputRef = useRef(null);
 
-  // Hydrate from localStorage
+  // Initialize with default dates if empty
   useEffect(() => {
-    setMounted(true);
-    if (savedData) {
-      setFormData(savedData);
-    } else {
-      // Set default dates
+    if (!formData.start_date || !formData.end_date) {
       const today = new Date();
       const endDate = new Date(today.getTime() + 60 * 24 * 60 * 60 * 1000); // 60 days from now
 
@@ -51,22 +39,48 @@ export default function BasicsContent() {
         end_date: endDate.toISOString().split('T')[0],
       }));
     }
-  }, [savedData]);
+  }, []);
 
-  // Auto-save to localStorage with debounce
+  // Sync with Redux when basicsData changes
   useEffect(() => {
-    if (!mounted) return;
-
-    const timer = setTimeout(() => {
-      setSavedData(formData);
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [formData, mounted, setSavedData]);
+    setFormData(basicsData);
+  }, [basicsData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSave = () => {
+    // Validate required fields
+    if (!formData.title.trim()) {
+      toast.error('Vui lòng nhập tiêu đề dự án');
+      return;
+    }
+    if (!formData.desc.trim()) {
+      toast.error('Vui lòng nhập mô tả ngắn');
+      return;
+    }
+    if (!formData.category) {
+      toast.error('Vui lòng chọn danh mục');
+      return;
+    }
+    if (!formData.image_url) {
+      toast.error('Vui lòng tải lên ảnh dự án');
+      return;
+    }
+    if (!formData.start_date || !formData.end_date) {
+      toast.error('Vui lòng chọn thời gian chiến dịch');
+      return;
+    }
+    if (!formData.acceptedTerms) {
+      toast.error('Vui lòng chấp nhận điều khoản dịch vụ');
+      return;
+    }
+
+    // Save to Redux
+    dispatch(setBasics(formData));
+    toast.success('Đã lưu thông tin cơ bản thành công!');
   };
 
   const handleImageChange = (e) => {
@@ -96,8 +110,6 @@ export default function BasicsContent() {
       reader.readAsDataURL(file);
     }
   };
-
-  if (!mounted) return null;
 
   return (
     <div className="space-y-8">
@@ -467,24 +479,26 @@ export default function BasicsContent() {
           <div className="flex items-start gap-3">
             <Checkbox
               checked={formData.acceptedTerms}
-              onCheckedChange={(checked) =>
+              onChange={(checked) =>
                 setFormData(prev => ({ ...prev, acceptedTerms: checked }))
               }
-              className="mt-1"
+              label={
+                <span className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+                  Tôi chấp nhận{' '}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setIsTermsModalOpen(true);
+                    }}
+                    className="text-primary hover:text-primary-600 dark:hover:text-primary-400 underline font-medium transition-colors"
+                  >
+                    Điều khoản dịch vụ của Fundelio dành cho Người sáng tạo
+                  </button>
+                  .
+                </span>
+              }
             />
-            <div className="flex-1">
-              <label className="text-sm sm:text-base text-muted-foreground leading-relaxed cursor-pointer select-none">
-                Tôi chấp nhận{' '}
-                <button
-                  type="button"
-                  onClick={() => setIsTermsModalOpen(true)}
-                  className="text-primary hover:text-primary-600 dark:hover:text-primary-400 underline font-medium transition-colors"
-                >
-                  Điều khoản dịch vụ của Fundelio dành cho Người sáng tạo
-                </button>
-                .
-              </label>
-            </div>
           </div>
 
           {!formData.acceptedTerms && (
@@ -502,6 +516,18 @@ export default function BasicsContent() {
         isOpen={isTermsModalOpen}
         onClose={() => setIsTermsModalOpen(false)}
       />
+
+      {/* Save Button */}
+      <div className="flex justify-end pt-6 border-t border-border">
+        <Button
+          variant="gradient"
+          size="lg"
+          onClick={handleSave}
+          className="px-8"
+        >
+          Lưu thông tin cơ bản
+        </Button>
+      </div>
     </div>
   );
 }

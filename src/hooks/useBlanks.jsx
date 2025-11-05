@@ -1,29 +1,40 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useRef, useEffect, useCallback } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import {
+  initializeStory,
+  addBlank as addBlankAction,
+  updateBlankTitle,
+  updateBlankContent,
+  reorderBlanks as reorderBlanksAction,
+  deleteBlank as deleteBlankAction
+} from '@/store/campaignSlice';
 import { uid } from '@/utils/id';
 import toast from 'react-hot-toast';
+
 /**
- * Custom hook to manage blanks state and operations
- * Uses blanksById (Record<id, Blank>) and order (string[]) for stable reordering
+ * Custom hook to manage blanks state with Redux
  */
 function useBlanks() {
-  const [blanksById, setBlanksById] = useState({});
-  const [order, setOrder] = useState([]);
+  const dispatch = useDispatch();
+  const blanksById = useSelector((state) => state.campaign.story.blanksById);
+  const order = useSelector((state) => state.campaign.story.order);
   const activeEditorRef = useRef(null);
-  const autosaveTimerRef = useRef(null);
 
-  // Initialize with first blank
+  // Initialize with first blank if empty
   useEffect(() => {
-    const firstId = uid();
-    setBlanksById({
-      [firstId]: {
+    if (order.length === 0) {
+      const firstId = uid();
+      dispatch(initializeStory({
         id: firstId,
-        titleHtml: 'Giới thiệu',
-        titleText: 'Giới thiệu',
-        contentHtml: '<p>Gõ nội dung câu chuyện dự án ở đây…</p>',
-      },
-    });
-    setOrder([firstId]);
-  }, []);
+        blank: {
+          id: firstId,
+          titleHtml: 'Giới thiệu',
+          titleText: 'Giới thiệu',
+          contentHtml: '<p>Gõ nội dung câu chuyện dự án ở đây…</p>',
+        },
+      }));
+    }
+  }, [dispatch, order.length]);
 
   const addBlank = () => {
     const newId = uid();
@@ -33,41 +44,21 @@ function useBlanks() {
       titleText: 'Untitled',
       contentHtml: '',
     };
-    setBlanksById((prev) => ({
-      ...prev,
-      [newId]: newBlank,
-    }));
-    setOrder((prev) => [...prev, newId]);
+    dispatch(addBlankAction({ id: newId, blank: newBlank }));
     return newId;
   };
 
   const updateTitle = useCallback((id, titleHtml, titleText) => {
-    setBlanksById((prev) => ({
-      ...prev,
-      [id]: {
-        ...prev[id],
-        titleHtml,
-        titleText,
-      },
-    }));
-    scheduleAutosave();
-  }, []);
+    dispatch(updateBlankTitle({ id, titleHtml, titleText }));
+  }, [dispatch]);
 
   const updateContent = useCallback((id, contentHtml) => {
-    setBlanksById((prev) => ({
-      ...prev,
-      [id]: {
-        ...prev[id],
-        contentHtml,
-      },
-    }));
-    scheduleAutosave();
-  }, []);
+    dispatch(updateBlankContent({ id, contentHtml }));
+  }, [dispatch]);
 
   const reorderBlanks = useCallback((newOrder) => {
-    setOrder(newOrder);
-    scheduleAutosave();
-  }, []);
+    dispatch(reorderBlanksAction(newOrder));
+  }, [dispatch]);
 
   const deleteBlank = useCallback((id) => {
     // Prevent deleting if it's the last blank
@@ -76,19 +67,9 @@ function useBlanks() {
       return;
     }
 
-    // Remove from order
-    setOrder((prev) => prev.filter((blankId) => blankId !== id));
-
-    // Remove from blanksById
-    setBlanksById((prev) => {
-      const newBlanks = { ...prev };
-      delete newBlanks[id];
-      return newBlanks;
-    });
-
+    dispatch(deleteBlankAction(id));
     toast.success('Đã xóa blank thành công!');
-    scheduleAutosave();
-  }, [order.length]);
+  }, [dispatch, order.length]);
 
   const setActiveEditor = (_id, editor) => {
     activeEditorRef.current = editor;
@@ -110,43 +91,12 @@ function useBlanks() {
     }
   };
 
-  const getPayload = () => {
-    const payload = {
-      version: 1,
-      createdAt: new Date().toISOString(),
-      blanks: order.map((id, index) => {
-        const blank = blanksById[id];
-        return {
-          id: blank.id,
-          order: index,
-          title_text: blank.titleText,
-          title_html: blank.titleHtml,
-          content_html: blank.contentHtml,
-        };
-      }),
-    };
-    return payload;
-  };
-
-  const scheduleAutosave = () => {
-    if (autosaveTimerRef.current) {
-      clearTimeout(autosaveTimerRef.current);
-    }
-    autosaveTimerRef.current = setTimeout(() => {
-      const payload = getPayload();
-      console.log('[AUTOSAVE]', payload);
-    }, 5000);
-  };
-
   const save = () => {
-    const payload = getPayload();
-    console.log('SAVE payload:', payload);
-    console.log('\n=== Mock Data JSON ===\n', JSON.stringify(payload, null, 2));
-    toast.success('Đã lưu thành công!');
+    toast.success('Story đã được lưu tự động vào Redux store!');
   };
 
   // Derive blanks array from order and blanksById for rendering
-  const blanks = order.map((id) => blanksById[id]);
+  const blanks = order.map((id) => blanksById[id]).filter(Boolean);
 
   return {
     blanks,

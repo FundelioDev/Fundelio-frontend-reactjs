@@ -21,9 +21,6 @@ import BasicsContent from './basics/BasicsContent';
  * @param {Function} props.save - Callback to save
  * @param {string} props.activeTab - Current active tab from parent
  * @param {Function} props.onTabChange - Callback when tab changes (optional, for compatibility)
- * @param {Function} props.setIsEditing - Callback to set editing state in header
- * @param {Function} props.setSaveCallback - Callback to register save handler
- * @param {Function} props.setCancelCallback - Callback to register cancel handler
  */
 export default function CreateCampaignTabs({
   blanks,
@@ -38,9 +35,6 @@ export default function CreateCampaignTabs({
   save,
   activeTab: externalActiveTab,
   onTabChange,
-  setIsEditing,
-  setSaveCallback,
-  setCancelCallback,
 }) {
   // Use external activeTab if provided, otherwise use internal state
   const [internalActiveTab, setInternalActiveTab] = useState('story');
@@ -101,11 +95,7 @@ export default function CreateCampaignTabs({
 
         {/* Rewards Tab */}
         {activeTab === 'rewards' && (
-          <RewardCreateTab
-            setIsEditing={setIsEditing}
-            setSaveCallback={setSaveCallback}
-            setCancelCallback={setCancelCallback}
-          />
+          <RewardCreateTab />
         )}
       </div>
     </div>

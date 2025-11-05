@@ -46,7 +46,7 @@ const useScrollSpy = (sectionIds) => {
  * RewardsPage Component
  * Displays reward details with TOC navigation
  */
-const RewardsPage = ({ rewards = [], onPledge }) => {
+const RewardsPage = ({ rewards = [], items = [], addOns = [], onPledge }) => {
   // Transform rewards to TOC menu items format
   const rewardMenuItems = rewards.map((reward) => ({
     id: reward.reward_id || reward.id,
@@ -68,7 +68,11 @@ const RewardsPage = ({ rewards = [], onPledge }) => {
                 id={reward.reward_id || reward.id}
                 className="scroll-mt-28"
               >
-                <RewardDetailSection reward={reward} />
+                <RewardDetailSection
+                  reward={reward}
+                  items={items}
+                  addOns={addOns}
+                />
               </div>
               {/* Horizontal rule between rewards, but not after the last one */}
               {index < rewards.length - 1 && (

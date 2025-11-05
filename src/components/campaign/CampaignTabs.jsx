@@ -73,6 +73,8 @@ const CampaignTabs = ({ initialTab = 'campaign', campaignProps = {} }) => {
             >
               <RewardsPage
                 rewards={campaignProps.rewards || []}
+                items={campaignProps.items || []}
+                addOns={campaignProps.addOns || []}
                 onPledge={campaignProps.onPledge}
               />
             </div>

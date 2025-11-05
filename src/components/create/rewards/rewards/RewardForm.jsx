@@ -173,7 +173,7 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
                   <Button
                     type="button"
                     variant="gradient"
-                    onClick={() => imageInputRef.current?.click()}
+                    onClick={() => fileInputRef.current?.click()}
                     className="px-6 py-3 border border-border rounded-sm text-foreground bg-background hover:bg-muted transition-colors font-medium"
                   >
                     Tải ảnh lên
@@ -466,6 +466,18 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
           onClose={() => setShowItemSelector(false)}
         />
       )}
+
+      {/* Action Buttons */}
+      <div className="rounded-sm border border-border bg-white dark:bg-darker-2 p-6">
+        <div className="flex gap-3 justify-end">
+          <Button type="button" variant="outline" onClick={onCancel}>
+            Hủy
+          </Button>
+          <Button type="submit" variant="gradient">
+            Lưu {isAddon ? 'Add-on' : 'Phần thưởng'}
+          </Button>
+        </div>
+      </div>
     </form>
   )
 })

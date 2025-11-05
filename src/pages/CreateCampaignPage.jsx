@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import { Toaster } from 'react-hot-toast';
 import toast from 'react-hot-toast';
 import useBlanks from '@/hooks/useBlanks';
-import { useRewardsState } from '@/hooks/useRewardsState';
-import { useLocalStorage } from '@/hooks/useLocalStorge';
 import CreateCampaignTabs from '@/components/create/CreateCampaignTabs';
 import CreateCampaignHeader from '@/components/common/CreateCampaignHeader';
 import Footer from '@/components/common/Footer';
@@ -13,11 +12,12 @@ import { generatePreviewId, savePreviewData } from '@/utils/previewStorage';
 export default function CreateCampaignPage() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('story');
-  const [isEditing, setIsEditing] = useState(false);
-  const [saveCallback, setSaveCallback] = useState(null);
-  const [cancelCallback, setCancelCallback] = useState(null);
 
-  // Story state management
+  // Get data from Redux
+  const basicsData = useSelector((state) => state.campaign.basics);
+  const rewardsData = useSelector((state) => state.campaign.rewards);
+
+  // Story state management (using Redux via useBlanks hook)
   const {
     blanks,
     activeEditorRef,
@@ -30,12 +30,6 @@ export default function CreateCampaignPage() {
     scrollToBlank,
     save,
   } = useBlanks();
-
-  // Rewards state management
-  const { state: rewardsState, dispatch: rewardsDispatch } = useRewardsState();
-
-  // Basics data from localStorage (managed by BasicsContent component)
-  const { value: basicsData } = useLocalStorage('ff:campaign-basics', null);
 
   const handleAddBlank = () => {
     const newId = addBlank();
@@ -55,7 +49,7 @@ export default function CreateCampaignPage() {
       return;
     }
 
-    // Collect all campaign data
+    // Collect all campaign data from Redux
     const campaignData = {
       // Basics
       basics: basicsData,
@@ -71,60 +65,31 @@ export default function CreateCampaignPage() {
         })),
       },
 
-      // Rewards
-      rewards: rewardsState.rewards,
-      addOns: rewardsState.addOns,
-      items: rewardsState.items,
+      // Rewards - send complete rewards object
+      rewards: {
+        rewards: rewardsData.rewards || [],
+        addOns: rewardsData.addOns || [],
+        items: rewardsData.items || [],
+      },
     };
 
     // Generate unique preview ID
     const previewId = generatePreviewId();
 
-    // Create lighter version for sessionStorage (remove large base64 images)
-    const lightCampaignData = {
-      ...campaignData,
-      basics: {
-        ...campaignData.basics,
-        // Keep only URLs, not base64 data
-        image_url: campaignData.basics.image_url?.startsWith('data:')
-          ? '[BASE64_IMAGE]'
-          : campaignData.basics.image_url,
-        intro_video_url: campaignData.basics.intro_video_url?.startsWith('data:')
-          ? '[BASE64_VIDEO]'
-          : campaignData.basics.intro_video_url,
-      }
-    };
-
-    // Save lighter version to sessionStorage (for refresh support)
-    const saved = savePreviewData(previewId, lightCampaignData);
+    // Save to sessionStorage (will automatically handle large images)
+    const saved = savePreviewData(previewId, campaignData);
 
     if (!saved) {
       toast.error('Không thể lưu dữ liệu preview. Vui lòng thử lại.');
       return;
     }
 
-    // Navigate with full state including images (for fast access)
+    // Navigate with full state including images (for immediate access)
     navigate(`/campaigns/preview/${previewId}`, {
       state: { campaignData, isPreview: true },
     });
 
     toast.success('Đang chuyển đến trang xem trước...');
-  };
-
-  const handleCancel = () => {
-    if (cancelCallback && typeof cancelCallback === 'function') {
-      cancelCallback();
-    }
-    setIsEditing(false);
-    setSaveCallback(null);
-    setCancelCallback(null);
-  };
-
-  const handleSave = () => {
-    if (saveCallback && typeof saveCallback === 'function') {
-      saveCallback();
-    }
-    // Don't set isEditing to false here - let the form handler do it after successful save
   };
 
   return (
@@ -135,9 +100,6 @@ export default function CreateCampaignPage() {
           activeTab={activeTab}
           onTabChange={handleTabChange}
           onPreview={handlePreview}
-          isEditing={isEditing}
-          onCancel={handleCancel}
-          onSave={handleSave}
         />
 
         {/* Main Content */}
@@ -159,11 +121,6 @@ export default function CreateCampaignPage() {
               setActiveEditor={setActiveEditor}
               scrollToBlank={scrollToBlank}
               save={save}
-              setIsEditing={setIsEditing}
-              rewardsState={rewardsState}
-              rewardsDispatch={rewardsDispatch}
-              setSaveCallback={setSaveCallback}
-              setCancelCallback={setCancelCallback}
             />
           </div>
         </main>

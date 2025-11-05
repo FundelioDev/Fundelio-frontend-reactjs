@@ -1,9 +1,12 @@
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef } from "react"
+import { useDispatch } from "react-redux"
+import { addReward, updateReward, deleteReward, duplicateReward } from "@/store/campaignSlice"
 import RewardList from "../rewards/RewardList"
 import RewardForm from "../rewards/RewardForm"
 import RewardPreview from "../rewards/RewardPreview"
 
-export default function RewardTiersTab({ state, dispatch, setIsEditing, setSaveCallback, setCancelCallback }) {
+export default function RewardTiersTab({ state }) {
+  const dispatch = useDispatch();
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingReward, setEditingReward] = useState(null)
   const [previewReward, setPreviewReward] = useState(null)
@@ -13,67 +16,39 @@ export default function RewardTiersTab({ state, dispatch, setIsEditing, setSaveC
     setEditingReward(null)
     setPreviewReward(null)
     setIsFormOpen(true)
-    setIsEditing?.(true)
-    
-    // Register callbacks for header buttons
-    setSaveCallback?.(() => () => {
-      formRef.current?.submit()
-    })
-    setCancelCallback?.(() => handleCancel)
   }
 
   const handleEdit = (reward) => {
     setEditingReward(reward)
     setPreviewReward(null)
     setIsFormOpen(true)
-    setIsEditing?.(true)
-    
-    // Register callbacks for header buttons
-    setSaveCallback?.(() => () => {
-      formRef.current?.submit()
-    })
-    setCancelCallback?.(() => handleCancel)
   }
 
   const handleSave = (reward) => {
     if (editingReward) {
-      dispatch({ type: "UPDATE_REWARD", payload: reward })
+      dispatch(updateReward(reward))
     } else {
-      dispatch({ type: "ADD_REWARD", payload: reward })
+      dispatch(addReward(reward))
     }
     setIsFormOpen(false)
     setEditingReward(null)
     setPreviewReward(null)
-    setIsEditing?.(false)
   }
 
   const handleCancel = () => {
     setIsFormOpen(false)
     setEditingReward(null)
     setPreviewReward(null)
-    setIsEditing?.(false)
-    
-    // Clear callbacks
-    setSaveCallback?.(null)
-    setCancelCallback?.(null)
   }
-
-  // Clear callbacks when form closes
-  useEffect(() => {
-    if (!isFormOpen) {
-      setSaveCallback?.(null)
-      setCancelCallback?.(null)
-    }
-  }, [isFormOpen, setSaveCallback, setCancelCallback])
 
   const handleDelete = (id) => {
     if (confirm("Bạn có chắc chắn muốn xóa phần thưởng này?")) {
-      dispatch({ type: "DELETE_REWARD", payload: id })
+      dispatch(deleteReward(id))
     }
   }
 
   const handleDuplicate = (id) => {
-    dispatch({ type: "DUPLICATE_REWARD", payload: id })
+    dispatch(duplicateReward(id))
   }
 
   // Update preview when form changes

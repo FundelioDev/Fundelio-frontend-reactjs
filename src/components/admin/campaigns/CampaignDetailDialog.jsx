@@ -59,7 +59,7 @@ export const CampaignDetailDialog = ({
               <h3 className='text-xl font-semibold text-gray-900 dark:text-gray-100'>
                 {campaign.title}
               </h3>
-              <p className='text-gray-600 dark:text-gray-400 mt-1'>
+              <p className='text-gray-600 dark:text-text-white mt-1'>
                 {campaign.category}
               </p>
               <div className='flex items-center space-x-2 mt-2'>
@@ -81,14 +81,14 @@ export const CampaignDetailDialog = ({
                 <h4 className='font-semibold mb-2 text-gray-900 dark:text-gray-100'>
                   Mô tả
                 </h4>
-                <p className='text-gray-600 dark:text-gray-400'>
+                <p className='text-gray-600 dark:text-text-white'>
                   {campaign.description}
                 </p>
               </div>
 
               <div className='grid grid-cols-2 gap-4'>
                 <Card className='p-4'>
-                  <p className='text-sm text-gray-600 dark:text-gray-400'>
+                  <p className='text-sm text-gray-600 dark:text-text-white'>
                     Mục tiêu
                   </p>
                   <p className='text-lg font-semibold text-gray-900 dark:text-gray-100'>
@@ -96,7 +96,7 @@ export const CampaignDetailDialog = ({
                   </p>
                 </Card>
                 <Card className='p-4'>
-                  <p className='text-sm text-gray-600 dark:text-gray-400'>
+                  <p className='text-sm text-gray-600 dark:text-text-white'>
                     Đã đạt
                   </p>
                   <p className='text-lg font-semibold text-gray-900 dark:text-gray-100'>
@@ -104,7 +104,7 @@ export const CampaignDetailDialog = ({
                   </p>
                 </Card>
                 <Card className='p-4'>
-                  <p className='text-sm text-gray-600 dark:text-gray-400'>
+                  <p className='text-sm text-gray-600 dark:text-text-white'>
                     Người ủng hộ
                   </p>
                   <p className='text-lg font-semibold text-gray-900 dark:text-gray-100'>
@@ -112,7 +112,7 @@ export const CampaignDetailDialog = ({
                   </p>
                 </Card>
                 <Card className='p-4'>
-                  <p className='text-sm text-gray-600 dark:text-gray-400'>
+                  <p className='text-sm text-gray-600 dark:text-text-white'>
                     Thời gian còn lại
                   </p>
                   <p className='text-lg font-semibold text-gray-900 dark:text-gray-100'>
@@ -134,7 +134,7 @@ export const CampaignDetailDialog = ({
             <TabsContent value='creator' className='space-y-4'>
               <div className='grid grid-cols-2 gap-4'>
                 <div>
-                  <p className='text-sm text-gray-600 dark:text-gray-400'>
+                  <p className='text-sm text-gray-600 dark:text-text-white'>
                     Tên người tạo
                   </p>
                   <p className='font-medium text-gray-900 dark:text-gray-100'>
@@ -142,7 +142,7 @@ export const CampaignDetailDialog = ({
                   </p>
                 </div>
                 <div>
-                  <p className='text-sm text-gray-600 dark:text-gray-400'>
+                  <p className='text-sm text-gray-600 dark:text-text-white'>
                     Email
                   </p>
                   <p className='font-medium text-gray-900 dark:text-gray-100'>
@@ -160,7 +160,7 @@ export const CampaignDetailDialog = ({
                     <p className='font-medium text-gray-900 dark:text-gray-100'>
                       Nộp chiến dịch
                     </p>
-                    <p className='text-sm text-gray-600 dark:text-gray-400'>
+                    <p className='text-sm text-gray-600 dark:text-text-white'>
                       {campaign.submittedAt}
                     </p>
                   </div>
@@ -172,7 +172,7 @@ export const CampaignDetailDialog = ({
                       <p className='font-medium text-gray-900 dark:text-gray-100'>
                         Được phê duyệt
                       </p>
-                      <p className='text-sm text-gray-600 dark:text-gray-400'>
+                      <p className='text-sm text-gray-600 dark:text-text-white'>
                         {campaign.approvedAt}
                       </p>
                     </div>
@@ -185,7 +185,7 @@ export const CampaignDetailDialog = ({
                       <p className='font-medium text-gray-900 dark:text-gray-100'>
                         Bị từ chối
                       </p>
-                      <p className='text-sm text-gray-600 dark:text-gray-400'>
+                      <p className='text-sm text-gray-600 dark:text-text-white'>
                         {campaign.rejectedAt}
                       </p>
                     </div>

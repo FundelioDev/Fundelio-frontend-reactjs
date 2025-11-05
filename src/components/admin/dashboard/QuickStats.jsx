@@ -12,7 +12,7 @@ export const QuickStats = ({ stats }) => {
       <div className='space-y-4'>
         <div className='flex items-center justify-between p-4 bg-blue-50 dark:bg-blue-950/30 rounded-lg'>
           <div>
-            <p className='text-sm text-gray-600 dark:text-gray-400'>
+            <p className='text-sm text-gray-600 dark:text-text-white'>
               Người dùng hoạt động
             </p>
             <p className='text-2xl font-bold text-gray-900 dark:text-gray-100'>
@@ -20,7 +20,7 @@ export const QuickStats = ({ stats }) => {
             </p>
           </div>
           <div className='text-right'>
-            <p className='text-xs text-gray-500 dark:text-gray-400'>
+            <p className='text-xs text-gray-500 dark:text-text-white'>
               Tổng: {stats.totalUsers}
             </p>
             <p className='text-sm font-medium text-blue-600 dark:text-blue-400'>
@@ -31,7 +31,7 @@ export const QuickStats = ({ stats }) => {
 
         <div className='flex items-center justify-between p-4 bg-green-50 dark:bg-green-950/30 rounded-lg'>
           <div>
-            <p className='text-sm text-gray-600 dark:text-gray-400'>
+            <p className='text-sm text-gray-600 dark:text-text-white'>
               Chiến dịch tháng này
             </p>
             <p className='text-2xl font-bold text-gray-900 dark:text-gray-100'>
@@ -43,7 +43,7 @@ export const QuickStats = ({ stats }) => {
 
         <div className='p-4 bg-yellow-50 dark:bg-yellow-950/30 rounded-lg'>
           <div className='flex items-center justify-between mb-2'>
-            <p className='text-sm text-gray-600 dark:text-gray-400'>
+            <p className='text-sm text-gray-600 dark:text-text-white'>
               Cần xem xét
             </p>
             <Badge variant='warning'>{stats.pendingCampaigns}</Badge>

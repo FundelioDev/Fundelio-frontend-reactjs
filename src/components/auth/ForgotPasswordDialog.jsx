@@ -81,7 +81,7 @@ export const ForgotPasswordDialog = ({ open, onOpenChange }) => {
 
               <form onSubmit={handleSubmit} className='space-y-5 mt-6'>
                 <div className='space-y-2'>
-                  <Label htmlFor='forgot-email' className='text-sm font-medium'>
+                  <Label htmlFor='forgot-email' className='text-sm font-medium text-muted-foreground'>
                     Email
                   </Label>
                   <div className='relative'>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import CampaignHeader from '@/components/campaign/CampaignHeader';
 import CampaignTabs from '@/components/campaign/CampaignTabs';
+import RelatedCampaigns from '@/components/campaign/RelatedCampaigns';
 import { mockProjects } from '@/data/mockProjects';
 import { mockCampaignStory, getBlanksFromSections } from '@/data/mockCampaignStory';
 import { getPreviewData, isPreviewId } from '@/utils/previewStorage';
@@ -11,6 +12,7 @@ import { getPreviewData, isPreviewId } from '@/utils/previewStorage';
  */
 function transformPreviewData(previewData) {
   const { basics, story, rewards } = previewData;
+  console.log('Transforming preview data:', previewData);
 
   // Calculate days left
   const endDate = basics?.end_date ? new Date(basics.end_date) : new Date();
@@ -37,7 +39,9 @@ function transformPreviewData(previewData) {
       goal: 50000.00,
       backers: 0,
     },
-    rewards: rewards || [],
+    rewards: rewards?.rewards || [],
+    items: rewards?.items || [],
+    addOns: rewards?.addOns || [],
     blanks: story?.blanks || [],
     creator: {
       name: 'Preview Creator',
@@ -72,7 +76,7 @@ function getMockCampaignData() {
       goal_amount: 50000.00,
       pledged_amount: 7697612.00,
       backers_count: 2018,
-      category: 'gaming',
+      category: 'Game',
       intro_video_url: 'https://www.youtube.com/embed/example',
       start_date: '2025-10-15',
       end_date: '2025-11-19',
@@ -128,6 +132,8 @@ function getMockCampaignData() {
         ],
       },
     ],
+    items: [],
+    addOns: [],
     blanks: getBlanksFromSections(mockCampaignStory.sections),
     creator: {
       name: 'Restoration Games',
@@ -178,14 +184,14 @@ export default function CampaignDetailPage() {
 
       if (previewId && isPreviewId(previewId)) {
         setIsPreview(true);
-        
+
         const stateData = location.state?.campaignData;
-        
+
         if (stateData) {
           setCampaignData(transformPreviewData(stateData));
         } else {
           const storedData = getPreviewData(previewId);
-          
+
           if (storedData) {
             setCampaignData(transformPreviewData(storedData));
           } else {
@@ -235,7 +241,7 @@ export default function CampaignDetailPage() {
   return (
     <div className="min-h-screen bg-background-light-2 dark:bg-darker">
       {isPreview && (
-        <div className="bg-amber-500 text-white py-3 px-4 text-center">
+        <div className="bg-amber-500 text-white pb-3 pt-20 px-4 text-center">
           <div className="container mx-auto flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="font-semibold">🔍 Chế độ xem trước</span>
@@ -264,12 +270,20 @@ export default function CampaignDetailPage() {
         initialTab="campaign"
         campaignProps={{
           rewards: campaignData.rewards,
+          items: campaignData.items,
+          addOns: campaignData.addOns,
           creator: campaignData.creator,
           otherProjects: campaignData.otherProjects,
           blanks: campaignData.blanks,
           currency: campaignData.campaign.currency,
           onPledge: handlePledge,
         }}
+      />
+
+      {/* Related Campaigns Section */}
+      <RelatedCampaigns
+        category={campaignData.campaign.category}
+        currentCampaignId={campaignData.campaign.campaign_id}
       />
     </div>
   );

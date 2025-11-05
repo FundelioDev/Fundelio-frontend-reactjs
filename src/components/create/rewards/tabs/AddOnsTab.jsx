@@ -1,9 +1,12 @@
 import { useState } from "react"
+import { useDispatch } from "react-redux"
+import { addAddOn, updateAddOn, deleteAddOn } from "@/store/campaignSlice"
 import AddOnList from "../addons/AddOnList"
 import RewardForm from "../rewards/RewardForm"
 import RewardPreview from "../rewards/RewardPreview"
 
-export default function AddOnsTab({ state, dispatch, setIsEditing }) {
+export default function AddOnsTab({ state }) {
+  const dispatch = useDispatch();
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingAddOn, setEditingAddOn] = useState(null)
   const [previewAddOn, setPreviewAddOn] = useState(null)
@@ -12,38 +15,34 @@ export default function AddOnsTab({ state, dispatch, setIsEditing }) {
     setEditingAddOn(null)
     setPreviewAddOn(null)
     setIsFormOpen(true)
-    setIsEditing?.(true)
   }
 
   const handleEdit = (addon) => {
     setEditingAddOn(addon)
     setPreviewAddOn(null)
     setIsFormOpen(true)
-    setIsEditing?.(true)
   }
 
   const handleSave = (addon) => {
     if (editingAddOn) {
-      dispatch({ type: "UPDATE_ADDON", payload: addon })
+      dispatch(updateAddOn(addon))
     } else {
-      dispatch({ type: "ADD_ADDON", payload: addon })
+      dispatch(addAddOn(addon))
     }
     setIsFormOpen(false)
     setEditingAddOn(null)
     setPreviewAddOn(null)
-    setIsEditing?.(false)
   }
 
   const handleCancel = () => {
     setIsFormOpen(false)
     setEditingAddOn(null)
     setPreviewAddOn(null)
-    setIsEditing?.(false)
   }
 
   const handleDelete = (id) => {
     if (confirm("Bạn có chắc chắn muốn xóa add-on này?")) {
-      dispatch({ type: "DELETE_ADDON", payload: id })
+      dispatch(deleteAddOn(id))
     }
   }
 
@@ -79,8 +78,8 @@ export default function AddOnsTab({ state, dispatch, setIsEditing }) {
 
           {/* Preview Column */}
           <div className="lg:w-96">
-            <RewardPreview 
-              reward={previewAddOn || editingAddOn} 
+            <RewardPreview
+              reward={previewAddOn || editingAddOn}
               items={state.items}
               rewards={state.rewards}
               type="addon"

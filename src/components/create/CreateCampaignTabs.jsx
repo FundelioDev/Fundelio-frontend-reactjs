@@ -14,14 +14,13 @@ import BasicsContent from './basics/BasicsContent';
  * @param {Function} props.onAddBlank - Callback to add new blank
  * @param {Function} props.onTitleChange - Callback for title changes
  * @param {Function} props.onContentChange - Callback for content changes
+ * @param {Function} props.onReorderBlanks - Callback to reorder blanks
+ * @param {Function} props.onDeleteBlank - Callback to delete a blank
  * @param {Function} props.setActiveEditor - Callback to set active editor
  * @param {Function} props.scrollToBlank - Callback to scroll to blank
  * @param {Function} props.save - Callback to save
  * @param {string} props.activeTab - Current active tab from parent
  * @param {Function} props.onTabChange - Callback when tab changes (optional, for compatibility)
- * @param {Function} props.setIsEditing - Callback to set editing state in header
- * @param {Function} props.setSaveCallback - Callback to register save handler
- * @param {Function} props.setCancelCallback - Callback to register cancel handler
  */
 export default function CreateCampaignTabs({
   blanks,
@@ -29,14 +28,13 @@ export default function CreateCampaignTabs({
   onAddBlank,
   onTitleChange,
   onContentChange,
+  onReorderBlanks,
+  onDeleteBlank,
   setActiveEditor,
   scrollToBlank,
   save,
   activeTab: externalActiveTab,
   onTabChange,
-  setIsEditing,
-  setSaveCallback,
-  setCancelCallback,
 }) {
   // Use external activeTab if provided, otherwise use internal state
   const [internalActiveTab, setInternalActiveTab] = useState('story');
@@ -59,6 +57,8 @@ export default function CreateCampaignTabs({
                 blanks={blanks}
                 onAddBlank={onAddBlank}
                 onNavigate={scrollToBlank}
+                onReorder={onReorderBlanks}
+                onDelete={onDeleteBlank}
               />
             </aside>
 
@@ -95,11 +95,7 @@ export default function CreateCampaignTabs({
 
         {/* Rewards Tab */}
         {activeTab === 'rewards' && (
-          <RewardCreateTab 
-            setIsEditing={setIsEditing} 
-            setSaveCallback={setSaveCallback}
-            setCancelCallback={setCancelCallback}
-          />
+          <RewardCreateTab />
         )}
       </div>
     </div>

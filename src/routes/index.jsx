@@ -6,6 +6,7 @@ import HomePage from '../pages/HomePage';
 import CreateCampaignPage from '../pages/CreateCampaignPage';
 import CampaignDetailPage from '../pages/CampaignDetailPage';
 import LandingPage from '@/pages/LandingPage';
+import DashboardPage from '@/pages/DashboardPage';
 
 import { AuthPage } from '@/pages/AuthPage';
 import ResetPasswordPage from '@/pages/ResetPasswordPage';
@@ -31,6 +32,8 @@ export const router = createBrowserRouter([
 
       { path: 'home', element: <HomePage /> },
 
+      { path: 'dashboard', element: <DashboardPage /> },
+
       {
         path: 'campaigns',
         children: [
@@ -38,9 +41,9 @@ export const router = createBrowserRouter([
           { path: 'preview/:previewId', element: <CampaignDetailPage /> },
         ],
       },
-      
+
       { path: 'wallet', element: <WalletPage /> },
-      
+
       { path: 'your-projects', element: <YourProjectsPage /> },
 
       // {
@@ -78,6 +81,6 @@ export const router = createBrowserRouter([
       { path: 'permissions', element: <PermissionsPage /> },
       { path: 'campaigns', element: <AdminCampaignsPage /> },
     ],
-  },  
+  },
 ]);
 

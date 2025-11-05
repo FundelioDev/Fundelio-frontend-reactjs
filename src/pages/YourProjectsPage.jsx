@@ -85,10 +85,10 @@ const YourProjectsPage = () => {
       return (
         <div className="text-center py-20">
           <div className="inline-block w-24 h-1 bg-gradient-to-r from-primary to-secondary rounded-full mb-6"></div>
-          <h2 className="text-2xl sm:text-3xl font-bold text-foreground dark:text-text-white mb-4">
+          <h2 className="text-2xl sm:text-3xl font-bold text-foreground dark:text-white mb-4">
             There are no projects to show
           </h2>
-          <p className="text-muted-foreground dark:text-text-white/70 mb-8 max-w-md mx-auto">
+          <p className="text-muted-foreground dark:text-white/70 mb-8 max-w-md mx-auto">
             You can try different filtering criteria to find what you're looking for.
           </p>
           <Link
@@ -122,17 +122,17 @@ const YourProjectsPage = () => {
     <div className="min-h-screen bg-background-light-2 dark:bg-darker transition-colors duration-300">
       <div className="max-w-container mx-auto px-4 sm:px-6 py-20 sm:py-26">
         {/* Header */}
-        <h1 className="text-3xl sm:text-4xl font-bold text-foreground dark:text-text-white mb-8">
+        <h1 className="text-3xl sm:text-4xl font-bold text-foreground dark:text-white mb-8">
           Your projects
         </h1>
 
         {/* Filters & Sort */}
         <div className="flex flex-wrap items-center gap-3 mb-6">
-          <button className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-darker rounded-full border border-border dark:border-gray-700 hover:border-primary dark:hover:border-primary transition-colors text-sm font-medium text-foreground dark:text-text-white">
+          <button className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-darker rounded-full border border-border dark:border-gray-700 hover:border-primary dark:hover:border-primary transition-colors text-sm font-medium text-foreground dark:text-white">
             <SlidersHorizontal className="w-4 h-4" />
             Filters
           </button>
-          <button className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-darker rounded-full border border-border dark:border-gray-700 hover:border-primary dark:hover:border-primary transition-colors text-sm font-medium text-foreground dark:text-text-white">
+          <button className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-darker rounded-full border border-border dark:border-gray-700 hover:border-primary dark:hover:border-primary transition-colors text-sm font-medium text-foreground dark:text-white">
             <ArrowUpDown className="w-4 h-4" />
             Sort: Default
           </button>
@@ -147,7 +147,7 @@ const YourProjectsPage = () => {
               className={`pb-3 text-base font-semibold transition-colors relative ${
                 activeTab === tab.id
                   ? 'text-primary dark:text-primary-400'
-                  : 'text-muted-foreground dark:text-text-white/70 hover:text-foreground dark:hover:text-text-white'
+                  : 'text-muted-foreground dark:text-white/70 hover:text-foreground dark:hover:text-text-white'
               }`}
             >
               {tab.label}

@@ -48,7 +48,7 @@ const TocMenu = ({ blanks = [], activeId, onClickItem }) => {
                     ${
                       isActive
                         ? 'text-primary font-semibold'
-                        : 'text-text-secondary dark:text-text-white'
+                        : 'text-text-secondary dark:text-white'
                     }
                   `}
                   aria-current={isActive ? 'true' : undefined}

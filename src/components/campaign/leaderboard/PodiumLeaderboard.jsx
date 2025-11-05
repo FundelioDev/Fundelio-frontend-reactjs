@@ -263,7 +263,7 @@ const PodiumLeaderboard = () => {
             Top Backers
           </h2>
         </div>
-        <p className="text-text-secondary dark:text-white/70 text-lg">
+        <p className="text-muted-foreground text-lg">
           Những người ủng hộ hàng đầu cho dự án này
         </p>
       </div>
@@ -421,7 +421,7 @@ const PodiumLeaderboard = () => {
 
       {/* Footer Note */}
       <div className="mt-8 p-4 bg-primary/5 dark:bg-primary/10 rounded-lg border border-primary/20 max-w-3xl mx-auto">
-        <p className="text-sm text-text-secondary dark:text-white/70 text-center">
+        <p className="text-sm text-muted-foreground text-center">
           <span className="text-primary font-semibold">💡 Anime.js Demo:</span> Bảng xếp hạng với hiệu ứng 3D morphing. 
           Item sẽ biến đổi từ row → card khi lên podium và ngược lại.
         </p>

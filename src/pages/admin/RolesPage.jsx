@@ -218,7 +218,7 @@ export default function RolesPage() {
           <h2 className='text-2xl font-bold text-gray-900 dark:text-gray-100'>
             Quản lý vai trò
           </h2>
-          <p className='text-sm text-gray-600 dark:text-gray-400 mt-1'>
+          <p className='text-sm text-gray-600 dark:text-text-white mt-1'>
             Tổng {filteredRoles.length} vai trò
           </p>
         </div>
@@ -280,7 +280,7 @@ export default function RolesPage() {
                     <h3 className='font-semibold text-lg text-gray-900 dark:text-gray-100'>
                       {role.name}
                     </h3>
-                    <div className='flex items-center text-sm text-gray-600 dark:text-gray-400 mt-1'>
+                    <div className='flex items-center text-sm text-gray-600 dark:text-text-white mt-1'>
                       <Users className='w-4 h-4 mr-1' />
                       {role.userCount} người dùng
                     </div>
@@ -288,7 +288,7 @@ export default function RolesPage() {
                 </div>
               </div>
 
-              <p className='text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2'>
+              <p className='text-sm text-gray-600 dark:text-text-white mb-4 line-clamp-2'>
                 {role.description}
               </p>
 
@@ -362,7 +362,7 @@ export default function RolesPage() {
                   className='hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer'
                   onClick={() => viewRoleDetail(role)}
                 >
-                  <TableCell className='font-medium text-gray-500 dark:text-gray-400'>
+                  <TableCell className='font-medium text-gray-500 dark:text-text-white'>
                     {index + 1}
                   </TableCell>
                   <TableCell>
@@ -374,20 +374,20 @@ export default function RolesPage() {
                         <p className='font-semibold text-gray-900 dark:text-gray-100'>
                           {role.name}
                         </p>
-                        <p className='text-xs text-gray-500 dark:text-gray-400'>
+                        <p className='text-xs text-gray-500 dark:text-text-white'>
                           ID: #{role.id}
                         </p>
                       </div>
                     </div>
                   </TableCell>
                   <TableCell>
-                    <p className='text-sm text-gray-600 dark:text-gray-400 max-w-xs line-clamp-2'>
+                    <p className='text-sm text-gray-600 dark:text-text-white max-w-xs line-clamp-2'>
                       {role.description}
                     </p>
                   </TableCell>
                   <TableCell className='text-center'>
                     <div className='inline-flex items-center space-x-1 px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full'>
-                      <Users className='w-4 h-4 text-gray-600 dark:text-gray-400' />
+                      <Users className='w-4 h-4 text-gray-600 dark:text-text-white' />
                       <span className='text-sm font-medium text-gray-700 dark:text-gray-300'>
                         {role.userCount}
                       </span>
@@ -411,7 +411,7 @@ export default function RolesPage() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <span className='text-sm text-gray-600 dark:text-gray-400'>
+                    <span className='text-sm text-gray-600 dark:text-text-white'>
                       {role.createdAt}
                     </span>
                   </TableCell>
@@ -446,8 +446,8 @@ export default function RolesPage() {
 
           {filteredRoles.length === 0 && (
             <div className='text-center py-12'>
-              <Shield className='w-12 h-12 text-gray-300 dark:text-gray-700 mx-auto mb-4' />
-              <p className='text-gray-500 dark:text-gray-400'>
+              <Shield className='w-12 h-12 text-gray-300 dark:text-text-white mx-auto mb-4' />
+              <p className='text-gray-500 dark:text-text-white'>
                 Không tìm thấy vai trò nào
               </p>
             </div>
@@ -462,7 +462,7 @@ export default function RolesPage() {
             <DialogTitle className='text-gray-900 dark:text-gray-100'>
               Chi tiết vai trò
             </DialogTitle>
-            <DialogDescription className='text-gray-600 dark:text-gray-400'>
+            <DialogDescription className='text-gray-600 dark:text-text-white'>
               Thông tin chi tiết về vai trò và quyền hạn
             </DialogDescription>
           </DialogHeader>
@@ -476,10 +476,10 @@ export default function RolesPage() {
                   <h3 className='text-xl font-semibold text-gray-900 dark:text-gray-100'>
                     {selectedRole.name}
                   </h3>
-                  <p className='text-gray-600 dark:text-gray-400'>
+                  <p className='text-gray-600 dark:text-text-white'>
                     {selectedRole.description}
                   </p>
-                  <div className='flex items-center text-sm text-gray-600 dark:text-gray-400 mt-2'>
+                  <div className='flex items-center text-sm text-gray-600 dark:text-text-white mt-2'>
                     <Users className='w-4 h-4 mr-1' />
                     {selectedRole.userCount} người dùng
                   </div>
@@ -502,7 +502,7 @@ export default function RolesPage() {
               <div className='pt-4 border-t dark:border-gray-700'>
                 <div className='grid grid-cols-2 gap-4'>
                   <div>
-                    <p className='text-sm text-gray-600 dark:text-gray-400'>
+                    <p className='text-sm text-gray-600 dark:text-text-white'>
                       Ngày tạo
                     </p>
                     <p className='font-medium text-gray-900 dark:text-gray-100'>
@@ -510,7 +510,7 @@ export default function RolesPage() {
                     </p>
                   </div>
                   <div>
-                    <p className='text-sm text-gray-600 dark:text-gray-400'>
+                    <p className='text-sm text-gray-600 dark:text-text-white'>
                       ID vai trò
                     </p>
                     <p className='font-medium text-gray-900 dark:text-gray-100'>
@@ -540,7 +540,7 @@ export default function RolesPage() {
             <DialogTitle className='text-gray-900 dark:text-gray-100'>
               Chỉnh sửa vai trò
             </DialogTitle>
-            <DialogDescription className='text-gray-600 dark:text-gray-400'>
+            <DialogDescription className='text-gray-600 dark:text-text-white'>
               Cập nhật thông tin vai trò
             </DialogDescription>
           </DialogHeader>
@@ -586,7 +586,7 @@ export default function RolesPage() {
                       open={openModules[module]}
                       onOpenChange={() => toggleModule(module)}
                     >
-                      <div className='w-full rounded-t-lg border bg-white dark:bg-zinc-800 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors px-4 py-3'>
+                      <div className='w-full rounded-t-lg border bg-white dark:bg-darker-2 border-border hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors px-4 py-3'>
                         <div className='flex items-center justify-between w-full'>
                           <CollapsibleTrigger className='flex items-center gap-3 flex-1'>
                             <ChevronRight
@@ -612,7 +612,7 @@ export default function RolesPage() {
                           />
                         </div>
                       </div>
-                      <CollapsibleContent className='divide-y divide-slate-100 dark:divide-slate-700 border-x border-b rounded-b-lg bg-white dark:bg-zinc-800 dark:border-slate-600'>
+                      <CollapsibleContent className='divide-y divide-slate-100 dark:divide-slate-700 border-x border-b rounded-b-lg bg-white dark:bg-darker-2/50 border-border'>
                         {modulePermissions.map((permission) => (
                           <div
                             key={permission.id}
@@ -660,7 +660,7 @@ export default function RolesPage() {
             <DialogTitle className='text-gray-900 dark:text-gray-100'>
               Xác nhận xóa vai trò
             </DialogTitle>
-            <DialogDescription className='text-gray-600 dark:text-gray-400'>
+            <DialogDescription className='text-gray-600 dark:text-text-white'>
               Bạn có chắc chắn muốn xóa vai trò "{selectedRole?.name}"? Hành
               động này không thể hoàn tác.
             </DialogDescription>

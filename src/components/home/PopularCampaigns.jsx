@@ -1,69 +1,58 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import ProjectCard from './ProjectCard';
 import { mockProjects } from '@/data/mockProjects';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination, Autoplay } from 'swiper/modules';
+
+// Import Swiper styles
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
 
 export const PopularCampaigns = () => {
-  const [currentPage, setCurrentPage] = useState(0);
-  const itemsPerPage = 4;
+  const [swiperRef, setSwiperRef] = useState(null);
+  const [isReady, setIsReady] = useState(false);
 
   // Sử dụng mock data - có thể thay bằng API call sau
   const campaigns = mockProjects;
-  const totalPages = Math.ceil(campaigns.length / itemsPerPage);
 
-  const getCurrentPageItems = () => {
-    const startIndex = currentPage * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    return campaigns.slice(startIndex, endIndex);
-  };
+  // Force layout calculation and enable smooth transitions after mount
+  useEffect(() => {
+    // Small delay to ensure DOM is fully rendered
+    const timer = setTimeout(() => {
+      setIsReady(true);
+      // Force reflow
+      if (swiperRef) {
+        swiperRef.update();
+      }
+    }, 100);
 
-  const handlePrevPage = () => {
-    setCurrentPage((prev) => Math.max(0, prev - 1));
-  };
-
-  const handleNextPage = () => {
-    setCurrentPage((prev) => Math.min(totalPages - 1, prev + 1));
-  };
-
-  const canGoPrev = currentPage > 0;
-  const canGoNext = currentPage < totalPages - 1;
+    return () => clearTimeout(timer);
+  }, [swiperRef]);
 
   return (
-    <section className="py-12 sm:py-12 lg:py-18 bg-white dark:bg-darker transition-colors duration-300">
+    <section className="py-12 sm:py-12 lg:py-18 bg-background-light-2 dark:bg-darker transition-colors duration-300">
       <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header with Title and Navigation */}
-        <div className="flex items-center justify-between mb-6 sm:mb-8">
-          <h2 className="text-2xl sm:text-hero font-bold text-text-primary dark:text-text-white transition-colors duration-300">
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-2xl sm:text-hero font-bold text-text-primary dark:text-white transition-colors duration-300">
             Chiến dịch phổ biến
           </h2>
 
           {/* Pagination Controls */}
           <div className="flex items-center gap-2">
             <button
-              onClick={handlePrevPage}
-              disabled={!canGoPrev}
-              className={`p-2 rounded-lg transition-all duration-200 ${
-                canGoPrev
-                  ? 'bg-primary text-white hover:bg-primary-600 hover:scale-105'
-                  : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-              }`}
+              onClick={() => swiperRef?.slidePrev()}
+              className="popular-prev p-2 rounded-lg transition-all duration-200 bg-primary text-white hover:bg-primary-600 hover:scale-105 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed disabled:hover:scale-100"
               aria-label="Previous page"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
 
-            <span className="text-sm text-text-secondary dark:text-gray-400 font-medium min-w-[60px] text-center transition-colors duration-300">
-              {currentPage + 1} / {totalPages}
-            </span>
-
             <button
-              onClick={handleNextPage}
-              disabled={!canGoNext}
-              className={`p-2 rounded-lg transition-all duration-200 ${
-                canGoNext
-                  ? 'bg-primary text-white hover:bg-primary-600 hover:scale-105'
-                  : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-              }`}
+              onClick={() => swiperRef?.slideNext()}
+              className="popular-next p-2 rounded-lg transition-all duration-200 bg-primary text-white hover:bg-primary-600 hover:scale-105 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed disabled:hover:scale-100"
               aria-label="Next page"
             >
               <ChevronRight className="w-5 h-5" />
@@ -71,35 +60,67 @@ export const PopularCampaigns = () => {
           </div>
         </div>
 
-        {/* Grid of Campaign Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          {getCurrentPageItems().map((campaign) => (
-            <ProjectCard
-              key={campaign.id}
-              project={campaign}
-              onBookmarkToggle={(id, bookmarked) => {
-                console.log('Bookmark toggled:', id, bookmarked);
-                // TODO: Implement bookmark logic
-              }}
-            />
+        {/* Swiper Carousel */}
+        <Swiper
+          modules={[Navigation, Pagination, Autoplay]}
+          spaceBetween={24}
+          slidesPerView={1}
+          slidesPerGroup={4}
+          speed={600}
+          loop={false}
+          observer={true}
+          observeParents={true}
+          watchSlidesProgress={true}
+          preloadImages={true}
+          updateOnWindowResize={true}
+          onSwiper={(swiper) => {
+            setSwiperRef(swiper);
+            // Force update after initialization
+            requestAnimationFrame(() => {
+              swiper.update();
+            });
+          }}
+          onInit={(swiper) => {
+            // Ensure smooth transitions from the start
+            swiper.update();
+          }}
+          navigation={{
+            prevEl: '.popular-prev',
+            nextEl: '.popular-next',
+          }}
+          pagination={{
+            clickable: true,
+            el: '.popular-pagination',
+            bulletClass: 'inline-block w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600 transition-all duration-300 cursor-pointer hover:bg-gray-400 dark:hover:bg-gray-500',
+            bulletActiveClass: '!w-8 !bg-primary',
+          }}
+          breakpoints={{
+            640: {
+              slidesPerView: 2,
+              spaceBetween: 16,
+            },
+            1024: {
+              slidesPerView: 4,
+              spaceBetween: 24,
+            },
+          }}
+          className={`pb-2 transition-opacity duration-300 ${isReady ? 'opacity-100' : 'opacity-0'}`}
+        >
+          {campaigns.map((campaign) => (
+            <SwiperSlide key={campaign.id} className="pt-6">
+              <ProjectCard
+                project={campaign}
+                onBookmarkToggle={(id, bookmarked) => {
+                  console.log('Bookmark toggled:', id, bookmarked);
+                  // TODO: Implement bookmark logic
+                }}
+              />
+            </SwiperSlide>
           ))}
-        </div>
+        </Swiper>
 
-        {/* Page Indicators (optional) */}
-        <div className="flex justify-center gap-2 mt-8">
-          {Array.from({ length: totalPages }).map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentPage(index)}
-              className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                index === currentPage
-                  ? 'w-8 bg-primary'
-                  : 'bg-gray-300 hover:bg-gray-400'
-              }`}
-              aria-label={`Go to page ${index + 1}`}
-            />
-          ))}
-        </div>
+        {/* Page Indicators */}
+        <div className="popular-pagination flex justify-center gap-2 mt-8"></div>
       </div>
     </section>
   );

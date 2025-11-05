@@ -5,7 +5,7 @@ import { mockProjects } from '@/data/mockProjects';
 
 export const Rankings = ({
   projects = mockProjects,
-  title = 'Rankings',
+  title = 'Xếp hạng',
 }) => {
   const [timeFilter, setTimeFilter] = useState('24h');
   const [categoryFilter, setCategoryFilter] = useState('all');
@@ -46,10 +46,10 @@ export const Rankings = ({
               onChange={(e) => setTimeFilter(e.target.value)}
               className="px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-colors"
             >
-              <option value="24h">Last 24 hours</option>
-              <option value="7d">Last 7 days</option>
-              <option value="30d">Last 30 days</option>
-              <option value="all">All time</option>
+              <option value="24h">24 giờ qua</option>
+              <option value="7d">7 ngày qua</option>
+              <option value="30d">30 ngày qua</option>
+              <option value="all">Tất cả thời gian</option>
             </select>
 
             {/* Category Filter */}
@@ -58,11 +58,11 @@ export const Rankings = ({
               onChange={(e) => setCategoryFilter(e.target.value)}
               className="px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-colors"
             >
-              <option value="all">All categories</option>
-              <option value="game">Game</option>
-              <option value="tech">Technology</option>
-              <option value="art">Art</option>
-              <option value="music">Music</option>
+              <option value="all">Tất cả danh mục</option>
+              <option value="game">Trò chơi</option>
+              <option value="tech">Công nghệ</option>
+              <option value="art">Nghệ thuật</option>
+              <option value="music">Âm nhạc</option>
             </select>
           </div>
         </div>
@@ -73,7 +73,7 @@ export const Rankings = ({
           <div>
             <div className="flex items-center gap-2 mb-4">
               <TrendingUp className="w-5 h-5 text-green-500 dark:text-green-400" />
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white">By funding</h3>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white">Theo số tiền gây quỹ</h3>
             </div>
             <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-sm">
               {topByFunding.slice(0, showAllFunding ? 10 : window.innerWidth < 1024 ? 3 : 10).map((project, index) => (
@@ -103,7 +103,7 @@ export const Rankings = ({
           <div>
             <div className="flex items-center gap-2 mb-4">
               <Users className="w-5 h-5 text-blue-500 dark:text-blue-400" />
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white">By audience</h3>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white">Theo số lượng người ủng hộ</h3>
             </div>
             <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-sm">
               {topByAudience.slice(0, showAllAudience ? 10 : window.innerWidth < 1024 ? 3 : 10).map((project, index) => (

@@ -1,8 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import Input from '@/components/common/Input';
 import Textarea from '@/components/common/Textarea';
-import { useLocalStorage } from '@/hooks/useLocalStorge';
 import Button from '@/components/common/Button';
+import Checkbox from '@/components/common/Checkbox';
+import TermsCreator from './TermsCreator';
+import toast from 'react-hot-toast';
+import { setBasics } from '@/store/campaignSlice';
 const CATEGORIES = [
   'Nghệ thuật',
   'Truyện tranh & Minh họa',
@@ -15,29 +19,17 @@ const CATEGORIES = [
 ];
 
 export default function BasicsContent() {
-  const { value: savedData, setValue: setSavedData } = useLocalStorage('ff:campaign-basics', null);
+  const dispatch = useDispatch();
+  const basicsData = useSelector((state) => state.campaign.basics);
 
-  const [formData, setFormData] = useState({
-    title: '',
-    desc: '',
-    category: '',
-    image_url: null,
-    intro_video_url: null,
-    start_date: '',
-    end_date: '',
-  });
-
-  const [mounted, setMounted] = useState(false);
+  const [formData, setFormData] = useState(basicsData);
+  const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
   const imageInputRef = useRef(null);
   const videoInputRef = useRef(null);
 
-  // Hydrate from localStorage
+  // Initialize with default dates if empty
   useEffect(() => {
-    setMounted(true);
-    if (savedData) {
-      setFormData(savedData);
-    } else {
-      // Set default dates
+    if (!formData.start_date || !formData.end_date) {
       const today = new Date();
       const endDate = new Date(today.getTime() + 60 * 24 * 60 * 60 * 1000); // 60 days from now
 
@@ -47,22 +39,48 @@ export default function BasicsContent() {
         end_date: endDate.toISOString().split('T')[0],
       }));
     }
-  }, [savedData]);
+  }, []);
 
-  // Auto-save to localStorage with debounce
+  // Sync with Redux when basicsData changes
   useEffect(() => {
-    if (!mounted) return;
-
-    const timer = setTimeout(() => {
-      setSavedData(formData);
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [formData, mounted, setSavedData]);
+    setFormData(basicsData);
+  }, [basicsData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSave = () => {
+    // Validate required fields
+    if (!formData.title.trim()) {
+      toast.error('Vui lòng nhập tiêu đề dự án');
+      return;
+    }
+    if (!formData.desc.trim()) {
+      toast.error('Vui lòng nhập mô tả ngắn');
+      return;
+    }
+    if (!formData.category) {
+      toast.error('Vui lòng chọn danh mục');
+      return;
+    }
+    if (!formData.image_url) {
+      toast.error('Vui lòng tải lên ảnh dự án');
+      return;
+    }
+    if (!formData.start_date || !formData.end_date) {
+      toast.error('Vui lòng chọn thời gian chiến dịch');
+      return;
+    }
+    if (!formData.acceptedTerms) {
+      toast.error('Vui lòng chấp nhận điều khoản dịch vụ');
+      return;
+    }
+
+    // Save to Redux
+    dispatch(setBasics(formData));
+    toast.success('Đã lưu thông tin cơ bản thành công!');
   };
 
   const handleImageChange = (e) => {
@@ -93,14 +111,12 @@ export default function BasicsContent() {
     }
   };
 
-  if (!mounted) return null;
-
   return (
     <div className="space-y-8">
       {/* Section 1: Title & Description */}
       <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6">
         <div>
-          <h3 className="text-lg font-semibold text-foreground mb-2">Tiêu đề dự án</h3>
+          <h3 className="text-lg font-semibold text-text-primary dark:text-white mb-2">Tiêu đề dự án</h3>
           <p className="text-md text-muted-foreground">
             Viết một tiêu đề ngắn gọn, súc tích để giúp mọi người nhanh chóng hiểu về dự án của bạn.
             Cả hai sẽ xuất hiện trên trang dự án và trang khởi chạy trước.
@@ -114,7 +130,7 @@ export default function BasicsContent() {
         <div className="bg-white dark:bg-darker-2 border border-border rounded-sm p-6">
           <div className="space-y-4">
             <div>
-              <label className="block text-md font-medium text-foreground mb-2">
+              <label className="block text-md font-medium text-text-primary dark:text-white mb-2">
                 Tiêu đề <span className="text-primary">*</span>
               </label>
               <Input
@@ -131,7 +147,7 @@ export default function BasicsContent() {
             </div>
 
             <div>
-              <label className="block text-md font-medium text-foreground mb-2">
+              <label className="block text-md font-medium text-text-primary dark:text-white mb-2">
                 Mô tả ngắn <span className="text-primary">*</span>
               </label>
               <Textarea
@@ -148,7 +164,7 @@ export default function BasicsContent() {
             </div>
 
             <div className="flex items-start gap-2 p-3 bg-primary/10 border-l-4 border-primary">
-              <p className="text-sm text-foreground">
+              <p className="text-sm text-text-primary dark:text-white">
                 Tạo ấn tượng đầu tiên tốt nhất cho <strong>nhà tài trợ</strong> với tiêu đề tuyệt vời.
               </p>
             </div>
@@ -161,7 +177,7 @@ export default function BasicsContent() {
       {/* Section 2: Category */}
       <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6">
         <div>
-          <h3 className="text-lg font-semibold text-foreground mb-2">Danh mục</h3>
+          <h3 className="text-lg font-semibold text-text-primary dark:text-white mb-2">Danh mục</h3>
           <p className="text-md text-muted-foreground">
             Chọn <strong>danh mục</strong> phù hợp nhất cho <strong>dự án</strong> của bạn.
             Điều này giúp mọi người dễ dàng tìm thấy <strong>dự án</strong> của bạn.
@@ -169,14 +185,14 @@ export default function BasicsContent() {
         </div>
 
         <div className="bg-white dark:bg-darker-2 border border-border rounded-sm p-6">
-          <label className="block text-md font-medium text-foreground mb-2">
+          <label className="block text-md font-medium text-text-primary dark:text-white mb-2">
             Danh mục dự án <span className="text-primary">*</span>
           </label>
           <select
             name="category"
             value={formData.category}
             onChange={handleChange}
-            className="w-full px-4 py-2 border border-border rounded-sm bg-background text-foreground focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+            className="w-full px-4 py-2 border border-border rounded-sm bg-background text-text-primary dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
           >
             <option value="">Chọn danh mục</option>
             {CATEGORIES.map((cat) => (
@@ -193,7 +209,7 @@ export default function BasicsContent() {
       {/* Section 3: Project Image */}
       <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6">
         <div>
-          <h3 className="text-lg font-semibold text-foreground mb-2">Ảnh dự án</h3>
+          <h3 className="text-lg font-semibold text-text-primary dark:text-white mb-2">Ảnh dự án</h3>
           <p className="text-md text-muted-foreground mb-3">
             Thêm một <strong>hình ảnh đại diện</strong> rõ ràng cho <strong>dự án</strong> của bạn.
             Chọn một <strong>hình ảnh</strong> trông đẹp ở các kích thước khác nhau—nó sẽ xuất hiện trên trang <strong>dự án</strong> của bạn,
@@ -211,7 +227,7 @@ export default function BasicsContent() {
         </div>
 
         <div className="rounded-sm border border-border bg-white dark:bg-darker-2 p-6">
-          <h3 className="text-md font-semibold text-foreground mb-4">Hình ảnh <span className="text-primary">*</span></h3>
+          <h3 className="text-md font-semibold text-text-primary dark:text-white mb-4">Hình ảnh <span className="text-primary">*</span></h3>
 
           {/* Upload Area - Only show when no image */}
           {!formData.image_url && (
@@ -223,7 +239,7 @@ export default function BasicsContent() {
                       type="button"
                       variant="gradient"
                       onClick={() => imageInputRef.current?.click()}
-                      className="px-6 py-3 border border-border rounded-sm text-foreground bg-background hover:bg-muted transition-colors font-medium"
+                      className="px-6 py-3 border border-border rounded-sm text-text-primary dark:text-white bg-background hover:bg-muted transition-colors font-medium"
                     >
                       Tải ảnh lên
                     </Button>
@@ -262,7 +278,7 @@ export default function BasicsContent() {
                   <button
                     type="button"
                     onClick={() => imageInputRef.current?.click()}
-                    className="px-4 py-2 border border-border rounded-sm text-foreground bg-background hover:bg-muted transition-colors text-sm font-medium"
+                    className="px-4 py-2 border border-border rounded-sm text-text-primary dark:text-white bg-background hover:bg-muted transition-colors text-sm font-medium"
                   >
                     Thay đổi
                   </button>
@@ -299,7 +315,7 @@ export default function BasicsContent() {
       {/* Section 4: Project Video */}
       <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6">
         <div>
-          <h3 className="text-lg font-semibold text-foreground mb-2">Video dự án (tùy chọn)</h3>
+          <h3 className="text-lg font-semibold text-text-primary dark:text-white mb-2">Video dự án (tùy chọn)</h3>
           <p className="text-md text-muted-foreground mb-3">
             Thêm một <strong>video</strong> mô tả <strong>dự án</strong> của bạn.
           </p>
@@ -315,7 +331,7 @@ export default function BasicsContent() {
         </div>
 
         <div className="rounded-sm border border-border bg-white dark:bg-darker-2 p-6">
-          <h3 className="text-md font-semibold text-foreground mb-4">Video giới thiệu</h3>
+          <h3 className="text-md font-semibold text-text-primary dark:text-white mb-4">Video giới thiệu</h3>
 
           {/* Upload Area - Only show when no video */}
           {!formData.intro_video_url && (
@@ -327,7 +343,7 @@ export default function BasicsContent() {
                       type="button"
                       variant="gradient"
                       onClick={() => videoInputRef.current?.click()}
-                      className="px-6 py-3 border border-border rounded-sm text-foreground bg-background hover:bg-muted transition-colors font-medium"
+                      className="px-6 py-3 border border-border rounded-sm text-text-primary dark:text-white bg-background hover:bg-muted transition-colors font-medium"
                     >
                       Tải lên video
                     </Button>
@@ -366,7 +382,7 @@ export default function BasicsContent() {
                   <button
                     type="button"
                     onClick={() => videoInputRef.current?.click()}
-                    className="px-4 py-2 border border-border rounded-sm text-foreground bg-background hover:bg-muted transition-colors text-sm font-medium"
+                    className="px-4 py-2 border border-border rounded-sm text-text-primary dark:text-white bg-background hover:bg-muted transition-colors text-sm font-medium"
                   >
                     Thay đổi
                   </button>
@@ -389,9 +405,9 @@ export default function BasicsContent() {
             </div>
           )}
           <div className="p-3 border-l-4 border-primary bg-primary/10 mt-4">
-          <p className="text-xs text-muted-foreground ">
-            Hãy cho mọi người biết bạn đang gây quỹ để làm gì, bạn có kế hoạch thực hiện nó như thế nào, bạn là ai, và tại sao bạn quan tâm đến dự án này.
-          </p>
+            <p className="text-xs text-muted-foreground ">
+              Hãy cho mọi người biết bạn đang gây quỹ để làm gì, bạn có kế hoạch thực hiện nó như thế nào, bạn là ai, và tại sao bạn quan tâm đến dự án này.
+            </p>
           </div>
 
         </div>
@@ -402,7 +418,7 @@ export default function BasicsContent() {
       {/* Section 5: Campaign Duration */}
       <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6">
         <div>
-          <h3 className="text-lg font-semibold text-foreground mb-2">Thời gian chiến dịch</h3>
+          <h3 className="text-lg font-semibold text-text-primary dark:text-white mb-2">Thời gian chiến dịch</h3>
           <p className="text-md text-muted-foreground">
             Chọn ngày bắt đầu và kết thúc cho <strong>chiến dịch gây quỹ</strong> của bạn.
             Hầu hết các <strong>chiến dịch</strong> thành công kéo dài từ 30-60 ngày.
@@ -412,7 +428,7 @@ export default function BasicsContent() {
         <div className="bg-white dark:bg-darker-2 border border-border rounded-sm p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-md font-medium text-foreground mb-2">
+              <label className="block text-md font-medium text-text-primary dark:text-white mb-2">
                 Ngày bắt đầu <span className="text-primary">*</span>
               </label>
               <Input
@@ -424,7 +440,7 @@ export default function BasicsContent() {
             </div>
 
             <div>
-              <label className="block text-md font-medium text-foreground mb-2">
+              <label className="block text-md font-medium text-text-primary dark:text-white mb-2">
                 Ngày kết thúc <span className="text-primary">*</span>
               </label>
               <Input
@@ -439,13 +455,78 @@ export default function BasicsContent() {
 
           {formData.start_date && formData.end_date && (
             <div className="mt-4 p-3 bg-primary/10 border-l-4 border-primary">
-              <p className="text-sm text-foreground">
+              <p className="text-sm text-text-primary dark:text-white">
                 <span className="font-medium"><strong>Thời gian chiến dịch</strong>:</span>{' '}
                 {Math.ceil((new Date(formData.end_date) - new Date(formData.start_date)) / (1000 * 60 * 60 * 24))} ngày
               </p>
             </div>
           )}
         </div>
+      </div>
+
+      <hr className="my-12 border-t border-border" />
+
+      {/* Section 6: Terms Acceptance */}
+      <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6">
+        <div>
+          <h3 className="text-lg font-semibold text-text-primary dark:text-white mb-2">Điều khoản dịch vụ</h3>
+          <p className="text-md text-muted-foreground">
+            Vui lòng đọc và chấp nhận <strong>Điều khoản dịch vụ dành cho Creator</strong> của Fundelio trước khi tiếp tục.
+          </p>
+        </div>
+
+        <div className="bg-white dark:bg-darker-2 border border-border rounded-sm p-6">
+          <div className="flex items-start gap-3">
+            <Checkbox
+              checked={formData.acceptedTerms}
+              onChange={(checked) =>
+                setFormData(prev => ({ ...prev, acceptedTerms: checked }))
+              }
+              label={
+                <span className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+                  Tôi chấp nhận{' '}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setIsTermsModalOpen(true);
+                    }}
+                    className="text-primary hover:text-primary-600 dark:hover:text-primary-400 underline font-medium transition-colors"
+                  >
+                    Điều khoản dịch vụ của Fundelio dành cho Người sáng tạo
+                  </button>
+                  .
+                </span>
+              }
+            />
+          </div>
+
+          {!formData.acceptedTerms && (
+            <div className="mt-4 p-3 bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-500">
+              <p className="text-sm text-amber-800 dark:text-amber-200">
+                Bạn cần chấp nhận điều khoản dịch vụ để có thể tiếp tục tạo dự án.
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Terms Modal */}
+      <TermsCreator
+        isOpen={isTermsModalOpen}
+        onClose={() => setIsTermsModalOpen(false)}
+      />
+
+      {/* Save Button */}
+      <div className="flex justify-end pt-6 border-t border-border">
+        <Button
+          variant="gradient"
+          size="lg"
+          onClick={handleSave}
+          className="px-8"
+        >
+          Lưu thông tin cơ bản
+        </Button>
       </div>
     </div>
   );

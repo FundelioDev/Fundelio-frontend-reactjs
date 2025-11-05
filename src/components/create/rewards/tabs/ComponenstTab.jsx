@@ -1,45 +1,44 @@
 "use client"
 
 import { useState } from "react"
+import { useDispatch } from "react-redux"
+import { addItem, updateItem, deleteItem } from "@/store/campaignSlice"
 import ItemList from "../components/ComponentList"
 import ItemForm from "../components/ComponentForm"
 
-export default function ComponentsTab({ state, dispatch, setIsEditing }) {
+export default function ComponentsTab({ state }) {
+  const dispatch = useDispatch();
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingItem, setEditingItem] = useState(null)
 
   const handleCreate = () => {
     setEditingItem(null)
     setIsFormOpen(true)
-    setIsEditing?.(true)
   }
 
   const handleEdit = (item) => {
     setEditingItem(item)
     setIsFormOpen(true)
-    setIsEditing?.(true)
   }
 
   const handleSave = (item) => {
     if (editingItem) {
-      dispatch({ type: "UPDATE_ITEM", payload: item })
+      dispatch(updateItem(item))
     } else {
-      dispatch({ type: "ADD_ITEM", payload: item })
+      dispatch(addItem(item))
     }
     setIsFormOpen(false)
     setEditingItem(null)
-    setIsEditing?.(false)
   }
 
   const handleCancel = () => {
     setIsFormOpen(false)
     setEditingItem(null)
-    setIsEditing?.(false)
   }
 
   const handleDelete = (id) => {
     if (confirm("Bạn có chắc chắn muốn xóa thành phần này?")) {
-      dispatch({ type: "DELETE_ITEM", payload: id })
+      dispatch(deleteItem(id))
     }
   }
 

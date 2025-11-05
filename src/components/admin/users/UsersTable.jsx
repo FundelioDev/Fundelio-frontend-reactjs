@@ -59,15 +59,15 @@ export const UsersTable = ({ users, onViewDetail, onEdit, onDelete }) => {
                   </span>
                 </div>
               </TableCell>
-              <TableCell className='text-gray-600 dark:text-gray-400'>
+              <TableCell className='text-gray-600 dark:text-text-white'>
                 {user.email}
               </TableCell>
               <TableCell>{getRoleBadge(user.role)}</TableCell>
               <TableCell>{getStatusBadge(user.status)}</TableCell>
-              <TableCell className='text-gray-600 dark:text-gray-400'>
+              <TableCell className='text-gray-600 dark:text-text-white'>
                 {user.createdAt}
               </TableCell>
-              <TableCell className='text-gray-600 dark:text-gray-400'>
+              <TableCell className='text-gray-600 dark:text-text-white'>
                 {user.lastLogin}
               </TableCell>
               <TableCell>

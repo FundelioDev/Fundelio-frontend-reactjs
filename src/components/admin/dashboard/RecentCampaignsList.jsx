@@ -46,12 +46,12 @@ export const RecentCampaignsList = ({ campaigns }) => {
               >
                 {campaign.title}
               </Link>
-              <p className='text-xs text-gray-500 dark:text-gray-400 mt-1'>
+              <p className='text-xs text-gray-500 dark:text-text-white mt-1'>
                 {campaign.creator}
               </p>
               <div className='flex items-center justify-between mt-2'>
                 {getStatusBadge(campaign.status)}
-                <span className='text-xs text-gray-500 dark:text-gray-400'>
+                <span className='text-xs text-gray-500 dark:text-text-white'>
                   {campaign.submittedAt}
                 </span>
               </div>

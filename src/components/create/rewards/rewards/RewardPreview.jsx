@@ -59,7 +59,7 @@ export default function RewardPreview({ reward, items, rewards, type = 'reward' 
         <h4 className="font-semibold text-foreground line-clamp-2">{reward.title}</h4>
         <p className={`text-2xl font-bold mt-2 flex items-center gap-2 ${isAddon ? 'text-secondary' : 'text-primary'}`}>
           {reward.price}
-          <img src="/packages/coin.svg" alt="Coin" className="w-6 h-6" />
+          <span className="text-sm">VND</span>
         </p>
       </div>
 

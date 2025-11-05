@@ -5,7 +5,7 @@ export const StatCard = ({ title, value, icon: Icon, trend, trendValue }) => (
   <Card className='p-6'>
     <div className='flex items-start justify-between'>
       <div>
-        <p className='text-sm font-medium text-gray-600 dark:text-gray-400'>
+        <p className='text-sm font-medium text-gray-600 dark:text-text-white'>
           {title}
         </p>
         <h3 className='text-2xl font-bold text-gray-900 dark:text-gray-100 mt-2'>
@@ -27,7 +27,7 @@ export const StatCard = ({ title, value, icon: Icon, trend, trendValue }) => (
             >
               {trendValue}%
             </span>
-            <span className='text-xs text-gray-500 dark:text-gray-400 ml-1'>
+            <span className='text-xs text-gray-500 dark:text-text-white ml-1'>
               so với tháng trước
             </span>
           </div>

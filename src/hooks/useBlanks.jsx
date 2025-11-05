@@ -1,56 +1,75 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useRef, useEffect, useCallback } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import {
+  initializeStory,
+  addBlank as addBlankAction,
+  updateBlankTitle,
+  updateBlankContent,
+  reorderBlanks as reorderBlanksAction,
+  deleteBlank as deleteBlankAction
+} from '@/store/campaignSlice';
 import { uid } from '@/utils/id';
 import toast from 'react-hot-toast';
+
 /**
- * Custom hook to manage blanks state and operations
+ * Custom hook to manage blanks state with Redux
  */
 function useBlanks() {
-  const [blanks, setBlanks] = useState([]);
+  const dispatch = useDispatch();
+  const blanksById = useSelector((state) => state.campaign.story.blanksById);
+  const order = useSelector((state) => state.campaign.story.order);
   const activeEditorRef = useRef(null);
-  const autosaveTimerRef = useRef(null);
 
-  // Initialize with first blank
+  // Initialize with first blank if empty
   useEffect(() => {
-    const firstId = uid();
-    setBlanks([
-      {
+    if (order.length === 0) {
+      const firstId = uid();
+      dispatch(initializeStory({
         id: firstId,
-        order: 0,
-        titleHtml: 'Giới thiệu',
-        titleText: 'Giới thiệu',
-        contentHtml: '<p>Gõ nội dung câu chuyện dự án ở đây…</p>',
-      },
-    ]);
-  }, []);
+        blank: {
+          id: firstId,
+          titleHtml: 'Giới thiệu',
+          titleText: 'Giới thiệu',
+          contentHtml: '<p>Gõ nội dung câu chuyện dự án ở đây…</p>',
+        },
+      }));
+    }
+  }, [dispatch, order.length]);
 
   const addBlank = () => {
     const newId = uid();
     const newBlank = {
       id: newId,
-      order: blanks.length,
       titleHtml: 'Untitled',
       titleText: 'Untitled',
       contentHtml: '',
     };
-    setBlanks((prev) => [...prev, newBlank]);
+    dispatch(addBlankAction({ id: newId, blank: newBlank }));
     return newId;
   };
 
   const updateTitle = useCallback((id, titleHtml, titleText) => {
-    setBlanks((prev) =>
-      prev.map((blank) =>
-        blank.id === id ? { ...blank, titleHtml, titleText } : blank
-      )
-    );
-    scheduleAutosave();
-  }, []);
+    dispatch(updateBlankTitle({ id, titleHtml, titleText }));
+  }, [dispatch]);
 
   const updateContent = useCallback((id, contentHtml) => {
-    setBlanks((prev) =>
-      prev.map((blank) => (blank.id === id ? { ...blank, contentHtml } : blank))
-    );
-    scheduleAutosave();
-  }, []);
+    dispatch(updateBlankContent({ id, contentHtml }));
+  }, [dispatch]);
+
+  const reorderBlanks = useCallback((newOrder) => {
+    dispatch(reorderBlanksAction(newOrder));
+  }, [dispatch]);
+
+  const deleteBlank = useCallback((id) => {
+    // Prevent deleting if it's the last blank
+    if (order.length <= 1) {
+      toast.error('Không thể xóa blank cuối cùng!');
+      return;
+    }
+
+    dispatch(deleteBlankAction(id));
+    toast.success('Đã xóa blank thành công!');
+  }, [dispatch, order.length]);
 
   const setActiveEditor = (_id, editor) => {
     activeEditorRef.current = editor;
@@ -61,7 +80,7 @@ function useBlanks() {
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
       setTimeout(() => {
-        const blank = blanks.find((b) => b.id === id);
+        const blank = blanksById[id];
         if (blank) {
           const editorElement = element.querySelector(
             '[contenteditable="true"]:last-child'
@@ -72,44 +91,23 @@ function useBlanks() {
     }
   };
 
-  const getPayload = () => {
-    const payload = {
-      version: 1,
-      createdAt: new Date().toISOString(),
-      blanks: blanks.map((blank, index) => ({
-        id: blank.id,
-        order: index,
-        title_text: blank.titleText,
-        title_html: blank.titleHtml,
-        content_html: blank.contentHtml,
-      })),
-    };
-    return payload;
-  };
-
-  const scheduleAutosave = () => {
-    if (autosaveTimerRef.current) {
-      clearTimeout(autosaveTimerRef.current);
-    }
-    autosaveTimerRef.current = setTimeout(() => {
-      const payload = getPayload();
-      console.log('[AUTOSAVE]', payload);
-    }, 5000);
-  };
-
   const save = () => {
-    const payload = getPayload();
-    console.log('SAVE payload:', payload);
-    console.log('\n=== Mock Data JSON ===\n', JSON.stringify(payload, null, 2));
-    toast.success('Đã lưu thành công!');
+    toast.success('Story đã được lưu tự động vào Redux store!');
   };
+
+  // Derive blanks array from order and blanksById for rendering
+  const blanks = order.map((id) => blanksById[id]).filter(Boolean);
 
   return {
     blanks,
+    blanksById,
+    order,
     activeEditorRef,
     addBlank,
     updateTitle,
     updateContent,
+    reorderBlanks,
+    deleteBlank,
     setActiveEditor,
     scrollToBlank,
     save,

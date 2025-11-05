@@ -14,7 +14,7 @@ export default function ItemList({ items, onEdit, onDelete, onCreate }) {
     return (
       <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-border bg-muted/30 py-16 px-4">
         <div className="text-5xl mb-4">📦</div>
-        <h3 className="text-lg font-semibold text-foreground mb-2">Chưa có thành phần nào</h3>
+        <h3 className="text-lg font-semibold text-muted-foreground mb-2">Chưa có thành phần nào</h3>
         <p className="text-muted-foreground mb-6 text-center max-w-sm">
           Tạo thành phần đầu tiên để bắt đầu xây dựng các phần thưởng của bạn
         </p>
@@ -28,7 +28,7 @@ export default function ItemList({ items, onEdit, onDelete, onCreate }) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-foreground">Thành phần ({items.length})</h2>
+        <h2 className="text-xl font-semibold text-muted-foreground">Thành phần ({items.length})</h2>
         <Button onClick={onCreate} variant="primary" size="md">
           + Tạo mới
         </Button>

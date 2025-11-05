@@ -46,10 +46,10 @@ export const Footer = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 mb-6 sm:mb-8">
           {/* Section 1 - Logo & Social */}
           <div className="col-span-1">
-            <h2 className="text-xl sm:text-2xl font-bold text-text-primary dark:text-text-white mb-3 sm:mb-4 transition-colors duration-300">
+            <h2 className="text-xl sm:text-2xl font-bold text-text-primary dark:text-white mb-3 sm:mb-4 transition-colors duration-300">
               Fundelio
             </h2>
-            <p className="text-text-secondary dark:text-gray-400 text-sm mb-4 sm:mb-6 leading-relaxed transition-colors duration-300">
+            <p className="text-text-secondary dark:text-text-white text-sm mb-4 sm:mb-6 leading-relaxed transition-colors duration-300">
               Nền tảng gây quỹ cộng đồng cho các dự án sáng tạo và khởi nghiệp.
             </p>
             <div className="flex space-x-3 sm:space-x-4">
@@ -59,7 +59,7 @@ export const Footer = () => {
                   <a
                     key={index}
                     href={social.href}
-                    className="p-2 rounded-lg text-text-secondary dark:text-gray-400 hover:text-primary dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-gray-800 transition-all duration-200"
+                    className="p-2 rounded-lg text-text-secondary dark:text-text-white hover:text-primary dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-gray-800 transition-all duration-200"
                     title={social.name}
                   >
                     <IconComponent className="w-5 h-5" />
@@ -72,7 +72,7 @@ export const Footer = () => {
           {/* Sections 2, 3, 4 - Navigation Links */}
           {footerSections.map((section, sectionIndex) => (
             <div key={sectionIndex} className="col-span-1">
-              <h3 className="text-base sm:text-lg font-semibold text-text-primary dark:text-text-white mb-3 sm:mb-4 transition-colors duration-300">
+              <h3 className="text-base sm:text-lg font-semibold text-text-primary dark:text-white mb-3 sm:mb-4 transition-colors duration-300">
                 {section.title}
               </h3>
               <ul className="space-y-2 sm:space-y-3">
@@ -80,7 +80,7 @@ export const Footer = () => {
                   <li key={linkIndex}>
                     <a
                       href={link.href}
-                      className="text-text-secondary dark:text-gray-400 hover:text-primary dark:hover:text-primary-400 transition-colors duration-200 text-sm"
+                      className="text-text-secondary dark:text-text-white hover:text-primary dark:hover:text-primary-400 transition-colors duration-200 text-sm"
                     >
                       {link.name}
                     </a>
@@ -94,7 +94,7 @@ export const Footer = () => {
         {/* Separator Line */}
         <div className="border-t border-gray-300 dark:border-gray-700 pt-4 sm:pt-6 transition-colors duration-300">
           <div className="text-center">
-            <p className="text-text-secondary dark:text-gray-400 text-xs sm:text-sm transition-colors duration-300">
+            <p className="text-text-secondary dark:text-text-white text-xs sm:text-sm transition-colors duration-300">
               © 2025 Fundelio. Mọi quyền được bảo lưu.
             </p>
           </div>

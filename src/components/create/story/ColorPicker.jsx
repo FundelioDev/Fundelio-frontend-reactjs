@@ -260,7 +260,7 @@ export default function ColorPicker({ onColorSelect }) {
             {/* Custom Color Input */}
             <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
               <label className="flex items-center gap-2">
-                <span className="text-xs text-gray-600 dark:text-gray-400">
+                <span className="text-xs text-gray-600 dark:text-text-white">
                   Màu tùy chỉnh:
                 </span>
                 <input

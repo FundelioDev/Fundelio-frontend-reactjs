@@ -24,10 +24,10 @@
 //         {/* Section Header */}
 //         <div className="flex items-center justify-between mb-10 sm:mb-12">
 //           <div>
-//             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-text-primary dark:text-text-white mb-2 transition-colors duration-300">
+//             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-text-primary dark:text-white mb-2 transition-colors duration-300">
 //               {title}
 //             </h2>
-//             <p className="text-lg text-text-secondary dark:text-gray-400 transition-colors duration-300">
+//             <p className="text-lg text-text-secondary dark:text-text-white transition-colors duration-300">
 //               Những dự án được lựa chọn đặc biệt từ cộng đồng
 //             </p>
 //           </div>

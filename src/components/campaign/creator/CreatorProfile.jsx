@@ -41,7 +41,7 @@ const CreatorProfile = ({ creator = {}, otherProjects = [] }) => {
       {/* Header Section */}
       <div className="mb-8">
         <h2 className="text-3xl font-bold text-foreground mb-6">
-          About the creator
+          Về người tạo
         </h2>
 
         <div className="flex items-start gap-6 mb-6">
@@ -63,7 +63,7 @@ const CreatorProfile = ({ creator = {}, otherProjects = [] }) => {
             <h3 className="text-2xl font-bold text-foreground mb-2">
               {name}
             </h3>
-            
+
             {/* Badges & Username */}
             <div className="flex flex-wrap items-center gap-3 mb-4">
               {isVerified && (
@@ -72,19 +72,18 @@ const CreatorProfile = ({ creator = {}, otherProjects = [] }) => {
                   <span className="text-sm font-medium">{username}</span>
                 </div>
               )}
-              
+
               {badges.map((badge, index) => (
                 <span
                   key={index}
-                  className={`px-3 py-1 text-xs font-semibold rounded-full ${
-                    badge.type === 'favorite' 
+                  className={`px-3 py-1 text-xs font-semibold rounded-full ${badge.type === 'favorite'
                       ? 'text-blue-600 bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400'
                       : badge.type === 'repeat'
-                      ? 'text-purple-600 bg-purple-100 dark:bg-purple-900/30 dark:text-purple-400'
-                      : badge.type === 'super'
-                      ? 'text-green-600 bg-green-100 dark:bg-green-900/30 dark:text-green-400'
-                      : 'text-gray-600 bg-gray-100 dark:bg-gray-800 dark:text-gray-400'
-                  }`}
+                        ? 'text-purple-600 bg-purple-100 dark:bg-purple-900/30 dark:text-purple-400'
+                        : badge.type === 'super'
+                          ? 'text-green-600 bg-green-100 dark:bg-green-900/30 dark:text-green-400'
+                          : 'text-gray-600 bg-gray-100 dark:bg-gray-800 dark:text-text-white'
+                    }`}
                 >
                   {badge.label}
                 </span>
@@ -100,10 +99,10 @@ const CreatorProfile = ({ creator = {}, otherProjects = [] }) => {
               {stats.createdProjects}
             </div>
             <div className="text-sm text-muted-foreground">
-              created projects
+              dự án đã tạo
             </div>
             <div className="text-sm text-muted-foreground mt-1">
-              {stats.backedProjects} backed projects
+              {stats.backedProjects} dự án đã ủng hộ
             </div>
           </div>
           <div>
@@ -111,7 +110,7 @@ const CreatorProfile = ({ creator = {}, otherProjects = [] }) => {
               {stats.lastLogin}
             </div>
             <div className="text-sm text-muted-foreground">
-              last login
+              đăng nhập gần nhất
             </div>
           </div>
           <div>
@@ -119,7 +118,7 @@ const CreatorProfile = ({ creator = {}, otherProjects = [] }) => {
               {stats.accountCreated}
             </div>
             <div className="text-sm text-muted-foreground">
-              account created
+              ngày tạo tài khoản
             </div>
           </div>
         </div>
@@ -138,14 +137,14 @@ const CreatorProfile = ({ creator = {}, otherProjects = [] }) => {
             className="px-6 py-3 bg-background text-foreground font-semibold rounded-sm transition-all duration-200 flex items-center justify-center gap-2"
           >
             <Mail size={20} />
-            <span>Message</span>
+            <span>Nhắn tin</span>
           </button>
           <button
             onClick={handleFollow}
             className="px-6 py-3 bg-foreground hover:bg-foreground/90 text-background font-semibold rounded-sm transition-all duration-200 flex items-center justify-center gap-2"
           >
             <UserPlus size={20} />
-            <span>Follow</span>
+            <span>Theo dõi</span>
           </button>
         </div>
 
@@ -197,7 +196,7 @@ const CreatorProfile = ({ creator = {}, otherProjects = [] }) => {
       {otherProjects && otherProjects.length > 0 && (
         <div className="mt-12">
           <h3 className="text-2xl font-bold text-foreground mb-6">
-            Other projects by this creator
+            Các dự án khác của người tạo này
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {otherProjects.map((project) => (

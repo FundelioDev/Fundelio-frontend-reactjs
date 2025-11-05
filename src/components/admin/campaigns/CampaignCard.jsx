@@ -38,7 +38,7 @@ export const CampaignCard = ({ campaign, onViewDetail }) => {
           {getStatusBadge(campaign.status)}
         </div>
 
-        <div className='space-y-2 text-sm text-gray-600 dark:text-gray-400'>
+        <div className='space-y-2 text-sm text-gray-600 dark:text-text-white'>
           <div className='flex items-center'>
             <Users className='w-4 h-4 mr-2' />
             <span>{campaign.creator}</span>
@@ -56,7 +56,7 @@ export const CampaignCard = ({ campaign, onViewDetail }) => {
         {campaign.status === 'approved' && (
           <div className='pt-2 border-t dark:border-gray-700'>
             <div className='flex justify-between text-sm'>
-              <span className='text-gray-600 dark:text-gray-400'>Đã đạt:</span>
+              <span className='text-gray-600 dark:text-text-white'>Đã đạt:</span>
               <span className='font-medium text-gray-900 dark:text-gray-100'>
                 {formatCurrency(campaign.currentAmount)}
               </span>

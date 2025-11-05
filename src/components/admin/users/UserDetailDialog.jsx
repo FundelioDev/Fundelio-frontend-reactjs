@@ -50,7 +50,7 @@ export const UserDetailDialog = ({ user, open, onOpenChange, onEdit }) => {
               <h3 className='text-xl font-semibold text-gray-900 dark:text-gray-100'>
                 {user.name}
               </h3>
-              <p className='text-gray-600 dark:text-gray-400'>{user.email}</p>
+              <p className='text-gray-600 dark:text-text-white'>{user.email}</p>
               <div className='flex items-center space-x-2 mt-2'>
                 {getRoleBadge(user.role)}
                 {getStatusBadge(user.status)}
@@ -60,7 +60,7 @@ export const UserDetailDialog = ({ user, open, onOpenChange, onEdit }) => {
 
           <div className='grid grid-cols-2 gap-4 pt-4 border-t dark:border-gray-700'>
             <div>
-              <p className='text-sm text-gray-600 dark:text-gray-400'>
+              <p className='text-sm text-gray-600 dark:text-text-white'>
                 Ngày tạo
               </p>
               <p className='font-medium text-gray-900 dark:text-gray-100'>
@@ -68,7 +68,7 @@ export const UserDetailDialog = ({ user, open, onOpenChange, onEdit }) => {
               </p>
             </div>
             <div>
-              <p className='text-sm text-gray-600 dark:text-gray-400'>
+              <p className='text-sm text-gray-600 dark:text-text-white'>
                 Đăng nhập cuối
               </p>
               <p className='font-medium text-gray-900 dark:text-gray-100'>
@@ -76,7 +76,7 @@ export const UserDetailDialog = ({ user, open, onOpenChange, onEdit }) => {
               </p>
             </div>
             <div>
-              <p className='text-sm text-gray-600 dark:text-gray-400'>
+              <p className='text-sm text-gray-600 dark:text-text-white'>
                 ID người dùng
               </p>
               <p className='font-medium text-gray-900 dark:text-gray-100'>
@@ -84,7 +84,7 @@ export const UserDetailDialog = ({ user, open, onOpenChange, onEdit }) => {
               </p>
             </div>
             <div>
-              <p className='text-sm text-gray-600 dark:text-gray-400'>
+              <p className='text-sm text-gray-600 dark:text-text-white'>
                 Vai trò
               </p>
               <p className='font-medium text-gray-900 dark:text-gray-100'>

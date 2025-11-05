@@ -14,9 +14,9 @@ export function RewardDetailCard({ reward }) {
     : 100;
 
   console.log('reward in RewardDetailCard:', reward);
-  
+
   // Format delivery date
-  const eta = reward.estimated_delivery 
+  const eta = reward.estimated_delivery
     ? new Date(reward.estimated_delivery).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
     : 'TBD';
 
@@ -44,7 +44,7 @@ export function RewardDetailCard({ reward }) {
               <UsersIcon className="w-4 h-4 text-white" strokeWidth={2} />
             </div>
             <div className="flex-1">
-              <p className="text-xs text-muted-foreground">Backers</p>
+              <p className="text-xs text-muted-foreground">Người ủng hộ</p>
               <p className="text-base font-bold text-primary">{reward.backers}</p>
             </div>
           </div>
@@ -54,7 +54,7 @@ export function RewardDetailCard({ reward }) {
               <MapPinIcon className="w-4 h-4 text-white" strokeWidth={2} />
             </div>
             <div className="flex-1">
-              <p className="text-xs text-muted-foreground">Ships to</p>
+              <p className="text-xs text-muted-foreground">Giao đến</p>
               <p className="text-xs font-semibold text-foreground">{reward.ships_to}</p>
             </div>
           </div>
@@ -71,7 +71,7 @@ export function RewardDetailCard({ reward }) {
           <div className="flex items-center gap-2">
             <CalendarIcon className="w-4 h-4 text-primary" strokeWidth={2} />
             <div>
-              <p className="text-xs text-muted-foreground">Estimated Delivery</p>
+              <p className="text-xs text-muted-foreground">Thời gian giao hàng dự kiến</p>
               <p className="text-sm font-semibold text-foreground">{eta}</p>
             </div>
           </div>
@@ -83,7 +83,7 @@ export function RewardDetailCard({ reward }) {
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
                 <PackageIcon className="w-4 h-4 text-warning" strokeWidth={2} />
-                <span className="text-xs font-semibold text-foreground">Limited Quantity</span>
+                <span className="text-xs font-semibold text-foreground">Số lượng giới hạn</span>
               </div>
               <span className="text-xs font-bold text-warning">
                 {reward.limitedQuantity.remaining} left of {reward.limitedQuantity.total}
@@ -96,8 +96,8 @@ export function RewardDetailCard({ reward }) {
                   background: percentageRemaining > 50
                     ? 'linear-gradient(90deg, #1EC794 0%, #0894E2 100%)'
                     : percentageRemaining > 25
-                    ? 'linear-gradient(90deg, #FFB700 0%, #FF9603 100%)'
-                    : 'linear-gradient(90deg, #FF6D03 0%, #C44C93 100%)',
+                      ? 'linear-gradient(90deg, #FFB700 0%, #FF9603 100%)'
+                      : 'linear-gradient(90deg, #FF6D03 0%, #C44C93 100%)',
                 }}
                 initial={{ width: 0 }}
                 animate={{ width: `${percentageRemaining}%` }}
@@ -109,12 +109,9 @@ export function RewardDetailCard({ reward }) {
 
         {/* CTA Button - Smaller */}
         <Button
-          className="w-full font-bold text-white shadow-lg h-10 text-sm flex items-center justify-center gap-2"
-          style={{
-            background: 'linear-gradient(135deg, #1EC794 0%, #0894E2 100%)',
-          }}
+          className="w-full font-bold text-white bg-primary shadow-lg h-10 text-sm flex items-center justify-center gap-2"
         >
-          <span>Pledge {reward.min_pledge_amount}</span>
+          <span>Ủng hộ {reward.min_pledge_amount}</span>
           <img src="/packages/coin.svg" alt="Coin" className="w-5 h-5" />
         </Button>
       </div>

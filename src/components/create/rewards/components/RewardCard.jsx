@@ -67,7 +67,7 @@ export default function RewardCard({
             </div>
           ) : (
             <div className="text-2xl font-bold text-foreground">
-              $ {data.price || 0}
+             {data.price || 0} VND
             </div>
           )}
         </div>

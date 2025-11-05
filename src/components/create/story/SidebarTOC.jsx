@@ -1,13 +1,60 @@
 import { Plus, FileText } from 'lucide-react';
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  arrayMove,
+} from '@dnd-kit/sortable';
+import SortableTOCItem from './SortableTOCItem';
 
 /**
- * SidebarTOC component - Table of contents sidebar
+ * SidebarTOC component - Table of contents sidebar with drag-and-drop reordering
  * @param {Object} props
- * @param {Array} props.blanks - Array of blank objects
+ * @param {Array} props.blanks - Array of blank objects (already ordered)
  * @param {Function} props.onAddBlank - Callback to add new blank
  * @param {Function} props.onNavigate - Callback when clicking on a TOC item
+ * @param {Function} props.onReorder - Callback when reordering blanks
+ * @param {Function} props.onDelete - Callback when deleting a blank
  */
-export default function SidebarTOC({ blanks, onAddBlank, onNavigate }) {
+export default function SidebarTOC({ blanks, onAddBlank, onNavigate, onReorder, onDelete }) {
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8, // Require 8px movement before drag starts
+      },
+    })
+  );
+
+  const handleDragEnd = (event) => {
+    const { active, over } = event;
+
+    if (!over || active.id === over.id) {
+      return;
+    }
+
+    const oldIndex = blanks.findIndex((blank) => blank.id === active.id);
+    const newIndex = blanks.findIndex((blank) => blank.id === over.id);
+
+    if (oldIndex !== -1 && newIndex !== -1) {
+      const blankIds = blanks.map((b) => b.id);
+      const newOrder = arrayMove(blankIds, oldIndex, newIndex);
+      onReorder(newOrder);
+    }
+  };
+
+  // Custom modifier to restrict to vertical axis
+  const restrictToVerticalAxis = ({ transform }) => {
+    return {
+      ...transform,
+      x: 0, // Lock horizontal movement
+    };
+  };
   return (
     <div
       className="flex flex-col bg-white dark:bg-darker-2 p-4
@@ -19,35 +66,44 @@ export default function SidebarTOC({ blanks, onAddBlank, onNavigate }) {
           <FileText className="w-5 h-5" />
           Mục lục
         </h3>
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-          Click để cuộn đến phần
+        <p className="text-xs text-gray-500 dark:text-text-white mt-1">
+          Kéo để sắp xếp, click để cuộn
         </p>
       </div>
 
-      {/* TOC List */}
-      <div className="flex-1 space-y-1 overflow-y-auto pr-1">
-        {blanks.map((blank, index) => (
-          <button
-            key={blank.id}
-            onClick={() => onNavigate(blank.id)}
-            className="w-full flex items-start gap-3 px-3 py-2.5 border rounded-sm hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors text-left group"
-          >
-            <span className="flex-shrink-0 w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-800 text-xs font-medium flex items-center justify-center text-gray-600 dark:text-gray-400 group-hover:bg-primary group-hover:text-white transition-colors">
-              {index + 1}
-            </span>
-            <span className="flex-1 text-sm text-gray-700 dark:text-gray-300 line-clamp-2 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
-              {blank.titleText || 'Untitled'}
-            </span>
-          </button>
-        ))}
-      </div>
+      {/* TOC List with Drag & Drop */}
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
+        modifiers={[restrictToVerticalAxis]}
+        autoScroll={false}
+      >
+        <SortableContext
+          items={blanks.map((b) => b.id)}
+          strategy={verticalListSortingStrategy}
+        >
+          <div className="flex-1 space-y-1 overflow-y-auto overflow-x-hidden pr-1 scrollbar-hide">
+            {blanks.map((blank, index) => (
+              <SortableTOCItem
+                key={blank.id}
+                blank={blank}
+                index={index}
+                onNavigate={onNavigate}
+                onDelete={onDelete}
+                canDelete={blanks.length > 1}
+              />
+            ))}
+          </div>
+        </SortableContext>
+      </DndContext>
 
       {/* Add Button */}
       <button
         onClick={onAddBlank}
         className="w-full flex items-center justify-center gap-2 py-2.5 mt-4 border-1 border-dashed border-gray-300 dark:border-gray-700 rounded-sm hover:border-primary dark:hover:border-primary hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors group"
       >
-        <Plus className="w-4 h-4 text-gray-500 dark:text-gray-400 group-hover:text-primary transition-colors" />
+        <Plus className="w-4 h-4 text-gray-500 dark:text-text-white group-hover:text-primary transition-colors" />
         <span className="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-primary transition-colors">
           Thêm blank
         </span>

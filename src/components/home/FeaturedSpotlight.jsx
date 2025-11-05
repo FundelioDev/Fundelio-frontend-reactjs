@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight, Flame } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Flame, Users, DollarSign } from 'lucide-react';
 import ProjectCard from './ProjectCard';
 import ProjectLists from './ProjectLists';
 import { mockProjects } from '@/data/mockProjects';
+import { mockCampaigns } from '@/data/mockCampaigns';
 
 export const FeaturedSpotlight = () => {
   const [currentPage, setCurrentPage] = useState(0);
@@ -11,8 +12,8 @@ export const FeaturedSpotlight = () => {
   // Mock data cho Featured (lấy 8 dự án đầu)
   const featuredCampaigns = mockProjects.slice(0, 8);
   
-  // Mock data cho Spotlight (lấy từ project 11-20 có featured flag)
-  const spotlightCampaigns = mockProjects.slice(0, 20);
+  // Mock data cho Spotlight - Sử dụng mockCampaigns cho các dự án gần đây
+  const spotlightCampaigns = mockCampaigns;
   
   const totalPages = Math.ceil(featuredCampaigns.length / itemsPerPage);
 
@@ -33,10 +34,25 @@ export const FeaturedSpotlight = () => {
   const canGoPrev = currentPage > 0;
   const canGoNext = currentPage < totalPages - 1;
 
-  const formatTimeAgo = (hours) => {
-    if (hours < 1) return `${Math.round(hours * 60)} phút trước`;
-    if (hours < 24) return `${Math.round(hours)} giờ trước`;
-    return `${Math.round(hours / 24)} ngày trước`;
+  const formatTimeAgo = (dateString) => {
+    const startDate = new Date(dateString);
+    const now = new Date();
+    const hoursDiff = Math.abs(now - startDate) / 36e5; // Convert milliseconds to hours
+    
+    if (hoursDiff < 1) return `${Math.round(hoursDiff * 60)} phút trước`;
+    if (hoursDiff < 24) return `${Math.round(hoursDiff)} giờ trước`;
+    return `${Math.round(hoursDiff / 24)} ngày trước`;
+  };
+
+  const calculateDaysLeft = (endDate) => {
+    const end = new Date(endDate);
+    const now = new Date();
+    const daysLeft = Math.ceil((end - now) / (1000 * 60 * 60 * 24));
+    return Math.max(0, daysLeft);
+  };
+
+  const calculateProgress = (pledged, goal) => {
+    return Math.round((pledged / goal) * 100);
   };
 
   return (
@@ -53,9 +69,9 @@ export const FeaturedSpotlight = () => {
               {/* Header with Navigation */}
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
-                  <Flame className="w-6 h-6 text-text-primary dark:text-text-white" />
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-text-white">
-                    Featured
+                  <Flame className="w-6 h-6 text-text-primary dark:text-white" />
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                    Nổi bật
                   </h2>
                 </div>
 
@@ -123,13 +139,13 @@ export const FeaturedSpotlight = () => {
             {/* Right Side: Spotlight */}
             <div className="xl:col-span-4">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-6 h-6 text-text-primary dark:text-text-white">
+                <div className="w-6 h-6 text-text-primary dark:text-white">
                   <svg viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                   </svg>
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-text-white">
-                  Spotlight
+                <h2 className="text-2xl font-bold text-text-primary dark:text-white">
+                  Gần đây
                 </h2>
               </div>
 
@@ -143,62 +159,64 @@ export const FeaturedSpotlight = () => {
                     minHeight: 'calc(2 * 595px + 1.5rem)',
                   }}
                 >
-                  {spotlightCampaigns.map((campaign, index) => (
-                    <a 
-                      key={campaign.id}
-                      href={`/campaign/${campaign.id}`}
-                      className="flex items-center gap-2 p-2 bg-white dark:bg-darker-2 inset-shadow-2xs shadow-md rounded-lg hover:scale-[1.02] transition-all duration-200 group"
-                    >
-                      {/* Thumbnail */}
-                      <div className="relative w-15 h-15 flex-shrink-0 rounded-lg overflow-hidden">
-                        <img
-                          src={campaign.imageUrl || '/placeholder.svg'}
-                          alt={campaign.title}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                        />
-                        {/* {campaign.daysLeft <= 2 && (
-                          <div className="absolute top-1 left-1 bg-orange-500 text-white text-xs font-bold px-2 py-0.5 rounded">
-                            FINAL DAYS
-                          </div>
-                        )} */}
-                      </div>
-
-                      {/* Content */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-2">
-                          <span className="text-[10px] text-gray-500 dark:text-gray-400">
-                            {formatTimeAgo(campaign.hoursAgo || Math.random() * 24)}
-                          </span>
-                          <span className="text-[10px] text-orange-500 dark:text-orange-400 font-semibold whitespace-nowrap">
-                            {campaign.daysLeft * 24} HOURS LEFT
-                          </span>
+                  {spotlightCampaigns.map((campaign, index) => {
+                    const daysLeft = calculateDaysLeft(campaign.end_date);
+                    const progressPercent = calculateProgress(campaign.pledged_amount, campaign.goal_amount);
+                    
+                    return (
+                      <a 
+                        key={campaign.campaign_id}
+                        href={`/campaigns/detail`}
+                        className="flex items-center gap-2 p-2 bg-white dark:bg-darker-2 inset-shadow-2xs shadow-md rounded-lg hover:scale-[1.02] transition-all duration-200 group"
+                      >
+                        {/* Thumbnail */}
+                        <div className="relative w-15 h-15 flex-shrink-0 rounded-lg overflow-hidden">
+                          <img
+                            src={campaign.heroImageUrl || '/placeholder.svg'}
+                            alt={campaign.title}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                          />
                         </div>
 
-                        {/* Progress indicator */}
-                        {campaign.progressPercent >= 100 && (
-                          <div className="">
-                            <div className="flex items-center justify-between text-[10px]">
-                              <span className="text-green-600 dark:text-green-400 font-semibold">
-                                CAMPAIGN IS FUNDED
+                        {/* Content */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-2 mb-1">
+                            <span className="text-[10px] text-orange-500 dark:text-orange-400 font-semibold whitespace-nowrap">
+                              Còn {daysLeft} ngày
+                            </span>
+                            {/* Progress indicator */}
+                            {progressPercent >= 100 && (
+                              <span className="text-[10px] text-green-600 dark:text-green-400 font-semibold">
+                                {progressPercent}%
                               </span>
+                            )}
+                          </div>
+                          
+                          <h3 className="text-xs font-bold text-text-primary dark:text-white line-clamp-2 group-hover:text-primary transition-colors mb-1">
+                            {campaign.title}
+                          </h3>
+                          
+                          {/* Campaign stats with icons */}
+                          <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+                            <div className="flex items-center gap-1">
+                              <Users className="w-3 h-3" />
+                              <span>{campaign.backers_count}</span>
+                            </div>
+                            <span>•</span>
+                            <div className="flex items-center gap-1 font-semibold text-primary">
+                              <DollarSign className="w-3 h-3" />
+                              <span>{campaign.pledged_amount.toLocaleString()}</span>
                             </div>
                           </div>
-                        )}
-                        <h3 className="text-xs font-bold text-text-primary dark:text-white line-clamp-2 group-hover:text-primary transition-colors">
-                          {campaign.title}
-                        </h3>
-                        
-                        {/* <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-1">
-                          {campaign.description?.slice(0, 50) || `by ${campaign.authorName}`}
-                        </p> */}
-                      </div>
-                    </a>
-                  ))}
+                        </div>
+                      </a>
+                    );
+                  })}
                 </div>
 
                 {/* Bottom Fade Overlay - chỉ hiện khi có scrollbar */}
                 <div 
-                  className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-gray-50 dark:from-gray-900 to-transparent pointer-events-none"
+                  className="absolute bottom-0 left-0 right-0 h-3 bg-gradient-to-t from-gray-50 dark:from-darker to-transparent pointer-events-none"
                   aria-hidden="true"
                 />
               </div>

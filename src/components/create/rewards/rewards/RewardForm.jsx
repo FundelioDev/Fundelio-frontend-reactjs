@@ -160,7 +160,7 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
       {/* Image Section */}
       <div className="rounded-sm border border-border bg-white dark:bg-darker-2 p-6">
         <h3 className="text-lg font-semibold text-foreground">Hình ảnh</h3>
-        <p className="text-sm text-text-primary dark:text-text-white mb-4">
+        <p className="text-sm text-text-primary dark:text-white mb-4">
           Thêm hình ảnh sản phẩm của bạn để giúp người ủng hộ hiểu chính xác phần thưởng của họ là gì.
         </p>
 
@@ -173,7 +173,7 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
                   <Button
                     type="button"
                     variant="gradient"
-                    onClick={() => imageInputRef.current?.click()}
+                    onClick={() => fileInputRef.current?.click()}
                     className="px-6 py-3 border border-border rounded-sm text-foreground bg-background hover:bg-muted transition-colors font-medium"
                   >
                     Tải ảnh lên
@@ -246,7 +246,7 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
         <h3 className="text-lg font-semibold text-foreground mb-4">Giá ủng hộ</h3>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Giá ($)<span className="text-lg font-bold text-primary">*</span></label>
+            <label className="block text-sm font-medium text-foreground mb-2">Giá (VND)<span className="text-lg font-bold text-primary">*</span></label>
             <Input
               type="number"
               name="price"
@@ -271,7 +271,7 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
       </div>
 
       {/* Items Section */}
-      <div className="rounded-sm border border-border bg-white dark:bg-darker-2 p-6">
+      {!isAddon && (<div className="rounded-sm border border-border bg-white dark:bg-darker-2 p-6">
         <h3 className="text-lg font-semibold text-foreground mb-4">Thành phần</h3>
         <div className="space-y-4">
           <Button type="button" onClick={() => setShowItemSelector(true)} variant="secondary" className="w-full">
@@ -309,7 +309,8 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
           <Tip className="mt-2">Ít nhất 1 component. Mỗi component tương ứng 1 món sẽ giao cho backer.</Tip>
         </div>
       </div>
-
+)}
+      
       {/* Delivery Section */}
       <div className="rounded-sm border border-border bg-white dark:bg-darker-2 p-6">
         <h3 className="text-lg font-semibold text-foreground mb-4">Thời gian giao dự kiến</h3>
@@ -392,7 +393,7 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
                 key={reward.id}
                 checked={formData.offeredWithRewardIds?.includes(reward.id) || false}
                 onChange={() => handleRewardToggle(reward.id)}
-                label={`${reward.title} - CA$${reward.price}`}
+                label={`${reward.title} - ${reward.price} VND`}
               />
             ))}
           </div>
@@ -466,6 +467,18 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
           onClose={() => setShowItemSelector(false)}
         />
       )}
+
+      {/* Action Buttons */}
+      <div className="rounded-sm border border-border bg-white dark:bg-darker-2 p-6">
+        <div className="flex gap-3 justify-end">
+          <Button type="button" variant="outline" onClick={onCancel}>
+            Hủy
+          </Button>
+          <Button type="submit" variant="gradient">
+            Lưu {isAddon ? 'Add-on' : 'Phần thưởng'}
+          </Button>
+        </div>
+      </div>
     </form>
   )
 })

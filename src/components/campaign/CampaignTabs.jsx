@@ -12,10 +12,10 @@ const CampaignTabs = ({ initialTab = 'campaign', campaignProps = {} }) => {
   const [activeTab, setActiveTab] = useState(initialTab);
 
   const tabs = [
-    { id: 'campaign', label: 'Campaign' },
-    { id: 'rewards', label: 'Rewards' },
-    { id: 'creator', label: 'Creator' },
-    { id: 'leaderboard', label: 'Leaderboard' },
+    { id: 'campaign', label: 'Chiến dịch' },
+    { id: 'rewards', label: 'Phần thưởng' },
+    { id: 'creator', label: 'Người tạo' },
+    { id: 'leaderboard', label: 'Bảng xếp hạng' },
   ];
 
   return (
@@ -24,7 +24,7 @@ const CampaignTabs = ({ initialTab = 'campaign', campaignProps = {} }) => {
       <div className="sticky top-0 bg-white dark:bg-darker z-20 shadow-sm">
         <div className="max-w-container mx-auto px-4 lg:px-6">
           <nav
-            className="flex gap-3 overflow-x-auto scrollbar-hide"
+            className="flex gap-x-0.5 overflow-x-auto scrollbar-hide"
             role="tablist"
           >
             {tabs.map((tab) => (
@@ -37,10 +37,9 @@ const CampaignTabs = ({ initialTab = 'campaign', campaignProps = {} }) => {
                 className={`
                   py-4 px-4 text-md font-medium whitespace-nowrap
                   border-b-2 transition-colors duration-200 uppercase
-                  ${
-                    activeTab === tab.id
-                      ? 'border-primary text-primary bg-white dark:bg-darker-2'
-                      : 'border-transparent text-text-secondary dark:text-text-white hover:text-primary hover:border-primary/40'
+                  ${activeTab === tab.id
+                    ? 'border-primary text-primary bg-white dark:bg-darker-2'
+                    : 'border-transparent text-text-secondary dark:text-white hover:text-primary hover:border-primary/40'
                   }
                 `}
               >
@@ -74,6 +73,8 @@ const CampaignTabs = ({ initialTab = 'campaign', campaignProps = {} }) => {
             >
               <RewardsPage
                 rewards={campaignProps.rewards || []}
+                items={campaignProps.items || []}
+                addOns={campaignProps.addOns || []}
                 onPledge={campaignProps.onPledge}
               />
             </div>

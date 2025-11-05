@@ -58,23 +58,18 @@ export default function AdminLayout() {
   };
 
   return (
-    <div className='flex h-screen bg-gray-50 dark:bg-gray-950'>
+    <div className='flex h-screen bg-gray-50 dark:bg-darker'>
       {/* Sidebar */}
       <aside
         className={`${
           sidebarOpen ? 'w-64' : 'w-20'
-        } bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 transition-all duration-300 flex flex-col`}
+        } bg-white dark:bg-darker-2 border-r border-gray-200 dark:border-gray-800 transition-all duration-300 flex flex-col`}
       >
         {/* Logo */}
         <div className='h-16 flex items-center justify-between px-4 border-b border-gray-200 dark:border-gray-800'>
           {sidebarOpen && (
             <Link to='/admin' className='flex items-center space-x-2'>
-              <div className='w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center'>
-                <span className='text-white font-bold text-sm'>F</span>
-              </div>
-              <span className='font-bold text-xl text-gray-800 dark:text-gray-100'>
-                Fundelio
-              </span>
+               <img src="/logo.png" alt="Fundelio" className="w-10 h-10 md:w-12 md:h-12" />
             </Link>
           )}
           <Button
@@ -83,7 +78,7 @@ export default function AdminLayout() {
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className='ml-auto'
           >
-            {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+            {sidebarOpen ? <X size={20} /> : <Menu size={20} className='text-gray-700 dark:text-gray-300' />}
           </Button>
         </div>
 
@@ -131,7 +126,7 @@ export default function AdminLayout() {
       {/* Main content */}
       <div className='flex-1 flex flex-col overflow-hidden'>
         {/* Header */}
-        <header className='h-16 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between px-6'>
+        <header className='h-16 bg-white dark:bg-darker-2 border-b border-gray-100 dark:border-darker-2 dark:shadow-sm dark:shadow-gray-800/50 flex items-center justify-between px-6'>
           <div>
             <h1 className='text-2xl font-bold text-gray-800 dark:text-gray-100'>
               {sidebarItems.find((item) => isActive(item.path))?.label ||
@@ -172,7 +167,7 @@ export default function AdminLayout() {
                 <p className='text-sm font-medium text-gray-800 dark:text-gray-100'>
                   Admin User
                 </p>
-                <p className='text-xs text-gray-500 dark:text-gray-400'>
+                <p className='text-xs text-gray-500 dark:text-text-white'>
                   admin@fundelio.com
                 </p>
               </div>

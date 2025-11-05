@@ -120,14 +120,14 @@ export const ProjectCard = ({
       </div>
 
       {/* Content Section */}
-      <div className="p-4 space-y-3 bg-white dark:bg-darker-2">
+      <div className="p-4 space-y-1 bg-white dark:bg-darker-2">
         {/* Category Tag & Days Left */}
         <div className="flex items-center justify-between gap-2">
           <span className="inline-flex items-center px-3 py-1 bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary text-xs font-semibold rounded-full">
             {category || 'Crowdfunding'}
           </span>
           {variant !== 'expired' && daysLeft > 0 && (
-            <span className="text-gray-600 dark:text-gray-400 text-xs flex items-center gap-1">
+            <span className="text-primary text-xs font-semibold flex items-center gap-1">
               <Clock className="w-3 h-3" />
               {daysLeft} ngày
             </span>
@@ -135,33 +135,33 @@ export const ProjectCard = ({
         </div>
 
         {/* Title */}
-        <h3 className="text-text-primary dark:text-text-white text-base md:text-lg font-bold leading-tight line-clamp-2 min-h-[2.8rem]">
+        <h3 className="text-text-primary dark:text-white text-base md:text-lg font-bold leading-tight line-clamp-2 min-h-[2.8rem] mt-2.5">
           {title}
         </h3>
 
         {/* Author - Fixed height for consistency */}
-        <div className="min-h-[2.5rem]">
-          <div className="flex items-center gap-2">
-            <img
+        <div className="">
+          <div className="flex gap-2">
+            {/* <img
               src={authorAvatarUrl || '/api/placeholder/32/32'}
               alt={`${authorName}'s avatar`}
               className="w-8 h-8 rounded-full object-cover border-2 border-gray-300 dark:border-gray-600"
-            />
-            <div className="min-w-0 flex-1">
-              <p className="text-xs text-text-secondary dark:text-gray-400">by</p>
-              <p className="text-text-primary dark:text-white text-sm font-medium truncate">{authorName}</p>
+            /> */}
+            <div className="min-w-0 flex justify-center items-center gap-1">
+              <p className="text-xs text-muted-foreground">bởi</p>
+              <p className="text-text-primary dark:text-white text-xs font-medium truncate">{authorName}</p>
             </div>
           </div>
         </div>
 
         {/* Total Funding & Circular Progress */}
-        <div className="">
+        <div className="mt-2.5">
           <div className="flex items-center justify-between gap-3">
             {/* Total Funding */}
             <div className="flex-1 min-w-0">
-              <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">Total funding</p>
-              <p className="text-xl md:text-xl font-bold text-text-primary dark:text-text-white truncate">
-                {pledged} <img src="/packages/coin.svg" alt="Coin" className="inline-block w-6 h-6 mb-1" />
+              <p className="text-xs text-muted-foreground mb-0.5">Tổng kinh phí</p>
+              <p className="text-lg font-bold text-text-primary dark:text-white truncate">
+                {pledged} VND
               </p>
             </div>
 

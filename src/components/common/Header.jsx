@@ -23,6 +23,7 @@ import {
   Bookmark,
   Star,
   FolderOpen,
+  LayoutDashboard,
 } from 'lucide-react';
 import Button from './Button';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -119,35 +120,35 @@ export const Header = ({ variant = 'transparent', isFixed = true }) => {
   const headerVariants = {
     transparent: {
       container: isScrolled
-        ? 'bg-white/95 dark:bg-darker-2 backdrop-blur-md text-text-primary dark:text-text-white shadow-md transition-colors duration-300'
+        ? 'bg-white/95 dark:bg-darker-2 backdrop-blur-md text-text-primary dark:text-white shadow-md transition-colors duration-300'
         : 'bg-transparent text-text-white',
       title: isScrolled
-        ? 'text-text-primary dark:text-text-white transition-colors duration-300'
+        ? 'text-text-primary dark:text-white transition-colors duration-300'
         : 'text-text-white',
       navLink: isScrolled
-        ? 'text-text-primary dark:text-text-white hover:text-primary dark:hover:text-primary-400 transition-colors duration-300'
+        ? 'text-text-primary dark:text-white hover:text-primary dark:hover:text-primary-400 transition-colors duration-300'
         : 'text-text-white hover:text-secondary',
       dropdown:
-        'bg-white dark:bg-darker border border-gray-200 dark:border-gray-700 text-text-primary dark:text-text-white transition-colors duration-300',
+        'bg-white dark:bg-darker border border-gray-200 dark:border-gray-700 text-text-primary dark:text-white transition-colors duration-300',
       dropdownItem:
-        'hover:bg-gray-50 dark:hover:bg-gray-900 text-text-primary dark:text-text-white hover:text-primary dark:hover:text-primary-400 transition-colors duration-300',
+        'hover:bg-gray-50 dark:hover:bg-gray-900 text-text-primary dark:text-white hover:text-primary dark:hover:text-primary-400 transition-colors duration-300',
       button: isScrolled
-        ? 'text-text-primary dark:text-text-white transition-colors duration-300'
+        ? 'text-text-primary dark:text-white transition-colors duration-300'
         : 'text-text-white',
     },
     light: {
       container:
-        'bg-white dark:bg-darker-2 text-text-primary dark:text-text-white shadow-md transition-colors duration-300',
+        'bg-white dark:bg-darker-2 text-text-primary dark:text-white shadow-md transition-colors duration-300',
       title:
-        'text-text-primary dark:text-text-white transition-colors duration-300',
+        'text-text-primary dark:text-white transition-colors duration-300',
       navLink:
-        'text-text-primary dark:text-text-white hover:text-primary dark:hover:text-primary-400 transition-colors duration-300',
+        'text-text-primary dark:text-white hover:text-primary dark:hover:text-primary-400 transition-colors duration-300',
       dropdown:
-        'bg-white dark:bg-darker border border-gray-200 dark:border-gray-700 text-text-primary dark:text-text-white transition-colors duration-300',
+        'bg-white dark:bg-darker border border-gray-200 dark:border-gray-700 text-text-primary dark:text-white transition-colors duration-300',
       dropdownItem:
-        'hover:bg-gray-50 dark:hover:bg-gray-700 text-text-primary dark:text-text-white hover:text-primary dark:hover:text-primary-400 transition-colors duration-300',
+        'hover:bg-gray-50 dark:hover:bg-gray-700 text-text-primary dark:text-white hover:text-primary dark:hover:text-primary-400 transition-colors duration-300',
       button:
-        'text-text-primary dark:text-text-white transition-colors duration-300',
+        'text-text-primary dark:text-white transition-colors duration-300',
     },
     primary: {
       container:
@@ -190,11 +191,7 @@ export const Header = ({ variant = 'transparent', isFixed = true }) => {
         {/* Left - Logo & Explore */}
         <div className="flex items-center gap-2 sm:gap-4">
           <Link to="/home">
-            <h1
-              className={`text-xl sm:text-2xl font-bold ${currentVariant.title} cursor-pointer hover:opacity-80 transition-opacity whitespace-nowrap`}
-            >
-              Fundelio
-            </h1>
+            <img src="/logo.png" alt="Fundelio" className="w-10 h-10 md:w-12 md:h-12" />
           </Link>
 
           {/* Dropdown menu danh mục - Desktop only */}
@@ -224,11 +221,9 @@ export const Header = ({ variant = 'transparent', isFixed = true }) => {
                       <a
                         key={index}
                         href={category.href}
-                        className={`flex items-center space-x-3 px-4 py-3 transition-colors ${
-                          currentVariant.dropdownItem
-                        } ${index === 0 ? 'rounded-t-lg' : ''} ${
-                          index === categories.length - 1 ? 'rounded-b-lg' : ''
-                        }`}
+                        className={`flex items-center space-x-3 px-4 py-3 transition-colors ${currentVariant.dropdownItem
+                          } ${index === 0 ? 'rounded-t-lg' : ''} ${index === categories.length - 1 ? 'rounded-b-lg' : ''
+                          }`}
                       >
                         <IconComponent className='w-4 h-4' />
                         <span className='text-sm font-medium'>
@@ -254,11 +249,10 @@ export const Header = ({ variant = 'transparent', isFixed = true }) => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onFocus={() => setIsSearchFocused(true)}
-                className={`w-full pl-10 pr-4 py-2 rounded-lg border ${
-                  isScrolled || variant !== 'transparent'
-                    ? 'bg-white dark:bg-darker border-gray-300 dark:border-gray-600 text-text-primary dark:text-text-white'
-                    : 'bg-white/20 border-white/30 text-white placeholder-white/70'
-                } focus:outline-none focus:ring-2 focus:ring-primary transition-colors`}
+                className={`w-full pl-10 pr-4 py-2 rounded-lg border ${isScrolled || variant !== 'transparent'
+                  ? 'bg-white dark:bg-darker border-gray-300 dark:border-gray-600 text-text-primary dark:text-white'
+                  : 'bg-white/20 border-white/30 text-white placeholder-white/70'
+                  } focus:outline-none focus:ring-2 focus:ring-primary transition-colors`}
               />
             </div>
 
@@ -268,7 +262,7 @@ export const Header = ({ variant = 'transparent', isFixed = true }) => {
                 {/* Categories */}
                 {searchResults.categories.length > 0 && (
                   <div className="p-2">
-                    <p className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
+                    <p className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-text-white uppercase">
                       Danh mục
                     </p>
                     {searchResults.categories.map((category) => {
@@ -280,7 +274,7 @@ export const Header = ({ variant = 'transparent', isFixed = true }) => {
                           className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors"
                         >
                           <IconComponent className="w-5 h-5 text-primary" />
-                          <span className="text-sm text-text-primary dark:text-text-white">{category.name}</span>
+                          <span className="text-sm text-text-primary dark:text-white">{category.name}</span>
                         </a>
                       );
                     })}
@@ -290,7 +284,7 @@ export const Header = ({ variant = 'transparent', isFixed = true }) => {
                 {/* Creators */}
                 {searchResults.creators.length > 0 && (
                   <div className="p-2 border-t border-gray-200 dark:border-gray-700">
-                    <p className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
+                    <p className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-text-white uppercase">
                       Nhà sáng tạo
                     </p>
                     {searchResults.creators.map((creator) => (
@@ -304,7 +298,7 @@ export const Header = ({ variant = 'transparent', isFixed = true }) => {
                           alt={creator.name}
                           className="w-8 h-8 rounded-full"
                         />
-                        <span className="text-sm text-text-primary dark:text-text-white">{creator.name}</span>
+                        <span className="text-sm text-text-primary dark:text-white">{creator.name}</span>
                       </a>
                     ))}
                   </div>
@@ -313,7 +307,7 @@ export const Header = ({ variant = 'transparent', isFixed = true }) => {
                 {/* Campaigns */}
                 {searchResults.campaigns.length > 0 && (
                   <div className="p-2 border-t border-gray-200 dark:border-gray-700">
-                    <p className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
+                    <p className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-text-white uppercase">
                       Chiến dịch
                     </p>
                     {searchResults.campaigns.map((campaign) => (
@@ -323,8 +317,8 @@ export const Header = ({ variant = 'transparent', isFixed = true }) => {
                         className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors"
                       >
                         <div>
-                          <p className="text-sm font-medium text-text-primary dark:text-text-white">{campaign.name}</p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">{campaign.category}</p>
+                          <p className="text-sm font-medium text-text-primary dark:text-white">{campaign.name}</p>
+                          <p className="text-xs text-gray-500 dark:text-text-white">{campaign.category}</p>
                         </div>
                         <span className="text-xs font-semibold text-primary">
                           {campaign.raised.toLocaleString()} <img src="/packages/coin.svg" alt="Coin" className="inline-block w-4 h-4 mb-0.5" />
@@ -338,7 +332,7 @@ export const Header = ({ variant = 'transparent', isFixed = true }) => {
                 {searchResults.categories.length === 0 &&
                   searchResults.creators.length === 0 &&
                   searchResults.campaigns.length === 0 && (
-                    <div className="p-8 text-center text-gray-500 dark:text-gray-400">
+                    <div className="p-8 text-center text-gray-500 dark:text-text-white">
                       <p>Không tìm thấy kết quả</p>
                     </div>
                   )}
@@ -347,7 +341,7 @@ export const Header = ({ variant = 'transparent', isFixed = true }) => {
 
             {searchQuery.length > 0 && searchQuery.length < 3 && isSearchFocused && (
               <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-darker rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 p-4 z-50">
-                <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
+                <p className="text-sm text-gray-500 dark:text-text-white text-center">
                   Nhập ít nhất 3 ký tự để tìm kiếm
                 </p>
               </div>
@@ -360,20 +354,20 @@ export const Header = ({ variant = 'transparent', isFixed = true }) => {
           {/* Coin Display - Desktop only */}
           <button
             onClick={handleCoinClick}
-            className={`hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg ${
-              user.coins === 0 
-                ? 'hover:bg-red-100 dark:hover:bg-red-900/30' 
-                : 'bg-primary/10 dark:bg-primary/20 hover:bg-primary/20 dark:hover:bg-primary/30'
-            } transition-all duration-200 hover:scale-105 coin-button relative`}
+            className={`hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg ${user.coins === 0
+              ? 'hover:bg-red-100 dark:hover:bg-red-900/30'
+              : 'bg-primary/10 dark:bg-primary/20 hover:bg-primary/20 dark:hover:bg-primary/30'
+              } transition-all duration-200 hover:scale-105 coin-button relative`}
             title={user.coins === 0 ? 'Nạp coin' : 'Số coin hiện có'}
           >
-            <img src="/packages/coin.svg" alt="Coin" className="w-5 h-5" />
-            <span className={`text-md font-bold ${
-              user.coins === 0 
-                ? 'text-red-600 dark:text-red-400' 
-                : 'text-primary dark:text-primary-400'
-            }`}>
-              {formatNumber(user.coins)}
+
+            <span className={`text-md font-bold ${user.coins === 0
+              ? 'text-red-600 dark:text-red-400'
+              : 'text-primary dark:text-primary-400'
+              }`}>
+              {formatNumber(user.coins)} VND
+
+
             </span>
           </button>
 
@@ -383,17 +377,17 @@ export const Header = ({ variant = 'transparent', isFixed = true }) => {
               <div className="bg-white dark:bg-darker rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
                 <div className="text-center mb-6">
                   <img src="/packages/coin.svg" alt="Coin" className="w-16 h-16 mx-auto mb-4" />
-                  <h3 className="text-xl font-bold text-text-primary dark:text-text-white mb-2">
+                  <h3 className="text-xl font-bold text-text-primary dark:text-white mb-2">
                     Bạn chưa có coin
                   </h3>
-                  <p className="text-muted-foreground dark:text-gray-400">
+                  <p className="text-muted-foreground dark:text-text-white">
                     Bạn có muốn nạp coin để tham gia các chiến dịch không?
                   </p>
                 </div>
                 <div className="flex gap-3">
                   <button
                     onClick={() => setShowCoinModal(false)}
-                    className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-text-primary dark:text-text-white rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors font-medium"
+                    className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-text-primary dark:text-white rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors font-medium"
                   >
                     Để sau
                   </button>
@@ -451,139 +445,82 @@ export const Header = ({ variant = 'transparent', isFixed = true }) => {
 
               {/* User Dropdown Menu */}
               {isUserMenuOpen && (
-                <div className="absolute right-0 top-full mt-2 w-[280px] sm:w-[600px] max-w-[calc(100vw-2rem)] bg-white dark:bg-darker rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
-                  <div className="flex flex-col md:flex-row">
-                    {/* Left Column - Your Account + Bottom Section */}
-                    <div className="flex-1 p-4 border-b md:border-b-0 md:border-r border-gray-200 dark:border-gray-700">
-                      <h4 className="text-xs font-bold text-text-primary dark:text-text-white mb-3 uppercase">
-                        Tài khoản
-                      </h4>
-                      <div className="space-y-1 mb-4">
-                        
-                      </div>
+                <div className="absolute right-0 top-full mt-2 w-[280px] max-w-[calc(100vw-2rem)] bg-white dark:bg-darker rounded-lg shadow-xl border border-border overflow-hidden z-50">
+                  <div className="p-4">
+                    {/* Your Account Section */}
+                    <h4 className="text-xs font-bold text-text-primary dark:text-white mb-3 uppercase">
+                      Tài khoản
+                    </h4>
+                    <div className="space-y-1 mb-3">
+                      <Link
+                        to="/dashboard"
+                        onClick={() => setIsUserMenuOpen(false)}
+                        className="flex items-center gap-3 px-3 py-2 text-sm text-text-primary dark:text-white hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-colors"
+                      >
+                        <LayoutDashboard className="w-4 h-4" />
+                        <span>Bảng điều khiển</span>
+                      </Link>
+                      <div className="border-t-2 border-border my-3"></div>
+                      <a
+                        href="#"
+                        className="flex items-center gap-3 px-3 py-2 text-sm text-text-primary dark:text-white hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-colors"
+                      >
+                        <User className="w-4 h-4" />
+                        <span>Hồ sơ</span>
+                      </a>
 
-                      {/* Bottom Section */}
-                      <div className="space-y-1">
-                        <a
-                          href="#"
-                          className="flex items-center gap-3 px-3 py-2 text-sm text-text-primary dark:text-text-white hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-colors"
-                        >
-                          <User className="w-4 h-4" />
-                          <span>Hồ sơ</span>
-                        </a>
-                        <a
-                          href="#"
-                          className="flex items-center gap-3 px-3 py-2 text-sm text-text-primary dark:text-text-white hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-colors"
-                        >
-                          <Settings className="w-4 h-4" />
-                          <span>Cài đặt</span>
-                        </a>
-                        <Link
-                          to="/your-projects"
-                          onClick={() => setIsUserMenuOpen(false)}
-                          className="flex items-center gap-3 px-3 py-2 text-sm text-text-primary dark:text-text-white hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-colors"
-                        >
-                          <FolderOpen className="w-4 h-4" />
-                          <span>Dự án của bạn</span>
-                        </Link>
-                        <Link
-                          href="/wallet"
-                          className="flex items-center gap-3 px-3 py-2 text-sm text-text-primary dark:text-text-white hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-colors"
-                        >
-                          <Wallet className="w-4 h-4" />
-                          <span>Ví</span>
-                        </Link>
-                      </div>
-
-                      {/* Logout */}
-                      <div className="border-t border-gray-200 dark:border-gray-700 mt-3 pt-3">
-                        <button
-                          onClick={() => {
-                            // Handle logout
-                            setIsUserMenuOpen(false);
-                          }}
-                          className="flex items-center gap-3 px-3 py-2 text-sm text-destructive hover:bg-destructive/10 rounded-lg transition-colors w-full"
-                        >
-                          <LogOut className="w-4 h-4" />
-                          <span>Đăng xuất</span>
-                        </button>
-                      </div>
+                      <a
+                        href="#"
+                        className="flex items-center gap-3 px-3 py-2 text-sm text-text-primary dark:text-white hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-colors"
+                      >
+                        <Settings className="w-4 h-4" />
+                        <span>Cài đặt</span>
+                      </a>
+                      <Link
+                        to="/your-projects"
+                        onClick={() => setIsUserMenuOpen(false)}
+                        className="flex items-center gap-3 px-3 py-2 text-sm text-text-primary dark:text-white hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-colors"
+                      >
+                        <FolderOpen className="w-4 h-4" />
+                        <span>Dự án của bạn</span>
+                      </Link>
+                      <Link
+                        to="/wallet"
+                        onClick={() => setIsUserMenuOpen(false)}
+                        className="flex items-center gap-3 px-3 py-2 text-sm text-text-primary dark:text-white hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-colors"
+                      >
+                        <Wallet className="w-4 h-4" />
+                        <span>Ví</span>
+                      </Link>
                     </div>
 
-                    {/* Right Column - Created Campaigns */}
-                    <div className="flex-1 p-4">
-                      <h4 className="text-xs font-bold text-text-primary dark:text-text-white mb-3 uppercase">
-                        Chiến dịch đã tạo
-                      </h4>
-                      <div className="space-y-2">
-                        {/* Campaign 1 */}
-                        <a
-                          href="#"
-                          className="flex items-center gap-3 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-colors"
-                        >
-                          <div className="w-12 h-12 flex-shrink-0 bg-gray-200 dark:bg-gray-700 rounded overflow-hidden">
-                            <img
-                              src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100&h=100&fit=crop"
-                              alt="Project"
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                          <span className="text-sm text-text-primary dark:text-text-white line-clamp-2 flex-1">A Spaces project</span>
-                        </a>
+                    {/* Divider */}
+                    <div className="border-t-2 border-border my-3"></div>
 
-                        {/* Campaign 2 */}
-                        <a
-                          href="#"
-                          className="flex items-center gap-3 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-colors"
-                        >
-                          <div className="w-12 h-12 flex-shrink-0 bg-gray-200 dark:bg-gray-700 rounded overflow-hidden">
-                            <img
-                              src="https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?w=100&h=100&fit=crop"
-                              alt="Project"
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                          <span className="text-sm text-text-primary dark:text-text-white line-clamp-2 flex-1">A Product Design project</span>
-                        </a>
-
-                        {/* Campaign 3 */}
-                        <a
-                          href="#"
-                          className="flex items-center gap-3 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-colors"
-                        >
-                          <div className="w-12 h-12 flex-shrink-0 bg-gray-200 dark:bg-gray-700 rounded overflow-hidden">
-                            <img
-                              src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=100&h=100&fit=crop"
-                              alt="Project"
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                          <span className="text-sm text-text-primary dark:text-text-white line-clamp-2 flex-1">Tech Innovation Hub</span>
-                        </a>
-
-                        {/* View All Button - Show when more than 3 campaigns */}
-                        {/* Uncomment when you have more than 3 campaigns */}
-                        {/* <button
-                          className="w-full px-3 py-2 text-sm text-primary hover:bg-primary/10 rounded-lg transition-colors text-center font-medium"
-                        >
-                          Xem tất cả
-                        </button> */}
-
-                        {/* Divider */}
-                        <div className="border-t border-gray-200 dark:border-gray-700 my-3"></div>
-
-                        {/* Create New Campaign Button */}
-                        <Link
-                          to="/campaigns/create"
-                          onClick={() => setIsUserMenuOpen(false)}
-                          className="flex items-center gap-3 px-3 py-2 text-primary hover:bg-primary/10 rounded-lg transition-colors"
-                        >
-                          <div className="w-12 h-12 flex-shrink-0 bg-primary/10 rounded flex items-center justify-center border-2 border-dashed border-primary">
-                            <Plus className="w-6 h-6" />
-                          </div>
-                          <span className="text-sm font-medium">Tạo chiến dịch mới</span>
-                        </Link>
+                    {/* Create New Campaign Button */}
+                    <Link
+                      to="/campaigns/create"
+                      onClick={() => setIsUserMenuOpen(false)}
+                      className="flex items-center gap-3 px-3 py-2 text-primary hover:bg-primary/10 rounded-lg transition-colors"
+                    >
+                      <div className="w-10 h-10 flex-shrink-0 bg-primary/10 rounded flex items-center justify-center border-2 border-dashed border-primary">
+                        <Plus className="w-5 h-5" />
                       </div>
+                      <span className="text-sm font-medium">Tạo chiến dịch mới</span>
+                    </Link>
+
+                    {/* Logout */}
+                    <div className="border-t-2 border-border mt-3 pt-3">
+                      <button
+                        onClick={() => {
+                          // Handle logout
+                          setIsUserMenuOpen(false);
+                        }}
+                        className="flex items-center gap-3 px-3 py-2 text-sm text-destructive hover:bg-destructive/10 rounded-lg transition-colors w-full"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        <span>Đăng xuất</span>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -624,27 +561,32 @@ export const Header = ({ variant = 'transparent', isFixed = true }) => {
         <div className='lg:hidden mt-4 py-4 border-t border-white/20 dark:border-gray-700 transition-colors duration-300'>
           <nav className='space-y-2'>
             <Link
+              to="/dashboard"
+              onClick={() => setIsUserMenuOpen(false)}
+              className="flex items-center gap-3 px-3 py-2 text-sm text-text-primary dark:text-white hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-colors"
+            >
+              <LayoutDashboard className="w-4 h-4" />
+              <span>Bảng điều khiển</span>
+            </Link>
+            <div className="border-t-2 border-border my-3"></div>
+            <Link
               to='/home'
-              className={`block px-4 py-2 rounded-lg ${
-                currentVariant.navLink
-              } hover:bg-white/10 dark:hover:bg-darker-2-light/40 transition-colors font-medium ${
-                location.pathname === '/home'
+              className={`block px-4 py-2 rounded-lg ${currentVariant.navLink
+                } hover:bg-white/10 dark:hover:bg-darker-2-light/40 transition-colors font-medium ${location.pathname === '/home'
                   ? 'text-primary dark:text-primary-400'
                   : ''
-              }`}
+                }`}
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Trang chủ
             </Link>
             <Link
               to='/campaigns/create'
-              className={`block px-4 py-2 rounded-lg ${
-                currentVariant.navLink
-              } hover:bg-white/10 dark:hover:bg-darker-2-light/40 transition-colors font-medium ${
-                location.pathname === '/campaigns/create'
+              className={`block px-4 py-2 rounded-lg ${currentVariant.navLink
+                } hover:bg-white/10 dark:hover:bg-darker-2-light/40 transition-colors font-medium ${location.pathname === '/campaigns/create'
                   ? 'text-primary dark:text-primary-400'
                   : ''
-              }`}
+                }`}
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Tạo chiến dịch

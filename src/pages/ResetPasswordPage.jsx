@@ -190,9 +190,7 @@ const ResetPasswordPage = () => {
         {/* Content */}
         <div className='relative z-10 flex flex-col justify-center px-12 xl:px-20 text-white'>
           <Link to='/' className='mb-12 group'>
-            <h1 className='text-5xl font-bold bg-gradient-to-r from-white to-white/90 bg-clip-text text-transparent group-hover:scale-105 transition-transform duration-300'>
-              Fundelio
-            </h1>
+             <img src="/logo.png" alt="Fundelio" className="w-10 h-10 md:w-16 md:h-16" />
           </Link>
 
           <div className='space-y-6'>

@@ -6,9 +6,28 @@ import {
 } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
-import { format } from 'date-fns';
-import { vi } from 'date-fns/locale';
 import { useRoles } from '../context/roles-context';
+
+const formatDate = (dateStr) => {
+  if (!dateStr) return '';
+  
+  try {
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) {
+      return dateStr;
+    }
+    
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    
+    return `${day}/${month}/${year} ${hours}:${minutes}`;
+  } catch (error) {
+    return dateStr || '';
+  }
+};
 
 export function RolesViewDialog({ open, onOpenChange }) {
   const { currentRow } = useRoles();
@@ -64,9 +83,7 @@ export function RolesViewDialog({ open, onOpenChange }) {
           <div className='grid grid-cols-4 items-center gap-4'>
             <div className='font-medium'>Ngày tạo</div>
             <div className='col-span-3'>
-              {format(new Date(currentRow.createdAt), 'dd/MM/yyyy HH:mm', {
-                locale: vi,
-              })}
+              {formatDate(currentRow.createdAt)}
             </div>
           </div>
 

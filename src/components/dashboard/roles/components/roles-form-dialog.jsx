@@ -32,8 +32,8 @@ import { toast } from '@/hooks/use-toast';
 import { Loader2, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { usePermissions } from '@/components/dashboard/permissions/context/permissions-context';
-import { permissionsApi } from '@/api-client';
-import { rolesApi } from '@/api-client';
+import { permissionsApi } from '@/api/permissionApi';
+import { rolesApi } from '@/api/rolesApi';
 import { useQueryClient } from '@tanstack/react-query';
 
 const formSchema = z.object({

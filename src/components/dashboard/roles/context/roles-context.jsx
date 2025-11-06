@@ -3,7 +3,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { createContext, useContext } from 'react';
 import { toast } from 'react-toastify';
-import { rolesApi } from '@/api-client';
+import { rolesApi } from '@/api/rolesApi';
 
 const RolesContext = createContext(undefined);
 

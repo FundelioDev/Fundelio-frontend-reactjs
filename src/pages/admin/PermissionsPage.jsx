@@ -1,78 +1,55 @@
-import { useState } from 'react';
-import { mockPermissions } from '@/data/mockAdminData';
-import {
-  PermissionsHeader,
-  PermissionsFilters,
-  PermissionsCategoryCard,
-  PermissionsStats,
-} from '@/components/admin/permissions';
+'use client';
 
-export default function PermissionsPage() {
-  const [permissions, setPermissions] = useState(mockPermissions);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterCategory, setFilterCategory] = useState('all');
+import { Main } from '@/components/dashboard/layout/MainDB';
+import { PermissionsProvider } from '@/components/dashboard/permissions/context/permissions-context';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Loader2 } from 'lucide-react';
+import { usePermissions } from '@/components/dashboard/permissions/context/permissions-context';
+import { PermissionsTable } from '@/components/dashboard/permissions/components/permissions-table';
+import { PermissionsDialogs } from '@/components/dashboard/permissions/components/permissions-dialogs';
+import Loading from '@/components/common/loading';
 
-  const categories = ['all', ...new Set(permissions.map((p) => p.category))];
+function PermissionsContent() {
+  const { permissions, isLoading, error } = usePermissions();
 
-  const filteredPermissions = permissions.filter((permission) => {
-    const matchesSearch =
-      permission.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      permission.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory =
-      filterCategory === 'all' || permission.category === filterCategory;
-    return matchesSearch && matchesCategory;
-  });
+  if (isLoading) {
+    return <Loading />;
+  }
 
-  // Group permissions by category
-  const groupedPermissions = filteredPermissions.reduce((acc, permission) => {
-    if (!acc[permission.category]) {
-      acc[permission.category] = [];
-    }
-    acc[permission.category].push(permission);
-    return acc;
-  }, {});
-
-  const handleAdd = () => {
-    console.log('Add permission');
-  };
-
-  const handleEdit = (permission) => {
-    console.log('Edit permission:', permission);
-  };
-
-  const handleDelete = (permission) => {
-    console.log('Delete permission:', permission);
-  };
+  if (error) {
+    return (
+      <Alert variant='destructive'>
+        <AlertDescription>{error}</AlertDescription>
+      </Alert>
+    );
+  }
 
   return (
-    <div className='space-y-6'>
-      <PermissionsHeader
-        totalPermissions={permissions.length}
-        onAdd={handleAdd}
-      />
-
-      <PermissionsFilters
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
-        categories={categories}
-        filterCategory={filterCategory}
-        onFilterChange={setFilterCategory}
-      />
-
-      {/* Permissions by Category */}
-      <div className='space-y-6'>
-        {Object.entries(groupedPermissions).map(([category, perms]) => (
-          <PermissionsCategoryCard
-            key={category}
-            category={category}
-            permissions={perms}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-          />
-        ))}
+    <>
+      <div className='mb-2 flex items-center justify-between space-y-2 flex-wrap'>
+        <div>
+          <h2 className='text-2xl font-bold tracking-tight'>
+            Quản lý Permissions
+          </h2>
+          <p className='text-muted-foreground'>
+            Quản lý và cấu hình các permissions trong hệ thống
+          </p>
+        </div>
       </div>
+      <div className='-mx-4 flex-1 overflow-auto px-4 py-1'>
+        <PermissionsTable />
+      </div>
+    </>
+  );
+}
 
-      <PermissionsStats permissions={permissions} categories={categories} />
-    </div>
+export default function PermissionsPage() {
+  return (
+    <PermissionsProvider>
+      <Main>
+        <PermissionsContent />
+        <PermissionsDialogs />
+      </Main>
+    </PermissionsProvider>
   );
 }

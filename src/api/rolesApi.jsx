@@ -51,18 +51,22 @@ export const rolesApi = {
    * Cập nhật permissions cho một role
    */
   updateRolePermissions: async (roleId, permissions) => {
-    return httpService.patch(`/roles/${roleId}/permissions`, { permissionIds: permissions }, {
-      requireToken: true,
-    });
+    return httpService.patch(
+      `/roles/${roleId}/permissions`,
+      { permissionIds: permissions },
+      {
+        requireToken: true,
+      }
+    );
   },
 
   /**
    * Xóa permissions khỏi một role
    */
   removePermissions: async (roleId, permissionIds) => {
-    return httpService.post(`/roles/${roleId}/permissions/remove`, { permissionIds }, {
+    return httpService.delete(`/roles/${roleId}/permissions`, {
+      data: { permissionIds },
       requireToken: true,
     });
   },
 };
-

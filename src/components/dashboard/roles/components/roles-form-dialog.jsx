@@ -34,7 +34,6 @@ import { cn } from '@/lib/utils';
 import { usePermissions } from '@/components/dashboard/permissions/context/permissions-context';
 import { permissionsApi } from '@/api/permissionApi';
 import { rolesApi } from '@/api/rolesApi';
-import { useQueryClient } from '@tanstack/react-query';
 
 const formSchema = z.object({
   name: z.string().min(1, 'Tên vai trò không được để trống'),
@@ -46,7 +45,6 @@ const formSchema = z.object({
 export function RolesFormDialog({ open, onOpenChange, currentRow }) {
   const { permissions: allPermissions } = usePermissions();
   const { updateRole, createRole, handleCloseDialog, fetchRoles } = useRoles();
-  const queryClient = useQueryClient();
   const isEdit = !!currentRow;
   const [isLoading, setIsLoading] = useState(false);
   const [openModules, setOpenModules] = useState({});
@@ -173,7 +171,7 @@ export function RolesFormDialog({ open, onOpenChange, currentRow }) {
         }
 
         // Đảm bảo dữ liệu được cập nhật sau khi thay đổi
-        queryClient.invalidateQueries({ queryKey: ['roles'] });
+        await fetchRoles();
 
         toast({
           title: 'Thành công',

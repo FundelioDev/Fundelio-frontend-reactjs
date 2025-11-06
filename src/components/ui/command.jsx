@@ -15,18 +15,28 @@ const Command = React.forwardRef(({ className, ...props }, ref) => (
 ));
 Command.displayName = 'Command';
 
-const CommandInput = React.forwardRef(({ className, ...props }, ref) => (
-  <div className='flex items-center border-b px-3' cmdk-input-wrapper=''>
-    <Input
-      ref={ref}
-      className={cn(
-        'flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50',
-        className
-      )}
-      {...props}
-    />
-  </div>
-));
+const CommandInput = React.forwardRef(
+  ({ className, value, onValueChange, ...props }, ref) => {
+    const handleChange = (e) => {
+      onValueChange?.(e.target.value);
+    };
+
+    return (
+      <div className='flex items-center border-b px-3' cmdk-input-wrapper=''>
+        <Input
+          ref={ref}
+          value={value}
+          onChange={handleChange}
+          className={cn(
+            'flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50',
+            className
+          )}
+          {...props}
+        />
+      </div>
+    );
+  }
+);
 CommandInput.displayName = 'CommandInput';
 
 const CommandList = React.forwardRef(({ className, ...props }, ref) => (

@@ -18,6 +18,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
+
 export function DataTableFacetedFilter({
   column,
   title,
@@ -25,6 +26,14 @@ export function DataTableFacetedFilter({
 }) {
   const facets = column?.getFacetedUniqueValues();
   const selectedValues = new Set(column?.getFilterValue() ?? []);
+  const [searchValue, setSearchValue] = React.useState('');
+
+  const filteredOptions = React.useMemo(() => {
+    if (!searchValue.trim()) return options;
+    return options.filter((option) =>
+      option.label.toLowerCase().includes(searchValue.toLowerCase())
+    );
+  }, [options, searchValue]);
 
   return (
     <Popover>
@@ -69,56 +78,67 @@ export function DataTableFacetedFilter({
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0" align="start">
         <Command>
-          <CommandInput placeholder={title} />
+          <CommandInput
+            placeholder={title}
+            value={searchValue}
+            onValueChange={setSearchValue}
+          />
           <CommandList>
-            <CommandEmpty>Không tìm thấy kết quả</CommandEmpty>
-            <CommandGroup>
-              {options.map((option) => {
-                const isSelected = selectedValues.has(option.value);
-                return (
-                  <CommandItem
-                    key={option.value}
-                    onSelect={() => {
-                      if (isSelected) {
-                        selectedValues.delete(option.value);
-                      } else {
-                        selectedValues.add(option.value);
-                      }
-                      const filterValues = Array.from(selectedValues);
-                      column?.setFilterValue(
-                        filterValues.length ? filterValues : undefined
-                      );
-                    }}
-                  >
-                    <div
-                      className={cn(
-                        'flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
-                        isSelected
-                          ? 'bg-primary text-primary-foreground'
-                          : 'opacity-50 [&_svg]:invisible'
-                      )}
+            {filteredOptions.length === 0 ? (
+              <CommandEmpty>Không tìm thấy kết quả</CommandEmpty>
+            ) : (
+              <CommandGroup>
+                {filteredOptions.map((option) => {
+                  const isSelected = selectedValues.has(option.value);
+                  return (
+                    <CommandItem
+                      key={option.value}
+                      onSelect={() => {
+                        const newSelectedValues = new Set(selectedValues);
+                        if (isSelected) {
+                          newSelectedValues.delete(option.value);
+                        } else {
+                          newSelectedValues.add(option.value);
+                        }
+                        const filterValues = Array.from(newSelectedValues);
+                        column?.setFilterValue(
+                          filterValues.length ? filterValues : undefined
+                        );
+                      }}
                     >
-                      <CheckIcon className={cn('h-4 w-4')} />
-                    </div>
-                    {option.icon && (
-                      <option.icon className="h-4 w-4 text-muted-foreground" />
-                    )}
-                    <span>{option.label}</span>
-                    {facets?.get(option.value) && (
-                      <span className="ml-auto flex h-4 w-4 items-center justify-center font-mono text-xs">
-                        {facets.get(option.value)}
-                      </span>
-                    )}
-                  </CommandItem>
-                );
-              })}
-            </CommandGroup>
+                      <div
+                        className={cn(
+                          'mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
+                          isSelected
+                            ? 'bg-primary text-primary-foreground'
+                            : 'opacity-50 [&_svg]:invisible'
+                        )}
+                      >
+                        <CheckIcon className={cn('h-4 w-4')} />
+                      </div>
+                      {option.icon && (
+                        <option.icon className="mr-2 h-4 w-4 text-muted-foreground" />
+                      )}
+                      <span>{option.label}</span>
+                      {facets?.get(option.value) && (
+                        <span className="ml-auto flex h-4 w-4 items-center justify-center font-mono text-xs">
+                          {facets.get(option.value)}
+                        </span>
+                      )}
+                    </CommandItem>
+                  );
+                })}
+              </CommandGroup>
+            )}
             {selectedValues.size > 0 && (
               <>
                 <CommandSeparator />
                 <CommandGroup>
                   <CommandItem
-                    onSelect={() => column?.setFilterValue(undefined)}
+                    onSelect={() => {
+                      column?.setFilterValue(undefined);
+                      setSearchValue('');
+                    }}
                     className="justify-center text-center"
                   >
                     Xóa bộ lọc
@@ -132,4 +152,3 @@ export function DataTableFacetedFilter({
     </Popover>
   );
 }
-

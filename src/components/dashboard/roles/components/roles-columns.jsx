@@ -90,7 +90,14 @@ export const useColumns = () => {
         );
       },
       filterFn: (row, id, value) => {
-        return value === String(row.getValue(id));
+        const rowValue = row.getValue(id);
+        // Convert boolean to string for comparison
+        const rowValueStr = String(rowValue);
+        // value is an array of selected filter values
+        if (Array.isArray(value)) {
+          return value.includes(rowValueStr);
+        }
+        return value === rowValueStr;
       },
     },
     {

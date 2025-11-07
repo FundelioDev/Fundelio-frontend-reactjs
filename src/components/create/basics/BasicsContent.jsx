@@ -8,16 +8,21 @@ import TermsCreator from './TermsCreator';
 import toast from 'react-hot-toast';
 import { setBasics } from '@/store/campaignSlice';
 import { storageApi } from '@/api/storageApi';
+import { campaignApi } from '@/api/campaignApi';
 
+// API Categories: art, design, fashion, film, food, games, music, photography, publishing, technology, other
 const CATEGORIES = [
-  'Nghệ thuật',
-  'Truyện tranh & Minh họa',
-  'Thiết kế & Công nghệ',
-  'Phim & Video',
-  'Thực phẩm & Thủ công',
-  'Trò chơi',
-  'Nhạc',
-  'Xuất bản',
+  { value: 'art', label: 'Nghệ thuật' },
+  { value: 'design', label: 'Thiết kế' },
+  { value: 'fashion', label: 'Thời trang' },
+  { value: 'film', label: 'Phim & Video' },
+  { value: 'food', label: 'Thực phẩm & Thủ công' },
+  { value: 'games', label: 'Trò chơi' },
+  { value: 'music', label: 'Nhạc' },
+  { value: 'photography', label: 'Nhiếp ảnh' },
+  { value: 'publishing', label: 'Xuất bản' },
+  { value: 'technology', label: 'Công nghệ' },
+  { value: 'other', label: 'Khác' },
 ];
 
 export default function BasicsContent() {
@@ -27,19 +32,21 @@ export default function BasicsContent() {
   const [formData, setFormData] = useState(basicsData);
   const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [isUploadingVideo, setIsUploadingVideo] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState({}); // Store field-specific errors
   const imageInputRef = useRef(null);
   const videoInputRef = useRef(null);
 
   // Initialize with default dates if empty
   useEffect(() => {
-    if (!formData.start_date || !formData.end_date) {
+    if (!formData.startTime || !formData.endTime) {
       const today = new Date();
-      const endDate = new Date(today.getTime() + 60 * 24 * 60 * 60 * 1000); // 60 days from now
+      const endTime = new Date(today.getTime() + 60 * 24 * 60 * 60 * 1000); // 60 days from now
 
       setFormData(prev => ({
         ...prev,
-        start_date: today.toISOString().split('T')[0],
-        end_date: endDate.toISOString().split('T')[0],
+        startTime: today.toISOString().split('T')[0],
+        endTime: endTime.toISOString().split('T')[0],
       }));
     }
   }, []);
@@ -52,15 +59,26 @@ export default function BasicsContent() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    // Clear error for this field when user makes changes
+    if (fieldErrors[name]) {
+      setFieldErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      });
+    }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    // Clear previous errors
+    setFieldErrors({});
+
     // Validate required fields
     if (!formData.title.trim()) {
       toast.error('Vui lòng nhập tiêu đề dự án');
       return;
     }
-    if (!formData.desc.trim()) {
+    if (!formData.description?.trim()) {
       toast.error('Vui lòng nhập mô tả ngắn');
       return;
     }
@@ -68,11 +86,15 @@ export default function BasicsContent() {
       toast.error('Vui lòng chọn danh mục');
       return;
     }
-    if (!formData.image_url) {
-      toast.error('Vui lòng tải lên ảnh dự án');
+    if (!formData.goalAmount || formData.goalAmount < 1) {
+      toast.error('Vui lòng nhập mục tiêu gây quỹ (tối thiểu 1)');
       return;
     }
-    if (!formData.start_date || !formData.end_date) {
+    // if (!formData.imageUrl) {
+    //   toast.error('Vui lòng tải lên ảnh dự án');
+    //   return;
+    // }
+    if (!formData.startTime || !formData.endTime) {
       toast.error('Vui lòng chọn thời gian chiến dịch');
       return;
     }
@@ -81,13 +103,76 @@ export default function BasicsContent() {
       return;
     }
 
-    // Save to Redux
-    dispatch(setBasics(formData));
-    toast.success('Đã lưu thông tin cơ bản thành công!');
+    // Validate end date is after start date
+    if (new Date(formData.endTime) <= new Date(formData.startTime)) {
+      toast.error('Ngày kết thúc phải sau ngày bắt đầu');
+      return;
+    }
+
+    try {
+      // Convert dates to ISO 8601 format (YYYY-MM-DDTHH:mm:ss.sssZ)
+      const startTimeISO = new Date(formData.startTime).toISOString();
+      const endTimeISO = new Date(formData.endTime).toISOString();
+
+      // Prepare payload for API (excluding acceptedTerms and imageUrl for now)
+      const payload = {
+        title: formData.title,
+        description: formData.description || undefined,
+        goalAmount: Number(formData.goalAmount),
+        category: formData.category,
+        introVideoUrl: formData.introVideoUrl || undefined,
+        startTime: startTimeISO,
+        endTime: endTimeISO,
+      };
+
+      // Remove undefined fields
+      Object.keys(payload).forEach(key => payload[key] === undefined && delete payload[key]);
+
+      toast.loading('Đang tạo chiến dịch...', { id: 'create-campaign' });
+
+      // Call API to create campaign
+      const response = await campaignApi.createCampaign(payload);
+
+      if (response?.data?.data) {
+        // Save to Redux
+        dispatch(setBasics(formData));
+        toast.success('Tạo chiến dịch thành công!', { id: 'create-campaign' });
+        console.log('Campaign created:', response.data.data);
+      } else {
+        toast.error('Không nhận được phản hồi từ server', { id: 'create-campaign' });
+      }
+    } catch (error) {
+      console.error('Create campaign error:', error);
+      console.error('Response data:', error.response?.data);
+
+      // Handle field-specific errors
+      if (error.response?.data?.errors && Array.isArray(error.response.data.errors)) {
+        const errors = error.response.data.errors;
+        const newFieldErrors = {};
+
+        errors.forEach(err => {
+          if (err.field) {
+            newFieldErrors[err.field] = err.message;
+          }
+        });
+
+        setFieldErrors(newFieldErrors);
+
+        // Show first error message in toast
+        const firstError = errors[0];
+        toast.error(firstError?.message || 'Lỗi khi tạo chiến dịch', { id: 'create-campaign' });
+      } else {
+        // Fallback for non-field errors
+        toast.error(
+          error.response?.data?.message ||
+          'Lỗi khi tạo chiến dịch',
+          { id: 'create-campaign' }
+        );
+      }
+    }
   };
 
   const handleImageChange = async (e) => {
-
     const file = e.target.files?.[0];
 
     if (!file) {
@@ -105,8 +190,9 @@ export default function BasicsContent() {
 
       if (response?.data?.data?.fileUrl) {
         const imageUrl = response.data.data.fileUrl;
-        setFormData(prev => ({ ...prev, image_url: imageUrl }));
-        toast.success('Tải ảnh lên thành công!', { id: 'upload-image' });
+        // setFormData(prev => ({ ...prev, imageUrl: imageUrl })); // Commented: API doesn't have imageUrl field yet
+        console.log('Image uploaded successfully:', imageUrl);
+        toast.success('Tải ảnh lên thành công! (Chưa lưu vào campaign)', { id: 'upload-image' });
       } else {
         toast.error('Không lấy được URL ảnh sau khi tải lên', { id: 'upload-image' });
       }
@@ -121,17 +207,37 @@ export default function BasicsContent() {
   };
 
 
-  const handleVideoChange = (e) => {
+  const handleVideoChange = async (e) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setFormData(prev => ({
-          ...prev,
-          intro_video_url: event.target?.result,
-        }));
-      };
-      reader.readAsDataURL(file);
+
+    if (!file) {
+      toast.error('Chưa chọn tệp video');
+      return;
+    }
+
+    try {
+      setIsUploadingVideo(true);
+      toast.loading('Đang tải video lên...', { id: 'upload-video' });
+
+      // Gọi API upload
+      const response = await storageApi.uploadSingleFile(file, 'campaigns/videos');
+      console.log('Upload video response:', response);
+
+      if (response?.data?.data?.fileUrl) {
+        const videoUrl = response.data.data.fileUrl;
+        setFormData(prev => ({ ...prev, introVideoUrl: videoUrl }));
+        console.log('Video uploaded successfully:', videoUrl);
+        toast.success('Tải video lên thành công!', { id: 'upload-video' });
+      } else {
+        toast.error('Không lấy được URL video sau khi tải lên', { id: 'upload-video' });
+      }
+    } catch (error) {
+      console.error('Upload video error:', error);
+      console.error('Response data:', error.response?.data);
+      toast.error(error.response?.data?.errors?.[0]?.message || 'Lỗi tải video lên', { id: 'upload-video' });
+    } finally {
+      setIsUploadingVideo(false);
+      if (videoInputRef.current) videoInputRef.current.value = '';
     }
   };
 
@@ -164,9 +270,15 @@ export default function BasicsContent() {
                 onChange={handleChange}
                 placeholder="Papercuts: A Party Game for the Rude and Well-Read"
                 maxLength={60}
+                className={fieldErrors.title ? 'border-red-500 focus:ring-red-500' : ''}
               />
-              <div className="flex justify-end mt-1">
-                <span className="text-xs text-muted-foreground">{formData.title.length}/60</span>
+              <div className="flex justify-between items-center mt-1">
+                {fieldErrors.title && (
+                  <span className="text-xs text-red-500">{fieldErrors.title}</span>
+                )}
+                <span className={`text-xs text-muted-foreground ${fieldErrors.title ? 'ml-auto' : ''}`}>
+                  {formData.title.length}/60
+                </span>
               </div>
             </div>
 
@@ -175,16 +287,44 @@ export default function BasicsContent() {
                 Mô tả ngắn <span className="text-primary">*</span>
               </label>
               <Textarea
-                name="desc"
-                value={formData.desc}
+                name="description"
+                value={formData.description || ''}
                 onChange={handleChange}
                 placeholder="Papercuts is a rowdy card game about books and writing brought to you by Electric Literature."
                 rows={3}
                 maxLength={135}
+                className={fieldErrors.description ? 'border-red-500 focus:ring-red-500' : ''}
               />
-              <div className="flex justify-end mt-1">
-                <span className="text-xs text-muted-foreground">{formData.desc.length}/135</span>
+              <div className="flex justify-between items-center mt-1">
+                {fieldErrors.description && (
+                  <span className="text-xs text-red-500">{fieldErrors.description}</span>
+                )}
+                <span className={`text-xs text-muted-foreground ${fieldErrors.description ? 'ml-auto' : ''}`}>
+                  {(formData.description || '').length}/135
+                </span>
               </div>
+            </div>
+
+            <div>
+              <label className="block text-md font-medium text-text-primary dark:text-white mb-2">
+                Mục tiêu gây quỹ (VND) <span className="text-primary">*</span>
+              </label>
+              <Input
+                type="number"
+                name="goalAmount"
+                value={formData.goalAmount || ''}
+                onChange={handleChange}
+                placeholder="10000"
+                min="1"
+                className={fieldErrors.goalAmount ? 'border-red-500 focus:ring-red-500' : ''}
+              />
+              {fieldErrors.goalAmount ? (
+                <p className="text-xs text-red-500 mt-1">{fieldErrors.goalAmount}</p>
+              ) : (
+                <p className="text-xs text-muted-foreground mt-1">
+                  Số tiền tối thiểu bạn cần để thực hiện dự án (tối thiểu 1 VND)
+                </p>
+              )}
             </div>
 
             <div className="flex items-start gap-2 p-3 bg-primary/10 border-l-4 border-primary">
@@ -216,15 +356,21 @@ export default function BasicsContent() {
             name="category"
             value={formData.category}
             onChange={handleChange}
-            className="w-full px-4 py-2 border border-border rounded-sm bg-background text-text-primary dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+            className={`w-full px-4 py-2 border rounded-sm bg-background text-text-primary dark:text-white focus:ring-2 focus:border-transparent transition-all ${fieldErrors.category
+                ? 'border-red-500 focus:ring-red-500'
+                : 'border-border focus:ring-primary'
+              }`}
           >
             <option value="">Chọn danh mục</option>
             {CATEGORIES.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat}
+              <option key={cat.value} value={cat.value}>
+                {cat.label}
               </option>
             ))}
           </select>
+          {fieldErrors.category && (
+            <p className="text-xs text-red-500 mt-1">{fieldErrors.category}</p>
+          )}
         </div>
       </div>
 
@@ -251,10 +397,11 @@ export default function BasicsContent() {
         </div>
 
         <div className="rounded-sm border border-border bg-white dark:bg-darker-2 p-6">
-          <h3 className="text-md font-semibold text-text-primary dark:text-white mb-4">Hình ảnh <span className="text-primary">*</span></h3>
+          <h3 className="text-md font-semibold text-text-primary dark:text-white mb-4">Hình ảnh {/* <span className="text-primary">*</span> */}</h3>
 
           {/* Upload Area - Only show when no image */}
-          {!formData.image_url && (
+          {/* {!formData.imageUrl && ( */}
+          {true && (
             <div className="flex flex-col items-center">
               <div className="w-full max-w-2xl">
                 <div className="border-2 border-dashed border-border rounded-sm p-8 bg-muted/30 hover:bg-muted/50 transition-colors">
@@ -274,6 +421,10 @@ export default function BasicsContent() {
                     <p className="text-xs text-muted-foreground">
                       Thông số kỹ thuật hình ảnh: JPG, PNG, GIF hoặc WEBP, tỷ lệ 16:9, tối thiểu 1024 × 576 pixel, tối đa 50 MB
                     </p>
+
+                    <p className="text-xs text-amber-600 dark:text-amber-400 font-medium">
+                      Lưu ý: Chức năng upload ảnh đang tạm thời bị vô hiệu hóa vì API chưa hỗ trợ
+                    </p>
                   </div>
                 </div>
 
@@ -289,12 +440,12 @@ export default function BasicsContent() {
           )}
 
           {/* Image Preview - Only show when image exists */}
-          {formData.image_url && (
+          {/* {formData.imageUrl && (
             <div className="flex flex-col items-center">
               <div className="w-full max-w-2xl">
                 <div className="relative aspect-video rounded-sm overflow-hidden bg-muted border border-border">
                   <img
-                    src={formData.image_url}
+                    src={formData.imageUrl}
                     alt="Preview"
                     className="w-full h-full object-cover"
                   />
@@ -309,7 +460,7 @@ export default function BasicsContent() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setFormData(prev => ({ ...prev, image_url: null }))}
+                    onClick={() => setFormData(prev => ({ ...prev, imageUrl: null }))}
                     className="px-4 py-2 border border-destructive text-destructive rounded-sm hover:bg-destructive/10 transition-colors text-sm font-medium"
                   >
                     Xóa ảnh
@@ -324,7 +475,7 @@ export default function BasicsContent() {
                 className="hidden"
               />
             </div>
-          )}
+          )} */}
 
           <div className="p-3 border-l-4 border-primary bg-primary/10 mt-4">
             <p className="text-xs text-muted-foreground">
@@ -359,7 +510,7 @@ export default function BasicsContent() {
           <h3 className="text-md font-semibold text-text-primary dark:text-white mb-4">Video giới thiệu</h3>
 
           {/* Upload Area - Only show when no video */}
-          {!formData.intro_video_url && (
+          {!formData.introVideoUrl && (
             <div className="flex flex-col items-center">
               <div className="w-full max-w-2xl">
                 <div className="border-2 border-dashed border-border rounded-sm p-8 bg-muted/30 hover:bg-muted/50 transition-colors">
@@ -368,9 +519,10 @@ export default function BasicsContent() {
                       type="button"
                       variant="gradient"
                       onClick={() => videoInputRef.current?.click()}
+                      disabled={isUploadingVideo}
                       className="px-6 py-3 border border-border rounded-sm text-text-primary dark:text-white bg-background hover:bg-muted transition-colors font-medium"
                     >
-                      Tải lên video
+                      {isUploadingVideo ? 'Đang tải lên...' : 'Tải lên video'}
                     </Button>
 
                     <p className="text-md text-muted-foreground">Chọn một tệp video.</p>
@@ -393,12 +545,12 @@ export default function BasicsContent() {
           )}
 
           {/* Video Preview - Only show when video exists */}
-          {formData.intro_video_url && (
+          {formData.introVideoUrl && (
             <div className="flex flex-col items-center">
               <div className="w-full max-w-2xl">
                 <div className="relative aspect-video rounded-sm overflow-hidden bg-muted border border-border">
                   <video
-                    src={formData.intro_video_url}
+                    src={formData.introVideoUrl}
                     className="w-full h-full object-cover"
                     controls
                   />
@@ -413,7 +565,7 @@ export default function BasicsContent() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setFormData(prev => ({ ...prev, intro_video_url: null }))}
+                    onClick={() => setFormData(prev => ({ ...prev, introVideoUrl: null }))}
                     className="px-4 py-2 border border-destructive text-destructive rounded-sm hover:bg-destructive/10 transition-colors text-sm font-medium"
                   >
                     Xóa video
@@ -458,10 +610,14 @@ export default function BasicsContent() {
               </label>
               <Input
                 type="date"
-                name="start_date"
-                value={formData.start_date}
+                name="startTime"
+                value={formData.startTime}
                 onChange={handleChange}
+                className={fieldErrors.startTime ? 'border-red-500 focus:ring-red-500' : ''}
               />
+              {fieldErrors.startTime && (
+                <p className="text-xs text-red-500 mt-1">{fieldErrors.startTime}</p>
+              )}
             </div>
 
             <div>
@@ -470,19 +626,23 @@ export default function BasicsContent() {
               </label>
               <Input
                 type="date"
-                name="end_date"
-                value={formData.end_date}
+                name="endTime"
+                value={formData.endTime}
                 onChange={handleChange}
-                min={formData.start_date}
+                min={formData.startTime}
+                className={fieldErrors.endTime ? 'border-red-500 focus:ring-red-500' : ''}
               />
+              {fieldErrors.endTime && (
+                <p className="text-xs text-red-500 mt-1">{fieldErrors.endTime}</p>
+              )}
             </div>
           </div>
 
-          {formData.start_date && formData.end_date && (
+          {formData.startTime && formData.endTime && (
             <div className="mt-4 p-3 bg-primary/10 border-l-4 border-primary">
               <p className="text-sm text-text-primary dark:text-white">
                 <span className="font-medium"><strong>Thời gian chiến dịch</strong>:</span>{' '}
-                {Math.ceil((new Date(formData.end_date) - new Date(formData.start_date)) / (1000 * 60 * 60 * 24))} ngày
+                {Math.ceil((new Date(formData.endTime) - new Date(formData.startTime)) / (1000 * 60 * 60 * 24))} ngày
               </p>
             </div>
           )}
@@ -550,7 +710,7 @@ export default function BasicsContent() {
           onClick={handleSave}
           className="px-8"
         >
-          Lưu thông tin cơ bản
+          Tạo chiến dịch
         </Button>
       </div>
     </div>

@@ -20,4 +20,17 @@ export const campaignApi = {
             requireToken: true,
         });
     },
+
+    getUserCampaigns(userId, params = {}) {
+        const { page = 1, size = 10, sort = 'createdAt,desc' } = params;
+        return httpService.get('/campaigns', {
+            requireToken: true,
+            params: {
+                filter: `owner.userId:'${userId}'`,
+                page,
+                size,
+                sort,
+            },
+        });
+    },
 }

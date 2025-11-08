@@ -36,6 +36,9 @@ export const ProjectCard = ({
   };
 
   const formatCurrency = (amount) => {
+    // If amount is already formatted as string, return it
+    if (typeof amount === 'string') return amount;
+
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
       currency: 'VND',
@@ -71,18 +74,19 @@ export const ProjectCard = ({
           className="w-full h-full object-cover transform-gpu transition-transform duration-500 group-hover:scale-105"
           style={{ willChange: 'transform' }}
           loading="lazy"
-        />
-
-        {/* Overlay gradient */}
+          onError={(e) => {
+            e.target.src = '/placeholder.svg';
+          }}
+        />        {/* Overlay gradient */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
         {/* Expired Overlay */}
         {variant === 'expired' && (
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-20">
             <div className="text-center">
-              <img 
-                src={expired} 
-                alt="Expired" 
+              <img
+                src={expired}
+                alt="Expired"
                 className="w-40 h-40 mx-auto mb-4 drop-shadow-lg"
               />
               <p className="text-white text-xl font-bold drop-shadow-lg">
@@ -161,7 +165,7 @@ export const ProjectCard = ({
             <div className="flex-1 min-w-0">
               <p className="text-xs text-muted-foreground mb-0.5">Tổng kinh phí</p>
               <p className="text-lg font-bold text-text-primary dark:text-white truncate">
-                {pledged} VND
+                {typeof pledged === 'string' ? pledged : formatCurrency(pledged)} VND
               </p>
             </div>
 

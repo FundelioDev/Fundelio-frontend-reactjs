@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="540" viewBox="0 0 900 540">
+  <defs>
+    <style>
+      :root { --stamp: #d33; } /* đổi màu tem ở đây */
+    </style>
+
+    <!-- Hiệu ứng sờn -->
+    <filter id="roughen" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="5" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+
+    <!-- Mask grunge -->
+    <mask id="grungeMask">
+      <rect width="100%" height="100%" fill="white"/>
+      <g opacity="0.45" filter="url(#roughen)">
+        <rect width="100%" height="100%" fill="black"/>
+      </g>
+    </mask>
+  </defs>
+
+  <!-- Xoay cả tem quanh tâm canvas (450,270) -->
+  <g transform="rotate(-12,450,270)">
+    <!-- Khung tem: tâm đúng (450,270) -->
+    <rect x="110" y="130" width="680" height="280" rx="20" ry="20"
+          fill="none" stroke="var(--stamp)" stroke-width="26"
+          filter="url(#roughen)" mask="url(#grungeMask)"/>
+
+    <!-- Chữ căn giữa tuyệt đối theo tâm -->
+    <text x="450" y="280"
+          text-anchor="middle" dominant-baseline="middle"
+          font-family="Impact, 'Arial Black', sans-serif"
+          font-size="170" letter-spacing="10"
+          fill="var(--stamp)"
+          filter="url(#roughen)" mask="url(#grungeMask)">
+      EXPIRED
+    </text>
+  </g>
+</svg>

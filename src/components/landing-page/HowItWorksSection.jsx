@@ -93,7 +93,7 @@ const HowItWorksSection = () => {
       <div className='w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-12 relative z-10'>
         {/* Title */}
         <div ref={titleRef} className='mb-6 lg:mb-8'>
-          <h2 className='text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight'>
+          <h2 className='text-2xl sm:text-hero md:text-5xl lg:text-6xl font-bold leading-tight'>
             Cách thức{' '}
             <span className='text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-secondary-600'>
               hoạt động

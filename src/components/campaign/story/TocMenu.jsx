@@ -22,7 +22,7 @@ const TocMenu = ({ blanks = [], activeId, onClickItem }) => {
 
   return (
     <nav
-      className="sticky top-[150px] max-h-[calc(100vh-88px)] overflow-auto pr-2 scrollbar-primary"
+      className="sticky top-[88px] max-h-[calc(100vh-88px)] overflow-auto pr-2 scrollbar-primary"
       aria-label="Story sections"
     >
       {/* Timeline wrapper */}
@@ -48,7 +48,7 @@ const TocMenu = ({ blanks = [], activeId, onClickItem }) => {
                     ${
                       isActive
                         ? 'text-primary font-semibold'
-                        : 'text-text-secondary dark:text-text-white'
+                        : 'text-text-secondary dark:text-white'
                     }
                   `}
                   aria-current={isActive ? 'true' : undefined}

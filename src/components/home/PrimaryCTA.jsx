@@ -10,7 +10,7 @@ export const PrimaryCTA = ({
 }) => {
   return (
     <section
-      className="pb-14 sm:pb-16 lg:pb-20 bg-gray-50 dark:bg-black transition-colors duration-300"
+      className="pb-14 sm:pb-16 lg:pb-20 bg-gray-50 dark:bg-darker transition-colors duration-300"
       role="region"
       aria-label="Lời kêu gọi hành động"
     >
@@ -25,7 +25,7 @@ export const PrimaryCTA = ({
         >
           {/* Decorative Elements */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-          <div className="absolute bottom-0 left-0 w-96 h-96 bg-black/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-darker-2-light/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
 
           {/* Content */}
           <div className="relative z-10 max-w-3xl mx-auto">
@@ -35,7 +35,7 @@ export const PrimaryCTA = ({
             </div>
 
             {/* Heading */}
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4 sm:mb-6 leading-tight">
+            <h2 className="text-3xl sm:text-hero font-bold text-white mb-4 sm:mb-6 leading-tight">
               {heading}
             </h2>
 

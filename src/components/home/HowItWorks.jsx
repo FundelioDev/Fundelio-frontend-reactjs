@@ -24,14 +24,14 @@ const defaultSteps = [
 
 export const HowItWorks = ({ steps = defaultSteps }) => {
   return (
-    <section className="py-12 sm:py-16 lg:py-20 bg-white dark:bg-black transition-colors duration-300">
+    <section className="py-12 sm:py-16 lg:py-20 bg-background-light-2 dark:bg-darker transition-colors duration-300">
       <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-10 sm:mb-12 lg:mb-16">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-text-primary dark:text-text-white mb-4 transition-colors duration-300">
+          <h2 className="text-2xl sm:text-hero font-bold text-text-primary dark:text-white mb-4 transition-colors duration-300">
             Cách hoạt động
           </h2>
-          <p className="text-lg text-text-secondary dark:text-gray-400 max-w-2xl mx-auto transition-colors duration-300">
+          <p className="text-lg text-text-secondary dark:text-text-white max-w-2xl mx-auto transition-colors duration-300">
             Ba bước đơn giản để biến ý tưởng của bạn thành hiện thực
           </p>
         </div>
@@ -41,7 +41,7 @@ export const HowItWorks = ({ steps = defaultSteps }) => {
           {steps.map((step, index) => (
             <div
               key={index}
-              className="group relative bg-primary-50 dark:bg-primary-900/20 rounded-3xl p-6 sm:p-8 ring-1 ring-border-light dark:ring-primary-800/30 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+              className="group relative bg-white dark:bg-darker-2 rounded-3xl p-6 sm:p-8 border-border shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
             >
               {/* Step Number Badge */}
               <div className="absolute -top-3 -left-3 w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold text-lg shadow-lg">
@@ -56,10 +56,10 @@ export const HowItWorks = ({ steps = defaultSteps }) => {
               </div>
 
               {/* Content */}
-              <h3 className="text-xl sm:text-2xl font-bold text-text-primary dark:text-text-white mb-3 transition-colors duration-300">
+              <h3 className="text-xl sm:text-2xl font-bold text-text-primary dark:text-white mb-3 transition-colors duration-300">
                 {step.title}
               </h3>
-              <p className="text-text-secondary dark:text-gray-400 leading-relaxed mb-4 transition-colors duration-300">
+              <p className="text-text-secondary dark:text-text-white leading-relaxed mb-4 transition-colors duration-300">
                 {step.desc}
               </p>
 

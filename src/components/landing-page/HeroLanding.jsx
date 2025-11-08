@@ -112,13 +112,13 @@ const HeroLanding = () => {
       />
 
       {/* Scrolling Numbers Background - Terminal Style */}
-      <div className='absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none'>
+      {/* <div className='absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none'>
         <div className='text-[40vh] font-bold tracking-tighter flex'>
           <span ref={(el) => (numbersRef.current[0] = el)}>0</span>
           <span ref={(el) => (numbersRef.current[1] = el)}>1</span>
           <span ref={(el) => (numbersRef.current[2] = el)}>2</span>
         </div>
-      </div>
+      </div> */}
 
       <div className='relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-12 text-center'>
         {/* Main Headline - Massive Typography */}
@@ -129,7 +129,7 @@ const HeroLanding = () => {
           <h1 className='text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold leading-none tracking-tight mt-3'>
             {splitText('tái định nghĩa')}
           </h1>
-          <h1 className='text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold leading-none tracking-tight mt-3 text-transparent bg-clip-text bg-gradient-to-r from-primary-500 via-secondary-500 to-accent-500'>
+          <h1 className='text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold leading-none tracking-tight mt-3'>
             {splitText('tương lai')}
           </h1>
           <h1 className='text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold leading-none tracking-tight mt-3'>

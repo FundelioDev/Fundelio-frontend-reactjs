@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { gsap } from 'gsap';
 import Button from './Button';
 import { mockCampaigns } from '../../data/mockCampaigns';
 
@@ -8,7 +9,97 @@ const Hero = () => {
   const [isPaused, setIsPaused] = useState(false);
   const [progress, setProgress] = useState(0);
 
+  // Refs for GSAP animations
+  const titleRef = useRef(null);
+  const descriptionRef = useRef(null);
+  const ctaRef = useRef(null);
+  const overlayRef = useRef(null);
+  const hasAnimatedCTA = useRef(false);
+
   const totalSlides = mockCampaigns.length;
+
+  // Initial CTA animation - only runs once on mount
+  useEffect(() => {
+    if (!hasAnimatedCTA.current && ctaRef.current) {
+      hasAnimatedCTA.current = true;
+
+      gsap.fromTo(
+        ctaRef.current,
+        {
+          scale: 0,
+          opacity: 0,
+          rotationY: -180,
+        },
+        {
+          scale: 1,
+          opacity: 1,
+          rotationY: 0,
+          duration: 1.2,
+          delay: 0.8,
+          ease: 'back.out(1.7)',
+        }
+      );
+    }
+  }, []);
+
+  // Title and description animation on slide change
+  useEffect(() => {
+    const tl = gsap.timeline();
+
+    if (titleRef.current) {
+      tl.fromTo(
+        titleRef.current,
+        {
+          y: 100,
+          opacity: 0,
+          rotationX: -90,
+        },
+        {
+          y: 0,
+          opacity: 1,
+          rotationX: 0,
+          duration: 0.8,
+          ease: 'power3.out',
+        }
+      );
+    }
+
+    if (descriptionRef.current) {
+      tl.fromTo(
+        descriptionRef.current,
+        {
+          y: 50,
+          opacity: 0,
+        },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.6,
+          ease: 'power2.out',
+        },
+        '-=0.4'
+      );
+    }
+
+    if (overlayRef.current) {
+      tl.fromTo(
+        overlayRef.current,
+        {
+          scaleX: 0,
+        },
+        {
+          scaleX: 1,
+          duration: 0.6,
+          ease: 'power2.inOut',
+        },
+        0
+      );
+    }
+
+    return () => {
+      tl.kill();
+    };
+  }, [currentSlide]);
 
   // Tự động chuyển slide mỗi 3 giây
   useEffect(() => {
@@ -63,6 +154,15 @@ const Hero = () => {
     console.log('Navigate to campaign:', campaign.id);
     // TODO: Implement navigation logic
 
+    // Animate button on click
+    gsap.to(ctaRef.current, {
+      scale: 0.9,
+      duration: 0.1,
+      yoyo: true,
+      repeat: 1,
+      ease: 'power2.inOut',
+    });
+
     setIsPaused(false);
   };
 
@@ -78,19 +178,18 @@ const Hero = () => {
 
   return (
     <section
-      className="relative min-h-[100vh] overflow-hidden"
+      className="relative min-h-[100vh] overflow-hidden w-full"
       role="region"
       aria-label="Featured campaigns hero carousel"
-      // onMouseEnter={handleMouseEnter}
-      // onMouseLeave={handleMouseLeave}
+    // onMouseEnter={handleMouseEnter}
+    // onMouseLeave={handleMouseLeave}
     >
       {/* Background Images */}
       {mockCampaigns.map((campaign, index) => (
         <div
           key={campaign.id}
-          className={`absolute inset-0 h-full w-full transition-opacity duration-500 ${
-            index === currentSlide ? 'opacity-100' : 'opacity-0'
-          }`}
+          className={`absolute inset-0 h-full w-full transition-opacity duration-500 ${index === currentSlide ? 'opacity-100' : 'opacity-0'
+            }`}
         >
           <img
             src={campaign.heroImageUrl}
@@ -101,76 +200,145 @@ const Hero = () => {
       ))}
 
       {/* Overlay - Stronger gradient for mobile readability */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/60 md:from-black/60 md:via-black/30 md:to-black/50" />
+      <div className="absolute inset-0 bg-gradient-to-r from-black/100 via-black/50 via-50% to-black/70" />
+
+      {/* Animated overlay accent */}
+      {/* <div
+        ref={overlayRef}
+        className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 origin-left"
+        style={{
+          transform: `scaleX(${progress / 100})`,
+        }}
+      /> */}
 
       {/* Content */}
-      <div className="relative z-10 flex h-full min-h-[100vh] items-end pb-24 sm:pb-28 md:items-center md:pb-0">
-        <div className="mx-auto w-full max-w-container px-4 py-6 sm:px-6 sm:py-8 md:px-8 lg:px-12 lg:py-12">
-          {/* Title with Animation */}
-          <h1
-            className={`text-2xl font-bold leading-tight text-text-white transition-all duration-300 sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl max-w-4xl ${
-              isAnimating ? 'hero-title-exit' : 'hero-title-enter'
-            }`}
-            aria-live="polite"
-          >
-            {mockCampaigns[currentSlide].title}
-          </h1>
+      <div className="relative z-10 flex h-full min-h-[100vh] items-end pb-32 sm:pb-36 md:items-center md:pb-0">
+        <div className="mx-auto w-full max-w-container px-4 py-6 sm:px-6 sm:py-8 md:px-8 lg:px-12 lg:py-16">
 
-          {/* Description - Optional, only on larger screens */}
-          <p className="hidden md:block mt-4 text-base lg:text-lg text-white/90 max-w-2xl">
-            {mockCampaigns[currentSlide].description ||
-              'Discover and support amazing campaigns'}
-          </p>
+          {/* Decorative line above title */}
+          <div className="mb-4 flex items-center gap-3">
+            <div className="h-[2px] w-12 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full"></div>
+            <span className="text-sm font-medium text-cyan-400 uppercase tracking-wider">
+              Featured Campaign
+            </span>
+          </div>
 
-          {/* Button */}
-          <div className="mt-4 sm:mt-6 md:mt-8">
-            <Button
-              variant="secondary"
-              size="md"
-              onClick={handleSeeCampaign}
-              className="shadow-lg hover:shadow-xl sm:text-base md:text-lg md:px-8 md:py-3"
+          {/* Title with Animation and improved typography */}
+          <div className="perspective-1000 mb-6">
+            <h1
+              ref={titleRef}
+              className="text-3xl font-black leading-tight text-white transition-all duration-300 sm:text-4xl md:text-5xl max-w-5xl drop-shadow-2xl"
+              style={{
+                textShadow: '0 4px 20px rgba(0, 0, 0, 0.5), 0 0 40px rgba(6, 182, 212, 0.3)',
+                letterSpacing: '-0.02em',
+              }}
+              aria-live="polite"
             >
-              See Campaign
-            </Button>
+              {mockCampaigns[currentSlide].title}
+            </h1>
+          </div>
+
+          {/* Description - Enhanced styling */}
+          <div className="perspective-1000">
+            <p
+              ref={descriptionRef}
+              className="hidden md:block text-base lg:text-xl text-white/95 max-w-2xl leading-relaxed font-light"
+              style={{
+                textShadow: '0 2px 10px rgba(0, 0, 0, 0.7)',
+              }}
+            >
+              {mockCampaigns[currentSlide].description ||
+                'Discover and support amazing campaigns that make a difference'}
+            </p>
+          </div>
+
+          {/* Button with enhanced styling */}
+          <div className="mt-6 sm:mt-8 md:mt-10">
+            <div ref={ctaRef} className="inline-block">
+              <Button
+                size="md"
+                onClick={handleSeeCampaign}
+                className="group relative overflow-hidden uppercase shadow-2xl hover:shadow-cyan-500/50 sm:text-lg md:text-xl md:px-8 md:py-3 bg-gradient-to-r from-cyan-500 via-blue-600 to-blue-700 hover:from-cyan-400 hover:via-blue-500 hover:to-blue-600 text-white border-0 transition-all duration-500 font-bold tracking-wider rounded-full"
+              >
+                <span className="relative z-10 flex items-center gap-2">
+                  See Campaign
+                  <svg
+                    className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13 7l5 5m0 0l-5 5m5-5H6"
+                    />
+                  </svg>
+                </span>
+                {/* Animated gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/30 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                {/* Glow effect */}
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-xl bg-cyan-400/50 -z-10" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Campaign stats - New addition */}
+          <div className="mt-8 flex gap-6 text-white/80">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></div>
+              <span className="text-sm font-medium">
+                {currentSlide + 1} / {totalSlides}
+              </span>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Progress Bar - Responsive positioning */}
-      <div className="absolute bottom-20 right-4 h-1 w-20 overflow-hidden rounded-full bg-white/30 sm:bottom-20 sm:w-24 md:bottom-6 md:h-1 md:w-32 lg:w-40">
-        <div
-          className="h-full bg-secondary origin-left transition-transform"
-          style={{
-            transform: `scaleX(${progress / 100})`,
-          }}
-        />
+      {/* Progress Bar - Enhanced design */}
+      <div className="absolute bottom-24 right-4 sm:bottom-24 sm:right-6 md:bottom-8 md:right-8 lg:right-12">
+        <div className="flex flex-col items-end gap-2">
+          <div className="h-1.5 w-24 overflow-hidden rounded-full bg-white/20 backdrop-blur-sm border border-white/10 sm:w-28 md:w-36 lg:w-48">
+            <div
+              className="h-full bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 origin-left transition-transform shadow-lg shadow-cyan-500/50"
+              style={{
+                transform: `scaleX(${progress / 100})`,
+              }}
+            />
+          </div>
+        </div>
       </div>
 
-      {/* Slide Indicators - Thumbnail Images - Responsive */}
-      <div className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 gap-1.5 px-4 sm:gap-2 md:gap-3 lg:gap-4">
+      {/* Slide Indicators - Thumbnail Images - Enhanced design */}
+      <div className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 gap-2 px-2 sm:px-4 sm:gap-2.5 md:gap-3 lg:gap-4 max-w-full overflow-x-auto scrollbar-hide">
         {mockCampaigns.map((campaign, index) => (
           <button
             key={index}
             onClick={() => handleSlideChange(index)}
-            className={`group relative overflow-hidden rounded transition-all duration-300 ${
-              index === currentSlide
-                ? 'ring-2 ring-secondary ring-offset-1 ring-offset-black/50 scale-105 sm:scale-110'
-                : 'opacity-50 hover:opacity-100 hover:scale-105'
-            }`}
+            className={`group relative overflow-hidden rounded-sm transition-all duration-300 border-2 flex-shrink-0 ${index === currentSlide
+                ? "border-cyan-400 shadow-lg shadow-cyan-400/50 scale-110 sm:scale-115"
+                : "border-white/20 opacity-60 hover:opacity-100 hover:scale-105 hover:border-white/40"
+              }`}
             aria-label={`Go to slide ${index + 1}: ${campaign.title}`}
-            aria-current={index === currentSlide ? 'true' : 'false'}
+            aria-current={index === currentSlide ? "true" : "false"}
           >
             <img
-              src={campaign.heroImageUrl}
+              src={campaign.heroImageUrl || "/placeholder.svg?height=96&width=128&query=campaign-thumbnail"}
               alt={campaign.title}
-              className="h-10 w-14 object-cover sm:h-12 sm:w-16 md:h-14 md:w-20 lg:h-16 lg:w-24"
+              className="h-11 w-16 object-cover sm:h-12 sm:w-20 transition-transform duration-300 group-hover:scale-110"
             />
-            {/* Overlay when active */}
+            {/* Gradient overlay when active */}
             {index === currentSlide && (
-              <div className="absolute inset-0 bg-secondary/20" />
+              <div className="absolute inset-0 bg-gradient-to-t from-cyan-500/50 via-blue-500/30 to-transparent" />
             )}
             {/* Hover overlay */}
-            <div className="absolute inset-0 bg-black/0 transition-colors duration-200 group-hover:bg-black/20" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/0 via-black/0 to-black/0 transition-all duration-200 group-hover:from-black/30 group-hover:via-black/10" />
+
+            {/* Active indicator dot */}
+            {index === currentSlide && (
+              <div className="absolute top-1 right-1 w-2 h-2 rounded-full bg-cyan-400 animate-pulse shadow-lg shadow-cyan-400/50"></div>
+            )}
           </button>
         ))}
       </div>

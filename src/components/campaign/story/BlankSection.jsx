@@ -19,7 +19,7 @@ const BlankSection = React.memo(({ blank }) => {
       {/* Title */}
       {title_html && (
         <h2
-          className="text-3xl font-bold mb-3 text-black dark:text-text-white"
+          className="text-3xl font-bold mb-3 text-black dark:text-white"
           dangerouslySetInnerHTML={{ __html: title_html }}
         />
       )}

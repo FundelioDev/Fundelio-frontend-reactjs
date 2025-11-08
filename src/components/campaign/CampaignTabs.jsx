@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import CampaignPage from './CampaignPage';
+import RewardsPage from './RewardsPage';
+import CreatorProfile from './creator/CreatorProfile';
+import Leaderboard from './leaderboard/Leaderboard';
 
 /**
  * CampaignTabs Component
@@ -9,19 +12,19 @@ const CampaignTabs = ({ initialTab = 'campaign', campaignProps = {} }) => {
   const [activeTab, setActiveTab] = useState(initialTab);
 
   const tabs = [
-    { id: 'campaign', label: 'Campaign' },
-    { id: 'rewards', label: 'Rewards' },
-    { id: 'creator', label: 'Creator' },
-    { id: 'leaderboard', label: 'Leaderboard' },
+    { id: 'campaign', label: 'Chiến dịch' },
+    { id: 'rewards', label: 'Phần thưởng' },
+    { id: 'creator', label: 'Người tạo' },
+    { id: 'leaderboard', label: 'Bảng xếp hạng' },
   ];
 
   return (
     <div>
       {/* Tabs Navigation */}
-      <div className="sticky top-[72px] bg-background z-20 border-b border-border">
+      <div className="sticky top-0 bg-white dark:bg-darker z-20 shadow-sm">
         <div className="max-w-container mx-auto px-4 lg:px-6">
           <nav
-            className="flex gap-6 overflow-x-auto scrollbar-hide"
+            className="flex gap-x-0.5 overflow-x-auto scrollbar-hide"
             role="tablist"
           >
             {tabs.map((tab) => (
@@ -32,12 +35,11 @@ const CampaignTabs = ({ initialTab = 'campaign', campaignProps = {} }) => {
                 aria-controls={`${tab.id}-panel`}
                 onClick={() => setActiveTab(tab.id)}
                 className={`
-                  py-4 px-2 text-md font-medium whitespace-nowrap
+                  py-4 px-4 text-md font-medium whitespace-nowrap
                   border-b-2 transition-colors duration-200 uppercase
-                  ${
-                    activeTab === tab.id
-                      ? 'border-primary text-primary'
-                      : 'border-transparent text-text-secondary dark:text-text-white hover:text-primary hover:border-border'
+                  ${activeTab === tab.id
+                    ? 'border-primary text-primary bg-white dark:bg-darker-2'
+                    : 'border-transparent text-text-secondary dark:text-white hover:text-primary hover:border-primary/40'
                   }
                 `}
               >
@@ -48,86 +50,61 @@ const CampaignTabs = ({ initialTab = 'campaign', campaignProps = {} }) => {
         </div>
       </div>
 
-      {/* Tab Content */}
-      <div className="max-w-container mx-auto px-4 lg:px-6 py-6 lg:py-8">
-        {/* Campaign Tab */}
-        {activeTab === 'campaign' && (
-          <div
-            role="tabpanel"
-            id="campaign-panel"
-            aria-labelledby="campaign-tab"
-          >
-            <CampaignPage {...campaignProps} />
-          </div>
-        )}
-
-        {/* Rewards Tab - Placeholder */}
-        {activeTab === 'rewards' && (
-          <div
-            role="tabpanel"
-            id="rewards-panel"
-            aria-labelledby="rewards-tab"
-            className="py-16 text-center"
-          >
-            <div className="max-w-md mx-auto">
-              <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">🎁</span>
-              </div>
-              <h3 className="text-xl font-semibold text-foreground mb-2">
-                Rewards Gallery
-              </h3>
-              <p className="text-secondary">
-                Coming soon... Browse all available rewards in a beautiful
-                gallery view.
-              </p>
+      {/* Tab Content - Campaign có bg-white, còn lại bg-background-light-2 */}
+      <div className={`${activeTab === 'campaign' ? 'bg-white dark:bg-darker' : 'bg-background-light-2 dark:bg-darker'}`}>
+        <div className="max-w-container mx-auto px-4 lg:px-6 py-6 lg:py-8">
+          {/* Campaign Tab */}
+          {activeTab === 'campaign' && (
+            <div
+              role="tabpanel"
+              id="campaign-panel"
+              aria-labelledby="campaign-tab"
+            >
+              <CampaignPage {...campaignProps} />
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Creator Tab - Placeholder */}
-        {activeTab === 'creator' && (
-          <div
-            role="tabpanel"
-            id="creator-panel"
-            aria-labelledby="creator-tab"
-            className="py-16 text-center"
-          >
-            <div className="max-w-md mx-auto">
-              <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">👤</span>
-              </div>
-              <h3 className="text-xl font-semibold text-foreground mb-2">
-                Creator Profile
-              </h3>
-              <p className="text-secondary">
-                Coming soon... Learn more about the creator, their projects, and
-                history.
-              </p>
+          {/* Rewards Tab - Placeholder */}
+          {activeTab === 'rewards' && (
+            <div
+              role="tabpanel"
+              id="rewards-panel"
+              aria-labelledby="rewards-tab"
+            >
+              <RewardsPage
+                rewards={campaignProps.rewards || []}
+                items={campaignProps.items || []}
+                addOns={campaignProps.addOns || []}
+                onPledge={campaignProps.onPledge}
+              />
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Leaderboard Tab - Placeholder */}
-        {activeTab === 'leaderboard' && (
-          <div
-            role="tabpanel"
-            id="leaderboard-panel"
-            aria-labelledby="leaderboard-tab"
-            className="py-16 text-center"
-          >
-            <div className="max-w-md mx-auto">
-              <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">🏆</span>
-              </div>
-              <h3 className="text-xl font-semibold text-foreground mb-2">
-                Top Backers
-              </h3>
-              <p className="text-secondary">
-                Coming soon... See who the top supporters of this campaign are!
-              </p>
+          {/* Creator Tab - Placeholder */}
+          {activeTab === 'creator' && (
+            <div
+              role="tabpanel"
+              id="creator-panel"
+              aria-labelledby="creator-tab"
+            >
+              <CreatorProfile
+                creator={campaignProps.creator}
+                otherProjects={campaignProps.otherProjects || []}
+              />
             </div>
-          </div>
-        )}
+          )}
+
+          {/* Leaderboard Tab - Placeholder */}
+          {activeTab === 'leaderboard' && (
+            <div
+              role="tabpanel"
+              id="leaderboard-panel"
+              aria-labelledby="leaderboard-tab"
+            >
+              <Leaderboard />
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

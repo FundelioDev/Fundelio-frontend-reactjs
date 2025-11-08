@@ -1,4 +1,6 @@
 import React from 'react';
+import { motion } from 'framer-motion';
+import { Bell, Share2 } from 'lucide-react';
 import Button from '@/components/common/Button';
 
 /**
@@ -10,7 +12,7 @@ import Button from '@/components/common/Button';
 const formatCurrency = (amount, currency) => {
   if (typeof amount !== 'number' || isNaN(amount)) return '0';
 
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat('vi-VN', {
     style: 'decimal',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
@@ -32,9 +34,9 @@ const clampPercent = (value) => {
  */
 const CampaignHeader = ({
   campaign = {},
-  onPickPerk = () => {},
-  onSave = () => {},
-  onShare = () => {},
+  onPickPerk = () => { },
+  onSave = () => { },
+  onShare = () => { },
 }) => {
   const {
     title = 'Campaign Title',
@@ -56,131 +58,243 @@ const CampaignHeader = ({
   const formattedGoal = formatCurrency(goal, currency);
 
   return (
-    <div className="max-w-container mx-auto px-4 lg:px-6 py-6 lg:py-10">
-      <div className="grid grid-cols-1 lg:grid-cols-[7fr_5fr] gap-6 lg:gap-8">
-        {/* Left Column - Campaign Image */}
-        <div className="aspect-video overflow-hidden border border-border bg-muted">
-          <img
-            src={imageUrl}
-            alt={`Campaign image for ${title}`}
-            className="w-full h-full object-cover"
-            loading="eager"
-          />
+    <div className="relative overflow-hidden bg-[#0a1628]">
+      {/* Animated Background with Stars */}
+      <div className="absolute inset-0 overflow-hidden">
+        {/* Animated dots/stars pattern */}
+        <motion.div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `radial-gradient(2px 2px at 20% 30%, white, transparent),
+                            radial-gradient(2px 2px at 60% 70%, white, transparent),
+                            radial-gradient(1px 1px at 50% 50%, white, transparent),
+                            radial-gradient(1px 1px at 80% 10%, white, transparent),
+                            radial-gradient(2px 2px at 90% 60%, white, transparent),
+                            radial-gradient(1px 1px at 33% 50%, white, transparent),
+                            radial-gradient(1px 1px at 70% 40%, white, transparent)`,
+            backgroundSize: '200% 200%',
+            backgroundPosition: '0% 0%',
+            opacity: 0.4,
+          }}
+          animate={{
+            backgroundPosition: ['0% 0%', '100% 100%'],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            repeatType: 'reverse',
+            ease: 'linear',
+          }}
+        />
+
+        {/* Primary gradient orb - Blue */}
+        <motion.div
+          className="absolute w-[800px] h-[800px] rounded-full"
+          style={{
+            background: 'radial-gradient(circle, rgba(8,148,226,0.3) 0%, transparent 70%)',
+            filter: 'blur(120px)',
+          }}
+          animate={{
+            x: ['-20%', '10%', '-20%'],
+            y: ['-20%', '10%', '-20%'],
+            scale: [1, 1.3, 1],
+          }}
+          transition={{
+            duration: 25,
+            repeat: Infinity,
+            ease: 'easeInOut',
+          }}
+          initial={{ x: '-20%', y: '-20%' }}
+        />
+
+        {/* Accent gradient orb - Yellow */}
+        {/* <motion.div
+          className="absolute right-0 bottom-0 w-[600px] h-[600px] rounded-full"
+          style={{
+            background: 'radial-gradient(circle, rgba(252,230,90,0.2) 0%, transparent 70%)',
+            filter: 'blur(100px)',
+          }}
+          animate={{
+            x: ['20%', '-10%', '20%'],
+            y: ['20%', '-10%', '20%'],
+            scale: [1, 1.2, 1],
+          }}
+          transition={{
+            duration: 30,
+            repeat: Infinity,
+            ease: 'easeInOut',
+          }}
+          initial={{ x: '20%', y: '20%' }}
+        /> */}
+      </div>
+
+      {/* Content */}
+      <div className="relative z-10 max-w-[1200px] mx-auto px-4 lg:px-6 py-12 lg:py-14">
+        {/* Title & Description Section */}
+        <div className="mb-12 lg:mb-16 flex justify-center">
+          <div className="max-w-4xl">
+            <motion.h1
+              className="text-2xl lg:text-3xl xl:text-4xl font-bold text-white mb-6 leading-tight"
+              style={{ fontFamily: "'Roboto Slab', serif" }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              {title}
+            </motion.h1>
+            <motion.p
+              className="text-base lg:text-lg text-gray-300 leading-relaxed"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
+              {highlights}
+            </motion.p>
+          </div>
         </div>
 
-        {/* Right Column - Campaign Details */}
-        <div className="">
-          {/* Campaign Title */}
-          <h1 className="text-2xl lg:text-4xl font-bold text-foreground mb-3">
-            {title}
-          </h1>
-
-          {/* Campaign Highlights */}
-          <p className="line-clamp-3 text-lg text-text-secondary dark:text-text-white flex items-start mb-5 lg:mb-6">
-            {highlights}
-          </p>
-
-          {/* Creator Information */}
-          <div className="flex items-center gap-3 mb-5 lg:mb-6 pb-5 lg:pb-6 border-b border-border">
-            {/* Creator Avatar Placeholder */}
-            <div
-              className="w-10 h-10 rounded-full bg-muted border border-border 
-            flex items-center justify-center flex-shrink-0 cursor-pointer"
-            >
-              <span className="text-text-secondary text-sm font-medium">
-                {creator.name.charAt(0).toUpperCase()}
-              </span>
-            </div>
-
-            {/* Creator Details */}
-            <div className="flex-1 min-w-0">
-              <a
-                href={creator.link}
-                className="text-foreground font-medium hover:text-primary transition-colors block truncate"
-              >
-                {creator.name}
-              </a>
-              <p className="text-sm text-text-secondary dark:text-text-white truncate">
-                {creator.location}
-              </p>
-            </div>
-          </div>
-
-          {/* Funding Information */}
-          <div className="mb-5 lg:mb-6">
-            {/* Amount Pledged */}
-            <div className="mb-2 flex justify-between items-baseline text-text-secondary dark:text-text-white">
-              <p className="text-2xl lg:text-3xl font-semibold">
-                {currency} {formattedPledged}
-              </p>
-              <div className="flex items-center gap-1">
-                <span className="font-semibold text-xl ">
-                  {backers.toLocaleString()}
-                </span>
-                <span>backers</span>
-              </div>
-            </div>
-
-            {/* Progress Bar */}
-            <div
-              className="w-full h-3 bg-muted rounded-full overflow-hidden mb-4"
-              role="progressbar"
-              aria-valuenow={progressPercent}
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-label={`Campaign progress: ${progressPercent}% funded`}
-            >
-              <div
-                className="h-full bg-primary rounded-full transition-all duration-500"
-                style={{ width: `${progressPercent}%` }}
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+          {/* Left Column - Campaign Image (60%) */}
+          <motion.div
+            className="lg:col-span-7"
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7, delay: 0.3 }}
+          >
+            <div className="aspect-video overflow-hidden rounded-sm border-2 border-white/10 shadow-2xl">
+              <img
+                src={imageUrl}
+                alt={`Hình ảnh chiến dịch cho ${title}`}
+                className="w-full h-full object-cover"
+                loading="eager"
               />
             </div>
 
-            {/* Campaign Metrics */}
-            <div className="flex items-center gap-1 text-text-secondary dark:text-text-white text-sm">
-              <p className="text-sm mt-0.5">
-                pledged of {currency} {formattedGoal} goal
-              </p>
-              <span className="mx-2">•</span>
-              <span className="font-semibold">{daysLeft}</span>
-              <span>days left</span>
-            </div>
-          </div>
+            {/* Creator Information */}
+            {/* <div className="flex items-center gap-4 mt-8">
+              <div className="w-14 h-14 rounded-full bg-primary p-[2px]">
+                <div className="w-full h-full rounded-full bg-[#0a1628] flex items-center justify-center">
+                  <span className="text-white text-lg font-bold">
+                    {creator.name.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+              </div>
+              <div className="flex-1">
+                <a
+                  href={creator.link}
+                  className="text-white font-semibold text-lg hover:text-[#0894e2] transition-colors block"
+                >
+                  {creator.name}
+                </a>
+                <p className="text-sm text-gray-400">
+                  {creator.location}
+                </p>
+              </div>
+            </div> */}
+          </motion.div>
 
-          {/* Call-to-Action Buttons */}
-          <div className="space-y-3">
-            {/* Primary CTA */}
-            <Button
-              variant="primary"
-              size="lg"
-              className="w-full"
-              onClick={onPickPerk}
-            >
-              PICK YOUR PERK
-            </Button>
+          {/* Right Column - Campaign Stats (40%) */}
+          <motion.div
+            className="lg:col-span-5"
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7, delay: 0.4 }}
+          >
+            <div className="space-y-8">
+              {/* Funding Stats */}
+              <div className="relative">
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#fce65a] rounded-full" />
+                <div className="pl-6">
+                  <div className="text-3xl lg:text-4xl font-bold text-white mb-2">
+                    {currency} {formattedPledged}
+                  </div>
+                  <div className="text-sm text-gray-300">
+                    đã gây quỹ trên mục tiêu {currency} {formattedGoal}
+                  </div>
+                </div>
+              </div>
 
-            {/* Secondary Actions */}
-            <div className="flex flex-wrap gap-3">
-              <Button
-                variant="white"
-                size="md"
-                className="flex-1 min-w-[140px]"
-                onClick={onSave}
-                aria-label="Save campaign for later"
-              >
-                SAVE FOR LATER
-              </Button>
-              <Button
-                variant="white"
-                size="md"
-                className="flex-1 min-w-[140px]"
-                onClick={onShare}
-                aria-label="Share campaign"
-              >
-                SHARE
-              </Button>
+              {/* Linear Progress Bar & Stats */}
+              <div className="space-y-6">
+                {/* Progress Bar */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-2xl font-bold text-white">
+                      {progressPercent}%
+                    </span>
+                    <span className="text-sm text-gray-300">đạt được</span>
+                  </div>
+                  <div className="relative h-2 bg-white/10 rounded-full overflow-hidden">
+                    <motion.div
+                      className="absolute top-0 left-0 h-full bg-gradient-to-r from-[#0894e2] to-[#0894e2] rounded-full"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${progressPercent}%` }}
+                      transition={{ duration: 1.5, ease: 'easeOut' }}
+                    />
+                  </div>
+                </div>
+
+                {/* Stats Grid */}
+                <div className="grid grid-cols-2 gap-6">
+                  <div>
+                    <div className="text-2xl font-bold text-white">
+                      {backers.toLocaleString()}
+                    </div>
+                    <div className="text-xs text-gray-300 uppercase tracking-wide">
+                      Người ủng hộ
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-white">
+                      {daysLeft}
+                    </div>
+                    <div className="text-xs text-gray-300 uppercase tracking-wide">
+                      Ngày còn lại
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Call-to-Action Buttons */}
+              <div className="space-y-4">
+                <Button
+                  variant="gradient"
+                  size="lg"
+                  className="w-full text-base font-bold shadow-lg shadow-[#0894e2]/30"
+                  onClick={onPickPerk}
+                >
+                  ỦNG HỘ DỰ ÁN NÀY
+                </Button>
+
+                {/* <div className="grid grid-cols-2 gap-3">
+                  <button
+                    onClick={onSave}
+                    className="px-4 py-3 bg-white/5 hover:bg-white/10 text-white text-sm font-semibold rounded-lg transition-all duration-200 border border-white/10 hover:border-[#fce65a]/50 flex items-center justify-center gap-2"
+                    aria-label="Nhắc tôi"
+                  >
+                    <Bell size={16} />
+                    <span>NHẮC TÔI</span>
+                  </button>
+                  <button
+                    onClick={onShare}
+                    className="px-4 py-3 bg-white/5 hover:bg-white/10 text-white text-sm font-semibold rounded-lg transition-all duration-200 border border-white/10 hover:border-[#fce65a]/50 flex items-center justify-center gap-2"
+                    aria-label="Chia sẻ chiến dịch"
+                  >
+                    <Share2 size={16} />
+                    <span>CHIA SẺ</span>
+                  </button>
+                </div> */}
+              </div>
+
+              {/* Additional Info */}
+              <div className="pt-3">
+                <p className="text-xs text-center text-gray-300 leading-relaxed">
+                  <span className="text-[#fce65a] font-semibold">Tất cả hoặc không gì cả.</span> Dự án chỉ được gây quỹ nếu đạt mục tiêu trước thời hạn.
+                </p>
+              </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>

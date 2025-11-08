@@ -120,7 +120,7 @@ const PopularCampaignsLanding = () => {
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 relative z-10 mb-8'>
         {/* Title - Compact */}
         <div ref={titleRef}>
-          <h2 className='text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight'>
+          <h2 className='text-3xl sm:text-hero md:text-5xl lg:text-6xl font-bold leading-tight'>
             Dự án{' '}
             <span className='text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary'>
               đang hot

@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <radialGradient id="goldBorder" cx="50%" cy="40%" r="70%">
+      <stop offset="0%"  stop-color="#FCE79B"/>
+      <stop offset="40%" stop-color="#E6B85C"/>
+      <stop offset="75%" stop-color="#C9962E"/>
+      <stop offset="100%" stop-color="#B67E17"/>
+    </radialGradient>
+    <radialGradient id="goldInner" cx="35%" cy="35%" r="75%">
+      <stop offset="0%"  stop-color="#FFF3C4"/>
+      <stop offset="35%" stop-color="#F0C76A"/>
+      <stop offset="80%" stop-color="#C9922C"/>
+      <stop offset="100%" stop-color="#B67E17"/>
+    </radialGradient>
+    <mask id="diamondCut">
+      <rect width="512" height="512" fill="white"/>
+      <rect x="206" y="206" width="100" height="100" fill="black" transform="rotate(45 256 256)"/>
+    </mask>
+  </defs>
+
+  <g mask="url(#diamondCut)">
+    <g id="coin-border">
+      <circle cx="256" cy="256" r="210" fill="url(#goldBorder)"/>
+      <circle cx="256" cy="256" r="195" fill="none" stroke="#D9A54A" stroke-width="14"/>
+      <circle cx="256" cy="256" r="180" fill="none" stroke="#E7BF6B" stroke-width="10"/>
+      <circle cx="256" cy="256" r="168" fill="none" stroke="#B67E17" stroke-width="6" opacity="0.9"/>
+    </g>
+
+    <g id="coin-inner">
+      <circle cx="256" cy="256" r="165" fill="url(#goldInner)"/>
+    </g>
+  </g>
+
+  <rect x="206" y="206" width="100" height="100" fill="none" stroke="#E7BF6B"
+        stroke-width="6" transform="rotate(45 256 256)"/>
+</svg>

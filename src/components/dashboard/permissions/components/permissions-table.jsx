@@ -1,0 +1,348 @@
+import React, { useState, useEffect } from 'react';
+import { usePermissions } from '../context/permissions-context';
+import { Loader2, ChevronRight, Plus, Trash2, GripVertical } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
+import { Card } from '@/components/ui/card';
+import { DataTableRowActions } from './data-table-row-actions';
+import { Button } from '@/components/ui/button';
+import { CreateModuleDialog } from './create-module-dialog';
+import { PermissionsDeleteDialog } from './permissions-delete-dialog';
+import { createColumns } from './permissions-columns';
+import { PermissionsFormDialog } from './permissions-form-dialog';
+import {
+  DndContext,
+  DragOverlay,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  useDroppable,
+} from '@dnd-kit/core';
+import { SortableContext, useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { SortableTreeItem } from './sortable-tree';
+import { toast } from 'react-toastify';
+import { permissionsApi } from '@/api/permissionApi';
+import Loading from '@/components/common/loading';
+import { Input } from '@/components/ui/input';
+import { PermissionsPrimaryButtons } from './permissions-primary-buttons';
+import { Table, TableHeader, TableRow, TableHead } from '@/components/ui/table';
+
+// Component cho mỗi permission item có thể kéo thả
+function SortablePermissionItem({ permission, onDelete }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: permission.permissionId });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="flex items-center justify-between rounded-md border border-border bg-white dark:bg-darker-2 px-4 py-2 transition-colors duration-300"
+    >
+      <div className="flex items-center gap-4">
+        <button
+          className="cursor-grab touch-none"
+          {...attributes}
+          {...listeners}
+        >
+          <GripVertical className="h-4 w-4 text-muted-foreground dark:text-text-white transition-colors duration-300" />
+        </button>
+        <div className="space-y-1">
+          <div className="font-medium text-text-primary dark:text-white transition-colors duration-300">{permission.name}</div>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground dark:text-text-white transition-colors duration-300">
+            <Badge variant="secondary">{permission.httpMethod}</Badge>
+            <span>{permission.apiPath}</span>
+          </div>
+        </div>
+      </div>
+      <DataTableRowActions
+        row={{ original: permission }}
+        onDelete={onDelete}
+      />
+    </div>
+  );
+}
+
+function DroppableArea({ children }) {
+  const { setNodeRef, isOver } = useDroppable({
+    id: 'other-permissions',
+  });
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={cn(
+        'space-y-2 p-4 rounded-lg border-2 border-dashed border-border bg-white dark:bg-darker-2 transition-colors duration-200',
+        isOver && 'border-primary bg-muted/60 dark:bg-primary/20 scale-[1.02]',
+        !children &&
+          'min-h-[100px] flex items-center justify-center text-muted-foreground dark:text-text-white'
+      )}
+    >
+      <h3 className="text-lg font-medium text-text-primary dark:text-white transition-colors duration-300">Permissions khác</h3>
+      {children || <p className='text-text-primary dark:text-white transition-colors duration-300'>Kéo permission vào đây</p>}
+    </div>
+  );
+}
+
+export function PermissionsTable() {
+  const { modules, permissions, isLoading, setOpen, setCurrentRow, refetch } =
+    usePermissions();
+  const [expandedModules, setExpandedModules] = useState({});
+  const [openCreateModule, setOpenCreateModule] = useState(false);
+  const [deleteData, setDeleteData] = useState(null);
+  const [openCreatePermission, setOpenCreatePermission] = useState(false);
+  const [activeId, setActiveId] = useState(null);
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    })
+  );
+  const [collapsedModules, setCollapsedModules] = useState(() => {
+    // Khởi tạo state với tất cả modules đều đóng
+    return modules.reduce((acc, moduleName) => {
+      acc[moduleName] = true; // true = collapsed
+      return acc;
+    }, {});
+  });
+  const [isDragging, setIsDragging] = useState(false);
+
+  // Cập nhật collapsedModules khi modules thay đổi
+  useEffect(() => {
+    setCollapsedModules((prev) => {
+      const newState = { ...prev };
+      modules.forEach((moduleName) => {
+        if (!(moduleName in newState)) {
+          newState[moduleName] = true; // Mặc định đóng cho module mới
+        }
+      });
+      return newState;
+    });
+  }, [modules]);
+
+  const toggleModule = (moduleId) => {
+    setExpandedModules((prev) => ({
+      ...prev,
+      [moduleId]: !prev[moduleId],
+    }));
+  };
+
+  const toggleCollapse = (moduleId) => {
+    setCollapsedModules((prev) => ({
+      ...prev,
+      [moduleId]: !prev[moduleId],
+    }));
+  };
+
+  const handleDelete = (permission) => {
+    setDeleteData({
+      type: 'permission',
+      data: {
+        permissionId: permission.permissionId,
+        name: permission.name,
+        module: permission.module,
+      },
+    });
+  };
+
+  const handleDragStart = (event) => {
+    setActiveId(event.active.id);
+    setIsDragging(true);
+  };
+
+  const handleDragEnd = async (event) => {
+    setIsDragging(false);
+    setActiveId(null);
+
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const draggedPermission = permissions.find(
+      (p) => p.permissionId === active.id
+    );
+    if (!draggedPermission) return;
+
+    try {
+      let newModule = null;
+
+      if (modules.includes(over.id)) {
+        newModule = over.id;
+      } else {
+        newModule = null;
+      }
+
+      if (newModule !== draggedPermission.module) {
+        const response = await permissionsApi.updatePermission(
+          draggedPermission.permissionId,
+          {
+            module: newModule || undefined,
+          }
+        );
+
+        if (!response?.data?.success) {
+          toast.error(response?.data?.message || 'Không thể cập nhật module');
+          return;
+        }
+
+        await refetch();
+        toast.success(response?.data?.message || 'Cập nhật module thành công');
+      }
+    } catch (error) {
+      const message =
+        error?.response?.data?.message || error?.message || 'Có lỗi xảy ra';
+      toast.error(message);
+    }
+  };
+
+  const columns = createColumns(expandedModules, handleDelete);
+
+  if (isLoading) {
+    return <Loading />;
+  }
+
+  return (
+    <DndContext
+      sensors={sensors}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+    >
+      <div className="space-y-4">
+        <div className="flex justify-between items-center">
+          <h2 className="text-lg font-medium text-text-primary dark:text-white transition-colors duration-300">Danh sách Module</h2>
+          <div className="flex gap-2">
+            <Button size="sm" onClick={() => setOpenCreatePermission(true)}>
+              <Plus className="mr-2 h-3 w-3" />
+              Tạo Permission
+            </Button>
+            <Button size="sm" onClick={() => setOpenCreateModule(true)}>
+              <Plus className="mr-2 h-3 w-3" />
+              Tạo Module
+            </Button>
+          </div>
+        </div>
+
+        {/* Modules và Permissions */}
+        <div className="grid gap-2 max-h-[calc(100vh-12rem)] overflow-y-auto pr-2">
+          {modules.map((moduleName) => {
+            const modulePermissions = permissions.filter(
+              (p) => p.module === moduleName
+            );
+
+            return (
+              <SortableContext
+                key={moduleName}
+                items={modulePermissions.map((p) => p.permissionId)}
+              >
+                <SortableTreeItem
+                  id={moduleName}
+                  collapsed={collapsedModules[moduleName]}
+                  onCollapse={() => toggleCollapse(moduleName)}
+                  permission={{
+                    permissionId: moduleName,
+                    name: moduleName,
+                    httpMethod: 'GET',
+                    apiPath: '',
+                    module: moduleName,
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString(),
+                    createdBy: 'system',
+                  }}
+                  onDelete={(permission) =>
+                    setDeleteData({
+                      type: 'module',
+                      data: {
+                        name: permission.name,
+                        module: permission.module,
+                      },
+                    })
+                  }
+                  isModule
+                >
+                  {modulePermissions.map((permission) => (
+                    <SortableTreeItem
+                      key={permission.permissionId}
+                      id={permission.permissionId}
+                      permission={permission}
+                      onDelete={handleDelete}
+                    />
+                  ))}
+                </SortableTreeItem>
+              </SortableContext>
+            );
+          })}
+        </div>
+
+        {/* Khu vực Permissions khác */}
+        {(isDragging || permissions.some((p) => !p.module)) && (
+          <DroppableArea>
+            <SortableContext
+              items={permissions
+                .filter((p) => !p.module)
+                .map((p) => p.permissionId)}
+            >
+              <div className="grid gap-2">
+                {permissions
+                  .filter((p) => !p.module)
+                  .map((permission) => (
+                    <SortableTreeItem
+                      key={permission.permissionId}
+                      id={permission.permissionId}
+                      permission={permission}
+                      onDelete={handleDelete}
+                    />
+                  ))}
+              </div>
+            </SortableContext>
+          </DroppableArea>
+        )}
+
+        <CreateModuleDialog
+          open={openCreateModule}
+          onOpenChange={setOpenCreateModule}
+        />
+
+        <PermissionsFormDialog
+          open={openCreatePermission}
+          onOpenChange={setOpenCreatePermission}
+        />
+
+        {deleteData && (
+          <PermissionsDeleteDialog
+            open={!!deleteData}
+            onOpenChange={(open) => !open && setDeleteData(null)}
+            type={deleteData.type}
+            data={deleteData.data}
+          />
+        )}
+
+        {/* Hiển thị overlay khi kéo */}
+        <DragOverlay
+          dropAnimation={{
+            duration: 200,
+            easing: 'cubic-bezier(0.18, 0.67, 0.6, 1.22)',
+          }}
+        >
+          {activeId ? (
+            <div className="rounded-md border border-border bg-white dark:bg-darker-2 px-4 py-2 shadow-lg scale-105 text-text-primary dark:text-white transition-colors duration-300">
+              {permissions.find((p) => p.permissionId === activeId)?.name}
+            </div>
+          ) : null}
+        </DragOverlay>
+      </div>
+    </DndContext>
+  );
+}
+

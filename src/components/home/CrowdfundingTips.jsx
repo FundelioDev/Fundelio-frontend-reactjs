@@ -76,14 +76,14 @@ export const CrowdfundingTips = ({
   subtitle = 'Học hỏi từ những chiến dịch xuất sắc và chuyên gia hàng đầu',
 }) => {
   return (
-    <section className="py-12 sm:py-16 lg:py-20 bg-white dark:bg-black transition-colors duration-300">
+    <section className="py-12 sm:py-16 lg:py-20 bg-background-light-2 dark:bg-darker transition-colors duration-300">
       <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-10 sm:mb-12 lg:mb-16">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-text-primary dark:text-text-white mb-4 transition-colors duration-300">
+          <h2 className="text-3xl sm:text-hero font-bold text-text-primary dark:text-white mb-4 transition-colors duration-300">
             {title}
           </h2>
-          <p className="text-lg text-text-secondary dark:text-gray-400 max-w-2xl mx-auto transition-colors duration-300">
+          <p className="text-lg text-text-secondary dark:text-text-white max-w-2xl mx-auto transition-colors duration-300">
             {subtitle}
           </p>
         </div>
@@ -93,7 +93,7 @@ export const CrowdfundingTips = ({
           {tips.map((tip) => (
             <article
               key={tip.id}
-              className="group bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-sm ring-1 ring-gray-200 dark:ring-gray-700 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:ring-black/10 dark:hover:ring-primary-500/50"
+              className="group bg-white dark:bg-darker-2 rounded-2xl overflow-hidden shadow-sm border-border transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:ring-black/10 dark:hover:ring-primary-500/50"
             >
               {/* Image */}
               <div className="relative aspect-[16/9] overflow-hidden">
@@ -115,19 +115,19 @@ export const CrowdfundingTips = ({
               <div className="p-5 sm:p-6">
                 {/* Read Time */}
                 {tip.readTime && (
-                  <div className="flex items-center gap-2 text-xs text-text-secondary dark:text-gray-400 mb-3 transition-colors duration-300">
+                  <div className="flex items-center gap-2 text-xs text-text-secondary dark:text-text-white mb-3 transition-colors duration-300">
                     <Clock className="w-4 h-4" />
                     <span>{tip.readTime}</span>
                   </div>
                 )}
 
                 {/* Title */}
-                <h3 className="text-xl font-bold text-text-primary dark:text-text-white mb-3 line-clamp-2 transition-colors duration-300 group-hover:text-primary dark:group-hover:text-primary-400">
+                <h3 className="text-xl font-bold text-text-primary dark:text-white mb-3 line-clamp-2 transition-colors duration-300 group-hover:text-primary dark:group-hover:text-primary-400">
                   {tip.title}
                 </h3>
 
                 {/* Excerpt */}
-                <p className="text-text-secondary dark:text-gray-400 line-clamp-2 mb-4 leading-relaxed transition-colors duration-300">
+                <p className="text-text-secondary dark:text-text-white line-clamp-2 mb-4 leading-relaxed transition-colors duration-300">
                   {tip.excerpt}
                 </p>
 
@@ -148,7 +148,7 @@ export const CrowdfundingTips = ({
         <div className="text-center mt-10 sm:mt-12">
           <a
             href="/blog"
-            className="inline-flex items-center gap-2 px-8 py-3 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-text-primary dark:text-text-white font-semibold rounded-lg transition-all duration-300 hover:shadow-md"
+            className="inline-flex items-center gap-2 px-8 py-3 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-text-primary dark:text-white font-semibold rounded-lg transition-all duration-300 hover:shadow-md"
           >
             Xem tất cả bài viết
           </a>

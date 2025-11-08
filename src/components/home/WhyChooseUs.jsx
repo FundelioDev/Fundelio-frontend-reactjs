@@ -46,14 +46,14 @@ export const WhyChooseUs = ({
   subtitle = 'Nền tảng crowdfunding hàng đầu dành cho những người có ý tưởng táo bạo',
 }) => {
   return (
-    <section className="pb-12 sm:py-16 lg:py-20 bg-gradient-to-b from-white to-gray-50 dark:from-black dark:to-black/90 transition-colors duration-300">
+    <section className="pb-12 sm:py-16 lg:py-20 bg-background-light-2 dark:bg-darker transition-colors duration-300">
       <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-10 sm:mb-12 lg:mb-16">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-text-primary dark:text-text-white mb-4 transition-colors duration-300">
+          <h2 className="text-3xl sm:text-hero font-bold text-text-primary dark:text-white mb-4 transition-colors duration-300">
             {title}
           </h2>
-          <p className="text-lg text-text-secondary dark:text-gray-400 max-w-2xl mx-auto transition-colors duration-300">
+          <p className="text-lg text-text-secondary dark:text-text-white max-w-2xl mx-auto transition-colors duration-300">
             {subtitle}
           </p>
         </div>
@@ -63,7 +63,7 @@ export const WhyChooseUs = ({
           {reasons.map((reason, index) => (
             <div
               key={index}
-              className="group relative bg-white dark:bg-gray-800 rounded-2xl p-6 sm:p-8 shadow-sm ring-1 ring-gray-200 dark:ring-gray-700 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:ring-primary/50 dark:hover:ring-primary-500/50"
+              className="group relative bg-white dark:bg-darker-2 rounded-2xl p-6 sm:p-8 shadow-sm border-border transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:ring-primary/50 dark:hover:ring-primary-500/50"
             >
               {/* Background Gradient Effect */}
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent dark:from-primary/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -76,12 +76,12 @@ export const WhyChooseUs = ({
                 </div>
 
                 {/* Title */}
-                <h3 className="text-xl sm:text-2xl font-bold text-text-primary dark:text-text-white mb-3 transition-colors duration-300">
+                <h3 className="text-xl sm:text-2xl font-bold text-text-primary dark:text-white mb-3 transition-colors duration-300">
                   {reason.title}
                 </h3>
 
                 {/* Description */}
-                <p className="text-text-secondary dark:text-gray-400 leading-relaxed transition-colors duration-300">
+                <p className="text-text-secondary dark:text-text-white leading-relaxed transition-colors duration-300">
                   {reason.description}
                 </p>
               </div>
@@ -91,7 +91,7 @@ export const WhyChooseUs = ({
 
         {/* Bottom CTA */}
         <div className="text-center mt-12 sm:mt-16">
-          <p className="text-lg text-text-secondary dark:text-gray-400 mb-6 transition-colors duration-300">
+          <p className="text-lg text-text-secondary dark:text-text-white mb-6 transition-colors duration-300">
             Hơn{' '}
             <strong className="text-primary dark:text-primary-400">
               10,000+
@@ -107,7 +107,7 @@ export const WhyChooseUs = ({
             </a>
             <a
               href="/about"
-              className="inline-flex items-center gap-2 px-6 py-3 border-2 border-gray-300 dark:border-gray-600 hover:border-primary dark:hover:border-primary-400 text-text-primary dark:text-text-white font-semibold rounded-lg transition-all duration-300"
+              className="inline-flex items-center gap-2 px-6 py-3 border-2 border-gray-300 dark:border-gray-600 hover:border-primary dark:hover:border-primary-400 text-text-primary dark:text-white font-semibold rounded-lg transition-all duration-300"
             >
               Tìm hiểu về chúng tôi
             </a>

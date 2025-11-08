@@ -11,13 +11,14 @@ const initialState = {
   // BASICS STATE - WITH SAMPLE DATA
   basics: {
     title: 'Papercuts: A Party Game for the Rude and Well-Read',
-    desc: 'Papercuts is a rowdy card game about books and writing brought to you by Electric Literature.',
-    category: 'Trò chơi',
-    image_url: 'https://images.unsplash.com/photo-1611996575749-79a3a250f948?w=1024&h=576&fit=crop',
-    intro_video_url: null,
-    start_date: getDateString(0), // Today
-    end_date: getDateString(60), // 60 days from now
-    acceptedTerms: true,
+    description: 'Papercuts is a rowdy card game about books and writing brought to you by Electric Literature.',
+    goalAmount: 10000,
+    category: 'games',
+    // imageUrl: 'https://images.unsplash.com/photo-1611996575749-79a3a250f948?w=1024&h=576&fit=crop', // Not in API yet
+    introVideoUrl: null,
+    startTime: getDateString(0), // Today
+    endTime: getDateString(60), // 60 days from now
+    acceptedTerms: true, // Not sent to API, only for UI validation
   },
 
   // STORY STATE - WITH SAMPLE BLANKS

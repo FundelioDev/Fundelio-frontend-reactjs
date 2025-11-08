@@ -1,32 +1,70 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Plus } from 'lucide-react';
+import { Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 import Header from '@/components/common/Header';
 import Button from '@/components/common/Button';
+import CampaignDashboardItem from '@/components/campaign/dashboard/CampaignDashboardItem';
+import { useAuth } from '@/contexts/AuthContext';
+import { campaignApi } from '@/api/campaignApi';
+import toast from 'react-hot-toast';
 
 /**
  * DashboardPage - User's dashboard showing their campaigns
  */
 export default function DashboardPage() {
     const navigate = useNavigate();
+    const { user } = useAuth();
 
-    // Mock campaigns data - empty for now to show empty state
-    const campaigns = [];
-    // const campaigns = [
-    //   {
-    //     id: '1',
-    //     title: 'Papercuts: A Party Game',
-    //     status: 'draft',
-    //     image: 'https://images.unsplash.com/photo-1611996575749-79a3a250f948?w=600&h=400&fit=crop',
-    //     pledged: 0,
-    //     goal: 50000,
-    //     backers: 0,
-    //     daysLeft: 30,
-    //   },
-    // ];
+    const [campaigns, setCampaigns] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [pagination, setPagination] = useState({
+        currentPage: 1,
+        pageSize: 9,
+        totalPages: 1,
+        totalElements: 0,
+        hasNext: false,
+        hasPrevious: false,
+    });
+
+    // Fetch campaigns
+    useEffect(() => {
+        const fetchCampaigns = async () => {
+            if (!user?.userId) {
+                setLoading(false);
+                return;
+            }
+
+            try {
+                setLoading(true);
+                const response = await campaignApi.getUserCampaigns(user.userId, {
+                    page: pagination.currentPage,
+                    size: pagination.pageSize,
+                    sort: 'createdAt,desc',
+                });
+
+                if (response?.data?.data) {
+                    const { content, meta } = response.data.data;
+                    setCampaigns(content);
+                    setPagination(meta);
+                }
+            } catch (error) {
+                console.error('Error fetching campaigns:', error);
+                toast.error('Không thể tải danh sách chiến dịch');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchCampaigns();
+    }, [user?.userId, pagination.currentPage, pagination.pageSize]);
 
     const handleCreateCampaign = () => {
         navigate('/campaigns/create');
+    };
+
+    const handlePageChange = (newPage) => {
+        setPagination(prev => ({ ...prev, currentPage: newPage }));
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     return (
@@ -45,7 +83,15 @@ export default function DashboardPage() {
                         </p>
                     </div>
 
-                    {campaigns.length === 0 ? (
+                    {loading ? (
+                        /* Loading State */
+                        <div className="flex items-center justify-center py-20">
+                            <div className="text-center">
+                                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+                                <p className="mt-4 text-muted-foreground">Đang tải chiến dịch...</p>
+                            </div>
+                        </div>
+                    ) : campaigns.length === 0 ? (
                         /* Empty State */
                         <div className="flex flex-col items-center justify-center py-20">
                             <div className="w-full max-w-md text-center">
@@ -99,7 +145,7 @@ export default function DashboardPage() {
                             {/* Create New Campaign Button */}
                             <div className="mb-6 flex justify-between items-center">
                                 <h2 className="text-xl font-semibold text-text-primary dark:text-white">
-                                    Chiến dịch của bạn ({campaigns.length})
+                                    Chiến dịch của bạn ({pagination.totalElements})
                                 </h2>
                                 <Button
                                     variant="gradient"
@@ -111,72 +157,71 @@ export default function DashboardPage() {
                                 </Button>
                             </div>
 
-                            {/* Campaigns Grid */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {/* Campaigns List (horizontal items) */}
+                            <div className="space-y-6 mb-8">
                                 {campaigns.map((campaign) => (
-                                    <Link
-                                        key={campaign.id}
-                                        to={`/campaigns/${campaign.id}/edit`}
-                                        className="group bg-white dark:bg-darker-2 rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
-                                    >
-                                        {/* Campaign Image */}
-                                        <div className="aspect-video overflow-hidden bg-muted">
-                                            <img
-                                                src={campaign.image}
-                                                alt={campaign.title}
-                                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                                            />
-                                        </div>
-
-                                        {/* Campaign Info */}
-                                        <div className="p-4">
-                                            <h3 className="text-lg font-semibold text-text-primary dark:text-white mb-2 line-clamp-2">
-                                                {campaign.title}
-                                            </h3>
-
-                                            {/* Status Badge */}
-                                            <div className="mb-3">
-                                                <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${campaign.status === 'active'
-                                                    ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                                                    : campaign.status === 'draft'
-                                                        ? 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400'
-                                                        : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
-                                                    }`}>
-                                                    {campaign.status === 'active' ? 'Đang chạy' : campaign.status === 'draft' ? 'Nháp' : 'Đã kết thúc'}
-                                                </span>
-                                            </div>
-
-                                            {/* Stats */}
-                                            <div className="space-y-2 text-sm text-muted-foreground">
-                                                <div className="flex justify-between">
-                                                    <span>Đã huy động:</span>
-                                                    <span className="font-semibold text-text-primary dark:text-white">
-                                                        ${campaign.pledged.toLocaleString()}
-                                                    </span>
-                                                </div>
-                                                <div className="flex justify-between">
-                                                    <span>Mục tiêu:</span>
-                                                    <span className="font-semibold text-text-primary dark:text-white">
-                                                        ${campaign.goal.toLocaleString()}
-                                                    </span>
-                                                </div>
-                                                <div className="flex justify-between">
-                                                    <span>Nhà tài trợ:</span>
-                                                    <span className="font-semibold text-text-primary dark:text-white">
-                                                        {campaign.backers}
-                                                    </span>
-                                                </div>
-                                                <div className="flex justify-between">
-                                                    <span>Còn lại:</span>
-                                                    <span className="font-semibold text-text-primary dark:text-white">
-                                                        {campaign.daysLeft} ngày
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </Link>
+                                    <CampaignDashboardItem
+                                        key={campaign.campaignId}
+                                        campaign={campaign}
+                                    />
                                 ))}
                             </div>
+
+                            {/* Pagination */}
+                            {pagination.totalPages > 1 && (
+                                <div className="flex items-center justify-center gap-4 mt-8">
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => handlePageChange(pagination.currentPage - 1)}
+                                        disabled={!pagination.hasPrevious}
+                                        className="flex items-center gap-2"
+                                    >
+                                        <ChevronLeft className="w-4 h-4" />
+                                        Trước
+                                    </Button>
+
+                                    <div className="flex items-center gap-2">
+                                        {[...Array(pagination.totalPages)].map((_, index) => {
+                                            const page = index + 1;
+                                            // Show first, last, current, and adjacent pages
+                                            if (
+                                                page === 1 ||
+                                                page === pagination.totalPages ||
+                                                (page >= pagination.currentPage - 1 && page <= pagination.currentPage + 1)
+                                            ) {
+                                                return (
+                                                    <button
+                                                        key={page}
+                                                        onClick={() => handlePageChange(page)}
+                                                        className={`w-10 h-10 rounded-lg font-medium transition-colors ${page === pagination.currentPage
+                                                            ? 'bg-primary text-white'
+                                                            : 'bg-white dark:bg-darker-2 text-text-primary dark:text-white hover:bg-primary/10'
+                                                            }`}
+                                                    >
+                                                        {page}
+                                                    </button>
+                                                );
+                                            } else if (
+                                                page === pagination.currentPage - 2 ||
+                                                page === pagination.currentPage + 2
+                                            ) {
+                                                return <span key={page} className="text-muted-foreground">...</span>;
+                                            }
+                                            return null;
+                                        })}
+                                    </div>
+
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => handlePageChange(pagination.currentPage + 1)}
+                                        disabled={!pagination.hasNext}
+                                        className="flex items-center gap-2"
+                                    >
+                                        Sau
+                                        <ChevronRight className="w-4 h-4" />
+                                    </Button>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>

@@ -491,7 +491,7 @@ const LandingPage = () => {
 
   return (
     <div className='relative bg-background'>
-      <Header variant='light' />
+      {/* <Header variant='light' /> */}
 
       {/* Fullpage Sections Container */}
       <div className='relative h-screen overflow-hidden'>

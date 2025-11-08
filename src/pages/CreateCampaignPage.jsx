@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import { Toaster } from 'react-hot-toast';
 import toast from 'react-hot-toast';
 import useBlanks from '@/hooks/useBlanks';
-import CreateCampaignTabs from '@/components/create/CreateCampaignTabs';
+import CreateCampaignTabs from '@/components/campaign/create/CreateCampaignTabs';
 import CreateCampaignHeader from '@/components/common/CreateCampaignHeader';
 import Footer from '@/components/common/Footer';
 import { generatePreviewId, savePreviewData } from '@/utils/previewStorage';
@@ -43,7 +43,7 @@ export default function CreateCampaignPage() {
 
   const handlePreview = () => {
     // Validate basics data
-    if (!basicsData || !basicsData.title || !basicsData.desc) {
+    if (!basicsData || !basicsData.title || !basicsData.description) {
       toast.error('Vui lòng điền đầy đủ thông tin cơ bản (Tiêu đề và Mô tả)');
       setActiveTab('basic');
       return;

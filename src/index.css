@@ -53,6 +53,7 @@
   --color-background-light: #f5f5f5;
   --color-background-light-2: #f6f8ff; 
   --color-background-lighter: #fafafa;
+  --color-background-header-dark: #1b1b1d;
 
   /* Font family */
   --font-family-sans: 'Source Sans 3', 'Source Sans Pro', system-ui,

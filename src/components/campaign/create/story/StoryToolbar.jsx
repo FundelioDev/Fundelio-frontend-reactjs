@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { Heading2, Image, Video, Save } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { buildVideoEmbed } from '../../../utils/embed';
+import { buildVideoEmbed } from '../../../../utils/embed';
 import VideoModal from './VideoModal';
 import ColorPicker from './ColorPicker';
 

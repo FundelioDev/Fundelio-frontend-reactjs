@@ -15,7 +15,7 @@ function transformPreviewData(previewData) {
   console.log('Transforming preview data:', previewData);
 
   // Calculate days left
-  const endDate = basics?.end_date ? new Date(basics.end_date) : new Date();
+  const endDate = basics?.endTime ? new Date(basics.endTime) : new Date();
   const today = new Date();
   const daysLeft = Math.max(0, Math.ceil((endDate - today) / (1000 * 60 * 60 * 24)));
 
@@ -23,20 +23,20 @@ function transformPreviewData(previewData) {
     campaign: {
       campaign_id: 'preview',
       title: basics?.title || 'Untitled Campaign',
-      description: basics?.desc || '',
-      goal_amount: 50000.00,
+      description: basics?.description || '',
+      goal_amount: basics?.goalAmount || 50000.00,
       pledged_amount: 0,
       backers_count: 0,
       category: basics?.category || 'Uncategorized',
-      intro_video_url: basics?.intro_video_url || null,
-      start_date: basics?.start_date || new Date().toISOString().split('T')[0],
-      end_date: basics?.end_date || new Date().toISOString().split('T')[0],
+      intro_video_url: basics?.introVideoUrl || null,
+      start_date: basics?.startTime || new Date().toISOString().split('T')[0],
+      end_date: basics?.endTime || new Date().toISOString().split('T')[0],
       status: 'preview',
-      imageUrl: basics?.image_url || 'https://images.unsplash.com/photo-1593305841991-05c297ba4575?q=80&w=1200&auto=format&fit=crop',
+      imageUrl: basics?.imageUrl || 'https://images.unsplash.com/photo-1593305841991-05c297ba4575?q=80&w=1200&auto=format&fit=crop',
       currency: 'USD',
       daysLeft,
       pledged: 0,
-      goal: 50000.00,
+      goal: basics?.goalAmount || 50000.00,
       backers: 0,
     },
     rewards: rewards?.rewards || [],

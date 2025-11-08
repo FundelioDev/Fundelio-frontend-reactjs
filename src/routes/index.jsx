@@ -18,6 +18,8 @@ import PermissionsPage from '@/pages/admin/PermissionsPage';
 import AdminCampaignsPage from '@/pages/admin/AdminCampaignsPage';
 import WalletPage from '@/pages/WalletPage';
 import YourProjectsPage from '@/pages/YourProjectsPage';
+import NotFoundPage from '@/pages/NotFoundPage';
+import ForbiddenPage from '@/pages/ForbiddenPage';
 
 /**
  * Application routes configuration
@@ -45,6 +47,10 @@ export const router = createBrowserRouter([
       { path: 'wallet', element: <WalletPage /> },
 
       { path: 'your-projects', element: <YourProjectsPage /> },
+
+      // Error pages
+      { path: '403', element: <ForbiddenPage /> },
+      { path: '404', element: <NotFoundPage /> },
 
       // {
       //   path: 'auth',
@@ -78,5 +84,10 @@ export const router = createBrowserRouter([
       { path: 'permissions', element: <PermissionsPage /> },
       { path: 'campaigns', element: <AdminCampaignsPage /> },
     ],
+  },
+  // Catch all 404 - must be last
+  {
+    path: '*',
+    element: <NotFoundPage />,
   },
 ]);

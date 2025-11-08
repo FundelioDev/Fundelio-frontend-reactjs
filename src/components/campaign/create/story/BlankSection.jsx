@@ -1,5 +1,5 @@
 import { useRef, useEffect, memo } from 'react';
-import { buildVideoEmbed } from '../../../utils/embed';
+import { buildVideoEmbed } from '../../../../utils/embed';
 
 /**
  * BlankSection component - A single editable section with title and content

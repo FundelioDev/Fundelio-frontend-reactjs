@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useAuth } from '@/contexts/AuthContext';
 
 const sidebarItems = [
   {
@@ -49,6 +50,7 @@ export default function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const location = useLocation();
   const { toggleTheme, isDark } = useTheme();
+  const { user, logout } = useAuth();
 
   const isActive = (path) => {
     if (path === '/admin') {
@@ -56,6 +58,38 @@ export default function AdminLayout() {
     }
     return location.pathname.startsWith(path);
   };
+
+  // Tạo avatar URL từ tên nếu không có avatar
+  const avatarUrl = useMemo(() => {
+    if (user?.avatar) {
+      return user.avatar;
+    }
+
+    // Lấy tên từ user để tạo avatar
+    const firstName = user?.firstName || user?.first_name || '';
+    const lastName = user?.lastName || user?.last_name || '';
+    const fullName =
+      `${firstName} ${lastName}`.trim() || user?.email || user?.name || 'User';
+
+    // Encode tên để dùng trong URL
+    const encodedName = encodeURIComponent(fullName);
+    return `https://ui-avatars.com/api/?name=${encodedName}&size=150&background=random`;
+  }, [user]);
+
+  // Lấy tên hiển thị
+  const displayName = useMemo(() => {
+    if (user?.firstName || user?.first_name) {
+      const firstName = user?.firstName || user?.first_name || '';
+      const lastName = user?.lastName || user?.last_name || '';
+      return (
+        `${firstName} ${lastName}`.trim() || user?.email || user?.name || 'User'
+      );
+    }
+    return user?.email || user?.name || 'User';
+  }, [user]);
+
+  // Lấy email
+  const userEmail = user?.email || '';
 
   return (
     <div className='flex h-screen bg-gray-50 dark:bg-darker'>
@@ -78,7 +112,11 @@ export default function AdminLayout() {
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className='ml-auto'
           >
-            {sidebarOpen ? <X size={20} /> : <Menu size={20} className='text-gray-700 dark:text-gray-300' />}
+            {sidebarOpen ? (
+              <X size={20} />
+            ) : (
+              <Menu size={20} className='text-gray-700 dark:text-gray-300' />
+            )}
           </Button>
         </div>
 
@@ -113,7 +151,7 @@ export default function AdminLayout() {
             variant='ghost'
             className='w-full justify-start text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
             onClick={() => {
-              // Handle logout
+              logout();
               window.location.href = '/';
             }}
           >
@@ -159,16 +197,28 @@ export default function AdminLayout() {
             </Button>
             <div className='flex items-center space-x-3'>
               <img
-                src='https://i.pravatar.cc/150?img=1'
-                alt='Admin'
+                src={avatarUrl}
+                alt={displayName}
                 className='w-9 h-9 rounded-full ring-2 ring-gray-200 dark:ring-gray-700'
+                onError={(e) => {
+                  // Fallback nếu avatar lỗi
+                  const firstName = user?.firstName || user?.first_name || '';
+                  const lastName = user?.lastName || user?.last_name || '';
+                  const fullName =
+                    `${firstName} ${lastName}`.trim() ||
+                    user?.email ||
+                    user?.name ||
+                    'User';
+                  const encodedName = encodeURIComponent(fullName);
+                  e.target.src = `https://ui-avatars.com/api/?name=${encodedName}&size=150&background=random`;
+                }}
               />
               <div className='hidden md:block'>
                 <p className='text-sm font-medium text-gray-800 dark:text-gray-100'>
-                  Admin User
+                  {displayName}
                 </p>
-                <p className='text-xs text-gray-500 dark:text-text-white'>
-                  admin@fundelio.com
+                <p className='text-xs text-gray-500 dark:text-gray-400'>
+                  {userEmail || 'Chưa có email'}
                 </p>
               </div>
             </div>

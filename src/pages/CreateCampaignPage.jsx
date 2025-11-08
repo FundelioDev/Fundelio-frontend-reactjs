@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import { Toaster } from 'react-hot-toast';
 import toast from 'react-hot-toast';
 import useBlanks from '@/hooks/useBlanks';
-import CreateCampaignTabs from '@/components/create/CreateCampaignTabs';
+import CreateCampaignTabs from '@/components/campaign/create/CreateCampaignTabs';
 import CreateCampaignHeader from '@/components/common/CreateCampaignHeader';
 import Footer from '@/components/common/Footer';
 import { generatePreviewId, savePreviewData } from '@/utils/previewStorage';

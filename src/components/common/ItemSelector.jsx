@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react"
 import Button from "./Button"
 import Input from "./Input"
+import { Check } from "lucide-react"
 
 export default function ItemSelector({ items, selectedItems, onConfirm, onClose }) {
   const [searchTerm, setSearchTerm] = useState("")
@@ -25,6 +26,17 @@ export default function ItemSelector({ items, selectedItems, onConfirm, onClose 
     }
   }
 
+  const handleToggleItem = (itemId) => {
+    const existing = localSelected.find((item) => item.itemId === itemId)
+    if (existing) {
+      // Remove item
+      setLocalSelected((prev) => prev.filter((item) => item.itemId !== itemId))
+    } else {
+      // Add item with default qty = 1
+      setLocalSelected((prev) => [...prev, { itemId, qty: 1 }])
+    }
+  }
+
   const handleConfirm = () => {
     onConfirm(localSelected)
   }
@@ -38,7 +50,7 @@ export default function ItemSelector({ items, selectedItems, onConfirm, onClose 
 
   return (
     <div
-      className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50 p-4 !m-0"
       onClick={handleOverlayClick}
     >
       <div
@@ -68,7 +80,7 @@ export default function ItemSelector({ items, selectedItems, onConfirm, onClose 
         </div>
 
         {/* Items List */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-6 scrollbar-primary">
           {filteredItems.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               {searchTerm ? 'Không tìm thấy thành phần nào' : 'Chưa có thành phần nào. Vui lòng tạo component trước.'}
@@ -77,43 +89,55 @@ export default function ItemSelector({ items, selectedItems, onConfirm, onClose 
             <div className="space-y-3">
               {filteredItems.map((item) => {
                 const selected = localSelected.find((s) => s.itemId === item.id)
+                const isSelected = !!selected
+
                 return (
                   <div
                     key={item.id}
-                    className="flex items-center justify-between p-4 border border-border rounded-lg hover:border-primary/50 transition-colors"
+                    onClick={() => handleToggleItem(item.id)}
+                    className={`flex items-center justify-between p-4 border rounded-lg cursor-pointer transition-all ${isSelected
+                        ? 'border-primary bg-primary/5'
+                        : 'border-border hover:border-primary/50'
+                      }`}
                   >
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-foreground truncate">{item.title}</p>
-                      {item.image && (
+                    {/* Left side: Image + Title */}
+                    <div className="flex items-center gap-4 flex-1 min-w-0">
+                      {item.image ? (
                         <img
                           src={item.image}
                           alt={item.title}
-                          className="mt-2 w-16 h-16 object-cover rounded"
+                          className="w-16 h-16 object-cover rounded flex-shrink-0"
+                        />
+                      ) : (
+                        <div className="w-16 h-16 bg-muted rounded flex items-center justify-center flex-shrink-0">
+                          <span className="text-xs text-muted-foreground">No img</span>
+                        </div>
+                      )}
+                      <p className="font-medium text-foreground truncate">{item.title}</p>
+                    </div>
+
+                    {/* Right side: Quantity input (if selected) + Check icon */}
+                    <div className="flex items-center gap-3 ml-4 flex-shrink-0">
+                      {isSelected && (
+                        <input
+                          type="number"
+                          value={selected.qty}
+                          onChange={(e) => {
+                            e.stopPropagation()
+                            const qty = Number.parseInt(e.target.value) || 1
+                            handleQtyChange(item.id, qty)
+                          }}
+                          onClick={(e) => e.stopPropagation()}
+                          className="w-16 text-center border border-border rounded px-2 py-1 bg-background text-foreground font-medium"
+                          min="1"
                         />
                       )}
-                    </div>
-                    <div className="flex items-center gap-3 ml-4">
-                      <button
-                        type="button"
-                        onClick={() => handleQtyChange(item.id, (selected?.qty || 0) - 1)}
-                        className="w-8 h-8 flex items-center justify-center text-lg font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded transition-colors"
-                      >
-                        −
-                      </button>
-                      <input
-                        type="number"
-                        value={selected?.qty || 0}
-                        onChange={(e) => handleQtyChange(item.id, Number.parseInt(e.target.value) || 0)}
-                        className="w-16 text-center border border-border rounded px-2 py-1 bg-background text-foreground font-medium"
-                        min="0"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => handleQtyChange(item.id, (selected?.qty || 0) + 1)}
-                        className="w-8 h-8 flex items-center justify-center text-lg font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded transition-colors"
-                      >
-                        +
-                      </button>
+
+                      {isSelected && (
+                        <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+                          <Check className="w-4 h-4 text-white" />
+                        </div>
+                      )}
                     </div>
                   </div>
                 )

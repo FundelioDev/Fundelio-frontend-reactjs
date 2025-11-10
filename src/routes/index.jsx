@@ -20,6 +20,7 @@ import WalletPage from '@/pages/WalletPage';
 import YourProjectsPage from '@/pages/YourProjectsPage';
 import NotFoundPage from '@/pages/NotFoundPage';
 import ForbiddenPage from '@/pages/ForbiddenPage';
+import UserProfilePage from "@/pages/UserProfilePage";
 
 /**
  * Application routes configuration
@@ -35,7 +36,7 @@ export const router = createBrowserRouter([
       { path: 'home', element: <HomePage /> },
 
       { path: 'dashboard', element: <DashboardPage /> },
-
+      { path: 'profile', element: <UserProfilePage /> },
       {
         path: 'campaigns',
         children: [
@@ -51,7 +52,6 @@ export const router = createBrowserRouter([
       // Error pages
       { path: '403', element: <ForbiddenPage /> },
       { path: '404', element: <NotFoundPage /> },
-
       // {
       //   path: 'auth',
       //   children: [

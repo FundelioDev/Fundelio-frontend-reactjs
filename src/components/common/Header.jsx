@@ -457,14 +457,16 @@ export const Header = ({ variant = 'transparent', isFixed = true }) => {
                         <LayoutDashboard className="w-4 h-4" />
                         <span>Bảng điều khiển</span>
                       </Link>
-                      <div className="border-t-2 border-border my-3"></div>
-                      <a
-                        href="#"
+
+                       {/* thêm link để connect đến page profile */}
+                      <Link
+                        to="/profile"
+                        onClick={() => setIsUserMenuOpen(false)}
                         className="flex items-center gap-3 px-3 py-2 text-sm text-text-primary dark:text-white hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-colors"
                       >
                         <User className="w-4 h-4" />
                         <span>Hồ sơ</span>
-                      </a>
+                      </Link>
 
                       <a
                         href="#"

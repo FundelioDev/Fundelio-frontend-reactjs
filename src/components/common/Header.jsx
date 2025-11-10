@@ -28,6 +28,7 @@ import {
 import Button from './Button';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
+import { useCategories } from '../../hooks/useCategories';
 
 export const Header = ({ variant = 'transparent', isFixed = true }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -41,6 +42,9 @@ export const Header = ({ variant = 'transparent', isFixed = true }) => {
   const { isLoggedIn, user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Sử dụng custom hook để lấy categories
+  const { categories, loading: loadingCategories } = useCategories();
 
   // Mock search results
   const [searchResults, setSearchResults] = useState({
@@ -99,16 +103,6 @@ export const Header = ({ variant = 'transparent', isFixed = true }) => {
       setSearchResults({ categories: [], creators: [], campaigns: [] });
     }
   }, [searchQuery]);
-
-  // Định nghĩa các danh mục
-  const categories = [
-    { name: 'Công nghệ', icon: Monitor, href: '#technology' },
-    { name: 'Âm nhạc', icon: Music, href: '#music' },
-    { name: 'Phim', icon: Film, href: '#film' },
-    { name: 'Thời trang', icon: Shirt, href: '#fashion' },
-    { name: 'Game', icon: Gamepad2, href: '#game' },
-    { name: 'Nghệ thuật', icon: Palette, href: '#art' },
-  ];
 
   // Định nghĩa các variant cho header
   const headerVariants = {
@@ -210,23 +204,33 @@ export const Header = ({ variant = 'transparent', isFixed = true }) => {
                 <div
                   className={`absolute top-full left-0 mt-4 w-48 rounded-lg shadow-lg z-50 ${currentVariant.dropdown}`}
                 >
-                  {categories.map((category, index) => {
-                    const IconComponent = category.icon;
-                    return (
-                      <a
-                        key={index}
-                        href={category.href}
-                        className={`flex items-center space-x-3 px-4 py-3 transition-colors ${currentVariant.dropdownItem
-                          } ${index === 0 ? 'rounded-t-lg' : ''} ${index === categories.length - 1 ? 'rounded-b-lg' : ''
-                          }`}
-                      >
-                        <IconComponent className='w-4 h-4' />
-                        <span className='text-sm font-medium'>
-                          {category.name}
-                        </span>
-                      </a>
-                    );
-                  })}
+                  {loadingCategories ? (
+                    <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                      Đang tải...
+                    </div>
+                  ) : categories.length > 0 ? (
+                    categories.map((category, index) => {
+                      const IconComponent = category.icon;
+                      return (
+                        <Link
+                          key={category.id}
+                          to={category.href}
+                          className={`flex items-center space-x-3 px-4 py-3 transition-colors ${currentVariant.dropdownItem
+                            } ${index === 0 ? 'rounded-t-lg' : ''} ${index === categories.length - 1 ? 'rounded-b-lg' : ''
+                            }`}
+                        >
+                          <IconComponent className={`w-4 h-4 ${category.color}`} />
+                          <span className='text-sm font-medium'>
+                            {category.name}
+                          </span>
+                        </Link>
+                      );
+                    })
+                  ) : (
+                    <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                      Không có danh mục
+                    </div>
+                  )}
                 </div>
               </>
             )}
@@ -619,19 +623,30 @@ export const Header = ({ variant = 'transparent', isFixed = true }) => {
               >
                 Khám phá
               </p>
-              {categories.map((category, index) => {
-                const IconComponent = category.icon;
-                return (
-                  <a
-                    key={index}
-                    href={category.href}
-                    className={`flex items-center space-x-3 px-4 py-2 rounded-lg ${currentVariant.navLink} hover:bg-white/10 dark:hover:bg-darker-2-light/40 transition-colors`}
-                  >
-                    <IconComponent className='w-4 h-4' />
-                    <span className='text-sm'>{category.name}</span>
-                  </a>
-                );
-              })}
+              {loadingCategories ? (
+                <div className="px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+                  Đang tải danh mục...
+                </div>
+              ) : categories.length > 0 ? (
+                categories.map((category) => {
+                  const IconComponent = category.icon;
+                  return (
+                    <Link
+                      key={category.id}
+                      to={category.href}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className={`flex items-center space-x-3 px-4 py-2 rounded-lg ${currentVariant.navLink} hover:bg-white/10 dark:hover:bg-darker-2-light/40 transition-colors`}
+                    >
+                      <IconComponent className={`w-4 h-4 ${category.color}`} />
+                      <span className='text-sm'>{category.name}</span>
+                    </Link>
+                  );
+                })
+              ) : (
+                <div className="px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+                  Không có danh mục
+                </div>
+              )}
             </div>
 
             {/* Mobile Theme Toggle */}

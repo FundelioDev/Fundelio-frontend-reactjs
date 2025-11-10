@@ -71,7 +71,7 @@ export const CreateCampaignHeader = ({
           {/* Left - Logo + Back Button (if edit mode) */}
           <div className="flex items-center gap-4 flex-shrink-0">
             <Link to="/home" className="flex-shrink-0">
-              <img src="/logo.png" alt="Fundelio" className="w-16 h-16" />
+              <img src="/logo.png" alt="Fundelio" className="w-10 h-10 md:w-12 md:h-12" />
             </Link>
 
             {isEditMode && (

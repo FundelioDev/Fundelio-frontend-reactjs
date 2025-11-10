@@ -95,7 +95,7 @@ export default function ItemSelector({ items, selectedItems, onConfirm, onClose 
                   <div
                     key={item.id}
                     onClick={() => handleToggleItem(item.id)}
-                    className={`flex items-center justify-between p-4 border rounded-lg cursor-pointer transition-all ${isSelected
+                    className={`flex items-center justify-between p-4 border rounded-sm cursor-pointer transition-all ${isSelected
                         ? 'border-primary bg-primary/5'
                         : 'border-border hover:border-primary/50'
                       }`}

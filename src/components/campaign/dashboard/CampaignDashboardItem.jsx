@@ -1,7 +1,7 @@
 import React from 'react';
 import { ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-
+import Button from '@/components/common/Button'
 /**
  * Get campaign status label in Vietnamese
  */
@@ -69,21 +69,21 @@ export default function CampaignDashboardItem({ campaign }) {
         : 'Unknown';
 
     // Mock image URL (since API doesn't have imageUrl yet)
-    const imageUrl = campaign.imageUrl || getMockImage(campaign.category);
+    const imageUrl = campaign.introImageUrl || getMockImage(campaign.category);
 
     return (
         <div
-            className="group relative bg-white dark:bg-darker-2 rounded-md p-3 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-800 hover:border-primary/20"
+            className="group relative bg-white dark:bg-darker-2 rounded-xs p-3 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-800 hover:border-primary/20"
         >
             <div className="flex flex-col sm:flex-row gap-0 sm:gap-6">
                 {/* Image Container */}
-                <div className="w-full sm:w-64 h-48 sm:h-auto rounded-md flex-shrink-0 overflow-hidden bg-gray-100 dark:bg-gray-800">
+                <div className="w-full sm:w-64 h-48 rounded-md flex-shrink-0 overflow-hidden bg-gray-100 dark:bg-gray-800">
                     <img
                         src={imageUrl}
                         alt={campaign.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         onError={(e) => {
-                            e.target.src = getMockImage(campaign.category);
+                            e.target.src = getMockImage(campaign.campaignCategory);
                         }}
                     />
                 </div>
@@ -93,7 +93,7 @@ export default function CampaignDashboardItem({ campaign }) {
                     {/* Status Badge */}
                     <div className="top-4 left-4">
                         <span
-                            className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-sm ${getCampaignStatusColor(campaign.campaignStatus)}`}
+                            className={`inline-flex items-center px-3 py-1.5 mt-2 sm:mt-0 rounded-full text-xs font-semibold backdrop-blur-sm ${getCampaignStatusColor(campaign.campaignStatus)}`}
                         >
                             {getCampaignStatusLabel(campaign.campaignStatus)}
                         </span>
@@ -115,13 +115,14 @@ export default function CampaignDashboardItem({ campaign }) {
 
                     {/* Edit Button */}
                     <div className="flex items-center justify-end">
-                        <button
+                        <Button
                             onClick={handleEdit}
-                            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-secondary text-white rounded-xl font-semibold hover:shadow-lg hover:scale-[1.02] transition-all duration-200 group/btn"
+                            variant="primary"
+                            className='rounded-xs'
                         >
                             <span>Chỉnh sửa chiến dịch</span>
                             <ChevronRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
-                        </button>
+                        </Button>
                     </div>
                 </div>
             </div>

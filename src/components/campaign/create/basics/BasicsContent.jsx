@@ -29,13 +29,25 @@ export default function BasicsContent({ campaignId, isEditMode = false }) {
   const dispatch = useDispatch();
   const basicsData = useSelector((state) => state.campaign.basics);
 
-  const [formData, setFormData] = useState(basicsData);
+  // Initialize with empty state to avoid loading sample data
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    goalAmount: '',
+    campaignCategory: '',
+    introImageUrl: '',
+    introVideoUrl: '',
+    startTime: '',
+    endTime: '',
+    acceptedTerms: false,
+  });
   const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [isUploadingVideo, setIsUploadingVideo] = useState(false);
-  const [fieldErrors, setFieldErrors] = useState({}); // Store field-specific errors
+  const [fieldErrors, setFieldErrors] = useState({}); 
   const [categories, setCategories] = useState([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
+  const [isInitialized, setIsInitialized] = useState(false); // Track if data has been loaded from Redux
   const imageInputRef = useRef(null);
   const videoInputRef = useRef(null);
 
@@ -73,11 +85,18 @@ export default function BasicsContent({ campaignId, isEditMode = false }) {
     }
   }, []);
 
-  // Sync with Redux when basicsData changes
+  // Initialize formData from Redux when basicsData is loaded (edit mode)
   useEffect(() => {
-    setFormData(basicsData);
-    console.log('BasicsContent - Synced from Redux:', basicsData);
-  }, [basicsData]);
+    console.log('BasicsContent useEffect - isEditMode:', isEditMode, 'basicsData.title:', basicsData.title, 'isInitialized:', isInitialized);
+    console.log('BasicsContent useEffect - Full basicsData:', basicsData);
+
+    // Only sync once when in edit mode and basicsData has been loaded from API
+    if (isEditMode && basicsData.title && !isInitialized) {
+      console.log('BasicsContent - Loading from Redux (edit mode):', basicsData);
+      setFormData(basicsData);
+      setIsInitialized(true);
+    }
+  }, [isEditMode, basicsData, isInitialized]); // Sync only once when data loads
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -105,7 +124,7 @@ export default function BasicsContent({ campaignId, isEditMode = false }) {
       toast.error('Vui lòng nhập mô tả ngắn');
       return;
     }
-    if (!formData.category) {
+    if (!formData.campaignCategory) {
       toast.error('Vui lòng chọn danh mục');
       return;
     }
@@ -133,7 +152,6 @@ export default function BasicsContent({ campaignId, isEditMode = false }) {
     }
 
     try {
-      // Convert dates to ISO 8601 format (YYYY-MM-DDTHH:mm:ss.sssZ)
       const startTimeISO = new Date(formData.startTime).toISOString();
       const endTimeISO = new Date(formData.endTime).toISOString();
 
@@ -141,7 +159,7 @@ export default function BasicsContent({ campaignId, isEditMode = false }) {
         title: formData.title,
         description: formData.description || undefined,
         goalAmount: Number(formData.goalAmount),
-        category: formData.category.toLowerCase(), 
+        campaignCategory: formData.campaignCategory,
         introImageUrl: formData.introImageUrl || undefined,
         introVideoUrl: formData.introVideoUrl || undefined,
         startTime: startTimeISO,
@@ -163,8 +181,25 @@ export default function BasicsContent({ campaignId, isEditMode = false }) {
         : await campaignApi.createCampaign(payload);
 
       if (response?.data?.data) {
-        // Save to Redux
-        dispatch(setBasics(formData));
+        // Update formData with response data to ensure we have latest values
+        const responseData = response.data.data;
+        const updatedFormData = {
+          ...formData,
+          title: responseData.title || formData.title,
+          description: responseData.description || formData.description,
+          goalAmount: responseData.goalAmount || formData.goalAmount,
+          campaignCategory: responseData.campaignCategory || formData.campaignCategory,
+          introImageUrl: responseData.introImageUrl || formData.introImageUrl,
+          introVideoUrl: responseData.introVideoUrl || formData.introVideoUrl,
+          startTime: responseData.startTime ? new Date(responseData.startTime).toISOString().split('T')[0] : formData.startTime,
+          endTime: responseData.endTime ? new Date(responseData.endTime).toISOString().split('T')[0] : formData.endTime,
+        };
+
+        // Update local state
+        setFormData(updatedFormData);
+
+        // Save merged data to Redux
+        dispatch(setBasics(updatedFormData));
         toast.success(successMsg, { id: toastId });
         console.log('Campaign saved:', response.data.data);
       } else {
@@ -271,8 +306,6 @@ export default function BasicsContent({ campaignId, isEditMode = false }) {
       if (videoInputRef.current) videoInputRef.current.value = '';
     }
   };
-
-  console.log('Category:', categories);
 
   return (
     <div className="space-y-8">
@@ -387,11 +420,11 @@ export default function BasicsContent({ campaignId, isEditMode = false }) {
             Danh mục dự án <span className="text-primary">*</span>
           </label>
           <select
-            name="category"
-            value={formData.category}
+            name="campaignCategory"
+            value={formData.campaignCategory}
             onChange={handleChange}
             disabled={loadingCategories}
-            className={`w-full px-4 py-2 border rounded-sm bg-background text-text-primary dark:text-white focus:ring-2 focus:border-transparent transition-all ${fieldErrors.category
+            className={`w-full px-4 py-2 border rounded-sm bg-background text-text-primary dark:text-white focus:ring-2 focus:border-transparent transition-all ${fieldErrors.campaignCategory
               ? 'border-red-500 focus:ring-red-500'
               : 'border-border focus:ring-primary'
               }`}
@@ -403,8 +436,8 @@ export default function BasicsContent({ campaignId, isEditMode = false }) {
               </option>
             ))}
           </select>
-          {fieldErrors.category && (
-            <p className="text-xs text-red-500 mt-1">{fieldErrors.category}</p>
+          {fieldErrors.campaignCategory && (
+            <p className="text-xs text-red-500 mt-1">{fieldErrors.campaignCategory}</p>
           )}
         </div>
       </div>

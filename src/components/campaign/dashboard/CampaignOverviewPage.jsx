@@ -182,8 +182,8 @@ const SubmissionSection = ({ title, description, icon: Icon, disabled, onClick }
         <button
             onClick={onClick}
             disabled={disabled}
-            className={`w-full flex items-start gap-4 p-6 rounded-xl border-2 transition-all duration-200 text-left group ${disabled
-                ? 'bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 opacity-60 cursor-not-allowed'
+            className={`w-full flex items-start gap-4 p-6 rounded-xs border-2 transition-all duration-200 text-left group ${disabled
+                ? 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 opacity-60 cursor-not-allowed'
                 : 'bg-white dark:bg-darker-2 border-primary/30 hover:border-primary hover:shadow-lg'
                 }`}
         >

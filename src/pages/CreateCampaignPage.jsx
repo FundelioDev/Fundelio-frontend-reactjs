@@ -67,15 +67,16 @@ export default function CreateCampaignPage() {
           setCampaign(campaignData);
 
           console.log('API Campaign Data:', campaignData);
-          console.log('Category from API:', campaignData.category);
+          console.log('Category from API:', campaignData.campaignCategory);
 
           // Load Basics
           const basicsData = {
             title: campaignData.title || '',
             description: campaignData.description || '',
             goalAmount: campaignData.goalAmount || 0,
-            category: campaignData.category ? campaignData.category.toLowerCase() : '',
-            introVideoUrl: campaignData.introVideoUrl || null,
+            campaignCategory: campaignData.campaignCategory || '',
+            introImageUrl: campaignData.introImageUrl || '',
+            introVideoUrl: campaignData.introVideoUrl || '',
             startTime: campaignData.startTime ? campaignData.startTime.split('T')[0] : '',
             endTime: campaignData.endTime ? campaignData.endTime.split('T')[0] : '',
             acceptedTerms: true,

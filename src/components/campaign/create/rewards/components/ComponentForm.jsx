@@ -103,6 +103,7 @@ export default function ItemForm({ item, rewards, onSave, onCancel }) {
               min="0"
               step="0.01"
               error={errors.price}
+              onWheel={(e) => e.target.blur()}
             />
             {errors.price && <p className="mt-1 text-sm text-destructive">{errors.price}</p>}
           </div>

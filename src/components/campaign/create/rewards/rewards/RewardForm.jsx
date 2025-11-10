@@ -678,9 +678,10 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
               }}
               placeholder="Không giới hạn"
               min="1"
+              onWheel={(e) => e.target.blur()}
             />
           </div>
-          {!isAddon && (
+          {/* {!isAddon && (
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">Giới hạn mỗi backer (tùy chọn)</label>
               <Input
@@ -698,24 +699,9 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
                 min="1"
               />
             </div>
-          )}
+          )} */}
         </div>
       </div>
-
-      {/* Add-ons Section - Only for rewards */}
-      {!isAddon && (
-        <div className="rounded-sm border border-border bg-white dark:bg-darker-2 p-6">
-          <Checkbox
-            checked={formData.allowAddOns}
-            onChange={(checked) => {
-              const newData = { ...formData, allowAddOns: checked }
-              setFormData(newData)
-              onChange(newData)
-            }}
-            label="Cho phép Add-ons cho phần thưởng này"
-          />
-        </div>
-      )}
 
       {/* Item Selector Modal */}
       {showItemSelector && (

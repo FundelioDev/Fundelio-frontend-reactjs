@@ -15,7 +15,6 @@ export const campaignApi = {
     },
 
     createCampaign(campaignData) {
-        console.log('Creating campaign with data:', campaignData);
         return httpService.post('/campaigns', campaignData, {
             requireToken: true,
         });

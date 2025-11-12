@@ -11,26 +11,31 @@ import { campaignApi } from '@/api/campaignApi';
 
 function transformApiData(apiData) {
   console.log('Transforming API data:', apiData);
+  console.log('campaignSections:', apiData.campaignSections);
 
   // Calculate days left
   const endDate = apiData.endTime ? new Date(apiData.endTime) : new Date();
   const today = new Date();
   const daysLeft = Math.max(0, Math.ceil((endDate - today) / (1000 * 60 * 60 * 24)));
 
+  const blanks = apiData.campaignSections ? getBlanksFromSections(apiData.campaignSections) : [];
+  console.log('Transformed blanks:', blanks);
+
   return {
     campaign: {
-      campaign_id: apiData.campaignId,
+      campaignId: apiData.campaignId,
+      founderId: apiData.founderId,
       title: apiData.title || 'Untitled Campaign',
       description: apiData.description || '',
       highlights: apiData.description || '',
-      goal_amount: apiData.goalAmount || 0,
-      pledged_amount: apiData.currentAmount || 0,
-      backers_count: apiData.totalBackers || 0,
+      goalAmount: apiData.goalAmount || 0,
+      pledgedAmount: apiData.currentAmount || 0,
+      backersCount: apiData.totalBackers || 0,
       category: apiData.campaignCategory || 'Uncategorized',
       introImageUrl: apiData.introImageUrl || 'https://images.unsplash.com/photo-1593305841991-05c297ba4575?q=80&w=1200&auto=format&fit=crop',
       introVideoUrl: apiData.introVideoUrl || null,
-      start_date: apiData.startTime ? apiData.startTime.split('T')[0] : new Date().toISOString().split('T')[0],
-      end_date: apiData.endTime ? apiData.endTime.split('T')[0] : new Date().toISOString().split('T')[0],
+      startDate: apiData.startTime ? apiData.startTime.split('T')[0] : new Date().toISOString().split('T')[0],
+      endDate: apiData.endTime ? apiData.endTime.split('T')[0] : new Date().toISOString().split('T')[0],
       status: apiData.status || 'active',
       currency: 'VND',
       daysLeft,
@@ -46,7 +51,7 @@ function transformApiData(apiData) {
     rewards: apiData.rewards || [],
     items: apiData.items || [],
     addOns: apiData.addOns || [],
-    blanks: apiData.campaignSections ? getBlanksFromSections(apiData.campaignSections) : [],
+    blanks: blanks,
     creator: {
       name: apiData.owner?.fullName || 'Creator',
       username: apiData.owner?.username || 'creator',
@@ -79,18 +84,18 @@ function transformPreviewData(previewData) {
 
   return {
     campaign: {
-      campaign_id: basics?.campaignId || 'preview', // Lấy campaignId nếu có
+      campaignId: basics?.campaignId || 'preview',
       title: basics?.title || 'Untitled Campaign',
       description: basics?.description || '',
       highlights: basics?.description || '',
-      goal_amount: basics?.goalAmount || 50000.00,
-      pledged_amount: 0,
-      backers_count: 0,
+      goalAmount: basics?.goalAmount || 50000.00,
+      pledgedAmount: 0,
+      backersCount: 0,
       category: basics?.campaignCategory || 'Uncategorized',
       introImageUrl: basics?.introImageUrl || 'https://images.unsplash.com/photo-1593305841991-05c297ba4575?q=80&w=1200&auto=format&fit=crop',
       introVideoUrl: basics?.introVideoUrl || null,
-      start_date: basics?.startTime || new Date().toISOString().split('T')[0],
-      end_date: basics?.endTime || new Date().toISOString().split('T')[0],
+      startDate: basics?.startTime || new Date().toISOString().split('T')[0],
+      endDate: basics?.endTime || new Date().toISOString().split('T')[0],
       status: 'preview',
       currency: 'VND',
       daysLeft,
@@ -124,21 +129,22 @@ function transformPreviewData(previewData) {
 
 /**
  * Get mock campaign data for public mode
+ * Using camelCase convention
  */
 function getMockCampaignData() {
   return {
     campaign: {
-      campaign_id: 'odin-3',
-      founder_id: 'founder-003',
+      campaignId: 'odin-3',
+      founderId: 'founder-003',
       title: 'Odin 3: The Ultimate 6" 120Hz OLED Gaming Handheld',
       description: '8 Elite | Exclusive 6" 120Hz AMOLED Touch Screen | Full Size Stick | 8000mAh | 390g | Ergonomic Grip | Premium Build Quality with Advanced Cooling System',
-      goal_amount: 50000.00,
-      pledged_amount: 7697612.00,
-      backers_count: 2018,
+      goalAmount: 50000.00,
+      pledgedAmount: 7697612.00,
+      backersCount: 2018,
       category: 'Game',
-      intro_video_url: 'https://www.youtube.com/embed/example',
-      start_date: '2025-10-15',
-      end_date: '2025-11-19',
+      introVideoUrl: 'https://www.youtube.com/embed/example',
+      startDate: '2025-10-15',
+      endDate: '2025-11-19',
       status: 'active',
       imageUrl: 'https://images.unsplash.com/photo-1593305841991-05c297ba4575?q=80&w=1200&auto=format&fit=crop',
       currency: 'USD',
@@ -154,14 +160,14 @@ function getMockCampaignData() {
     },
     rewards: [
       {
-        reward_id: 'reward-001',
-        campaign_id: 'odin-3',
+        rewardId: 'reward-001',
+        campaignId: 'odin-3',
         title: 'DiskPro 1TB [Kickstarter Price]',
         description: 'DiskPro Kickstarter Price! 16.7% Off the retail price!\n\nBuilt-in 1TB SSD for massive storage capacity. Ultra-fast read/write speeds up to 550MB/s. Compact and portable design fits in your pocket.',
-        image_url: 'https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?q=80&w=600&auto=format&fit=crop',
-        min_pledge_amount: 199.00,
-        ships_to: 'Only certain countries',
-        estimated_delivery: '2025-12-01',
+        imageUrl: 'https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?q=80&w=600&auto=format&fit=crop',
+        minPledgeAmount: 199.00,
+        shipsTo: 'Only certain countries',
+        estimatedDelivery: '2025-12-01',
         status: 'active',
         backers: 4,
         itemsIncluded: 4,
@@ -178,14 +184,14 @@ function getMockCampaignData() {
         ],
       },
       {
-        reward_id: 'reward-002',
-        campaign_id: 'odin-3',
+        rewardId: 'reward-002',
+        campaignId: 'odin-3',
         title: 'Early Bird Special - 2TB Edition',
         description: 'Limited Early Bird offer! 2TB storage for power users.\n\nDouble the storage, same blazing-fast speed. Perfect for professionals and content creators. Only 50 units available at this price!',
-        image_url: 'https://images.unsplash.com/photo-1531297484001-80022131f5a1?q=80&w=600&auto=format&fit=crop',
-        min_pledge_amount: 349.00,
-        ships_to: 'Worldwide',
-        estimated_delivery: '2026-01-15',
+        imageUrl: 'https://images.unsplash.com/photo-1531297484001-80022131f5a1?q=80&w=600&auto=format&fit=crop',
+        minPledgeAmount: 349.00,
+        shipsTo: 'Worldwide',
+        estimatedDelivery: '2026-01-15',
         status: 'active',
         backers: 12,
         itemsIncluded: 5,
@@ -330,12 +336,18 @@ export default function CampaignDetailPage() {
       try {
         // Preview mode - check previewId
         if (isPreview && previewId) {
+          console.log('Preview mode - previewId:', previewId, 'isPreviewId:', isPreviewId(previewId));
+
           // First try to load real campaign if previewId is actually a campaignId (UUID)
           if (!isPreviewId(previewId)) {
+            console.log('Loading real campaign data for preview:', previewId);
             const response = await campaignApi.getCampaignById(previewId);
 
             if (response?.data?.data) {
-              setCampaignData(transformApiData(response.data.data));
+              const transformedData = transformApiData(response.data.data);
+              console.log('Transformed API data for preview:', transformedData);
+              console.log('Blanks count:', transformedData.blanks?.length);
+              setCampaignData(transformedData);
             } else {
               console.error('Campaign not found');
               setCampaignData(getMockCampaignData());
@@ -343,11 +355,15 @@ export default function CampaignDetailPage() {
           } else {
             // It's a real preview ID
             const stateData = location.state?.campaignData;
+            console.log('Preview ID mode - state data:', stateData);
 
             if (stateData) {
-              setCampaignData(transformPreviewData(stateData));
+              const transformedData = transformPreviewData(stateData);
+              console.log('Transformed preview data:', transformedData);
+              setCampaignData(transformedData);
             } else {
               const storedData = getPreviewData(previewId);
+              console.log('Stored preview data:', storedData);
 
               if (storedData) {
                 setCampaignData(transformPreviewData(storedData));
@@ -361,10 +377,13 @@ export default function CampaignDetailPage() {
         }
         // Normal mode - load campaign by ID
         else if (campaignId) {
+          console.log('Normal mode - loading campaign:', campaignId);
           const response = await campaignApi.getCampaignById(campaignId);
 
           if (response?.data?.data) {
-            setCampaignData(transformApiData(response.data.data));
+            const transformedData = transformApiData(response.data.data);
+            console.log('Transformed API data:', transformedData);
+            setCampaignData(transformedData);
           } else {
             console.error('Campaign not found');
             setCampaignData(getMockCampaignData());
@@ -372,6 +391,7 @@ export default function CampaignDetailPage() {
         }
         // Default mock data
         else {
+          console.log('Using mock data');
           setCampaignData(getMockCampaignData());
         }
       } catch (error) {
@@ -433,7 +453,7 @@ export default function CampaignDetailPage() {
                     // Get the real campaign ID from previewId or campaignData
                     const realCampaignId = previewId && !isPreviewId(previewId)
                       ? previewId
-                      : campaignData?.campaign?.campaign_id;
+                      : campaignData?.campaign?.campaignId;
 
                     if (realCampaignId && realCampaignId !== 'preview') {
                       navigate(`/campaigns/${realCampaignId}/edit?tab=basic`);
@@ -486,7 +506,7 @@ export default function CampaignDetailPage() {
         {/* Related Campaigns Section */}
         <RelatedCampaigns
           category={campaignData.campaign.category}
-          currentCampaignId={campaignData.campaign.campaign_id}
+          currentCampaignId={campaignData.campaign.campaignId}
         />
       </div>
     </div>

@@ -135,11 +135,14 @@ export default function CreateCampaignPage() {
         itemData: blank.contentHtml || '',
       };
 
+      console.log('Auto-saving section:', blankId, 'with data:', sectionData);
+
       // blankId is the campaign section ID
       await campaignSectionApi.updateSectionToCampaign(campaignId, blankId, sectionData);
 
       setSaveStatus('idle'); // Back to idle (CloudCheck icon only)
       setHasUnsavedChanges(false);
+      console.log('Auto-save successful for section:', blankId);
     } catch (error) {
       console.error('Auto-save error:', error);
       setSaveStatus('idle');
@@ -181,6 +184,9 @@ export default function CreateCampaignPage() {
     setHasUnsavedChanges(true);
     lastFocusedBlankRef.current = id;
     setSaveStatus('saving'); // Show "Đang lưu..." immediately when typing
+
+    // Log for debugging
+    console.log('Content changed for blank:', id, 'HTML length:', html?.length);
   };
 
   const handleAddBlank = async () => {
@@ -241,6 +247,23 @@ export default function CreateCampaignPage() {
         console.error('Error reordering sections:', error);
         toast.error('Không thể sắp xếp lại sections');
       }
+    }
+  };
+
+  const handleDeleteBlank = async (blankId) => {
+    // If in edit mode, delete via API first
+    if (isEditMode && campaignId) {
+      try {
+        await campaignSectionApi.deleteSectionFromCampaign(campaignId, blankId);
+        deleteBlank(blankId); // Then delete from Redux
+        toast.success('Đã xóa section thành công!');
+      } catch (error) {
+        console.error('Error deleting section:', error);
+        toast.error('Không thể xóa section');
+      }
+    } else {
+      // In create mode, just delete from Redux
+      deleteBlank(blankId);
     }
   };
 
@@ -320,12 +343,22 @@ export default function CreateCampaignPage() {
       return;
     }
 
-    // Collect all campaign data from Redux
+    // Check if we have a real campaignId (from create/edit)
+    if (campaignId) {
+      // Navigate to preview route with campaignId - let it load from API
+      navigate(`/campaigns/preview/${campaignId}`, {
+        state: { isPreview: true },
+      });
+      toast.success('Đang chuyển đến trang xem trước...');
+      return;
+    }
+
+    // Fallback: For unsaved campaigns, collect data from Redux
     const campaignData = {
       // Basics
       basics: basicsData,
 
-      // Story
+      // Story - convert blanks to the format expected by preview
       story: {
         blanks: blanks.map((blank, index) => ({
           id: blank.id,
@@ -344,17 +377,7 @@ export default function CreateCampaignPage() {
       },
     };
 
-    // Check if we have a real campaignId (from create/edit)
-    if (campaignId) {
-      // Navigate to preview route with campaignId
-      navigate(`/campaigns/preview/${campaignId}`, {
-        state: { campaignData, isPreview: true },
-      });
-      toast.success('Đang chuyển đến trang xem trước...');
-      return;
-    }
-
-    // Fallback: Generate unique preview ID for unsaved campaigns
+    // Generate unique preview ID for unsaved campaigns
     const previewId = generatePreviewId();
 
     // Save to sessionStorage (will automatically handle large images)
@@ -400,7 +423,7 @@ export default function CreateCampaignPage() {
               onTitleChange={handleTitleChange}
               onContentChange={handleContentChange}
               onReorderBlanks={handleReorderBlanks}
-              onDeleteBlank={deleteBlank}
+              onDeleteBlank={handleDeleteBlank}
               setActiveEditor={setActiveEditor}
               scrollToBlank={scrollToBlank}
               save={handleSaveStory}

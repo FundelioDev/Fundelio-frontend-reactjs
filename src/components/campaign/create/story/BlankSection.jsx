@@ -38,7 +38,9 @@ function BlankSection({ blank, onTitleChange, onContentChange, onFocus }) {
 
   const handleContentInput = () => {
     if (editorRef.current) {
-      onContentChange(blank.id, editorRef.current.innerHTML);
+      const html = editorRef.current.innerHTML;
+      console.log('BlankSection handleContentInput - Blank ID:', blank.id, 'HTML length:', html.length);
+      onContentChange(blank.id, html);
     }
   };
 
@@ -102,7 +104,10 @@ function BlankSection({ blank, onTitleChange, onContentChange, onFocus }) {
       if (iframe) {
         e.preventDefault();
         placeBlock(editorRef.current, iframe);
-        handleContentInput();
+        // Trigger content change callback to update state and save
+        setTimeout(() => {
+          handleContentInput();
+        }, 100);
       }
     }
   };

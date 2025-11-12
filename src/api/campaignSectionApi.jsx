@@ -25,5 +25,11 @@ export const campaignSectionApi = {
         return httpService.put(`/campaigns/${campaignId}/sections/reorder`, reorderData, {
             requireToken: true,
         });
+    },
+
+    deleteSectionFromCampaign(campaignId, sectionId) {
+        return httpService.delete(`/campaigns/${campaignId}/sections/${sectionId}`, {
+            requireToken: true,
+        });
     }
 }

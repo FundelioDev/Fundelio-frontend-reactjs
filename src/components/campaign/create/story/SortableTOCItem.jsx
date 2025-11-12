@@ -38,7 +38,7 @@ export default function SortableTOCItem({ blank, index, onNavigate, onDelete, ca
         <div
             ref={setNodeRef}
             style={style}
-            className="w-full min-w-0 flex items-start gap-2 px-3 py-2.5 border border-border rounded-sm hover:bg-gray-100 dark:bg-darker dark:hover:bg-[#0f0f0f] transition-colors group"
+            className="w-full min-w-0 flex items-start gap-2 px-3 py-2.5 border border-border rounded-sm hover:bg-gray-100 dark:bg-darker dark:hover:bg-[#1e232a] transition-colors group"
         >
             {/* Drag Handle */}
             <button

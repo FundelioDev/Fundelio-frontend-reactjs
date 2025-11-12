@@ -45,10 +45,9 @@ const TocMenu = ({ blanks = [], activeId, onClickItem }) => {
                     group relative w-full text-left py-2 pr-3 pl-4 rounded-md
                     transition-colors duration-200
                    
-                    ${
-                      isActive
-                        ? 'text-primary font-semibold'
-                        : 'text-text-secondary dark:text-white'
+                    ${isActive
+                      ? 'text-primary font-semibold'
+                      : 'text-text-secondary dark:text-white'
                     }
                   `}
                   aria-current={isActive ? 'true' : undefined}
@@ -58,10 +57,9 @@ const TocMenu = ({ blanks = [], activeId, onClickItem }) => {
                     className={`
                       absolute left-[-11px] top-1/2 -translate-y-1/2
                       h-2.5 w-2.5 rounded-full border
-                      ${
-                        isActive
-                          ? 'bg-primary border-primary'
-                          : 'bg-muted border-border'
+                      ${isActive
+                        ? 'bg-primary border-primary'
+                        : 'bg-muted border-border'
                       }
                     `}
                     aria-hidden="true"
@@ -79,7 +77,7 @@ const TocMenu = ({ blanks = [], activeId, onClickItem }) => {
                     />
                   )}
 
-                  <span className="block truncate">{b.title_text}</span>
+                  <span className="block truncate">{b.titleText}</span>
                 </button>
               </li>
             );

@@ -56,6 +56,7 @@ export const router = createBrowserRouter([
       { path: 'wallet', element: <WalletPage /> },
 
       { path: 'your-projects', element: <YourProjectsPage /> },
+    ]
   },
   {
     path: '/campaigns/create',
@@ -104,5 +105,5 @@ export const router = createBrowserRouter([
     path: '*',
     element: <NotFoundPage />,
   },
-   { path: '/403', element: <ForbiddenPage /> },
+  { path: '/403', element: <ForbiddenPage /> },
 ]);

@@ -24,8 +24,7 @@ export default function VerifyChangeEmail() {
         setStatus("loading");
         console.log(" Verifying token:", token);
 
-
-        const response = await userApi.verifyChangeEmail(token);
+        const response = await userApi.verifyChangeEmail({ token });
 
         console.log("Success:", response?.data);
         setMessage(
@@ -34,7 +33,7 @@ export default function VerifyChangeEmail() {
         setStatus("success");
 
         setTimeout(() => {
-          navigate("/auth/login");
+          navigate("/auth#login");
         }, 2000);
       } catch (error) {
         console.error("Error:", error);
@@ -52,6 +51,7 @@ export default function VerifyChangeEmail() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-darker">
+      
     </div>
   );
 }

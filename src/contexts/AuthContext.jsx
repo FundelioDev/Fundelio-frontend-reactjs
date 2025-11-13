@@ -4,15 +4,15 @@ import {
   useEffect,
   useState,
   useCallback,
-} from 'react';
-import { authApi } from '@/api/authApi';
-import { storageService } from '@/services/storage';
+} from "react";
+import { authApi } from "@/api/authApi";
+import { storageService } from "@/services/storage";
 import {
   startTokenRefreshInterval,
   stopTokenRefreshInterval,
   setLogoutCallback,
-} from '@/api/http';
-import Loading from '@/components/common/Loading';
+} from "@/api/http";
+import Loading from "@/components/common/Loading";
 
 const AuthContext = createContext(undefined);
 
@@ -24,7 +24,7 @@ export function AuthProvider({ children }) {
   const logout = useCallback(() => {
     storageService.clearAuth();
     try {
-      window.localStorage.removeItem('user');
+      window.localStorage.removeItem("user");
     } catch (_) {}
     setUser(null);
     setIsLoggedIn(false);
@@ -41,7 +41,7 @@ export function AuthProvider({ children }) {
         setUser(userData);
         storageService.setUser(userData);
         try {
-          window.localStorage.setItem('user', JSON.stringify(userData));
+          window.localStorage.setItem("user", JSON.stringify(userData));
         } catch (_) {}
         return userData;
       }
@@ -83,7 +83,7 @@ export function AuthProvider({ children }) {
       setUser(userFromLogin);
       storageService.setUser(userFromLogin);
       try {
-        window.localStorage.setItem('user', JSON.stringify(userFromLogin));
+        window.localStorage.setItem("user", JSON.stringify(userFromLogin));
       } catch (_) {}
     }
     fetchUserData();
@@ -133,8 +133,10 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, user, login, logout, hasRole }}>
-      {children}
+    <AuthContext.Provider
+      value={{ isLoggedIn, user, login, logout, hasRole, fetchUserData }}
+    >
+            {children}   {" "}
     </AuthContext.Provider>
   );
 }
@@ -142,7 +144,7 @@ export function AuthProvider({ children }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 }

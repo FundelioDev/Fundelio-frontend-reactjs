@@ -10,17 +10,22 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Check, X, Clock } from 'lucide-react';
+import { Check, X, Clock, Eye, Loader, TrendingUp, TrendingDown, Ban } from 'lucide-react';
 import { formatCurrency } from '@/utils/formatters';
+import { useNavigate } from 'react-router-dom';
 
 const getStatusBadge = (status) => {
   const statusConfig = {
-    pending: { variant: 'warning', label: 'Chờ duyệt', icon: Clock },
-    approved: { variant: 'success', label: 'Đã duyệt', icon: Check },
-    rejected: { variant: 'destructive', label: 'Từ chối', icon: X },
+    PENDING: { variant: 'warning', label: 'Chờ duyệt', icon: Clock },
+    APPROVED: { variant: 'success', label: 'Đã duyệt', icon: Check },
+    REJECTED: { variant: 'destructive', label: 'Từ chối', icon: X },
+    ACTIVE: { variant: 'default', label: 'Đang gây quỹ', icon: Loader },
+    SUCCESSFUL: { variant: 'success', label: 'Thành công', icon: TrendingUp },
+    FAILED: { variant: 'destructive', label: 'Thất bại', icon: TrendingDown },
+    CANCELLED: { variant: 'secondary', label: 'Đã hủy', icon: Ban },
   };
 
-  const config = statusConfig[status] || statusConfig.pending;
+  const config = statusConfig[status] || statusConfig.PENDING;
   const Icon = config.icon;
 
   return (
@@ -31,6 +36,36 @@ const getStatusBadge = (status) => {
   );
 };
 
+const formatDate = (dateString) => {
+  if (!dateString) return 'N/A';
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('vi-VN', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  } catch {
+    return dateString;
+  }
+};
+
+const getCategoryLabel = (category) => {
+  const labels = {
+    ART: 'Nghệ thuật',
+    MUSIC: 'Âm nhạc',
+    FILM: 'Phim ảnh',
+    GAMES: 'Trò chơi',
+    TECHNOLOGY: 'Công nghệ',
+    PUBLISHING: 'Xuất bản',
+    FOOD: 'Ẩm thực',
+    FASHION: 'Thời trang',
+  };
+  return labels[category] || category;
+};
+
 export const CampaignDetailDialog = ({
   campaign,
   open,
@@ -38,7 +73,21 @@ export const CampaignDetailDialog = ({
   onApprove,
   onReject,
 }) => {
+  const navigate = useNavigate();
+
   if (!campaign) return null;
+
+  const thumbnail = campaign.introImageUrl || 'https://images.unsplash.com/photo-1593305841991-05c297ba4575?q=80&w=1200&auto=format&fit=crop';
+  const creatorName = campaign.owner ? `${campaign.owner.firstName} ${campaign.owner.lastName}` : 'N/A';
+  const creatorEmail = campaign.owner?.email || 'N/A';
+
+  const handlePreview = () => {
+    // Navigate to preview page with campaign ID and fromAdmin flag
+    navigate(`/campaigns/preview/${campaign.campaignId}`, {
+      state: { fromAdmin: true }
+    });
+    onOpenChange(false);
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -51,19 +100,22 @@ export const CampaignDetailDialog = ({
           {/* Campaign Header */}
           <div className='flex items-start space-x-4'>
             <img
-              src={campaign.thumbnail}
+              src={thumbnail}
               alt={campaign.title}
               className='w-32 h-32 rounded-lg object-cover'
+              onError={(e) => {
+                e.target.src = 'https://images.unsplash.com/photo-1593305841991-05c297ba4575?q=80&w=1200&auto=format&fit=crop';
+              }}
             />
             <div className='flex-1'>
               <h3 className='text-xl font-semibold text-gray-900 dark:text-gray-100'>
                 {campaign.title}
               </h3>
               <p className='text-gray-600 dark:text-text-white mt-1'>
-                {campaign.category}
+                {getCategoryLabel(campaign.campaignCategory)}
               </p>
               <div className='flex items-center space-x-2 mt-2'>
-                {getStatusBadge(campaign.status)}
+                {getStatusBadge(campaign.campaignStatus)}
               </div>
             </div>
           </div>
@@ -92,7 +144,7 @@ export const CampaignDetailDialog = ({
                     Mục tiêu
                   </p>
                   <p className='text-lg font-semibold text-gray-900 dark:text-gray-100'>
-                    {formatCurrency(campaign.targetAmount)}
+                    {formatCurrency(campaign.goalAmount || 0)}
                   </p>
                 </Card>
                 <Card className='p-4'>
@@ -100,7 +152,7 @@ export const CampaignDetailDialog = ({
                     Đã đạt
                   </p>
                   <p className='text-lg font-semibold text-gray-900 dark:text-gray-100'>
-                    {formatCurrency(campaign.currentAmount)}
+                    {formatCurrency(campaign.pledgedAmount || 0)}
                   </p>
                 </Card>
                 <Card className='p-4'>
@@ -108,25 +160,25 @@ export const CampaignDetailDialog = ({
                     Người ủng hộ
                   </p>
                   <p className='text-lg font-semibold text-gray-900 dark:text-gray-100'>
-                    {campaign.backers}
+                    {campaign.backersCount || 0}
                   </p>
                 </Card>
                 <Card className='p-4'>
                   <p className='text-sm text-gray-600 dark:text-text-white'>
-                    Thời gian còn lại
+                    Thời gian
                   </p>
-                  <p className='text-lg font-semibold text-gray-900 dark:text-gray-100'>
-                    {campaign.daysLeft} ngày
+                  <p className='text-sm font-semibold text-gray-900 dark:text-gray-100'>
+                    {formatDate(campaign.startTime)} - {formatDate(campaign.endTime)}
                   </p>
                 </Card>
               </div>
 
-              {campaign.status === 'rejected' && (
-                <Card className='p-4 bg-red-50 border-red-200'>
-                  <h4 className='font-semibold text-red-900 mb-2'>
+              {campaign.campaignStatus === 'REJECTED' && campaign.rejectionReason && (
+                <Card className='p-4 bg-red-50 border-red-200 dark:bg-red-900/20'>
+                  <h4 className='font-semibold text-red-900 dark:text-red-400 mb-2'>
                     Lý do từ chối
                   </h4>
-                  <p className='text-red-800'>{campaign.rejectionReason}</p>
+                  <p className='text-red-800 dark:text-red-300'>{campaign.rejectionReason}</p>
                 </Card>
               )}
             </TabsContent>
@@ -138,7 +190,7 @@ export const CampaignDetailDialog = ({
                     Tên người tạo
                   </p>
                   <p className='font-medium text-gray-900 dark:text-gray-100'>
-                    {campaign.creator}
+                    {creatorName}
                   </p>
                 </div>
                 <div>
@@ -146,7 +198,15 @@ export const CampaignDetailDialog = ({
                     Email
                   </p>
                   <p className='font-medium text-gray-900 dark:text-gray-100'>
-                    {campaign.creatorEmail}
+                    {creatorEmail}
+                  </p>
+                </div>
+                <div>
+                  <p className='text-sm text-gray-600 dark:text-text-white'>
+                    User ID
+                  </p>
+                  <p className='font-medium text-gray-900 dark:text-gray-100 text-xs'>
+                    {campaign.owner?.userId || 'N/A'}
                   </p>
                 </div>
               </div>
@@ -158,35 +218,22 @@ export const CampaignDetailDialog = ({
                   <div className='w-2 h-2 bg-blue-600 dark:bg-blue-400 rounded-full mt-2' />
                   <div>
                     <p className='font-medium text-gray-900 dark:text-gray-100'>
-                      Nộp chiến dịch
+                      Tạo chiến dịch
                     </p>
                     <p className='text-sm text-gray-600 dark:text-text-white'>
-                      {campaign.submittedAt}
+                      {formatDate(campaign.createdAt)}
                     </p>
                   </div>
                 </div>
-                {campaign.approvedAt && (
+                {campaign.updatedAt && campaign.updatedAt !== campaign.createdAt && (
                   <div className='flex items-start space-x-3'>
-                    <div className='w-2 h-2 bg-green-600 dark:bg-green-400 rounded-full mt-2' />
+                    <div className='w-2 h-2 bg-yellow-600 dark:bg-yellow-400 rounded-full mt-2' />
                     <div>
                       <p className='font-medium text-gray-900 dark:text-gray-100'>
-                        Được phê duyệt
+                        Cập nhật gần nhất
                       </p>
                       <p className='text-sm text-gray-600 dark:text-text-white'>
-                        {campaign.approvedAt}
-                      </p>
-                    </div>
-                  </div>
-                )}
-                {campaign.rejectedAt && (
-                  <div className='flex items-start space-x-3'>
-                    <div className='w-2 h-2 bg-red-600 dark:bg-red-400 rounded-full mt-2' />
-                    <div>
-                      <p className='font-medium text-gray-900 dark:text-gray-100'>
-                        Bị từ chối
-                      </p>
-                      <p className='text-sm text-gray-600 dark:text-text-white'>
-                        {campaign.rejectedAt}
+                        {formatDate(campaign.updatedAt)}
                       </p>
                     </div>
                   </div>
@@ -195,11 +242,15 @@ export const CampaignDetailDialog = ({
             </TabsContent>
           </Tabs>
         </div>
-        <DialogFooter>
+        <DialogFooter className='gap-2'>
           <Button variant='outline' onClick={() => onOpenChange(false)}>
             Đóng
           </Button>
-          {campaign.status === 'pending' && (
+          <Button variant='secondary' onClick={handlePreview}>
+            <Eye className='w-4 h-4 mr-2' />
+            Xem Preview
+          </Button>
+          {campaign.campaignStatus === 'PENDING' && (
             <>
               <Button
                 variant='destructive'

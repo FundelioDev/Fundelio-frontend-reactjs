@@ -8,17 +8,17 @@ const getDateString = (daysOffset = 0) => {
 };
 
 const initialState = {
-  // BASICS STATE - WITH SAMPLE DATA
+  // BASICS STATE - Empty by default
   basics: {
-    title: 'Papercuts: A Party Game for the Rude and Well-Read',
-    description: 'Papercuts is a rowdy card game about books and writing brought to you by Electric Literature.',
-    goalAmount: 10000,
-    category: 'games',
-    // imageUrl: 'https://images.unsplash.com/photo-1611996575749-79a3a250f948?w=1024&h=576&fit=crop', // Not in API yet
-    introVideoUrl: null,
+    title: '',
+    description: '',
+    goalAmount: '',
+    campaignCategory: '',
+    introImageUrl: '',
+    introVideoUrl: '',
     startTime: getDateString(0), // Today
     endTime: getDateString(60), // 60 days from now
-    acceptedTerms: true, // Not sent to API, only for UI validation
+    acceptedTerms: false, // Not sent to API, only for UI validation
   },
 
   // STORY STATE - WITH SAMPLE BLANKS
@@ -135,9 +135,9 @@ const campaignSlice = createSlice({
 
     // ============ STORY ACTIONS ============
     initializeStory: (state, action) => {
-      const { id, blank } = action.payload;
-      state.story.blanksById[id] = blank;
-      state.story.order = [id];
+      const { blanksById, order } = action.payload;
+      state.story.blanksById = blanksById || {};
+      state.story.order = order || [];
     },
     addBlank: (state, action) => {
       const { id, blank } = action.payload;

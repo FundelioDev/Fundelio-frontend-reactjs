@@ -52,6 +52,9 @@ const Button = ({
     // Button với gradient cyan-blue
     gradient:
       'bg-gradient-to-r from-cyan-500 via-blue-600 to-blue-700 hover:from-cyan-400 hover:via-blue-500 hover:to-blue-600 text-white shadow-2xl hover:shadow-cyan-500/50 border-0 outline-none',
+    
+    gray:
+      'bg-gray-100 text-text-primary shadow-sm hover:shadow-md',
   };
 
   // Định nghĩa các size

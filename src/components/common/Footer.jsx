@@ -92,7 +92,7 @@ export const Footer = () => {
         </div>
 
         {/* Separator Line */}
-        <div className="border-t border-gray-300 dark:border-gray-700 pt-4 sm:pt-6 transition-colors duration-300">
+        <div className="border-t border-border pt-4 sm:pt-6 transition-colors duration-300">
           <div className="text-center">
             <p className="text-text-secondary dark:text-text-white text-xs sm:text-sm transition-colors duration-300">
               © 2025 Fundelio. Mọi quyền được bảo lưu.

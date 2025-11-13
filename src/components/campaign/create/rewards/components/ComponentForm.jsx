@@ -9,6 +9,7 @@ export default function ItemForm({ item, rewards, onSave, onCancel }) {
       id: `item${Date.now()}`,
       title: "",
       image: null,
+      price: 0,
       rewardRefs: [],
     },
   )
@@ -51,6 +52,9 @@ export default function ItemForm({ item, rewards, onSave, onCancel }) {
     if (!formData.title.trim()) {
       newErrors.title = "Tiêu đề là bắt buộc"
     }
+    if (formData.price <= 0) {
+      newErrors.price = "Giá phải lớn hơn 0"
+    }
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -86,6 +90,22 @@ export default function ItemForm({ item, rewards, onSave, onCancel }) {
                 Tên cần ngắn gọn, mô tả đúng 'một món hàng' (SKU). Ảnh nên theo tỉ lệ 3:2 để hiển thị đẹp.
               </p>
             </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">Giá (VND)<span className="text-lg font-bold text-primary">*</span></label>
+            <Input
+              type="number"
+              name="price"
+              value={formData.price}
+              onChange={handleChange}
+              placeholder="0"
+              min="0"
+              step="0.01"
+              error={errors.price}
+              onWheel={(e) => e.target.blur()}
+            />
+            {errors.price && <p className="mt-1 text-sm text-destructive">{errors.price}</p>}
           </div>
 
           {/* Image Section */}

@@ -1,6 +1,7 @@
 /**
  * Mock saved campaign story data (campaign_sections table in ERD)
  * Generated from CreateCampaignPage save functionality
+ * Using camelCase convention
  */
 
 export const mockCampaignStory = {
@@ -9,11 +10,11 @@ export const mockCampaignStory = {
   // Based on campaign_sections table schema
   sections: [
     {
-      campaign_section_id: 'section-001',
-      campaign_id: 'odin-3',
-      tab_title: 'Giới thiệu dự án',
-      format_title: '<b>Giới thiệu dự án</b>',
-      item_data: `
+      campaignSectionId: 'section-001',
+      campaignId: 'odin-3',
+      tabTitle: 'Giới thiệu dự án',
+      formatTitle: '<b>Giới thiệu dự án</b>',
+      itemData: `
         <p>Chào mừng bạn đến với dự án <b>FundFountain</b> - nền tảng gây quỹ cộng đồng hàng đầu Việt Nam.</p>
         <p>Chúng tôi tin rằng mọi ý tưởng tuyệt vời đều xứng đáng được hiện thực hóa. Với FundFountain, bạn có thể:</p>
         <ul>
@@ -22,27 +23,27 @@ export const mockCampaignStory = {
           <li>Biến ý tưởng thành hiện thực</li>
         </ul>
       `,
-      order_index: 0,
+      orderIndex: 0,
     },
     {
-      campaign_section_id: 'section-002',
-      campaign_id: 'odin-3',
-      tab_title: 'Câu chuyện của chúng tôi',
-      format_title: 'Câu chuyện của chúng tôi',
-      item_data: `
+      campaignSectionId: 'section-002',
+      campaignId: 'odin-3',
+      tabTitle: 'Câu chuyện của chúng tôi',
+      formatTitle: 'Câu chuyện của chúng tôi',
+      itemData: `
         <h2 class="text-2xl font-bold mt-4 mb-2 dark:text-white">Khởi đầu từ một ý tưởng</h2>
         <p>Năm 2024, chúng tôi nhận ra rằng nhiều dự án tuyệt vời không thể khởi động vì thiếu nguồn vốn ban đầu. Từ đó, FundFountain ra đời với sứ mệnh <i>kết nối những người có ý tưởng với những người sẵn sàng hỗ trợ</i>.</p>
         <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800" class="max-w-full h-auto block mx-auto my-4 rounded-xl" alt="Team collaboration" />
         <p>Đội ngũ của chúng tôi bao gồm các chuyên gia trong lĩnh vực công nghệ, tài chính và marketing.</p>
       `,
-      order_index: 1,
+      orderIndex: 1,
     },
     {
-      campaign_section_id: 'section-003',
-      campaign_id: 'odin-3',
-      tab_title: 'Mục tiêu chiến dịch',
-      format_title: '<span style="color: #0894e2;">Mục tiêu chiến dịch</span>',
-      item_data: `
+      campaignSectionId: 'section-003',
+      campaignId: 'odin-3',
+      tabTitle: 'Mục tiêu chiến dịch',
+      formatTitle: '<span style="color: #0894e2;">Mục tiêu chiến dịch</span>',
+      itemData: `
         <h2 class="text-2xl font-bold mt-4 mb-2 dark:text-white">Chúng tôi cần 100,000,000 VNĐ</h2>
         <p>Số tiền này sẽ được sử dụng để:</p>
         <ul>
@@ -53,26 +54,26 @@ export const mockCampaignStory = {
         </ul>
         <p>Mỗi đồng góp đều có ý nghĩa to lớn với chúng tôi! 💙</p>
       `,
-      order_index: 2,
+      orderIndex: 2,
     },
     {
-      campaign_section_id: 'section-004',
-      campaign_id: 'odin-3',
-      tab_title: 'Video giới thiệu',
-      format_title: 'Video giới thiệu',
-      item_data: `
+      campaignSectionId: 'section-004',
+      campaignId: 'odin-3',
+      tabTitle: 'Video giới thiệu',
+      formatTitle: 'Video giới thiệu',
+      itemData: `
         <p>Xem video giới thiệu chi tiết về dự án của chúng tôi:</p>
         <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" allowfullscreen class="w-full aspect-video rounded-xl my-4"></iframe>
         <p><i>Video trên giới thiệu tổng quan về tầm nhìn và sứ mệnh của FundFountain.</i></p>
       `,
-      order_index: 3,
+      orderIndex: 3,
     },
     {
-      campaign_section_id: 'section-005',
-      campaign_id: 'odin-3',
-      tab_title: 'Kế hoạch thực hiện',
-      format_title: 'Kế hoạch thực hiện',
-      item_data: `
+      campaignSectionId: 'section-005',
+      campaignId: 'odin-3',
+      tabTitle: 'Kế hoạch thực hiện',
+      formatTitle: 'Kế hoạch thực hiện',
+      itemData: `
         <h2 class="text-2xl font-bold mt-4 mb-2 dark:text-white">Timeline dự án</h2>
         <p><b>Quý 1/2025:</b> Hoàn thiện MVP và beta testing</p>
         <p><b>Quý 2/2025:</b> Ra mắt chính thức và chiến dịch marketing</p>
@@ -80,14 +81,14 @@ export const mockCampaignStory = {
         <p><b>Quý 4/2025:</b> Đạt 10,000 người dùng và 1,000 chiến dịch thành công</p>
         <img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800" class="max-w-full h-auto block mx-auto my-4 rounded-xl" alt="Planning" />
       `,
-      order_index: 4,
+      orderIndex: 4,
     },
     {
-      campaign_section_id: 'section-006',
-      campaign_id: 'odin-3',
-      tab_title: 'Đội ngũ thực hiện',
-      format_title: '<b><u>Đội ngũ thực hiện</u></b>',
-      item_data: `
+      campaignSectionId: 'section-006',
+      campaignId: 'odin-3',
+      tabTitle: 'Đội ngũ thực hiện',
+      formatTitle: '<b><u>Đội ngũ thực hiện</u></b>',
+      itemData: `
         <p>Dự án được thực hiện bởi một đội ngũ giàu kinh nghiệm:</p>
         <h2 class="text-2xl font-bold mt-4 mb-2 dark:text-white">Core Team</h2>
         <p>🧑‍💻 <b>Nguyễn Văn A</b> - CEO & Founder</p>
@@ -96,21 +97,21 @@ export const mockCampaignStory = {
         <p>📊 <b>Phạm Thị D</b> - Marketing Manager</p>
         <p><i>Tổng cộng 15+ năm kinh nghiệm trong lĩnh vực fintech và crowdfunding.</i></p>
       `,
-      order_index: 5,
+      orderIndex: 5,
     },
     {
-      campaign_section_id: 'section-007',
-      campaign_id: 'odin-3',
-      tab_title: 'Lời cảm ơn',
-      format_title: 'Lời cảm ơn',
-      item_data: `
+      campaignSectionId: 'section-007',
+      campaignId: 'odin-3',
+      tabTitle: 'Lời cảm ơn',
+      formatTitle: 'Lời cảm ơn',
+      itemData: `
         <p>Cảm ơn bạn đã dành thời gian tìm hiểu về dự án của chúng tôi! ❤️</p>
         <p>Sự ủng hộ của bạn không chỉ là nguồn tài chính mà còn là động lực tinh thần to lớn giúp chúng tôi tiếp tục phát triển.</p>
         <h2 class="text-2xl font-bold mt-4 mb-2 dark:text-white">Hãy cùng chúng tôi tạo nên sự khác biệt!</h2>
         <p><b>Mọi đóng góp đều được ghi nhận và tri ân.</b> Hãy trở thành một phần của hành trình này!</p>
         <p style="color: #0894e2; font-size: 18px;"><b>🚀 Cùng nhau, chúng ta sẽ bay cao hơn!</b></p>
       `,
-      order_index: 6,
+      orderIndex: 6,
     },
   ],
 };
@@ -123,13 +124,26 @@ export function loadMockCampaignStory() {
   return mockCampaignStory;
 }
 
-// Backward compatibility - map to old structure
+/**
+ * Transform sections to blanks format for display
+ * Now uses camelCase consistently
+ */
 export function getBlanksFromSections(sections) {
-  return sections.map(section => ({
-    id: section.campaign_section_id,
-    order: section.order_index,
-    title_text: section.tab_title,
-    title_html: section.format_title,
-    content_html: section.item_data,
+  console.log('getBlanksFromSections - input sections:', sections);
+  
+  if (!sections || !Array.isArray(sections)) {
+    console.warn('getBlanksFromSections - sections is not an array:', sections);
+    return [];
+  }
+
+  const blanks = sections.map(section => ({
+    id: section.campaignSectionId,
+    order: section.orderIndex,
+    titleText: section.tabTitle,
+    titleHtml: section.formatTitle,
+    contentHtml: section.itemData,
   }));
+
+  console.log('getBlanksFromSections - output blanks:', blanks);
+  return blanks;
 }

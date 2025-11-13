@@ -283,16 +283,6 @@ const Hero = () => {
               </Button>
             </div>
           </div>
-
-          {/* Campaign stats - New addition */}
-          <div className="mt-8 flex gap-6 text-white/80">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></div>
-              <span className="text-sm font-medium">
-                {currentSlide + 1} / {totalSlides}
-              </span>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -311,36 +301,55 @@ const Hero = () => {
       </div>
 
       {/* Slide Indicators - Thumbnail Images - Enhanced design */}
-      <div className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 gap-2 px-2 sm:px-4 sm:gap-2.5 md:gap-3 lg:gap-4 max-w-full overflow-x-auto scrollbar-hide">
-        {mockCampaigns.map((campaign, index) => (
-          <button
-            key={index}
-            onClick={() => handleSlideChange(index)}
-            className={`group relative overflow-hidden rounded-sm transition-all duration-300 border-2 flex-shrink-0 ${index === currentSlide
-                ? "border-cyan-400 shadow-lg shadow-cyan-400/50 scale-110 sm:scale-115"
-                : "border-white/20 opacity-60 hover:opacity-100 hover:scale-105 hover:border-white/40"
-              }`}
-            aria-label={`Go to slide ${index + 1}: ${campaign.title}`}
-            aria-current={index === currentSlide ? "true" : "false"}
-          >
-            <img
-              src={campaign.heroImageUrl || "/placeholder.svg?height=96&width=128&query=campaign-thumbnail"}
-              alt={campaign.title}
-              className="h-11 w-16 object-cover sm:h-12 sm:w-20 transition-transform duration-300 group-hover:scale-110"
-            />
-            {/* Gradient overlay when active */}
-            {index === currentSlide && (
-              <div className="absolute inset-0 bg-gradient-to-t from-cyan-500/50 via-blue-500/30 to-transparent" />
-            )}
-            {/* Hover overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/0 via-black/0 to-black/0 transition-all duration-200 group-hover:from-black/30 group-hover:via-black/10" />
+      <div className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 gap-2 px-2 sm:px-4 sm:gap-2.5 md:gap-3 lg:gap-4 py-4">
+        {(() => {
+          const maxVisible = 7;
+          const halfVisible = Math.floor(maxVisible / 2);
 
-            {/* Active indicator dot */}
-            {index === currentSlide && (
-              <div className="absolute top-1 right-1 w-2 h-2 rounded-full bg-cyan-400 animate-pulse shadow-lg shadow-cyan-400/50"></div>
-            )}
-          </button>
-        ))}
+          // Calculate the range of visible slides
+          let startIndex = Math.max(0, currentSlide - halfVisible);
+          let endIndex = Math.min(totalSlides, startIndex + maxVisible);
+
+          // Adjust start if we're near the end
+          if (endIndex - startIndex < maxVisible) {
+            startIndex = Math.max(0, endIndex - maxVisible);
+          }
+
+          const visibleSlides = mockCampaigns.slice(startIndex, endIndex);
+
+          return visibleSlides.map((campaign, idx) => {
+            const actualIndex = startIndex + idx;
+            return (
+              <button
+                key={actualIndex}
+                onClick={() => handleSlideChange(actualIndex)}
+                className={`group relative overflow-hidden rounded-sm transition-all duration-300 border-2 flex-shrink-0 ${actualIndex === currentSlide
+                    ? "border-primary shadow-lg shadow-primary/50 scale-103 sm:scale-105"
+                    : "border-white/20 opacity-60 hover:opacity-100 hover:scale-105 hover:border-white/40"
+                  }`}
+                aria-label={`Go to slide ${actualIndex + 1}: ${campaign.title}`}
+                aria-current={actualIndex === currentSlide ? "true" : "false"}
+              >
+                <img
+                  src={campaign.heroImageUrl || "/placeholder.svg?height=96&width=128&query=campaign-thumbnail"}
+                  alt={campaign.title}
+                  className="h-11 w-16 object-cover sm:h-12 sm:w-20 transition-transform duration-300 group-hover:scale-110"
+                />
+                {/* Gradient overlay when active */}
+                {actualIndex === currentSlide && (
+                  <div className="absolute inset-0 bg-gradient-to-t from-cyan-500/50 via-blue-500/30 to-transparent" />
+                )}
+                {/* Hover overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/0 via-black/0 to-black/0 transition-all duration-200 group-hover:from-black/30 group-hover:via-black/10" />
+
+                {/* Active indicator dot */}
+                {actualIndex === currentSlide && (
+                  <div className="absolute top-1 right-1 w-2 h-2 rounded-full bg-cyan-400 animate-pulse shadow-lg shadow-cyan-400/50"></div>
+                )}
+              </button>
+            );
+          });
+        })()}
       </div>
     </section>
   );

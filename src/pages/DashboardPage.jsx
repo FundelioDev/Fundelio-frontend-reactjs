@@ -133,7 +133,7 @@ export default function DashboardPage() {
                                     variant="gradient"
                                     size="lg"
                                     onClick={handleCreateCampaign}
-                                    className="px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                                    className="px-6 py-3 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
                                 >
                                     TẠO DỰ ÁN MỚI
                                 </Button>

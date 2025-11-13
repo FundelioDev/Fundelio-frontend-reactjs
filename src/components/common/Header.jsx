@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   ChevronDown,
@@ -28,8 +28,9 @@ import {
 import Button from './Button';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
+import { useCategories } from '../../hooks/useCategories';
 
-export const Header = ({ variant = 'transparent', isFixed = true }) => {
+export const Header = ({ variant = 'transparent', isFixed = true, landing = false }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -41,6 +42,9 @@ export const Header = ({ variant = 'transparent', isFixed = true }) => {
   const { isLoggedIn, user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Sử dụng custom hook để lấy categories
+  const { categories, loading: loadingCategories } = useCategories();
 
   // Mock search results
   const [searchResults, setSearchResults] = useState({
@@ -58,6 +62,35 @@ export const Header = ({ variant = 'transparent', isFixed = true }) => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Tạo avatar URL từ tên nếu không có avatar
+  const avatarUrl = useMemo(() => {
+    if (user?.avatar) {
+      return user.avatar;
+    }
+
+    // Lấy tên từ user để tạo avatar
+    const firstName = user?.firstName || user?.first_name || '';
+    const lastName = user?.lastName || user?.last_name || '';
+    const fullName =
+      `${firstName} ${lastName}`.trim() || user?.email || user?.name || 'User';
+
+    // Encode tên để dùng trong URL
+    const encodedName = encodeURIComponent(fullName);
+    return `https://ui-avatars.com/api/?name=${encodedName}&size=150&background=random`;
+  }, [user]);
+
+  // Lấy tên hiển thị
+  const displayName = useMemo(() => {
+    if (user?.firstName || user?.first_name) {
+      const firstName = user?.firstName || user?.first_name || '';
+      const lastName = user?.lastName || user?.last_name || '';
+      return (
+        `${firstName} ${lastName}`.trim() || user?.email || user?.name || 'User'
+      );
+    }
+    return user?.email || user?.name || 'User';
+  }, [user]);
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -99,16 +132,6 @@ export const Header = ({ variant = 'transparent', isFixed = true }) => {
       setSearchResults({ categories: [], creators: [], campaigns: [] });
     }
   }, [searchQuery]);
-
-  // Định nghĩa các danh mục
-  const categories = [
-    { name: 'Công nghệ', icon: Monitor, href: '#technology' },
-    { name: 'Âm nhạc', icon: Music, href: '#music' },
-    { name: 'Phim', icon: Film, href: '#film' },
-    { name: 'Thời trang', icon: Shirt, href: '#fashion' },
-    { name: 'Game', icon: Gamepad2, href: '#game' },
-    { name: 'Nghệ thuật', icon: Palette, href: '#art' },
-  ];
 
   // Định nghĩa các variant cho header
   const headerVariants = {
@@ -210,23 +233,33 @@ export const Header = ({ variant = 'transparent', isFixed = true }) => {
                 <div
                   className={`absolute top-full left-0 mt-4 w-48 rounded-lg shadow-lg z-50 ${currentVariant.dropdown}`}
                 >
-                  {categories.map((category, index) => {
-                    const IconComponent = category.icon;
-                    return (
-                      <a
-                        key={index}
-                        href={category.href}
-                        className={`flex items-center space-x-3 px-4 py-3 transition-colors ${currentVariant.dropdownItem
-                          } ${index === 0 ? 'rounded-t-lg' : ''} ${index === categories.length - 1 ? 'rounded-b-lg' : ''
-                          }`}
-                      >
-                        <IconComponent className='w-4 h-4' />
-                        <span className='text-sm font-medium'>
-                          {category.name}
-                        </span>
-                      </a>
-                    );
-                  })}
+                  {loadingCategories ? (
+                    <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                      Đang tải...
+                    </div>
+                  ) : categories.length > 0 ? (
+                    categories.map((category, index) => {
+                      const IconComponent = category.icon;
+                      return (
+                        <Link
+                          key={category.id}
+                          to={category.href}
+                          className={`flex items-center space-x-3 px-4 py-3 transition-colors ${currentVariant.dropdownItem
+                            } ${index === 0 ? 'rounded-t-lg' : ''} ${index === categories.length - 1 ? 'rounded-b-lg' : ''
+                            }`}
+                        >
+                          <IconComponent className={`w-4 h-4 ${category.color}`} />
+                          <span className='text-sm font-medium'>
+                            {category.name}
+                          </span>
+                        </Link>
+                      );
+                    })
+                  ) : (
+                    <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                      Không có danh mục
+                    </div>
+                  )}
                 </div>
               </>
             )}
@@ -234,115 +267,116 @@ export const Header = ({ variant = 'transparent', isFixed = true }) => {
         </div>
 
         {/* Center - Search Bar (Desktop) */}
-        <div className="hidden md:block flex-1 max-w-xl search-container">
-          <div className="relative">
+        {!landing && (
+          <div className="hidden md:block flex-1 max-w-xl search-container">
             <div className="relative">
-              <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 ${currentVariant.navLink}`} />
-              <input
-                type="text"
-                placeholder="Tìm kiếm danh mục, nhà sáng tạo, chiến dịch..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onFocus={() => setIsSearchFocused(true)}
-                className={`w-full pl-10 pr-4 py-2 rounded-lg border ${isScrolled || variant !== 'transparent'
-                  ? 'bg-white dark:bg-darker border-gray-300 dark:border-gray-600 text-text-primary dark:text-white'
-                  : 'bg-white/20 border-white/30 text-white placeholder-white/70'
-                  } focus:outline-none focus:ring-2 focus:ring-primary transition-colors`}
-              />
-            </div>
+              <div className="relative">
+                <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 ${currentVariant.navLink}`} />
+                <input
+                  type="text"
+                  placeholder="Tìm kiếm danh mục, nhà sáng tạo, chiến dịch..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => setIsSearchFocused(true)}
+                  className={`w-full pl-10 pr-4 py-2 rounded-lg border ${isScrolled || variant !== 'transparent'
+                    ? 'bg-white dark:bg-darker border-gray-300 dark:border-gray-600 text-text-primary dark:text-white'
+                    : 'bg-white/20 border-white/30 text-white placeholder-white/70'
+                    } focus:outline-none focus:ring-2 focus:ring-primary transition-colors`}
+                />
+              </div>
 
-            {/* Search Results Dropdown */}
-            {isSearchFocused && searchQuery.length >= 3 && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-darker rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 max-h-96 overflow-y-auto z-50">
-                {/* Categories */}
-                {searchResults.categories.length > 0 && (
-                  <div className="p-2">
-                    <p className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-text-white uppercase">
-                      Danh mục
-                    </p>
-                    {searchResults.categories.map((category) => {
-                      const IconComponent = category.icon;
-                      return (
+              {/* Search Results Dropdown */}
+              {isSearchFocused && searchQuery.length >= 3 && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-darker rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 max-h-96 overflow-y-auto z-50">
+                  {/* Categories */}
+                  {searchResults.categories.length > 0 && (
+                    <div className="p-2">
+                      <p className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-text-white uppercase">
+                        Danh mục
+                      </p>
+                      {searchResults.categories.map((category) => {
+                        const IconComponent = category.icon;
+                        return (
+                          <a
+                            key={category.id}
+                            href="#"
+                            className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors"
+                          >
+                            <IconComponent className="w-5 h-5 text-primary" />
+                            <span className="text-sm text-text-primary dark:text-white">{category.name}</span>
+                          </a>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* Creators */}
+                  {searchResults.creators.length > 0 && (
+                    <div className="p-2 border-t border-gray-200 dark:border-gray-700">
+                      <p className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-text-white uppercase">
+                        Nhà sáng tạo
+                      </p>
+                      {searchResults.creators.map((creator) => (
                         <a
-                          key={category.id}
+                          key={creator.id}
                           href="#"
                           className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors"
                         >
-                          <IconComponent className="w-5 h-5 text-primary" />
-                          <span className="text-sm text-text-primary dark:text-white">{category.name}</span>
+                          <img
+                            src={creator.avatar}
+                            alt={creator.name}
+                            className="w-8 h-8 rounded-full"
+                          />
+                          <span className="text-sm text-text-primary dark:text-white">{creator.name}</span>
                         </a>
-                      );
-                    })}
-                  </div>
-                )}
-
-                {/* Creators */}
-                {searchResults.creators.length > 0 && (
-                  <div className="p-2 border-t border-gray-200 dark:border-gray-700">
-                    <p className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-text-white uppercase">
-                      Nhà sáng tạo
-                    </p>
-                    {searchResults.creators.map((creator) => (
-                      <a
-                        key={creator.id}
-                        href="#"
-                        className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors"
-                      >
-                        <img
-                          src={creator.avatar}
-                          alt={creator.name}
-                          className="w-8 h-8 rounded-full"
-                        />
-                        <span className="text-sm text-text-primary dark:text-white">{creator.name}</span>
-                      </a>
-                    ))}
-                  </div>
-                )}
-
-                {/* Campaigns */}
-                {searchResults.campaigns.length > 0 && (
-                  <div className="p-2 border-t border-gray-200 dark:border-gray-700">
-                    <p className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-text-white uppercase">
-                      Chiến dịch
-                    </p>
-                    {searchResults.campaigns.map((campaign) => (
-                      <a
-                        key={campaign.id}
-                        href="#"
-                        className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors"
-                      >
-                        <div>
-                          <p className="text-sm font-medium text-text-primary dark:text-white">{campaign.name}</p>
-                          <p className="text-xs text-gray-500 dark:text-text-white">{campaign.category}</p>
-                        </div>
-                        <span className="text-xs font-semibold text-primary">
-                          {campaign.raised.toLocaleString()} <img src="/packages/coin.svg" alt="Coin" className="inline-block w-4 h-4 mb-0.5" />
-                        </span>
-                      </a>
-                    ))}
-                  </div>
-                )}
-
-                {/* No results */}
-                {searchResults.categories.length === 0 &&
-                  searchResults.creators.length === 0 &&
-                  searchResults.campaigns.length === 0 && (
-                    <div className="p-8 text-center text-gray-500 dark:text-text-white">
-                      <p>Không tìm thấy kết quả</p>
+                      ))}
                     </div>
                   )}
-              </div>
-            )}
 
-            {searchQuery.length > 0 && searchQuery.length < 3 && isSearchFocused && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-darker rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 p-4 z-50">
-                <p className="text-sm text-gray-500 dark:text-text-white text-center">
-                  Nhập ít nhất 3 ký tự để tìm kiếm
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
+                  {/* Campaigns */}
+                  {searchResults.campaigns.length > 0 && (
+                    <div className="p-2 border-t border-gray-200 dark:border-gray-700">
+                      <p className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-text-white uppercase">
+                        Chiến dịch
+                      </p>
+                      {searchResults.campaigns.map((campaign) => (
+                        <a
+                          key={campaign.id}
+                          href="#"
+                          className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors"
+                        >
+                          <div>
+                            <p className="text-sm font-medium text-text-primary dark:text-white">{campaign.name}</p>
+                            <p className="text-xs text-gray-500 dark:text-text-white">{campaign.category}</p>
+                          </div>
+                          <span className="text-xs font-semibold text-primary">
+                            {campaign.raised.toLocaleString()} <img src="/packages/coin.svg" alt="Coin" className="inline-block w-4 h-4 mb-0.5" />
+                          </span>
+                        </a>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* No results */}
+                  {searchResults.categories.length === 0 &&
+                    searchResults.creators.length === 0 &&
+                    searchResults.campaigns.length === 0 && (
+                      <div className="p-8 text-center text-gray-500 dark:text-text-white">
+                        <p>Không tìm thấy kết quả</p>
+                      </div>
+                    )}
+                </div>
+              )}
+
+              {searchQuery.length > 0 && searchQuery.length < 3 && isSearchFocused && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-darker rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 p-4 z-50">
+                  <p className="text-sm text-gray-500 dark:text-text-white text-center">
+                    Nhập ít nhất 3 ký tự để tìm kiếm
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>)}
 
         {/* Right - Actions */}
         <div className="flex items-center gap-2 sm:gap-3">
@@ -358,7 +392,7 @@ export const Header = ({ variant = 'transparent', isFixed = true }) => {
             >
 
               <span className={`text-md font-bold ${(user.coins === 0 || user.coins === undefined)
-                ? 'text-red-600 dark:text-red-400'
+                ? 'text-red-400 dark:text-red-400'
                 : 'text-primary dark:text-primary-400'
                 }`}>
                 {formatNumber(user.coins)} VND
@@ -373,12 +407,12 @@ export const Header = ({ variant = 'transparent', isFixed = true }) => {
             <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] coin-modal">
               <div className="bg-white dark:bg-darker rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
                 <div className="text-center mb-6">
-                  <img src="/packages/coin.svg" alt="Coin" className="w-16 h-16 mx-auto mb-4" />
+                  {/* <img src="/packages/coin.svg" alt="Coin" className="w-16 h-16 mx-auto mb-4" /> */}
                   <h3 className="text-xl font-bold text-text-primary dark:text-white mb-2">
-                    Bạn chưa có coin
+                    Bạn chưa có số dư trong ví
                   </h3>
                   <p className="text-muted-foreground dark:text-text-white">
-                    Bạn có muốn nạp coin để tham gia các chiến dịch không?
+                    Bạn có muốn nạp vào ví để tham gia các chiến dịch không?
                   </p>
                 </div>
                 <div className="flex gap-3">
@@ -427,16 +461,25 @@ export const Header = ({ variant = 'transparent', isFixed = true }) => {
             <div className="relative user-menu-container">
               <button
                 onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                className="flex items-center gap-2 p-1 rounded-full transition-all group relative"
+                className="flex items-center gap-2 p-1 rounded-full transition-all group hover:cursor-pointer relative"
               >
-                {/* Gradient border effect */}
-                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-400 via-blue-500 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-[2px]">
-                  <div className="w-full h-full rounded-full bg-white dark:bg-darker-2"></div>
-                </div>
                 <img
-                  src={user.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Default'}
-                  alt={user.name || 'User'}
-                  className="w-8 h-8 sm:w-10 sm:h-10 rounded-full hover:shadow-primary-400 hover:shadow-md transition-colors relative z-10"
+                  src={avatarUrl}
+                  alt={displayName}
+                  className='w-9 h-9 rounded-full ring-2 ring-gray-200 dark:ring-gray-700'
+                  onError={(e) => {
+                    // Fallback nếu avatar lỗi
+                    const firstName = user?.firstName || user?.first_name || '';
+                    const lastName = user?.lastName || user?.last_name || '';
+                    const fullName =
+                      `${firstName} ${lastName}`.trim() ||
+                      user?.email ||
+                      user?.name ||
+                      'User';
+                    const encodedName = encodeURIComponent(fullName);
+                    console.log('Fallback avatar for:', encodedName);
+                    e.target.src = `https://ui-avatars.com/api/?name=${encodedName}&size=150&background=random`;
+                  }}
                 />
               </button>
 
@@ -457,14 +500,16 @@ export const Header = ({ variant = 'transparent', isFixed = true }) => {
                         <LayoutDashboard className="w-4 h-4" />
                         <span>Bảng điều khiển</span>
                       </Link>
-                      <div className="border-t-2 border-border my-3"></div>
-                      <a
-                        href="#"
+
+                       {/* thêm link để connect đến page profile */}
+                      <Link
+                        to="/profile"
+                        onClick={() => setIsUserMenuOpen(false)}
                         className="flex items-center gap-3 px-3 py-2 text-sm text-text-primary dark:text-white hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-colors"
                       >
                         <User className="w-4 h-4" />
                         <span>Hồ sơ</span>
-                      </a>
+                      </Link>
 
                       <a
                         href="#"
@@ -619,19 +664,30 @@ export const Header = ({ variant = 'transparent', isFixed = true }) => {
               >
                 Khám phá
               </p>
-              {categories.map((category, index) => {
-                const IconComponent = category.icon;
-                return (
-                  <a
-                    key={index}
-                    href={category.href}
-                    className={`flex items-center space-x-3 px-4 py-2 rounded-lg ${currentVariant.navLink} hover:bg-white/10 dark:hover:bg-darker-2-light/40 transition-colors`}
-                  >
-                    <IconComponent className='w-4 h-4' />
-                    <span className='text-sm'>{category.name}</span>
-                  </a>
-                );
-              })}
+              {loadingCategories ? (
+                <div className="px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+                  Đang tải danh mục...
+                </div>
+              ) : categories.length > 0 ? (
+                categories.map((category) => {
+                  const IconComponent = category.icon;
+                  return (
+                    <Link
+                      key={category.id}
+                      to={category.href}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className={`flex items-center space-x-3 px-4 py-2 rounded-lg ${currentVariant.navLink} hover:bg-white/10 dark:hover:bg-darker-2-light/40 transition-colors`}
+                    >
+                      <IconComponent className={`w-4 h-4 ${category.color}`} />
+                      <span className='text-sm'>{category.name}</span>
+                    </Link>
+                  );
+                })
+              ) : (
+                <div className="px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+                  Không có danh mục
+                </div>
+              )}
             </div>
 
             {/* Mobile Theme Toggle */}

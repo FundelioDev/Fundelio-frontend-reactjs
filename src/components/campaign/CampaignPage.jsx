@@ -3,55 +3,80 @@ import RewardsColumn from './rewards/RewardsColumn';
 import StoryWithMenu from './story/StoryWithMenu';
 import TocMenu from './story/TocMenu';
 
-/**
- * Custom hook for scroll spy functionality
- */
 const useScrollSpy = (sectionIds) => {
   const [activeId, setActiveId] = useState('');
 
   useEffect(() => {
-    if (!sectionIds || sectionIds.length === 0) return;
+    if (!sectionIds || sectionIds.length === 0) {
+      return;
+    }
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        // Find the first intersecting entry
-        const intersecting = entries.find((entry) => entry.isIntersecting);
+    let observer = null;
+    let updateTimeout = null;
 
-        if (intersecting) {
-          console.log('📍 Scroll Spy Active:', intersecting.target.id);
-          setActiveId(intersecting.target.id);
+    const timeoutId = setTimeout(() => {
+      observer = new IntersectionObserver(
+        (entries) => {
+          if (updateTimeout) {
+            clearTimeout(updateTimeout);
+          }
+
+          updateTimeout = setTimeout(() => {
+            const intersectingElements = [];
+
+            sectionIds.forEach((id) => {
+              const element = document.getElementById(id);
+              if (element) {
+                const rect = element.getBoundingClientRect();
+                const viewportHeight = window.innerHeight;
+
+                if (rect.top < viewportHeight * 0.5 && rect.bottom > viewportHeight * 0.2) {
+                  intersectingElements.push({
+                    id,
+                    top: rect.top,
+                    bottom: rect.bottom,
+                    priority: Math.abs(rect.top - viewportHeight * 0.3)
+                  });
+                }
+              }
+            });
+
+            intersectingElements.sort((a, b) => a.priority - b.priority);
+
+            if (intersectingElements.length > 0) {
+              const newActiveId = intersectingElements[0].id;
+              setActiveId(prev => prev !== newActiveId ? newActiveId : prev);
+            }
+          }, 50);
+        },
+        {
+          rootMargin: '-5% 0px -50% 0px',
+          threshold: [0, 0.25, 0.5, 0.75, 1.0],
         }
-      },
-      {
-        rootMargin: '0px 0px -60% 0px',
-        threshold: 0.2,
-      }
-    );
+      );
 
-    // Observe all sections
-    console.log('👀 Observing sections:', sectionIds);
-    sectionIds.forEach((id) => {
-      const element = document.getElementById(id);
-      if (element) {
-        observer.observe(element);
-        console.log('✅ Observing:', id);
-      } else {
-        console.warn('⚠️ Element not found:', id);
-      }
-    });
+      sectionIds.forEach((id) => {
+        const element = document.getElementById(id);
+        if (element) {
+          observer.observe(element);
+        }
+      });
+    }, 100);
 
     return () => {
-      observer.disconnect();
+      clearTimeout(timeoutId);
+      if (updateTimeout) {
+        clearTimeout(updateTimeout);
+      }
+      if (observer) {
+        observer.disconnect();
+      }
     };
   }, [sectionIds]);
 
   return activeId;
 };
 
-/**
- * CampaignPage Component
- * Main campaign page with 3 columns: Rewards / Story / Menu
- */
 const CampaignPage = ({
   rewards = [],
   creator,
@@ -75,16 +100,12 @@ const CampaignPage = ({
   }, [activeId, sortedBlanks.length]);
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[360px_minmax(0,1fr)_260px] gap-6 lg:gap-8">
+    <div className="grid grid-cols-1 lg:grid-cols-[260px_minmax(0,1fr)_360px] gap-6 lg:gap-8">
       {/* Left Column - Rewards */}
-      <div className="order-1">
-        <RewardsColumn
-          rewards={rewards}
-          creator={creator}
-          currency={currency}
-          onPledge={onPledge}
-        />
+      <div className="order-1 hidden lg:block">
+        <TocMenu blanks={sortedBlanks} activeId={activeId} />
       </div>
+
 
       {/* Middle Column - Story */}
       <div className="order-2">
@@ -92,8 +113,13 @@ const CampaignPage = ({
       </div>
 
       {/* Right Column - TOC Menu */}
-      <div className="order-3 hidden lg:block">
-        <TocMenu blanks={sortedBlanks} activeId={activeId} />
+      <div className="order-3">
+        <RewardsColumn
+          rewards={rewards}
+          creator={creator}
+          currency={currency}
+          onPledge={onPledge}
+        />
       </div>
     </div>
   );

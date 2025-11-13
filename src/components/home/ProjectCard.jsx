@@ -165,7 +165,7 @@ export const ProjectCard = ({
             <div className="flex-1 min-w-0">
               <p className="text-xs text-muted-foreground mb-0.5">Tổng kinh phí</p>
               <p className="text-lg font-bold text-text-primary dark:text-white truncate">
-                {typeof pledged === 'string' ? pledged : formatCurrency(pledged)} VND
+                {typeof pledged === 'string' ? pledged : pledged} VND
               </p>
             </div>
 
@@ -178,7 +178,7 @@ export const ProjectCard = ({
                   cy="28"
                   r="24"
                   stroke="currentColor"
-                  strokeWidth="4"
+                  strokeWidth="2"
                   fill="none"
                   className="text-gray-200 dark:text-gray-700"
                 />
@@ -188,7 +188,7 @@ export const ProjectCard = ({
                   cy="28"
                   r="24"
                   stroke="url(#circularGradient)"
-                  strokeWidth="4"
+                  strokeWidth="2"
                   fill="none"
                   strokeLinecap="round"
                   strokeDasharray={`${2 * Math.PI * 24}`}

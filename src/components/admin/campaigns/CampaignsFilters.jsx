@@ -36,6 +36,10 @@ export const CampaignsFilters = ({
             <SelectItem value='pending'>Chờ duyệt</SelectItem>
             <SelectItem value='approved'>Đã duyệt</SelectItem>
             <SelectItem value='rejected'>Từ chối</SelectItem>
+            <SelectItem value='active'>Đang gây quỹ</SelectItem>
+            <SelectItem value='successful'>Thành công</SelectItem>
+            <SelectItem value='failed'>Thất bại</SelectItem>
+            <SelectItem value='cancelled'>Đã hủy</SelectItem>
           </SelectContent>
         </Select>
       </div>

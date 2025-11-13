@@ -199,7 +199,7 @@ export default function ColorPicker({ onColorSelect }) {
       {/* Trigger Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1.5 px-3 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors dark:text-white"
+        className="flex items-center gap-1.5 px-3 py-2 border border-border bg-white dark:bg-darker rounded-lg text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors dark:text-white"
         title="Text Color"
       >
         <Palette className="w-4 h-4" />
@@ -208,9 +208,8 @@ export default function ColorPicker({ onColorSelect }) {
           style={{ backgroundColor: selectedColor }}
         />
         <ChevronDown
-          className={`w-3.5 h-3.5 transition-transform ${
-            isOpen ? 'rotate-180' : ''
-          }`}
+          className={`w-3.5 h-3.5 transition-transform ${isOpen ? 'rotate-180' : ''
+            }`}
         />
       </button>
 
@@ -224,7 +223,7 @@ export default function ColorPicker({ onColorSelect }) {
           />
 
           {/* Color Palette */}
-          <div className="absolute top-full left-0 mt-2 p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl z-20 w-[280px] animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="absolute top-full left-0 mt-2 p-3 bg-white dark:bg-darker border border-border rounded-lg shadow-xl z-20 w-[280px] animate-in fade-in slide-in-from-top-2 duration-200">
             <div className="mb-2">
               <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Chọn màu chữ
@@ -235,11 +234,10 @@ export default function ColorPicker({ onColorSelect }) {
                   <button
                     key={`${color}-${index}`}
                     onClick={() => handleColorClick(color)}
-                    className={`w-6 h-6 rounded border-2 hover:scale-110 transition-transform ${
-                      selectedColor === color
+                    className={`w-6 h-6 rounded border-2 hover:scale-110 transition-transform ${selectedColor === color
                         ? 'border-primary ring-2 ring-primary/30'
                         : 'border-gray-300 dark:border-gray-600'
-                    }`}
+                      }`}
                     style={{ backgroundColor: color }}
                     title={color}
                   />

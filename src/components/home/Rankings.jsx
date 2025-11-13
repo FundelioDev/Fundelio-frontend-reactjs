@@ -44,7 +44,7 @@ export const Rankings = ({
             <select
               value={timeFilter}
               onChange={(e) => setTimeFilter(e.target.value)}
-              className="px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-colors"
+              className="px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-colors"
             >
               <option value="24h">24 giờ qua</option>
               <option value="7d">7 ngày qua</option>
@@ -56,7 +56,7 @@ export const Rankings = ({
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className="px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-colors"
+              className="px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-colors"
             >
               <option value="all">Tất cả danh mục</option>
               <option value="game">Trò chơi</option>

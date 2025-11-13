@@ -50,7 +50,7 @@ export const AuthLayout = ({ children }) => {
     <div className='relative w-screen max-w-[100vw] overflow-x-hidden'>
       {/* AuthHeader với z-index cao hơn để đảm bảo hiển thị trên cùng */}
       <div className='z-[100] relative'>
-        <Header variant='light' />
+        <Header variant='light' landing/>
       </div>
 
       <motion.div

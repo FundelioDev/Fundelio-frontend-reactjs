@@ -1,120 +1,142 @@
 import { motion } from 'framer-motion';
-import { UsersIcon, MapPinIcon, CalendarIcon, PackageIcon } from 'lucide-react';
+import { Calendar, Users, ChevronRight } from 'lucide-react';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
-// import type { Reward } from '@/stores/rewardStore';
+import { useState } from 'react';
+import { RewardDetailModal } from './RewardDetailModal';
 
-// interface RewardDetailCardProps {
-//   reward: Reward;
-// }
-
-export function RewardDetailCard({ reward }) {
-  const percentageRemaining = reward.limitedQuantity
-    ? (reward.limitedQuantity.remaining / reward.limitedQuantity.total) * 100
-    : 100;
-
-  console.log('reward in RewardDetailCard:', reward);
+export function RewardDetailCard({ reward, items = [], addOns = [], onSelectReward, showChooseButton = false }) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Format delivery date
   const eta = reward.estimated_delivery
-    ? new Date(reward.estimated_delivery).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
-    : 'TBD';
+    ? new Date(reward.estimated_delivery).toLocaleDateString('vi-VN', { month: 'long', year: 'numeric' })
+    : 'Chưa xác định';
+
+  // Format price
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat('vi-VN').format(price);
+  };
+
+  // Get original price if discounted
+  const hasDiscount = reward.original_price && reward.original_price > reward.min_pledge_amount;
 
   return (
-    <Card className="overflow-hidden border border-border/50 h-fit sticky top-8 max-w-[380px] mx-auto">
-      {/* Image Section - 16:9 aspect ratio */}
-      <div className="relative aspect-[16/9] overflow-hidden bg-white dark:bg-darker-2">
-        <img
-          src={reward.image_url || reward.image}
-          alt={reward.imageAlt || reward.title}
-          className="w-full h-full object-cover"
-        />
-      </div>
-
-      {/* Content Section - Reduced padding */}
-      <div className="p-4 bg-white dark:bg-darker-2">
-        <h3 className="text-base font-bold text-foreground mb-3 leading-tight">
-          {reward.title}
-        </h3>
-
-        {/* Stats Grid - Vertical layout for narrow card */}
-        <div className="space-y-3 mb-4">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-sm gradient-2 flex items-center justify-center flex-shrink-0">
-              <UsersIcon className="w-4 h-4 text-white" strokeWidth={2} />
-            </div>
-            <div className="flex-1">
-              <p className="text-xs text-muted-foreground">Người ủng hộ</p>
-              <p className="text-base font-bold text-primary">{reward.backers}</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-sm gradient-3 flex items-center justify-center flex-shrink-0">
-              <MapPinIcon className="w-4 h-4 text-white" strokeWidth={2} />
-            </div>
-            <div className="flex-1">
-              <p className="text-xs text-muted-foreground">Giao đến</p>
-              <p className="text-xs font-semibold text-foreground">{reward.ships_to}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Delivery Info - Smaller */}
-        <div
-          className="p-3 rounded-sm mb-4"
-          style={{
-            background: 'linear-gradient(135deg, rgba(8, 148, 226, 0.08) 0%, rgba(30, 199, 148, 0.08) 100%)',
-            border: '1px solid rgba(8, 148, 226, 0.15)',
-          }}
-        >
-          <div className="flex items-center gap-2">
-            <CalendarIcon className="w-4 h-4 text-primary" strokeWidth={2} />
-            <div>
-              <p className="text-xs text-muted-foreground">Thời gian giao hàng dự kiến</p>
-              <p className="text-sm font-semibold text-foreground">{eta}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Limited Quantity - Smaller */}
-        {reward.limitedQuantity && (
-          <div className="mb-4">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <PackageIcon className="w-4 h-4 text-warning" strokeWidth={2} />
-                <span className="text-xs font-semibold text-foreground">Số lượng giới hạn</span>
-              </div>
-              <span className="text-xs font-bold text-warning">
-                {reward.limitedQuantity.remaining} left of {reward.limitedQuantity.total}
-              </span>
-            </div>
-            <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
-              <motion.div
-                className="h-full rounded-full"
-                style={{
-                  background: percentageRemaining > 50
-                    ? 'linear-gradient(90deg, #1EC794 0%, #0894E2 100%)'
-                    : percentageRemaining > 25
-                      ? 'linear-gradient(90deg, #FFB700 0%, #FF9603 100%)'
-                      : 'linear-gradient(90deg, #FF6D03 0%, #C44C93 100%)',
-                }}
-                initial={{ width: 0 }}
-                animate={{ width: `${percentageRemaining}%` }}
-                transition={{ duration: 1, ease: 'easeOut' }}
+    <>
+      <Card className="overflow-hidden rounded-lg border border-border/50 hover:shadow-lg transition-shadow bg-white dark:bg-darker-2">
+        {/* Flexbox Layout - Image Left, Content Right */}
+        <div className="flex flex-col md:flex-row">
+          {/* Left - Image Section */}
+          <div className="md:w-1/2 lg:w-1/2 flex-shrink-0">
+            <div className=" aspect-[4/3] h-full overflow-hidden bg-gray-100 dark:bg-darker">
+              <img
+                src={reward.imageUrl || reward.image}
+                alt={reward.imageAlt || reward.title}
+                className="w-full h-full object-cover"
               />
+              {/* Featured Badge */}
+              {reward.featured && (
+                <div className="absolute top-3 left-3">
+                  <span className="px-3 py-1 bg-primary text-white text-xs font-bold rounded-sm">
+                    NỔI BẬT
+                  </span>
+                </div>
+              )}
             </div>
           </div>
-        )}
 
-        {/* CTA Button - Smaller */}
-        <Button
-          className="w-full font-bold text-white bg-primary shadow-lg h-10 text-sm flex items-center justify-center gap-2"
-        >
-          <span>Ủng hộ {reward.min_pledge_amount}</span>
-          <span className="text-sm font-semibold text-muted-foreground">VND</span>
-        </Button>
-      </div>
-    </Card>
+          {/* Right - Content Section */}
+          <div className="flex-1 flex flex-col justify-between bg-white dark:bg-darker-2">
+            <div className="p-5 md:p-7">
+              {/* Title */}
+              <h3 className="text-xl md:text-2xl font-bold text-foreground mb-4 leading-tight"
+                style={{ fontFamily: "'Roboto Slab', serif" }}>
+                {reward.title}
+              </h3>
+
+              {/* Price Section */}
+              <div className="mb-4">
+                <div className="flex items-baseline gap-2 mb-1">
+                  <span className="text-[22px] font-bold text-primary">
+                    {formatPrice(reward.minPledgeAmount)} <span className="text-base">VND</span>
+                  </span>
+                  {hasDiscount && (
+                    <span className="text-lg text-muted-foreground line-through">
+                      {formatPrice(reward.originalPrice)} VND
+                    </span>
+                  )}
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Giá thấp nhất trong 30 ngày qua: {formatPrice(reward.min_pledge_amount)} VND
+                </p>
+              </div>
+
+              {/* Perks info if available */}
+              {reward.perk_name && (
+                <p className="text-base text-foreground font-semibold mb-4">
+                  {reward.perkName}
+                </p>
+              )}
+
+              {/* More info link */}
+              <div onClick={() => setIsModalOpen(true)} className="text-primary text-base font-semibold hover:underline mb-6 inline-flex items-center gap-1">
+                Xem thêm <ChevronRight className="w-4 h-4" />
+              </div>
+
+              {/* Stats */}
+              <div className="flex items-center gap-6 mb-6 text-sm text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <Users className="w-4 h-4" />
+                  <span className="font-semibold text-foreground">{reward.backers || 0} lượt ủng hộ</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4" />
+                  <span>{reward.shipsTo}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* CTA Buttons */}
+            <div className="mt-auto">
+              {showChooseButton ? (
+                <div className="space-y-3 p-5 md:p-7 pt-0">
+                  <Button
+                    className="w-full font-bold text-white bg-primary hover:bg-primary/90 shadow-lg h-14 text-base"
+                    onClick={() => setIsModalOpen(true)}
+                  >
+                    CHỌN GÓI NÀY
+                  </Button>
+                  <div className="text-center text-sm font-semibold text-muted-foreground">HOẶC</div>
+                  <Button
+                    variant="outline"
+                    className="w-full font-bold h-14 text-base border-2 border-primary text-primary hover:bg-primary/10"
+                    onClick={() => setIsModalOpen(true)}
+                  >
+                    + CHỌN GÓI KHÁC
+                  </Button>
+                </div>
+              ) : (
+                <Button
+                  className="w-full font-bold text-white bg-primary hover:bg-primary/90 shadow-lg rounded-none rounded-b-r-lg h-11 text-base"
+                  onClick={() => setIsModalOpen(true)}
+                >
+                  THÊM VÀO GIỎ
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+      </Card>
+
+      {/* Modal */}
+      <RewardDetailModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        reward={reward}
+        items={items}
+        addOns={addOns}
+        onSelectReward={onSelectReward}
+      />
+    </>
   );
 }

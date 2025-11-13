@@ -1,34 +1,84 @@
-import { useState, useRef, forwardRef, useImperativeHandle } from "react"
+import { useState, useRef, forwardRef, useImperativeHandle, useMemo, useEffect } from "react"
 import Button from "@/components/common/Button"
 import Input from "@/components/common/Input"
 import Checkbox from "@/components/common/Checkbox"
 import ItemSelector from "@/components/common/ItemSelector"
 import Textarea from "@/components/common/Textarea"
 import Tip from "@/components/common/Tip"
+import { Trash2, X } from "lucide-react"
 
 const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onChange, type = 'reward' }, ref) => {
   const isAddon = type === 'addon'
   const formRef = useRef(null)
 
-  const [formData, setFormData] = useState(
-    reward || {
-      id: isAddon ? `a${Date.now()}` : `r${Date.now()}`,
-      title: "",
-      description: "",
-      image: null,
-      price: 0,
-      items: [],
-      delivery: { month: new Date().getMonth() + 1, year: new Date().getFullYear() },
-      shipping: isAddon ? undefined : "anywhere",
-      limitTotal: null,
-      limitPerBacker: isAddon ? undefined : null,
-      allowAddOns: isAddon ? undefined : false,
-      offeredWithRewardIds: isAddon ? [] : undefined,
-    },
-  )
+  const [formData, setFormData] = useState({
+    id: isAddon ? `a${Date.now()}` : `r${Date.now()}`,
+    title: "",
+    description: "",
+    image: null,
+    minPledgeAmount: 0,
+    items: [],
+    additionalItems: [],
+    delivery: { month: new Date().getMonth() + 1, year: new Date().getFullYear() },
+    shipping: isAddon ? undefined : "anywhere",
+    shippingCountries: [],
+    limitTotal: null,
+    limitPerBacker: isAddon ? undefined : null,
+    allowAddOns: isAddon ? undefined : false,
+    offeredWithRewardIds: isAddon ? [] : undefined,
+    ...reward, // Merge with existing reward data if editing
+  })
   const [errors, setErrors] = useState({})
   const [showItemSelector, setShowItemSelector] = useState(false)
+  const [showAdditionalItemSelector, setShowAdditionalItemSelector] = useState(false)
+  const [countries, setCountries] = useState([])
+  const [loadingCountries, setLoadingCountries] = useState(false)
+  const [countrySearch, setCountrySearch] = useState("")
+  const [showCountryDropdown, setShowCountryDropdown] = useState(false)
   const fileInputRef = useRef(null)
+
+  // Calculate minPledgeAmount based on selected items
+  const minPledgeAmount = useMemo(() => {
+    return formData.items.reduce((total, selectedItem) => {
+      const item = items.find((i) => i.id === selectedItem.itemId)
+      return total + (item?.price || 0) * selectedItem.qty
+    }, 0)
+  }, [formData.items, items])
+
+  // Filter countries based on search
+  const filteredCountries = useMemo(() => {
+    if (!countrySearch.trim()) return countries
+    return countries.filter(country =>
+      country.niceName.toLowerCase().includes(countrySearch.toLowerCase()) ||
+      country.name.toLowerCase().includes(countrySearch.toLowerCase())
+    )
+  }, [countries, countrySearch])
+
+  // Fetch countries when shipping is set to custom
+  useEffect(() => {
+    if (formData.shipping === 'custom' && countries.length === 0) {
+      setLoadingCountries(true)
+      fetch('https://open.oapi.vn/location/countries')
+        .then(res => res.json())
+        .then(data => {
+          setCountries(data.data || [])
+          setLoadingCountries(false)
+        })
+        .catch(err => {
+          console.error('Failed to fetch countries:', err)
+          setLoadingCountries(false)
+        })
+    }
+  }, [formData.shipping, countries.length])
+
+  // Update formData.minPledgeAmount when minPledgeAmount changes
+  useEffect(() => {
+    if (formData.minPledgeAmount !== minPledgeAmount) {
+      const newData = { ...formData, minPledgeAmount }
+      setFormData(newData)
+      onChange(newData)
+    }
+  }, [minPledgeAmount])
 
   // Expose submit method to parent via ref
   useImperativeHandle(ref, () => ({
@@ -97,16 +147,62 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
     setShowItemSelector(false)
   }
 
+  const handleAdditionalItemsChange = (selectedItems) => {
+    const newData = {
+      ...formData,
+      additionalItems: selectedItems,
+    }
+    setFormData(newData)
+    onChange(newData)
+    setShowAdditionalItemSelector(false)
+  }
+
+  const handleCountrySelect = (e) => {
+    const countryId = e.target.value
+    if (!countryId) return
+
+    const country = countries.find(c => c.id === countryId)
+    if (country && !formData.shippingCountries.find(c => c.id === countryId)) {
+      const newData = {
+        ...formData,
+        shippingCountries: [...formData.shippingCountries, country]
+      }
+      setFormData(newData)
+      onChange(newData)
+    }
+    // Reset select
+    e.target.value = ''
+  }
+
+  const handleCountryToggle = (country) => {
+    const isSelected = formData?.shippingCountries?.find(c => c.id === country.id)
+
+    const newData = {
+      ...formData,
+      shippingCountries: isSelected
+        ? (formData?.shippingCountries || []).filter(c => c.id !== country.id)
+        : [...(formData?.shippingCountries || []), country]
+    }
+    setFormData(newData)
+    onChange(newData)
+  }
+
+  const handleCountryRemove = (countryId) => {
+    const newData = {
+      ...formData,
+      shippingCountries: formData.shippingCountries?.filter(c => c.id !== countryId)
+    }
+    setFormData(newData)
+    onChange(newData)
+  }
+
   const validate = () => {
     const newErrors = {}
     if (!formData.title.trim()) {
       newErrors.title = "Tiêu đề là bắt buộc"
     }
-    if (formData.price <= 0) {
-      newErrors.price = "Giá phải lớn hơn 0"
-    }
     if (formData.items.length === 0) {
-      newErrors.items = "Phải chọn ít nhất 1 thành phần"
+      newErrors.items = "Vui lòng chọn ít nhất một thành phần"
     }
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
@@ -243,21 +339,21 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
 
       {/* Pricing Section */}
       <div className="rounded-sm border border-border bg-white dark:bg-darker-2 p-6">
-        <h3 className="text-lg font-semibold text-foreground mb-4">Giá ủng hộ</h3>
+        <h3 className="text-lg font-semibold text-foreground mb-4">Giá ủng hộ tối thiểu</h3>
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">Giá (VND)<span className="text-lg font-bold text-primary">*</span></label>
             <Input
               type="number"
-              name="price"
-              value={formData.price}
-              onChange={handleChange}
+              name="minPledgeAmount"
+              value={minPledgeAmount}
               placeholder="0"
-              min="0"
-              step="0.01"
-              error={errors.price}
+              disabled
+              className="bg-muted cursor-not-allowed"
             />
-            {errors.price && <p className="mt-1 text-sm text-destructive">{errors.price}</p>}
+            <p className="mt-2 text-sm text-muted-foreground">
+              Giá tự động tính dựa trên tổng giá của các thành phần bao gồm
+            </p>
           </div>
 
           <div className="p-3 bg-muted/50 rounded-sm border border-border">
@@ -272,7 +368,7 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
 
       {/* Items Section */}
       {!isAddon && (<div className="rounded-sm border border-border bg-white dark:bg-darker-2 p-6">
-        <h3 className="text-lg font-semibold text-foreground mb-4">Thành phần</h3>
+        <h3 className="text-lg font-semibold text-foreground mb-4">Thành phần bao gồm</h3>
         <div className="space-y-4">
           <Button type="button" onClick={() => setShowItemSelector(true)} variant="secondary" className="w-full">
             Chọn thành phần
@@ -297,9 +393,10 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
                         setFormData(newData)
                         onChange(newData)
                       }}
-                      className="text-destructive hover:text-destructive/80 text-sm font-medium"
+                      className="text-destructive hover:text-destructive/80 p-1 rounded hover:bg-destructive/10 transition-colors"
+                      title="Xóa"
                     >
-                      Xóa
+                      <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
                 )
@@ -309,8 +406,48 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
           <Tip className="mt-2">Ít nhất 1 component. Mỗi component tương ứng 1 món sẽ giao cho backer.</Tip>
         </div>
       </div>
-)}
-      
+      )}
+
+      {/* Additional Items Section */}
+      {!isAddon && (<div className="rounded-sm border border-border bg-white dark:bg-darker-2 p-6">
+        <h3 className="text-lg font-semibold text-foreground mb-4">Thành phần thêm vào</h3>
+        <div className="space-y-4">
+          <Button type="button" onClick={() => setShowAdditionalItemSelector(true)} variant="secondary" className="w-full">
+            Chọn thành phần thêm
+          </Button>
+
+          {formData.additionalItems && formData.additionalItems.length > 0 && (
+            <div className="space-y-2">
+              {formData.additionalItems.map((selectedItem) => {
+                const item = items.find((i) => i.id === selectedItem.itemId)
+                return (
+                  <div key={selectedItem.itemId} className="flex items-center justify-between p-3 bg-muted rounded-sm">
+                    <span className="text-foreground font-medium">
+                      {item?.title} × {selectedItem.qty}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newItems = formData.additionalItems.filter((i) => i.itemId !== selectedItem.itemId)
+                        const newData = { ...formData, additionalItems: newItems }
+                        setFormData(newData)
+                        onChange(newData)
+                      }}
+                      className="text-destructive hover:text-destructive/80 p-1 rounded hover:bg-destructive/10 transition-colors"
+                      title="Xóa"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+          <Tip className="mt-2">Thành phần tùy chọn có thể được backer thêm vào phần thưởng này.</Tip>
+        </div>
+      </div>
+      )}
+
       {/* Delivery Section */}
       <div className="rounded-sm border border-border bg-white dark:bg-darker-2 p-6">
         <h3 className="text-lg font-semibold text-foreground mb-4">Thời gian giao dự kiến</h3>
@@ -374,8 +511,130 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
                 onChange={handleChange}
                 className="w-4 h-4"
               />
-              <span className="text-foreground">Tùy chỉnh (ghi chú)</span>
+              <span className="text-foreground">Tùy chỉnh quốc gia</span>
             </label>
+
+            {/* Country Selection - Show when custom is selected */}
+            {formData.shipping === "custom" && (
+              <div className="mt-4 space-y-3">
+                <div className="relative">
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Chọn quốc gia
+                  </label>
+
+                  {/* Search Input */}
+                  <Input
+                    type="text"
+                    placeholder={loadingCountries ? "Đang tải..." : "Tìm kiếm quốc gia..."}
+                    value={countrySearch}
+                    onChange={(e) => setCountrySearch(e.target.value)}
+                    onFocus={() => setShowCountryDropdown(true)}
+                    disabled={loadingCountries}
+                    className="w-full"
+                  />
+
+                  {/* Dropdown with Countries */}
+                  {showCountryDropdown && !loadingCountries && (
+                    <>
+                      {/* Backdrop to close dropdown */}
+                      <div
+                        className="fixed inset-0 z-10"
+                        onClick={() => setShowCountryDropdown(false)}
+                      />
+
+                      {/* Dropdown */}
+                      <div className="absolute z-20 w-full mt-1 bg-white dark:bg-darker-2 border border-border rounded-sm shadow-lg max-h-64 overflow-y-auto scrollbar-primary">
+                        {filteredCountries.length === 0 ? (
+                          <div className="p-3 text-sm text-muted-foreground text-center">
+                            Không tìm thấy quốc gia
+                          </div>
+                        ) : (
+                          <div className="p-2 space-y-1">
+                            {filteredCountries.map((country) => {
+                              const isSelected = formData?.shippingCountries?.find(c => c.id === country.id)
+                              return (
+                                <label
+                                  key={country.id}
+                                  className="flex items-center gap-3 p-2 hover:bg-muted rounded cursor-pointer transition-colors"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <input
+                                    type="checkbox"
+                                    checked={!!isSelected}
+                                    onChange={() => handleCountryToggle(country)}
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="w-4 h-4"
+                                  />
+                                  {/* <img
+                                    src={country.flag}
+                                    alt={country.niceName}
+                                    className="w-5 h-5 rounded object-cover"
+                                  /> */}
+                                  <span className="text-sm text-foreground flex-1">
+                                    {country.niceName}
+                                  </span>
+                                </label>
+                              )
+                            })}
+                          </div>
+                        )}
+
+                        {/* Footer with count */}
+                        {filteredCountries.length > 0 && (
+                          <div className="border-t border-border p-2 bg-muted/30">
+                            <div className="flex items-center justify-between text-xs text-muted-foreground">
+                              <span>Đã chọn: {formData?.shippingCountries?.length || 0}</span>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  setShowCountryDropdown(false)
+                                }}
+                                className="text-primary hover:text-primary/80 font-medium"
+                              >
+                                Đóng
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                {/* Selected Countries Tags */}
+                {formData.shippingCountries && formData.shippingCountries?.length > 0 && (
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-2">
+                      Quốc gia đã chọn ({formData.shippingCountries.length})
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {formData.shippingCountries.map((country) => (
+                        <div
+                          key={country.id}
+                          className="group inline-flex items-center gap-2 px-3 py-1.5 bg-primary/10 border border-primary/30 rounded-full text-sm font-medium text-foreground hover:bg-primary/20 transition-colors"
+                        >
+                          <img
+                            src={country.flag}
+                            alt={country.niceName}
+                            className="w-4 h-4 rounded-full object-cover"
+                          />
+                          <span>{country.niceName}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleCountryRemove(country.id)}
+                            className="opacity-0 group-hover:opacity-100 transition-opacity"
+                            title="Xóa"
+                          >
+                            <X className="w-4 h-4 text-destructive hover:text-destructive/80" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -419,9 +678,10 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
               }}
               placeholder="Không giới hạn"
               min="1"
+              onWheel={(e) => e.target.blur()}
             />
           </div>
-          {!isAddon && (
+          {/* {!isAddon && (
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">Giới hạn mỗi backer (tùy chọn)</label>
               <Input
@@ -439,24 +699,9 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
                 min="1"
               />
             </div>
-          )}
+          )} */}
         </div>
       </div>
-
-      {/* Add-ons Section - Only for rewards */}
-      {!isAddon && (
-        <div className="rounded-sm border border-border bg-white dark:bg-darker-2 p-6">
-          <Checkbox
-            checked={formData.allowAddOns}
-            onChange={(checked) => {
-              const newData = { ...formData, allowAddOns: checked }
-              setFormData(newData)
-              onChange(newData)
-            }}
-            label="Cho phép Add-ons cho phần thưởng này"
-          />
-        </div>
-      )}
 
       {/* Item Selector Modal */}
       {showItemSelector && (
@@ -465,6 +710,16 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
           selectedItems={formData.items}
           onConfirm={handleItemsChange}
           onClose={() => setShowItemSelector(false)}
+        />
+      )}
+
+      {/* Additional Item Selector Modal */}
+      {showAdditionalItemSelector && (
+        <ItemSelector
+          items={items}
+          selectedItems={formData.additionalItems || []}
+          onConfirm={handleAdditionalItemsChange}
+          onClose={() => setShowAdditionalItemSelector(false)}
         />
       )}
 

@@ -113,9 +113,8 @@ const Leaderboard = () => {
               </p>
               <div className="flex items-center gap-1.5">
                 <span className="text-md font-bold text-[#27e28b]">
-                  +{deltaAmount.toLocaleString('vi-VN')}
+                  +{deltaAmount.toLocaleString('vi-VN')} VND
                 </span>
-                <img src={coin} alt="Coin" className="inline-block w-4 h-4" />
               </div>
             </div>
           </div>
@@ -286,11 +285,11 @@ const Leaderboard = () => {
                   <div className="flex items-center gap-2 justify-end">
                     <span
                       ref={(el) => amountRefs.current[backer.id] = el}
-                      className="text-xl font-bold text-secondary tabular-nums"
+                      className="text-xl font-bold text-[#3eca88] tabular-nums"
                     >
                       {formatCurrency(backer.amount)}
                     </span>
-                    <span className="text-sm font-semibold text-muted-foreground">VND</span>
+                    <span className="text-sm font-semibold text-[#3eca88]">VND</span>
                   </div>
                 </div>
               </li>

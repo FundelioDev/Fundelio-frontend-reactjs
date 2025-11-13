@@ -2,7 +2,6 @@ import { useState, useEffect } from "react"
 import { useSelector, useDispatch } from "react-redux"
 import ComponentsTab from "./tabs/ComponenstTab"
 import RewardsTab from "./tabs/RewardsTab"
-import AddOnsTab from "./tabs/AddOnsTab"
 
 /**
  * @typedef {Object} Item
@@ -54,7 +53,7 @@ export default function RewardCreateTab() {
   // Sync URL hash with active tab
   useEffect(() => {
     const hash = window.location.hash.slice(1) || "component";
-    if (["component", "rewards", "addons"].includes(hash)) {
+    if (["component", "rewards"].includes(hash)) {
       setActiveTab(hash);
     }
   }, []);
@@ -67,14 +66,13 @@ export default function RewardCreateTab() {
   const tabs = [
     { id: "component", label: "Thành phần" },
     { id: "rewards", label: "Phần thưởng" },
-    { id: "addons", label: "Add-ons" },
   ]
 
   return (
     <div>
       <div className="mb-8">
-        <h2 className="text-2xl font-bold text-foreground mb-2">Phần thưởng & Add-ons</h2>
-        <p className="text-muted-foreground">Quản lý các phần thưởng, thành phần và add-ons cho dự án của bạn</p>
+        <h2 className="text-2xl font-bold text-foreground mb-2">Phần thưởng</h2>
+        <p className="text-muted-foreground">Quản lý các phần thưởng và thành phần cho dự án của bạn</p>
       </div>
 
       {/* Tab Navigation */}
@@ -105,12 +103,6 @@ export default function RewardCreateTab() {
         )}
         {activeTab === "rewards" && (
           <RewardsTab
-            state={rewardsState}
-            dispatch={dispatch}
-          />
-        )}
-        {activeTab === "addons" && (
-          <AddOnsTab
             state={rewardsState}
             dispatch={dispatch}
           />

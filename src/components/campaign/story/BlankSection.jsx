@@ -3,11 +3,12 @@ import React from 'react';
 /**
  * BlankSection Component
  * Renders a single blank section with title and content HTML
+ * Using camelCase convention
  */
 const BlankSection = React.memo(({ blank }) => {
-  const { id, order, title_html, content_html } = blank;
+  const { id, order, titleHtml, contentHtml } = blank;
 
-  console.log('Loading BlankSection:', id, order, title_html);
+  console.log('Loading BlankSection:', id, order, titleHtml);
 
   return (
     <section
@@ -17,15 +18,15 @@ const BlankSection = React.memo(({ blank }) => {
       className="scroll-mt-24 mb-8 last:mb-0"
     >
       {/* Title */}
-      {title_html && (
+      {titleHtml && (
         <h2
           className="text-3xl font-bold mb-3 text-black dark:text-white"
-          dangerouslySetInnerHTML={{ __html: title_html }}
+          dangerouslySetInnerHTML={{ __html: titleHtml }}
         />
       )}
 
       {/* Content */}
-      {content_html && (
+      {contentHtml && (
         <div
           className="prose prose-neutral dark:prose-invert max-w-none [&>*]:my-3 
             [&>h2]:text-2xl [&>h2]:font-bold [&>h2]:mt-6 [&>h2]:mb-3 [&>h2]:text-foreground dark:[&>h2]:text-text-white
@@ -36,7 +37,7 @@ const BlankSection = React.memo(({ blank }) => {
             [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:my-3 [&>ul]:text-text-secondary dark:[&>ul]:text-text-white
             [&>ol]:list-decimal [&>ol]:pl-6 [&>ol]:my-3 [&>ol]:text-text-secondary dark:[&>ol]:text-text-white
             [&>a]:text-primary [&>a]:underline [&>a]:hover:text-primary-600"
-          dangerouslySetInnerHTML={{ __html: content_html }}
+          dangerouslySetInnerHTML={{ __html: contentHtml }}
         />
       )}
     </section>

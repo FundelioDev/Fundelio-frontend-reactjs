@@ -24,6 +24,10 @@ import UserProfilePage from "@/pages/UserProfilePage";
 
 import VerifyChangeEmail from '@/components/auth/VerifyChangeEmail';
 
+import CampaignOverviewPage from '@/components/campaign/dashboard/CampaignOverviewPage';
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+
+
 /**
  * Application routes configuration
  */
@@ -43,34 +47,40 @@ export const router = createBrowserRouter([
         path: 'campaigns',
         children: [
           { path: 'detail', element: <CampaignDetailPage /> },
-          { path: 'preview/:previewId', element: <CampaignDetailPage /> },
+          { path: 'preview/:campaignId', element: <CampaignDetailPage isPreviewMode={true} /> },
+          { path: ':campaignId', element: <CampaignDetailPage /> },
+          { path: ':campaignId/dashboard', element: <CampaignOverviewPage /> },
         ],
       },
 
       { path: 'wallet', element: <WalletPage /> },
 
       { path: 'your-projects', element: <YourProjectsPage /> },
-
-      // Error pages
-      { path: '403', element: <ForbiddenPage /> },
-      { path: '404', element: <NotFoundPage /> },
-      // {
-      //   path: 'auth',
-      //   children: [
-      //     { path: 'login', element: <LoginPage /> },
-      //     { path: 'register', element: <RegisterPage /> },
-      //   ],
-      // }
-    ],
   },
   {
     path: '/campaigns/create',
     element: <CreateCampaignPage />,
   },
-
+  {
+    path: '/campaigns/:campaignId/edit',
+    element: <CreateCampaignPage />,
+  },
+  {
+    path: '/auth',
+    element: <AuthLayout />,
+    children: [
+      { index: true, element: <AuthPage /> },
+      { path: 'reset-password', element: <ResetPasswordPage /> },
+      { path: 'verify-active-account', element: <VerifyAccountPage /> },
+    ],
+  },
   {
     path: '/admin',
-    element: <AdminLayout />,
+    element: (
+      <ProtectedRoute requiredRole="ADMIN">
+        <AdminLayout />
+      </ProtectedRoute>
+    ),
     children: [
       { index: true, element: <AdminDashboard /> },
       { path: 'users', element: <UsersPage /> },
@@ -94,4 +104,5 @@ export const router = createBrowserRouter([
     path: '*',
     element: <NotFoundPage />,
   },
+   { path: '/403', element: <ForbiddenPage /> },
 ]);

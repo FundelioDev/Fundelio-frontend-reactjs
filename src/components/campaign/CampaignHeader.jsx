@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Bell, Share2 } from 'lucide-react';
+import { Bell, Share2, ChevronLeft, ChevronRight } from 'lucide-react';
 import Button from '@/components/common/Button';
 
 /**
@@ -42,13 +42,37 @@ const CampaignHeader = ({
     title = 'Campaign Title',
     highlights = [],
     creator = { name: 'Creator Name', location: 'Location', link: '#' },
-    imageUrl = '/images/campaign-hero.jpg',
+    introImageUrl = '/images/campaign-hero.jpg',
+    introVideoUrl = null,
     currency = 'HKD',
     pledged = 0,
     goal = 1,
     backers = 0,
     daysLeft = 0,
   } = campaign;
+
+  // State cho carousel
+  const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
+
+  // Tạo array media từ image và video
+  const mediaItems = [];
+  if (introImageUrl) {
+    mediaItems.push({ type: 'image', url: introImageUrl });
+  }
+  if (introVideoUrl) {
+    mediaItems.push({ type: 'video', url: introVideoUrl });
+  }
+
+  const totalMedia = mediaItems.length;
+  const hasMultipleMedia = totalMedia > 1;
+
+  const handlePrevMedia = () => {
+    setCurrentMediaIndex((prev) => (prev === 0 ? totalMedia - 1 : prev - 1));
+  };
+
+  const handleNextMedia = () => {
+    setCurrentMediaIndex((prev) => (prev === totalMedia - 1 ? 0 : prev + 1));
+  };
 
   // Calculate progress percentage
   const progressPercent = clampPercent((pledged / goal) * 100);
@@ -155,20 +179,74 @@ const CampaignHeader = ({
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
-          {/* Left Column - Campaign Image (60%) */}
+          {/* Left Column - Campaign Media (60%) */}
           <motion.div
             className="lg:col-span-7"
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.7, delay: 0.3 }}
           >
-            <div className="aspect-video overflow-hidden rounded-sm border-2 border-white/10 shadow-2xl">
-              <img
-                src={imageUrl}
-                alt={`Hình ảnh chiến dịch cho ${title}`}
-                className="w-full h-full object-cover"
-                loading="eager"
-              />
+            <div className="relative aspect-video overflow-hidden rounded-sm border-2 border-white/10 shadow-2xl">
+              {/* Media Display */}
+              {mediaItems.length > 0 && mediaItems[currentMediaIndex] && (
+                <>
+                  {mediaItems[currentMediaIndex].type === 'image' ? (
+                    <img
+                      src={mediaItems[currentMediaIndex].url}
+                      alt={`Hình ảnh chiến dịch cho ${title}`}
+                      className="w-full h-full object-cover"
+                      loading="eager"
+                    />
+                  ) : (
+                    <video
+                      src={mediaItems[currentMediaIndex].url}
+                      className="w-full h-full object-cover"
+                      controls
+                      autoPlay
+                      muted
+                      loop
+                    />
+                  )}
+                </>
+              )}
+
+              {/* Navigation Arrows - Only show if multiple media */}
+              {hasMultipleMedia && (
+                <>
+                  {/* Previous Button */}
+                  <button
+                    onClick={handlePrevMedia}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center text-white transition-all duration-200 backdrop-blur-sm"
+                    aria-label="Previous media"
+                  >
+                    <ChevronLeft size={24} />
+                  </button>
+
+                  {/* Next Button */}
+                  <button
+                    onClick={handleNextMedia}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center text-white transition-all duration-200 backdrop-blur-sm"
+                    aria-label="Next media"
+                  >
+                    <ChevronRight size={24} />
+                  </button>
+
+                  {/* Media Indicators */}
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                    {mediaItems.map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setCurrentMediaIndex(index)}
+                        className={`w-2 h-2 rounded-full transition-all duration-200 ${index === currentMediaIndex
+                            ? 'bg-white w-6'
+                            : 'bg-white/50 hover:bg-white/70'
+                          }`}
+                        aria-label={`Go to media ${index + 1}`}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
 
             {/* Creator Information */}

@@ -1,5 +1,7 @@
 import { useRef, useEffect, memo } from 'react';
+import toast from 'react-hot-toast';
 import { buildVideoEmbed } from '../../../../utils/embed';
+import { storageApi } from '@/api/storageApi';
 
 /**
  * BlankSection component - A single editable section with title and content
@@ -14,15 +16,22 @@ function BlankSection({ blank, onTitleChange, onContentChange, onFocus }) {
   const editorRef = useRef(null);
 
   useEffect(() => {
-    // Set initial content only once when component mounts
-    if (titleRef.current && !titleRef.current.innerHTML) {
-      titleRef.current.innerHTML = blank.titleHtml || 'Untitled';
+    // Update content when blank data changes from Redux
+    if (titleRef.current && blank.titleHtml !== undefined) {
+      const currentTitle = titleRef.current.innerHTML;
+      if (currentTitle !== blank.titleHtml) {
+        titleRef.current.innerHTML = blank.titleHtml || 'Untitled';
+      }
     }
-    if (editorRef.current && !editorRef.current.innerHTML) {
-      editorRef.current.innerHTML = blank.contentHtml || '';
+
+    if (editorRef.current && blank.contentHtml !== undefined) {
+      const currentContent = editorRef.current.innerHTML;
+      // Only update if content is actually different to avoid cursor issues
+      if (currentContent !== blank.contentHtml) {
+        editorRef.current.innerHTML = blank.contentHtml || '';
+      }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [blank.titleHtml, blank.contentHtml]);
 
   const handleTitleInput = () => {
     if (titleRef.current) {
@@ -36,24 +45,63 @@ function BlankSection({ blank, onTitleChange, onContentChange, onFocus }) {
 
   const handleContentInput = () => {
     if (editorRef.current) {
-      onContentChange(blank.id, editorRef.current.innerHTML);
+      const html = editorRef.current.innerHTML;
+      console.log('BlankSection handleContentInput - Blank ID:', blank.id, 'HTML length:', html.length);
+      onContentChange(blank.id, html);
     }
   };
 
-  const handleDrop = (e) => {
+  const handleDrop = async (e) => {
     e.preventDefault();
     if (!e.dataTransfer.files.length) return;
 
     const file = e.dataTransfer.files[0];
     if (!file.type.startsWith('image/')) return;
 
-    const url = URL.createObjectURL(file);
-    const img = document.createElement('img');
-    img.src = url;
-    img.className = 'max-w-full h-auto block mx-auto my-4 rounded-xl';
+    // Create loading overlay
+    const overlay = document.createElement('div');
+    overlay.className = 'absolute inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-10 rounded-xl';
+    overlay.innerHTML = `
+      <div class="flex flex-col items-center gap-3">
+        <div class="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+        <span class="text-white text-sm font-medium">Đang tải ảnh lên...</span>
+      </div>
+    `;
 
-    placeBlock(editorRef.current, img);
-    handleContentInput();
+    // Add overlay to editor's parent (the section)
+    const section = editorRef.current?.closest('section');
+    if (section) {
+      section.style.position = 'relative';
+      section.appendChild(overlay);
+    }
+
+    try {
+      // Upload to server
+      const response = await storageApi.uploadSingleFile(file, 'campaigns/story-images');
+
+      if (response?.data?.data?.fileUrl) {
+        const imageUrl = response.data.data.fileUrl;
+
+        // Create and insert actual image
+        const img = document.createElement('img');
+        img.src = imageUrl;
+        img.className = 'max-w-full h-auto block mx-auto my-4 rounded-xl';
+        img.alt = file.name;
+
+        placeBlock(editorRef.current, img);
+        handleContentInput();
+      } else {
+        toast.error('Không lấy được URL ảnh sau khi tải lên');
+      }
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast.error(error.response?.data?.errors?.[0]?.message || 'Lỗi tải ảnh lên');
+    } finally {
+      // Remove overlay
+      if (overlay && overlay.parentNode) {
+        overlay.remove();
+      }
+    }
   };
 
   const handlePaste = (e) => {
@@ -63,6 +111,7 @@ function BlankSection({ blank, onTitleChange, onContentChange, onFocus }) {
       if (iframe) {
         e.preventDefault();
         placeBlock(editorRef.current, iframe);
+        // Trigger content change callback immediately
         handleContentInput();
       }
     }
@@ -103,7 +152,7 @@ function BlankSection({ blank, onTitleChange, onContentChange, onFocus }) {
         ref={titleRef}
         contentEditable
         suppressContentEditableWarning
-        className="w-full px-4 py-3 text-xl font-semibold border border-gray-300 dark:border-gray-700 rounded-sm mb-4 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-darker dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-600"
+        className="w-full px-4 py-3 text-xl font-semibold border border-border rounded-sm mb-4 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-darker dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-600"
         placeholder="Tiêu đề blank..."
         spellCheck={false}
         onInput={handleTitleInput}
@@ -116,7 +165,7 @@ function BlankSection({ blank, onTitleChange, onContentChange, onFocus }) {
         contentEditable
         suppressContentEditableWarning
         spellCheck={false}
-        className="min-h-[40vh] p-4 border border-gray-300 dark:border-gray-700 rounded-sm 
+        className="min-h-[40vh] p-4 border border-border rounded-sm 
         focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent 
         dark:bg-darker dark:text-white prose prose-sm dark:prose-invert max-w-none
         [&_i]:italic [&_em]:italic"
@@ -131,9 +180,23 @@ function BlankSection({ blank, onTitleChange, onContentChange, onFocus }) {
   );
 }
 
-// ✨ Custom comparison function - chỉ re-render khi blank.id thay đổi
+// ✨ Custom comparison function - re-render when content changes
 export default memo(BlankSection, (prevProps, nextProps) => {
   // Return true nếu props GIỐNG NHAU (không cần re-render)
   // Return false nếu props KHÁC NHAU (cần re-render)
-  return prevProps.blank.id === nextProps.blank.id;
+
+  // Re-render if blank ID changes or content changes
+  if (prevProps.blank.id !== nextProps.blank.id) {
+    return false; // Different blank, need re-render
+  }
+
+  if (prevProps.blank.contentHtml !== nextProps.blank.contentHtml) {
+    return false; // Content changed, need re-render
+  }
+
+  if (prevProps.blank.titleHtml !== nextProps.blank.titleHtml) {
+    return false; // Title changed, need re-render
+  }
+
+  return true; // Props are the same, skip re-render
 });

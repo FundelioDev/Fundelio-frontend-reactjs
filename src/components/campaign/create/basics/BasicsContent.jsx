@@ -9,33 +9,57 @@ import toast from 'react-hot-toast';
 import { setBasics } from '@/store/campaignSlice';
 import { storageApi } from '@/api/storageApi';
 import { campaignApi } from '@/api/campaignApi';
+import { useCategories } from '@/hooks/useCategories';
 
-// API Categories: art, design, fashion, film, food, games, music, photography, publishing, technology, other
-const CATEGORIES = [
-  { value: 'art', label: 'Nghệ thuật' },
-  { value: 'design', label: 'Thiết kế' },
-  { value: 'fashion', label: 'Thời trang' },
-  { value: 'film', label: 'Phim & Video' },
-  { value: 'food', label: 'Thực phẩm & Thủ công' },
-  { value: 'games', label: 'Trò chơi' },
-  { value: 'music', label: 'Nhạc' },
-  { value: 'photography', label: 'Nhiếp ảnh' },
-  { value: 'publishing', label: 'Xuất bản' },
-  { value: 'technology', label: 'Công nghệ' },
-  { value: 'other', label: 'Khác' },
-];
+// Category label mapping for Vietnamese
+const CATEGORY_LABELS = {
+  ART: 'Nghệ thuật',
+  DESIGN: 'Thiết kế',
+  FASHION: 'Thời trang',
+  FILM: 'Phim & Video',
+  FOOD: 'Thực phẩm & Thủ công',
+  GAMES: 'Trò chơi',
+  MUSIC: 'Nhạc',
+  PHOTOGRAPHY: 'Nhiếp ảnh',
+  PUBLISHING: 'Xuất bản',
+  TECHNOLOGY: 'Công nghệ',
+  OTHER: 'Khác',
+};
 
-export default function BasicsContent() {
+export default function BasicsContent({ campaignId, isEditMode = false }) {
   const dispatch = useDispatch();
   const basicsData = useSelector((state) => state.campaign.basics);
 
-  const [formData, setFormData] = useState(basicsData);
+  // Use custom hook for categories with error handling
+  const { categories: categoriesData, loading: loadingCategories, error: categoriesError, refetch: refetchCategories } = useCategories();
+
+  // Initialize with empty state to avoid loading sample data
+  const [formData, setFormData] = useState({
+    campaignId: campaignId || '', // Include campaignId
+    title: '',
+    description: '',
+    goalAmount: '',
+    campaignCategory: '',
+    introImageUrl: '',
+    introVideoUrl: '',
+    startTime: '',
+    endTime: '',
+    acceptedTerms: false,
+  });
   const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [isUploadingVideo, setIsUploadingVideo] = useState(false);
-  const [fieldErrors, setFieldErrors] = useState({}); // Store field-specific errors
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [isInitialized, setIsInitialized] = useState(false);
   const imageInputRef = useRef(null);
   const videoInputRef = useRef(null);
+
+  // Show error toast if categories fail to load
+  useEffect(() => {
+    if (categoriesError) {
+      toast.error('Không thể tải danh sách danh mục. Vui lòng thử lại.');
+    }
+  }, [categoriesError]);
 
   // Initialize with default dates if empty
   useEffect(() => {
@@ -51,10 +75,13 @@ export default function BasicsContent() {
     }
   }, []);
 
-  // Sync with Redux when basicsData changes
+  // Initialize formData from Redux when basicsData is loaded (edit mode)
   useEffect(() => {
-    setFormData(basicsData);
-  }, [basicsData]);
+    if (isEditMode && basicsData.title && !isInitialized) {
+      setFormData(basicsData);
+      setIsInitialized(true);
+    }
+  }, [isEditMode, basicsData, isInitialized]); // Sync only once when data loads
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -73,53 +100,16 @@ export default function BasicsContent() {
     // Clear previous errors
     setFieldErrors({});
 
-    // Validate required fields
-    if (!formData.title.trim()) {
-      toast.error('Vui lòng nhập tiêu đề dự án');
-      return;
-    }
-    if (!formData.description?.trim()) {
-      toast.error('Vui lòng nhập mô tả ngắn');
-      return;
-    }
-    if (!formData.category) {
-      toast.error('Vui lòng chọn danh mục');
-      return;
-    }
-    if (!formData.goalAmount || formData.goalAmount < 1) {
-      toast.error('Vui lòng nhập mục tiêu gây quỹ (tối thiểu 1)');
-      return;
-    }
-    // if (!formData.imageUrl) {
-    //   toast.error('Vui lòng tải lên ảnh dự án');
-    //   return;
-    // }
-    if (!formData.startTime || !formData.endTime) {
-      toast.error('Vui lòng chọn thời gian chiến dịch');
-      return;
-    }
-    if (!formData.acceptedTerms) {
-      toast.error('Vui lòng chấp nhận điều khoản dịch vụ');
-      return;
-    }
-
-    // Validate end date is after start date
-    if (new Date(formData.endTime) <= new Date(formData.startTime)) {
-      toast.error('Ngày kết thúc phải sau ngày bắt đầu');
-      return;
-    }
-
     try {
-      // Convert dates to ISO 8601 format (YYYY-MM-DDTHH:mm:ss.sssZ)
       const startTimeISO = new Date(formData.startTime).toISOString();
       const endTimeISO = new Date(formData.endTime).toISOString();
 
-      // Prepare payload for API (excluding acceptedTerms and imageUrl for now)
       const payload = {
         title: formData.title,
         description: formData.description || undefined,
         goalAmount: Number(formData.goalAmount),
-        category: formData.category,
+        campaignCategory: formData.campaignCategory,
+        introImageUrl: formData.introImageUrl || undefined,
         introVideoUrl: formData.introVideoUrl || undefined,
         startTime: startTimeISO,
         endTime: endTimeISO,
@@ -128,28 +118,50 @@ export default function BasicsContent() {
       // Remove undefined fields
       Object.keys(payload).forEach(key => payload[key] === undefined && delete payload[key]);
 
-      toast.loading('Đang tạo chiến dịch...', { id: 'create-campaign' });
+      const toastId = isEditMode ? 'update-campaign' : 'create-campaign';
+      const loadingMsg = isEditMode ? 'Đang cập nhật chiến dịch...' : 'Đang tạo chiến dịch...';
+      const successMsg = isEditMode ? 'Cập nhật chiến dịch thành công!' : 'Tạo chiến dịch thành công!';
 
-      // Call API to create campaign
-      const response = await campaignApi.createCampaign(payload);
+      toast.loading(loadingMsg, { id: toastId });
+
+      // Call API to create or update campaign
+      const response = isEditMode && campaignId
+        ? await campaignApi.updateCampaign(campaignId, payload)
+        : await campaignApi.createCampaign(payload);
 
       if (response?.data?.data) {
-        // Save to Redux
-        dispatch(setBasics(formData));
-        toast.success('Tạo chiến dịch thành công!', { id: 'create-campaign' });
-        console.log('Campaign created:', response.data.data);
+        const responseData = response.data.data;
+        const updatedFormData = {
+          ...formData,
+          campaignId: responseData.campaignId,
+          title: responseData.title || formData.title,
+          description: responseData.description || formData.description,
+          goalAmount: responseData.goalAmount || formData.goalAmount,
+          campaignCategory: responseData.campaignCategory || formData.campaignCategory,
+          introImageUrl: responseData.introImageUrl || formData.introImageUrl,
+          introVideoUrl: responseData.introVideoUrl || formData.introVideoUrl,
+          startTime: responseData.startTime ? new Date(responseData.startTime).toISOString().split('T')[0] : formData.startTime,
+          endTime: responseData.endTime ? new Date(responseData.endTime).toISOString().split('T')[0] : formData.endTime,
+        };
+
+        // Update local state
+        setFormData(updatedFormData);
+
+        // Save merged data to Redux
+        dispatch(setBasics(updatedFormData));
+        toast.success(successMsg, { id: toastId });
       } else {
-        toast.error('Không nhận được phản hồi từ server', { id: 'create-campaign' });
+        toast.error('Không nhận được phản hồi từ server', { id: toastId });
       }
     } catch (error) {
-      console.error('Create campaign error:', error);
-      console.error('Response data:', error.response?.data);
+      const toastId = isEditMode ? 'update-campaign' : 'create-campaign';
 
-      // Handle field-specific errors
-      if (error.response?.data?.errors && Array.isArray(error.response.data.errors)) {
-        const errors = error.response.data.errors;
+      // Handle backend validation errors
+      if (error.errors && Array.isArray(error.errors)) {
+        const errors = error.errors;
         const newFieldErrors = {};
 
+        // Map backend errors to field errors
         errors.forEach(err => {
           if (err.field) {
             newFieldErrors[err.field] = err.message;
@@ -158,16 +170,25 @@ export default function BasicsContent() {
 
         setFieldErrors(newFieldErrors);
 
-        // Show first error message in toast
-        const firstError = errors[0];
-        toast.error(firstError?.message || 'Lỗi khi tạo chiến dịch', { id: 'create-campaign' });
-      } else {
-        // Fallback for non-field errors
+        const errorCount = errors.length;
         toast.error(
-          error.response?.data?.message ||
-          'Lỗi khi tạo chiến dịch',
-          { id: 'create-campaign' }
+          errorCount === 1
+            ? errors[0].message
+            : `Vui lòng kiểm tra lại thông tin`,
+          { id: toastId }
         );
+      } else if (error.response?.data?.message) {
+        // Handle single message error from backend
+        console.log('Backend message error:', error.response.data.message);
+        toast.error(error.response.data.message, { id: toastId });
+      } else if (error.message) {
+        // Handle network or other errors
+        console.log('Network/Other error:', error.message);
+        toast.error(error.message, { id: toastId });
+      } else {
+        // Final fallback
+        console.log('Unknown error format');
+        toast.error('Đã xảy ra lỗi không xác định', { id: toastId });
       }
     }
   };
@@ -190,9 +211,9 @@ export default function BasicsContent() {
 
       if (response?.data?.data?.fileUrl) {
         const imageUrl = response.data.data.fileUrl;
-        // setFormData(prev => ({ ...prev, imageUrl: imageUrl })); // Commented: API doesn't have imageUrl field yet
+        setFormData(prev => ({ ...prev, introImageUrl: imageUrl }));
         console.log('Image uploaded successfully:', imageUrl);
-        toast.success('Tải ảnh lên thành công! (Chưa lưu vào campaign)', { id: 'upload-image' });
+        toast.success('Tải ảnh lên thành công!', { id: 'upload-image' });
       } else {
         toast.error('Không lấy được URL ảnh sau khi tải lên', { id: 'upload-image' });
       }
@@ -314,6 +335,7 @@ export default function BasicsContent() {
                 name="goalAmount"
                 value={formData.goalAmount || ''}
                 onChange={handleChange}
+                onWheel={(e) => e.target.blur()}
                 placeholder="10000"
                 min="1"
                 className={fieldErrors.goalAmount ? 'border-red-500 focus:ring-red-500' : ''}
@@ -353,23 +375,34 @@ export default function BasicsContent() {
             Danh mục dự án <span className="text-primary">*</span>
           </label>
           <select
-            name="category"
-            value={formData.category}
+            name="campaignCategory"
+            value={formData.campaignCategory}
             onChange={handleChange}
-            className={`w-full px-4 py-2 border rounded-sm bg-background text-text-primary dark:text-white focus:ring-2 focus:border-transparent transition-all ${fieldErrors.category
-                ? 'border-red-500 focus:ring-red-500'
-                : 'border-border focus:ring-primary'
+            disabled={loadingCategories}
+            className={`w-full px-4 py-2 border rounded-sm bg-background text-text-primary dark:text-white focus:ring-2 focus:border-transparent transition-all ${fieldErrors.campaignCategory
+              ? 'border-red-500 focus:ring-red-500'
+              : 'border-border focus:ring-primary'
               }`}
           >
-            <option value="">Chọn danh mục</option>
-            {CATEGORIES.map((cat) => (
-              <option key={cat.value} value={cat.value}>
-                {cat.label}
+            <option value="">
+              {loadingCategories ? 'Đang tải...' : categoriesError ? 'Lỗi khi tải danh mục' : 'Chọn danh mục'}
+            </option>
+            {categoriesData.map((cat) => (
+              <option key={cat.key} value={cat.key}>
+                {cat.name}
               </option>
             ))}
           </select>
-          {fieldErrors.category && (
-            <p className="text-xs text-red-500 mt-1">{fieldErrors.category}</p>
+          {categoriesError && (
+            <button
+              onClick={refetchCategories}
+              className="text-xs text-primary hover:underline mt-1"
+            >
+              Thử lại
+            </button>
+          )}
+          {fieldErrors.campaignCategory && (
+            <p className="text-xs text-red-500 mt-1">{fieldErrors.campaignCategory}</p>
           )}
         </div>
       </div>
@@ -397,11 +430,10 @@ export default function BasicsContent() {
         </div>
 
         <div className="rounded-sm border border-border bg-white dark:bg-darker-2 p-6">
-          <h3 className="text-md font-semibold text-text-primary dark:text-white mb-4">Hình ảnh {/* <span className="text-primary">*</span> */}</h3>
+          <h3 className="text-md font-semibold text-text-primary dark:text-white mb-4">Hình ảnh <span className="text-primary">*</span></h3>
 
           {/* Upload Area - Only show when no image */}
-          {/* {!formData.imageUrl && ( */}
-          {true && (
+          {!formData.introImageUrl && (
             <div className="flex flex-col items-center">
               <div className="w-full max-w-2xl">
                 <div className="border-2 border-dashed border-border rounded-sm p-8 bg-muted/30 hover:bg-muted/50 transition-colors">
@@ -421,10 +453,6 @@ export default function BasicsContent() {
                     <p className="text-xs text-muted-foreground">
                       Thông số kỹ thuật hình ảnh: JPG, PNG, GIF hoặc WEBP, tỷ lệ 16:9, tối thiểu 1024 × 576 pixel, tối đa 50 MB
                     </p>
-
-                    <p className="text-xs text-amber-600 dark:text-amber-400 font-medium">
-                      Lưu ý: Chức năng upload ảnh đang tạm thời bị vô hiệu hóa vì API chưa hỗ trợ
-                    </p>
                   </div>
                 </div>
 
@@ -440,12 +468,12 @@ export default function BasicsContent() {
           )}
 
           {/* Image Preview - Only show when image exists */}
-          {/* {formData.imageUrl && (
+          {formData.introImageUrl && (
             <div className="flex flex-col items-center">
               <div className="w-full max-w-2xl">
                 <div className="relative aspect-video rounded-sm overflow-hidden bg-muted border border-border">
                   <img
-                    src={formData.imageUrl}
+                    src={formData.introImageUrl}
                     alt="Preview"
                     className="w-full h-full object-cover"
                   />
@@ -460,7 +488,7 @@ export default function BasicsContent() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setFormData(prev => ({ ...prev, imageUrl: null }))}
+                    onClick={() => setFormData(prev => ({ ...prev, introImageUrl: null }))}
                     className="px-4 py-2 border border-destructive text-destructive rounded-sm hover:bg-destructive/10 transition-colors text-sm font-medium"
                   >
                     Xóa ảnh
@@ -475,7 +503,7 @@ export default function BasicsContent() {
                 className="hidden"
               />
             </div>
-          )} */}
+          )}
 
           <div className="p-3 border-l-4 border-primary bg-primary/10 mt-4">
             <p className="text-xs text-muted-foreground">
@@ -710,7 +738,7 @@ export default function BasicsContent() {
           onClick={handleSave}
           className="px-8"
         >
-          Tạo chiến dịch
+          {isEditMode ? 'Lưu thay đổi' : 'Tạo chiến dịch'}
         </Button>
       </div>
     </div>

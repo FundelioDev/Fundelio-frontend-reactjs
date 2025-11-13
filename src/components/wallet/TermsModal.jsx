@@ -46,16 +46,16 @@ const TermsModal = ({ isOpen, onClose }) => {
                 </div>
 
                 {/* Content */}
-                <div className="p-6 overflow-y-auto max-h-[calc(80vh-140px)] space-y-6 text-gray-700 dark:text-gray-300">
+                <div className="p-6 overflow-y-auto max-h-[calc(80vh-140px)] space-y-6 text-gray-700 dark:text-gray-300 scrollbar-primary">
                     {/* Section 1 */}
                     <section>
                         <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-3">
                             1. Phạm vi áp dụng
                         </h3>
                         <p className="leading-relaxed">
-                            Điều khoản và điều kiện này áp dụng cho việc nạp tiền vào ví điện tử FundFountain.
+                            Điều khoản và điều kiện này áp dụng cho việc nạp tiền vào ví điện tử Fundelio.
                             Khi thực hiện giao dịch nạp tiền, bạn đã đọc, hiểu rõ và đồng ý tuân thủ tất cả các
-                            điều khoản được nêu trong tài liệu này. Ví FundFountain được sử dụng để thanh toán
+                            điều khoản được nêu trong tài liệu này. Ví Fundelio được sử dụng để thanh toán
                             các dịch vụ và tính năng trong hệ sinh thái của chúng tôi.
                         </p>
                     </section>
@@ -66,7 +66,7 @@ const TermsModal = ({ isOpen, onClose }) => {
                             2. Phương thức thanh toán VNPay
                         </h3>
                         <p className="leading-relaxed mb-2">
-                            FundFountain sử dụng cổng thanh toán VNPay để xử lý các giao dịch nạp tiền.
+                            Fundelio sử dụng cổng thanh toán VNPay để xử lý các giao dịch nạp tiền.
                             VNPay là một trong những cổng thanh toán điện tử uy tín tại Việt Nam, đảm bảo:
                         </p>
                         <ul className="list-disc list-inside space-y-1 ml-4">
@@ -92,7 +92,7 @@ const TermsModal = ({ isOpen, onClose }) => {
                             <li>Số lần nạp tiền không giới hạn (trong hạn mức cho phép)</li>
                         </ul>
                         <p className="leading-relaxed">
-                            <strong>Phí giao dịch:</strong> FundFountain không thu phí nạp tiền. Tuy nhiên,
+                            <strong>Phí giao dịch:</strong> Fundelio không thu phí nạp tiền. Tuy nhiên,
                             ngân hàng hoặc nhà cung cấp dịch vụ thanh toán của bạn có thể áp dụng phí riêng.
                             Vui lòng kiểm tra với ngân hàng của bạn để biết thêm chi tiết.
                         </p>
@@ -108,7 +108,7 @@ const TermsModal = ({ isOpen, onClose }) => {
                         </p>
                         <ul className="list-disc list-inside space-y-1 ml-4 mb-3">
                             <li>Tài khoản ngân hàng đã bị trừ tiền nhưng số dư ví không được cập nhật sau 24 giờ</li>
-                            <li>Giao dịch bị lỗi do hệ thống của FundFountain hoặc VNPay</li>
+                            <li>Giao dịch bị lỗi do hệ thống của Fundelio hoặc VNPay</li>
                             <li>Nạp trùng lặp do lỗi kỹ thuật</li>
                         </ul>
                         <p className="leading-relaxed mb-2">
@@ -130,7 +130,7 @@ const TermsModal = ({ isOpen, onClose }) => {
                             5. Bảo mật thông tin thanh toán
                         </h3>
                         <p className="leading-relaxed mb-2">
-                            FundFountain cam kết bảo vệ thông tin cá nhân và tài chính của bạn:
+                            Fundelio cam kết bảo vệ thông tin cá nhân và tài chính của bạn:
                         </p>
                         <ul className="list-disc list-inside space-y-1 ml-4">
                             <li>Tất cả thông tin thanh toán được mã hóa bằng công nghệ SSL 256-bit</li>
@@ -153,13 +153,13 @@ const TermsModal = ({ isOpen, onClose }) => {
                             <li>Cung cấp thông tin chính xác và đầy đủ khi thực hiện giao dịch</li>
                             <li>Bảo mật thông tin tài khoản và mật khẩu của bạn</li>
                             <li>Kiểm tra kỹ thông tin trước khi xác nhận thanh toán</li>
-                            <li>Thông báo ngay cho FundFountain nếu phát hiện giao dịch bất thường</li>
+                            <li>Thông báo ngay cho Fundelio nếu phát hiện giao dịch bất thường</li>
                             <li>Không sử dụng dịch vụ cho mục đích phi pháp hoặc gian lận</li>
                             <li>Tuân thủ các quy định pháp luật hiện hành về thanh toán điện tử</li>
                         </ul>
                         <p className="leading-relaxed">
                             Bạn chịu hoàn toàn trách nhiệm về các giao dịch được thực hiện từ tài khoản của mình.
-                            FundFountain không chịu trách nhiệm về các tổn thất phát sinh do việc tiết lộ thông tin
+                            Fundelio không chịu trách nhiệm về các tổn thất phát sinh do việc tiết lộ thông tin
                             tài khoản hoặc sử dụng sai mục đích.
                         </p>
                     </section>
@@ -172,7 +172,7 @@ const TermsModal = ({ isOpen, onClose }) => {
                         <ul className="space-y-1 text-sm">
                             <li>• Luôn kiểm tra email xác nhận sau mỗi giao dịch</li>
                             <li>• Lưu giữ biên lai/mã giao dịch để tra cứu khi cần thiết</li>
-                            <li>• Liên hệ bộ phận hỗ trợ khách hàng qua email: support@fundfountain.com hoặc hotline: 1900-xxxx nếu có thắc mắc</li>
+                            <li>• Liên hệ bộ phận hỗ trợ khách hàng qua email: support@Fundelio.com hoặc hotline: 1900-xxxx nếu có thắc mắc</li>
                             <li>• Điều khoản có thể được cập nhật, vui lòng kiểm tra định kỳ</li>
                         </ul>
                     </section>

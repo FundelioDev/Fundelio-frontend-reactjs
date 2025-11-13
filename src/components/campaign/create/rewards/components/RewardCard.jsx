@@ -43,7 +43,7 @@ export default function RewardCard({
   const applicableRewards = getApplicableRewards();
 
   // Format delivery date
-  const deliveryText = data.delivery 
+  const deliveryText = data.delivery
     ? `Tháng ${data.delivery.month} ${data.delivery.year}`
     : '';
 
@@ -67,7 +67,7 @@ export default function RewardCard({
             </div>
           ) : (
             <div className="text-2xl font-bold text-foreground">
-             {data.price || 0} VND
+              {data.price || 0} VND
             </div>
           )}
         </div>
@@ -79,13 +79,13 @@ export default function RewardCard({
               {data.title}
             </h3>
           )}
-          
+
           {deliveryText && (
             <p className="text-sm text-foreground">
               Giao dự kiến: {deliveryText}
             </p>
           )}
-          
+
           {data.shipping === 'anywhere' && (
             <p className="text-sm text-foreground">
               Ship toàn cầu
@@ -161,28 +161,23 @@ export default function RewardCard({
         </div>
 
         <div className="flex items-center gap-3 md:gap-4 flex-wrap">
-          {type === 'reward' && (
-            <button
-              onClick={() => {}}
-              className="text-sm text-foreground hover:text-primary transition-colors"
-            >
-              Feature
-            </button>
-          )}
-          
           <button
             onClick={() => onEdit(data)}
-            className="text-sm text-foreground hover:text-primary transition-colors"
+            className="flex items-center gap-1.5 text-sm text-foreground hover:text-primary transition-colors"
+            title="Sửa"
           >
-            Sửa
+            <Edit2 className="w-4 h-4" />
+            <span className="hidden sm:inline">Sửa</span>
           </button>
 
           {type !== 'item' && onDuplicate && (
             <button
               onClick={() => onDuplicate(data.id)}
-              className="text-sm text-foreground hover:text-primary transition-colors"
+              className="flex items-center gap-1.5 text-sm text-foreground hover:text-primary transition-colors"
+              title="Nhân bản"
             >
-              Nhân bản
+              <Copy className="w-4 h-4" />
+              <span className="hidden sm:inline">Nhân bản</span>
             </button>
           )}
 
@@ -192,9 +187,11 @@ export default function RewardCard({
                 onDelete(data.id);
               }
             }}
-            className="text-sm text-destructive hover:text-destructive/80 transition-colors"
+            className="flex items-center gap-1.5 text-sm text-destructive hover:text-destructive/80 transition-colors"
+            title="Xóa"
           >
-            Xóa
+            <Trash2 className="w-4 h-4" />
+            <span className="hidden sm:inline">Xóa</span>
           </button>
         </div>
       </div>

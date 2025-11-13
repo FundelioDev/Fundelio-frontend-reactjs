@@ -58,7 +58,7 @@ export default function SidebarTOC({ blanks, onAddBlank, onNavigate, onReorder, 
   return (
     <div
       className="flex flex-col bg-white dark:bg-darker-2 p-4
-                 lg:sticky lg:top-20 lg:max-h-[80vh] lg:rounded-sm lg:border lg:border-gray-200 dark:lg:border-gray-800"
+                 lg:sticky lg:top-20 lg:max-h-[80vh] lg:rounded-sm lg:shadow-md"
     >
       {/* Header */}
       <div className="mb-4">
@@ -101,7 +101,7 @@ export default function SidebarTOC({ blanks, onAddBlank, onNavigate, onReorder, 
       {/* Add Button */}
       <button
         onClick={onAddBlank}
-        className="w-full flex items-center justify-center gap-2 py-2.5 mt-4 border-1 border-dashed border-gray-300 dark:border-gray-700 rounded-sm hover:border-primary dark:hover:border-primary hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors group"
+        className="w-full flex items-center justify-center gap-2 py-2.5 mt-4 border-1 border-dashed border-border rounded-sm hover:border-primary dark:hover:border-primary hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors group"
       >
         <Plus className="w-4 h-4 text-gray-500 dark:text-text-white group-hover:text-primary transition-colors" />
         <span className="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-primary transition-colors">

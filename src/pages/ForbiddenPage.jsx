@@ -181,7 +181,7 @@ export default function ForbiddenPage() {
                                 → Đăng nhập lại
                             </Link>
                             <Link
-                                to="/"
+                                to="/home"
                                 className="block px-4 py-2 text-sm text-primary hover:bg-primary/10 rounded-lg transition-colors"
                             >
                                 → Về trang chủ
@@ -212,7 +212,7 @@ export default function ForbiddenPage() {
                         <ArrowLeft className="w-5 h-5" />
                         <span>Quay lại</span>
                     </Button>
-                    <Link to="/">
+                    <Link to="/home">
                         <Button
                             variant="gradient"
                             size="lg"

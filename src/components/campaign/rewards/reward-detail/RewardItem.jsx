@@ -30,12 +30,12 @@ export function RewardItem({
         <div className="flex-1 min-w-0">
           <p className="font-bold text-foreground text-base">{item.name}</p>
 
-          {/* Description (optional) */}
+          {/* Description (optional)
           {item.description && (
             <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
               {item.description}
             </p>
-          )}
+          )} */}
 
           {/* Quantity */}
           {showQuantity && (

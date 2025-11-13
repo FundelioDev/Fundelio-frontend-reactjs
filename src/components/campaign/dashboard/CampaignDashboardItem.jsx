@@ -1,7 +1,10 @@
-import React from 'react';
-import { ChevronRight } from 'lucide-react';
+import React, { useState } from 'react';
+import { ChevronRight, Trash2, XCircle, BarChart3 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-
+import Button from '@/components/common/Button';
+import ConfirmModal from '@/components/common/ConfirmModal';
+import { campaignApi } from '@/api/campaignApi';
+import toast from 'react-hot-toast';
 /**
  * Get campaign status label in Vietnamese
  */
@@ -58,9 +61,59 @@ const getMockImage = (category) => {
  */
 export default function CampaignDashboardItem({ campaign }) {
     const navigate = useNavigate();
+    const [isProcessing, setIsProcessing] = useState(false);
+    const [showCancelModal, setShowCancelModal] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
 
     const handleEdit = () => {
-        navigate(`/campaigns/${campaign.campaignId}/edit`);
+        navigate(`/campaigns/${campaign.campaignId}/dashboard`);
+    };
+
+    const handleViewStats = () => {
+        // TODO: Navigate to campaign statistics page
+        navigate(`/campaigns/${campaign.campaignId}/statistics`);
+    };
+
+    const handleCancelRequest = async () => {
+        try {
+            setIsProcessing(true);
+            const response = await campaignApi.updateCampaignStatus(campaign.campaignId, {
+                campaignStatus: 'CANCELLED'
+            });
+
+            if (response?.data?.success) {
+                toast.success('Đã hủy yêu cầu đánh giá thành công!');
+                // Reload page to update status
+                window.location.reload();
+            } else {
+                toast.error('Không thể hủy yêu cầu');
+            }
+        } catch (error) {
+            console.error('Error cancelling request:', error);
+            toast.error(error.response?.data?.message || 'Lỗi khi hủy yêu cầu');
+        } finally {
+            setIsProcessing(false);
+        }
+    };
+
+    const handleDeleteCampaign = async () => {
+        try {
+            setIsProcessing(true);
+            const response = await campaignApi.deleteCampaign(campaign.campaignId);
+
+            if (response?.data?.success) {
+                toast.success('Xóa dự án thành công!');
+                // Reload page to remove deleted campaign
+                window.location.reload();
+            } else {
+                toast.error('Không thể xóa dự án');
+            }
+        } catch (error) {
+            console.error('Error deleting campaign:', error);
+            toast.error(error.response?.data?.message || 'Lỗi khi xóa dự án');
+        } finally {
+            setIsProcessing(false);
+        }
     };
 
     // Get owner name
@@ -69,21 +122,21 @@ export default function CampaignDashboardItem({ campaign }) {
         : 'Unknown';
 
     // Mock image URL (since API doesn't have imageUrl yet)
-    const imageUrl = campaign.imageUrl || getMockImage(campaign.category);
+    const imageUrl = campaign.introImageUrl || getMockImage(campaign.category);
 
     return (
         <div
-            className="group relative bg-white dark:bg-darker-2 rounded-md p-3 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-800 hover:border-primary/20"
+            className="group relative bg-white dark:bg-darker-2 rounded-xs p-3 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-800 hover:border-primary/20"
         >
             <div className="flex flex-col sm:flex-row gap-0 sm:gap-6">
                 {/* Image Container */}
-                <div className="w-full sm:w-64 h-48 sm:h-auto rounded-md flex-shrink-0 overflow-hidden bg-gray-100 dark:bg-gray-800">
+                <div className="w-full sm:w-64 h-48 rounded-md flex-shrink-0 overflow-hidden bg-gray-100 dark:bg-gray-800">
                     <img
                         src={imageUrl}
                         alt={campaign.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         onError={(e) => {
-                            e.target.src = getMockImage(campaign.category);
+                            e.target.src = getMockImage(campaign.campaignCategory);
                         }}
                     />
                 </div>
@@ -93,7 +146,7 @@ export default function CampaignDashboardItem({ campaign }) {
                     {/* Status Badge */}
                     <div className="top-4 left-4">
                         <span
-                            className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-sm ${getCampaignStatusColor(campaign.campaignStatus)}`}
+                            className={`inline-flex items-center px-3 py-1.5 mt-2 sm:mt-0 rounded-full text-xs font-semibold backdrop-blur-sm ${getCampaignStatusColor(campaign.campaignStatus)}`}
                         >
                             {getCampaignStatusLabel(campaign.campaignStatus)}
                         </span>
@@ -114,17 +167,81 @@ export default function CampaignDashboardItem({ campaign }) {
                     </div>
 
                     {/* Edit Button */}
-                    <div className="flex items-center justify-end">
+                    <div className="flex items-center justify-end gap-2 flex-wrap">
+                        {/* Cancel Request Button - Only show when status is PENDING */}
+                        {campaign.campaignStatus === 'PENDING' && (
+                            <button
+                                onClick={() => setShowCancelModal(true)}
+                                disabled={isProcessing}
+                                variant="outline"
+                                className="flex items-center gap-1 px-3 py-2 border rounded-xs border-orange-500 text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20"
+                            >
+                                <XCircle className="w-4 h-4" />
+                                <span>Hủy yêu cầu</span>
+                            </button>
+                        )}
+
+                        {/* Delete Button - Only show when status is DRAFT */}
+                        {(campaign.campaignStatus === 'DRAFT' || campaign.campaignStatus === 'CANCELLED') && (
+                            <button
+                                onClick={() => setShowDeleteModal(true)}
+                                disabled={isProcessing}
+                                className="gap-1 px-4 py-3 bg-red-50 dark:bg-darker-2 rounded-xs border border-red-500 text-red-600 hover:cursor-pointer hover:bg-red-200 dark:hover:bg-red-900/20"
+                            >
+                                <Trash2 className="w-4 h-4 text-red-600" />
+                                {/* <span>Xóa</span> */}
+                            </button>
+                        )}
+
+                        {/* Statistics Button */}
                         <button
+                            onClick={handleViewStats}
+                            className="flex items-center gap-1 px-3 py-2 border rounded-xs bg-[#3eca88] border-green-500 hover:bg-emerald-500 hover:border-emerald-600 text-white "
+                        >
+                            <BarChart3 className="w-4 h-4" />
+                            <span>Thống kê</span>
+                        </button>
+
+                        {/* Edit Button */}
+                        <Button
                             onClick={handleEdit}
-                            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-secondary text-white rounded-xl font-semibold hover:shadow-lg hover:scale-[1.02] transition-all duration-200 group/btn"
+                            variant="primary"
+                            className="rounded-xs"
                         >
                             <span>Chỉnh sửa chiến dịch</span>
                             <ChevronRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
-                        </button>
+                        </Button>
                     </div>
                 </div>
             </div>
+
+            {/* Cancel Request Modal */}
+            <ConfirmModal
+                isOpen={showCancelModal}
+                onClose={() => setShowCancelModal(false)}
+                onConfirm={handleCancelRequest}
+                title="Hủy yêu cầu duyệt"
+                titleKeyword={`${campaign.title}`}
+                description={`Bạn có chắc chắn muốn hủy yêu cầu duyệt cho dự án "${campaign.title}"? Bạn có thể gửi lại yêu cầu sau khi hủy.`}
+                confirmKeyword="cancel"
+                confirmButtonText="Hủy yêu cầu"
+                cancelButtonText="Quay lại"
+                type="warning"
+            />
+
+            {/* Delete Campaign Modal */}
+            <ConfirmModal
+                isOpen={showDeleteModal}
+                onClose={() => setShowDeleteModal(false)}
+                onConfirm={handleDeleteCampaign}
+                title="Xóa dự án"
+                titleKeyword={`${campaign.title}`}
+                description={`Bạn có chắc chắn muốn xóa dự án "${campaign.title}"? Hành động này không thể hoàn tác.`}
+                confirmKeyword="delete"
+                confirmButtonText="Xóa"
+                cancelButtonText="Hủy"
+                type="danger"
+            />
         </div>
     );
 }

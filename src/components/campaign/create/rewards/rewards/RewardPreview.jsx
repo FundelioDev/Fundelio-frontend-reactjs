@@ -3,7 +3,7 @@ export default function RewardPreview({ reward, items, rewards, type = 'reward' 
   
   if (!reward) {
     return (
-      <div className="sticky top-6 rounded-xl border border-border bg-white dark:bg-darker-2 p-6 space-y-4">
+      <div className="sticky top-6 rounded-md border border-border shadow-md bg-white dark:bg-darker-2 p-6 space-y-4">
         <h3 className="text-lg font-semibold text-foreground">Xem trước</h3>
         <div className="space-y-4">
           <div className="aspect-video rounded-lg border-2 border-dashed border-border bg-muted/30 flex items-center justify-center">
@@ -11,13 +11,13 @@ export default function RewardPreview({ reward, items, rewards, type = 'reward' 
           </div>
           <div className="space-y-2">
             <div>
-              <h4 className="font-semibold text-foreground line-clamp-2">Title</h4>
-              <p className="text-2xl font-bold text-primary mt-2">$0</p>
+              <h4 className="font-semibold text-foreground line-clamp-2">Tiêu đề</h4>
+              <p className="text-2xl font-bold text-primary mt-2">0 VND</p>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3 pt-4 border-t border-border">
             <div>
-              <p className="text-xs text-muted-foreground">Backers</p>
+              <p className="text-xs text-muted-foreground">Người ủng hộ</p>
               <p className="text-lg font-semibold text-foreground">0</p>
             </div>
             <div>
@@ -46,7 +46,7 @@ export default function RewardPreview({ reward, items, rewards, type = 'reward' 
     : []
 
   return (
-    <div className="sticky top-6 rounded-xl border border-border bg-white dark:bg-darker-2 p-6 space-y-4">
+    <div className="sticky top-6 rounded-sm border border-border bg-white dark:bg-darker-2 p-6 space-y-4">
       <h3 className="text-lg font-semibold text-foreground">Xem trước</h3>
 
       {reward.image && (

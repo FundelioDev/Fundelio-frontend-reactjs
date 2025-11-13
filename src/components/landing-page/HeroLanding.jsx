@@ -129,9 +129,9 @@ const HeroLanding = () => {
           <h1 className='text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold leading-none tracking-tight mt-3'>
             {splitText('tái định nghĩa')}
           </h1>
-          <h1 className='text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold leading-none tracking-tight mt-3'>
+          {/* <h1 className='text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold leading-none tracking-tight mt-3'>
             {splitText('tương lai')}
-          </h1>
+          </h1> */}
           <h1 className='text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold leading-none tracking-tight mt-3'>
             {splitText('crowdfunding')}
           </h1>

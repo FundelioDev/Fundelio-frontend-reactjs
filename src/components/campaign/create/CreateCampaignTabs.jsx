@@ -33,8 +33,11 @@ export default function CreateCampaignTabs({
   setActiveEditor,
   scrollToBlank,
   save,
+  saveStatus,
   activeTab: externalActiveTab,
   onTabChange,
+  campaignId,
+  isEditMode,
 }) {
   // Use external activeTab if provided, otherwise use internal state
   const [internalActiveTab, setInternalActiveTab] = useState('story');
@@ -46,7 +49,9 @@ export default function CreateCampaignTabs({
       {/* Tab Content - No tab navigation here, it's in the header now */}
       <div>
         {/* Basic Tab */}
-        {activeTab === 'basic' && <BasicsContent />}
+        {activeTab === 'basic' && (
+          <BasicsContent campaignId={campaignId} isEditMode={isEditMode} />
+        )}
 
         {/* Story Tab */}
         {activeTab === 'story' && (
@@ -65,7 +70,11 @@ export default function CreateCampaignTabs({
             {/* Main Content */}
             <main className="w-full min-w-0">
               {/* Toolbar */}
-              <StoryToolbar activeEditorRef={activeEditorRef} onSave={save} />
+              <StoryToolbar
+                activeEditorRef={activeEditorRef}
+                onSave={save}
+                saveStatus={saveStatus}
+              />
 
               {/* Blanks */}
               <div className="mt-6">

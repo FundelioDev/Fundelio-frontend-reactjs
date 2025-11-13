@@ -167,10 +167,10 @@ export const FeaturedSpotlight = () => {
                       <a 
                         key={campaign.campaign_id}
                         href={`/campaigns/detail`}
-                        className="flex items-center gap-2 p-2 bg-white dark:bg-darker-2 inset-shadow-2xs shadow-md rounded-lg hover:scale-[1.02] transition-all duration-200 group"
+                        className="flex items-center gap-2 px-2.5 py-2 bg-white dark:bg-darker-2 inset-shadow-2xs shadow-md rounded-md hover:scale-[1.02] transition-all duration-200 group"
                       >
                         {/* Thumbnail */}
-                        <div className="relative w-15 h-15 flex-shrink-0 rounded-lg overflow-hidden">
+                        <div className="relative w-16 h-16 flex-shrink-0 rounded-md overflow-hidden">
                           <img
                             src={campaign.heroImageUrl || '/placeholder.svg'}
                             alt={campaign.title}

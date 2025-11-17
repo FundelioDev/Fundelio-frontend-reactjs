@@ -2,6 +2,7 @@ import { useState, useMemo } from "react"
 import Button from "@/components/common/Button"
 import Input from "@/components/common/Input"
 import RewardCard from "./RewardCard"
+import { Search } from "lucide-react"
 
 export default function ItemList({ items, onEdit, onDelete, onCreate, isLoading, itemRewards = {} }) {
   const [searchTerm, setSearchTerm] = useState("")
@@ -36,13 +37,16 @@ export default function ItemList({ items, onEdit, onDelete, onCreate, isLoading,
         </Button>
       </div>
 
-      {/* <Input
-        type="text"
-        placeholder="Tìm kiếm thành phần..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        className="mb-2"
-      /> */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 lg:top-5.5 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
+        <Input
+          type="text"
+          placeholder="Tìm kiếm thành phần..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="rounded-sm shadow-sm pl-10"
+        />
+      </div>
 
       {/* Header - 3 columns for components */}
       <div className="hidden md:grid md:grid-cols-3 gap-6 px-6 py-3 text-sm font-medium text-muted-foreground bg-white dark:bg-darker-2 rounded-sm inset-shadow-2xs shadow-md mb-4">

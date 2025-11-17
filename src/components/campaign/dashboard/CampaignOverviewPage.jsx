@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Check, AlertCircle, ChevronRight, Trash2 } from 'lucide-react';
+import { Check, AlertCircle, ChevronRight, Trash2, Send, StopCircle } from 'lucide-react';
 import Header from '@/components/common/Header';
 import Button from '@/components/common/Button';
 import ConfirmModal from '@/components/common/ConfirmModal';
 import { campaignApi } from '@/api/campaignApi';
+import { rewardApi } from '@/api/rewardApi';
 import toast from 'react-hot-toast';
 
 /**
@@ -74,19 +75,72 @@ const calculateStoryProgress = (campaign) => {
 };
 
 /**
- * Check if rewards section is complete (temporarily false)
+ * Check if rewards section is complete
+ * Fetch all rewards with items to check properly
  */
-const checkRewardsComplete = (campaign) => {
-    // TODO: Implement when rewards API is ready
-    return false;
+const checkRewardsComplete = async (campaignId) => {
+    try {
+        const response = await rewardApi.getRewardsWithItems(campaignId);
+
+        if (!response?.data?.data?.content || response.data.data.content.length === 0) {
+            return false;
+        }
+
+        const rewards = response.data.data.content;
+        console.log('rewards for completeness check:', rewards);
+
+        // Check if at least one reward has all required fields
+        return rewards.some(reward => {
+            const hasTitle = !!reward.title;
+            const hasDescription = !!reward.description;
+            const hasPledgeAmount = reward.pledgeAmount && reward.pledgeAmount > 0;
+            const hasEstimatedDelivery = !!reward.estimatedDelivery;
+
+            // Check if has at least one included item (addon is optional)
+            const hasIncludedItems = reward.items?.included &&
+                reward.items.included.length > 0;
+
+            return hasTitle && hasDescription && hasPledgeAmount && hasEstimatedDelivery && hasIncludedItems;
+        });
+    } catch (error) {
+        console.error('Error checking rewards completeness:', error);
+        return false;
+    }
 };
 
 /**
  * Calculate rewards completion percentage
+ * Fetch all rewards with items to check properly
  */
-const calculateRewardsProgress = (campaign) => {
-    // TODO: Implement when rewards API is ready
-    return 0;
+const calculateRewardsProgress = async (campaignId) => {
+    try {
+        const response = await rewardApi.getRewardsWithItems(campaignId);
+
+        if (!response?.data?.data?.content || response.data.data.content.length === 0) {
+            return 0;
+        }
+
+        const rewards = response.data.data.content;
+
+        const validRewards = rewards.filter(reward => {
+            const hasTitle = !!reward.title;
+            const hasDescription = !!reward.description;
+            const hasPledgeAmount = reward.pledgeAmount && reward.pledgeAmount > 0;
+            const hasEstimatedDelivery = !!reward.estimatedDelivery;
+
+            // Check if has at least one included item (addon is optional)
+            const hasIncludedItems = reward.items?.included &&
+                reward.items.included.length > 0;
+
+            return hasTitle && hasDescription && hasPledgeAmount && hasEstimatedDelivery && hasIncludedItems;
+        });
+
+        // At least 1 complete reward = 100%
+        return validRewards.length > 0 ? 100 : 0;
+    } catch (error) {
+        console.error('Error calculating rewards progress:', error);
+        return 0;
+    }
 };
 
 /**
@@ -229,6 +283,7 @@ export default function CampaignOverviewPage() {
     const [campaign, setCampaign] = useState(null);
     const [loading, setLoading] = useState(true);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [showEndCampaignModal, setShowEndCampaignModal] = useState(false);
     const [completionStatus, setCompletionStatus] = useState({
         basics: false,
         rewards: false,
@@ -251,17 +306,20 @@ export default function CampaignOverviewPage() {
                     const campaignData = response.data.data;
                     setCampaign(campaignData);
 
-                    // Check completion status
+                    // Check completion status (rewards check is async)
+                    const rewardsComplete = await checkRewardsComplete(campaignId);
+                    const rewardsProgress = await calculateRewardsProgress(campaignId);
+
                     setCompletionStatus({
                         basics: checkBasicsComplete(campaignData),
-                        rewards: checkRewardsComplete(campaignData),
+                        rewards: rewardsComplete,
                         story: checkStoryComplete(campaignData),
                     });
 
                     // Calculate progress
                     setProgressStatus({
                         basics: calculateBasicsProgress(campaignData),
-                        rewards: calculateRewardsProgress(campaignData),
+                        rewards: rewardsProgress,
                         story: calculateStoryProgress(campaignData),
                     });
                 }
@@ -290,7 +348,7 @@ export default function CampaignOverviewPage() {
         navigate(`/campaigns/${campaignId}/edit?tab=story`);
     };
 
-    const handleSubmitForReview = () => {
+    const handleSubmitForReview = async () => {
         const allComplete = completionStatus.basics && completionStatus.rewards && completionStatus.story;
 
         if (!allComplete) {
@@ -298,8 +356,23 @@ export default function CampaignOverviewPage() {
             return;
         }
 
-        // TODO: Implement submit for review API
-        toast.success('Gửi dự án để đánh giá thành công!');
+        try {
+            const response = await campaignApi.submitMyCampaign(campaignId);
+
+            if (response?.data?.success) {
+                toast.success('Gửi dự án để đánh giá thành công!');
+                // Refresh campaign data
+                const refreshResponse = await campaignApi.getCampaignById(campaignId);
+                if (refreshResponse?.data?.data) {
+                    setCampaign(refreshResponse.data.data);
+                }
+            } else {
+                toast.error('Không thể gửi dự án để đánh giá');
+            }
+        } catch (error) {
+            console.error('Error submitting campaign:', error);
+            toast.error(error.response?.data?.message || 'Lỗi khi gửi dự án để đánh giá');
+        }
     };
 
     const handleLaunch = () => {
@@ -330,6 +403,27 @@ export default function CampaignOverviewPage() {
         } catch (error) {
             console.error('Error deleting campaign:', error);
             toast.error(error.response?.data?.message || 'Lỗi khi xóa dự án');
+        }
+    };
+
+    const handleEndCampaign = async () => {
+        try {
+            const response = await campaignApi.endMyCampaign(campaignId);
+
+            if (response?.data?.success) {
+                toast.success('Kết thúc chiến dịch thành công!');
+                setShowEndCampaignModal(false);
+                // Refresh campaign data
+                const refreshResponse = await campaignApi.getCampaignById(campaignId);
+                if (refreshResponse?.data?.data) {
+                    setCampaign(refreshResponse.data.data);
+                }
+            } else {
+                toast.error('Không thể kết thúc chiến dịch');
+            }
+        } catch (error) {
+            console.error('Error ending campaign:', error);
+            toast.error(error.response?.data?.message || 'Lỗi khi kết thúc chiến dịch');
         }
     };
 
@@ -417,8 +511,8 @@ export default function CampaignOverviewPage() {
                         <SubmissionSection
                             title="Đánh giá dự án"
                             description="Chúng tôi sẽ kiểm tra để đảm bảo rằng nó tuân thủ các quy tắc và hướng dẫn của chúng tôi. Vui lòng chờ 1-3 ngày làm việc để nhận được phản hồi."
-                            icon={AlertCircle}
-                            disabled={!allSectionsComplete}
+                            icon={Send}
+                            disabled={!allSectionsComplete || campaign.campaignStatus !== 'DRAFT'}
                             onClick={handleSubmitForReview}
                         />
                     </div>
@@ -454,7 +548,7 @@ export default function CampaignOverviewPage() {
                     )}
 
                     {/* Delete Campaign Button */}
-                    <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
+                    <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700 flex gap-4">
                         <button
                             onClick={() => setShowDeleteModal(true)}
                             disabled={campaign.campaignStatus !== 'DRAFT'}
@@ -471,6 +565,16 @@ export default function CampaignOverviewPage() {
                             <Trash2 className="w-4 h-4" />
                             <span>Xóa dự án</span>
                         </button>
+
+                        {campaign.campaignStatus !== 'DRAFT' && (
+                            <button
+                                onClick={() => setShowEndCampaignModal(true)}
+                                className="flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20 border border-orange-200 dark:border-orange-800"
+                            >
+                                <StopCircle className="w-4 h-4" />
+                                <span>Kết thúc chiến dịch</span>
+                            </button>
+                        )}
                     </div>
                 </div>
             </main>
@@ -487,6 +591,20 @@ export default function CampaignOverviewPage() {
                 confirmButtonText="Xóa"
                 cancelButtonText="Hủy"
                 type="danger"
+            />
+
+            {/* End Campaign Modal */}
+            <ConfirmModal
+                isOpen={showEndCampaignModal}
+                onClose={() => setShowEndCampaignModal(false)}
+                onConfirm={handleEndCampaign}
+                title="Kết thúc chiến dịch"
+                titleKeyword={campaign?.title}
+                description={`Bạn có chắc chắn muốn kết thúc chiến dịch "${campaign?.title}"? Chiến dịch sẽ chuyển sang trạng thái "Đã kết thúc" và không thể tiếp tục gây quỹ.`}
+                confirmKeyword="end"
+                confirmButtonText="Kết thúc"
+                cancelButtonText="Hủy"
+                type="warning"
             />
         </div>
     );

@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react"
 import Button from "./Button"
 import Input from "./Input"
-import { Check } from "lucide-react"
+import { Check, Search } from "lucide-react"
 
 export default function ItemSelector({ items, selectedItems, onConfirm, onClose, isAddOnMode = false }) {
   const [searchTerm, setSearchTerm] = useState("")
@@ -75,12 +75,16 @@ export default function ItemSelector({ items, selectedItems, onConfirm, onClose,
 
         {/* Search */}
         <div className="p-6 border-b border-border">
-          <Input
-            type="text"
-            placeholder="Tìm kiếm thành phần..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
+            <Input
+              type="text"
+              placeholder="Tìm kiếm thành phần..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
         </div>
 
         {/* Items List */}

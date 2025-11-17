@@ -46,9 +46,9 @@ export const rewardApi = {
         });
     },
 
-    deleteCatalogItemsToReward: async (campaignId, rewardId, catalogItemIds) => {
+    deleteCatalogItemsToReward: async (campaignId, rewardId, rewardItemIds) => {
         return httpService.delete(`/campaigns/${campaignId}/rewards/${rewardId}/items`, {
-            data: { rewardItemIds: catalogItemIds },
+            data: { rewardItemIds: rewardItemIds },
             requireToken: true,
         });
     },

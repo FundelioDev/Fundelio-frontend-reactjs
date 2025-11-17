@@ -1,10 +1,14 @@
 import { Outlet, useLocation } from 'react-router-dom';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
+import { useWebSocketConnection } from '@/websocket/hooks';
 
 export default function RootLayout() {
   const location = useLocation();
   const headerVariant = location.pathname === '/home' ? 'transparent' : 'light';
+
+  // Auto connect WebSocket khi user đăng nhập
+  useWebSocketConnection();
 
   // Check if current route is any campaign detail page
   const isCampaignDetail =
@@ -19,7 +23,7 @@ export default function RootLayout() {
 
   return (
     <div className={`flex flex-col min-h-screen ${!isCampaignDetail ? 'overflow-x-hidden' : ''}`}>
-      {location.pathname !== '/' && !isPreviewMode && <Header variant={headerVariant} isFixed={isHeaderFixed} />} 
+      {location.pathname !== '/' && !isPreviewMode && <Header variant={headerVariant} isFixed={isHeaderFixed} />}
       {/*  */}
       <main className={`flex-1 ${!isCampaignDetail ? 'overflow-x-hidden' : ''}`}>
         <Outlet />

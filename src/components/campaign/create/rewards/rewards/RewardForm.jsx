@@ -7,9 +7,10 @@ import Textarea from "@/components/common/Textarea"
 import Tip from "@/components/common/Tip"
 import { Trash2, X } from "lucide-react"
 import { storageApi } from "@/api/storageApi"
+import { rewardApi } from "@/api/rewardApi"
 import toast from 'react-hot-toast'
 
-const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onChange, type = 'reward', fieldErrors = {} }, ref) => {
+const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onChange, campaignId, type = 'reward', fieldErrors = {} }, ref) => {
   const isAddon = type === 'addon'
   const formRef = useRef(null)
 
@@ -22,7 +23,7 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
     estimatedDelivery: "",
     items: {
       included: [],
-      addon: []
+      addOn: []
     },
     shipping: isAddon ? undefined : "anywhere",
     limitTotal: null,
@@ -227,7 +228,7 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
       ...formData,
       items: {
         ...formData.items,
-        addon: itemsWithDetails
+        addOn: itemsWithDetails
       }
     }
     setFormData(newData)
@@ -269,6 +270,40 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
     const newData = {
       ...formData,
       shipsTo: formData.shipsTo?.filter(c => c.id !== countryId)
+    }
+    setFormData(newData)
+    if (onChange) onChange(newData)
+  }
+
+  const handleRemoveItem = async (catalogItemId, itemType) => {
+    // Find the rewardItemId for this catalog item
+    const itemsArray = itemType === 'included' ? formData.items?.included : formData.items?.addOn
+    const itemToRemove = itemsArray?.find(i => i.catalogItemId === catalogItemId)
+
+    // If editing an existing reward and item has rewardItemId, call API to delete
+    if (formData.rewardId && itemToRemove?.rewardItemId && campaignId) {
+      try {
+        await rewardApi.deleteCatalogItemsToReward(
+          campaignId,
+          formData.rewardId,
+          [itemToRemove.rewardItemId]
+        )
+        toast.success('Đã xóa thành phần khỏi phần thưởng')
+      } catch (error) {
+        console.error('Error deleting catalog item from reward:', error)
+        toast.error(error.response?.data?.message || 'Không thể xóa thành phần')
+        return // Don't update local state if API call failed
+      }
+    }
+
+    // Update local state
+    const newItems = itemsArray?.filter(i => i.catalogItemId !== catalogItemId) || []
+    const newData = {
+      ...formData,
+      items: {
+        ...formData.items,
+        [itemType]: newItems
+      }
     }
     setFormData(newData)
     if (onChange) onChange(newData)
@@ -448,18 +483,7 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
                   </span>
                   <button
                     type="button"
-                    onClick={() => {
-                      const newItems = formData.items.included.filter(i => i.catalogItemId !== item.catalogItemId)
-                      const newData = {
-                        ...formData,
-                        items: {
-                          ...formData.items,
-                          included: newItems
-                        }
-                      }
-                      setFormData(newData)
-                      if (onChange) onChange(newData)
-                    }}
+                    onClick={() => handleRemoveItem(item.catalogItemId, 'included')}
                     className="text-destructive hover:text-destructive/80 p-1 rounded hover:bg-destructive/10 transition-colors"
                     title="Xóa"
                   >
@@ -482,27 +506,16 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
             Chọn thành phần thêm
           </Button>
 
-          {formData.items?.addon && formData.items.addon.length > 0 && (
+          {formData.items?.addOn && formData.items.addOn.length > 0 && (
             <div className="space-y-2">
-              {formData.items.addon.map((item) => (
+              {formData.items.addOn.map((item) => (
                 <div key={item.catalogItemId} className="flex items-center justify-between p-3 bg-muted rounded-sm">
                   <span className="text-foreground font-medium">
                     {item.name || 'Unknown Item'} (Backer tự chọn số lượng)
                   </span>
                   <button
                     type="button"
-                    onClick={() => {
-                      const newItems = formData.items.addon.filter(i => i.catalogItemId !== item.catalogItemId)
-                      const newData = {
-                        ...formData,
-                        items: {
-                          ...formData.items,
-                          addon: newItems
-                        }
-                      }
-                      setFormData(newData)
-                      if (onChange) onChange(newData)
-                    }}
+                    onClick={() => handleRemoveItem(item.catalogItemId, 'addOn')}
                     className="text-destructive hover:text-destructive/80 p-1 rounded hover:bg-destructive/10 transition-colors"
                     title="Xóa"
                   >

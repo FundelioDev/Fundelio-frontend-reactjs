@@ -27,7 +27,7 @@ import VerifyChangeEmail from '@/components/auth/VerifyChangeEmail';
 
 import CampaignOverviewPage from '@/components/campaign/dashboard/CampaignOverviewPage';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
-
+import WebSocketTestComponent from '@/components/websocket/WebSocketTestComponent';
 
 /**
  * Application routes configuration
@@ -58,6 +58,7 @@ export const router = createBrowserRouter([
       { path: 'wallet', element: <WalletPage /> },
 
       { path: 'your-projects', element: <YourProjectsPage /> },
+      { path: 'websocket', element: <WebSocketTestComponent /> },
     ]
   },
   {

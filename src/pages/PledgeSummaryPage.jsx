@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import Button from '@/components/common/Button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RewardItem } from '@/components/campaign/rewards/reward-detail/RewardItem';
 import { Card } from '@/components/campaign/rewards/ui/Card';
+import { usePledgeEvents } from '@/websocket/hooks';
+import { createPledge, webSocketClient } from '@/websocket';
+import toast from 'react-hot-toast';
 
 export default function PledgeSummaryPage() {
     const location = useLocation();
@@ -13,14 +16,62 @@ export default function PledgeSummaryPage() {
     const [showProducts, setShowProducts] = useState(false);
     const [bonusAmount, setBonusAmount] = useState(0);
     const [agreeToTerms, setAgreeToTerms] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const timeoutRef = useRef(null);
 
     // Get pledge data from navigation state
     const pledgeData = location.state?.pledgeData;
+
+    // Subscribe to pledge events
+    const handlePledgeSuccess = useCallback((data) => {
+        console.log('✅ Pledge successful:', data);
+
+        // Clear timeout
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+            timeoutRef.current = null;
+        }
+
+        setIsSubmitting(false);
+        toast.success('Ủng hộ thành công!');
+
+        // Navigate to success page or campaign page
+        setTimeout(() => {
+            navigate(`/campaigns/${campaignId}`, {
+                state: { pledgeSuccess: true, pledgeData: data }
+            });
+        }, 1000);
+    }, [navigate, campaignId]);
+
+    const handlePledgeError = useCallback((error) => {
+        console.error('❌ Pledge failed:', error);
+        console.error('❌ Error type:', typeof error);
+        console.error('❌ Error details:', JSON.stringify(error, null, 2));
+
+        // Clear timeout
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+            timeoutRef.current = null;
+        }
+
+        setIsSubmitting(false);
+
+        // Show detailed error
+        const errorMsg = error?.message || error?.error || error?.code || 'Ủng hộ thất bại. Vui lòng thử lại.';
+        toast.error(errorMsg);
+    }, []);
+
+    usePledgeEvents(handlePledgeSuccess, handlePledgeError);
 
     useEffect(() => {
         if (!pledgeData) {
             // Redirect back if no pledge data
             navigate(`/campaigns/${campaignId}`);
+        } else {
+            // Log pledge data để kiểm tra cấu trúc
+            console.log('📋 Pledge Data:', pledgeData);
+            console.log('🎁 Reward:', pledgeData.reward);
+            console.log('➕ Add-ons:', pledgeData.addOns);
         }
     }, [pledgeData, campaignId, navigate]);
 
@@ -52,25 +103,65 @@ export default function PledgeSummaryPage() {
         description: item.description || '',
     }));
 
-    const handlePledge = () => {
+    const handlePledge = async () => {
         if (!agreeToTerms) {
-            alert('Vui lòng đồng ý với điều khoản');
+            toast.error('Vui lòng đồng ý với điều khoản');
             return;
         }
 
-        // TODO: Process pledge
-        console.log('Processing pledge:', {
-            campaignId,
-            reward,
-            addOns,
-            bonusAmount,
-            totalAmount,
-        });
+        // Kiểm tra WebSocket connection
+        if (!webSocketClient.isConnected()) {
+            toast.error('WebSocket chưa kết nối. Vui lòng thử lại sau.');
+            console.error('❌ WebSocket not connected');
+            return;
+        }
 
-        // Navigate to payment or success page
-        alert(`Pledge thành công! Tổng số tiền: ${formatPrice(totalAmount)} VND`);
-        navigate(`/campaigns/${campaignId}`);
+        setIsSubmitting(true);
+
+        try {
+            const pledgePayload = {
+                campaignId: campaignId,
+                rewardId: reward.rewardId,
+                amount: amount,
+                bonusAmount: bonusAmount || 0,
+                totalAmount: totalAmount,
+                addOns: addOns.map(addon => ({
+                    rewardItemId: addon.id,
+                    quantity: addon.quantity || 1
+                }))
+            };
+
+            console.log('📤 Sending pledge:', pledgePayload);
+            console.log('📊 Breakdown:', {
+                'Campaign ID': campaignId,
+                'Reward ID': reward.rewardId,
+                'Reward Amount': amount,
+                'Bonus Amount': bonusAmount,
+                'Total Amount': totalAmount,
+                'Add-ons Count': addOns.length
+            });
+
+            // Gửi pledge qua WebSocket
+            await createPledge(pledgePayload);
+
+            toast.success('Đang xử lý ủng hộ...');
+
+            // Response sẽ được nhận qua usePledgeEvents hook
+        } catch (error) {
+            console.error('❌ Error creating pledge:', error);
+            setIsSubmitting(false);
+            toast.error(error.message || 'Không thể gửi yêu cầu ủng hộ');
+        }
     };
+
+    // Cleanup timeout khi unmount
+    useEffect(() => {
+        return () => {
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+            }
+        };
+    }, []);
 
     return (
         <div className="min-h-screen bg-background-light-2 dark:bg-darker py-8">
@@ -265,12 +356,12 @@ export default function PledgeSummaryPage() {
                     {/* Pledge Button */}
                     <Button
                         onClick={handlePledge}
-                        disabled={!agreeToTerms}
+                        disabled={!agreeToTerms || isSubmitting}
                         className="w-full h-14 text-lg font-bold"
                     >
-                        Ủng hộ {formatPrice(totalAmount)} VND
+                        {isSubmitting ? 'Đang xử lý...' : `Ủng hộ ${formatPrice(totalAmount)} VND`}
                     </Button>
-
+            
                     {/* Back button */}
                     <button
                         onClick={() => navigate(-1)}

@@ -277,6 +277,7 @@ export default function RewardTiersTab({ campaignId }) {
               reward={editingReward}
               items={items}
               rewards={rewards}
+              campaignId={campaignId}
               onSave={handleSave}
               onCancel={handleCancel}
               onChange={handleFormChange}

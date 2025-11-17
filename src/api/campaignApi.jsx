@@ -78,5 +78,23 @@ export const campaignApi = {
         return httpService.get('/campaigns/categories', {
             requireToken: false,
         });
+    },
+
+    getAllCampaignStatus() {
+        return httpService.get('/campaigns/statuses', {
+            requireToken: false,
+        });
+    },
+
+    submitMyCampaign(campaignId) {
+        return httpService.post(`/campaigns/${campaignId}/submit-review`, null, {
+            requireToken: true,
+        });
+    },
+
+    endMyCampaign(campaignId) {
+        return httpService.post(`/campaigns/${campaignId}/end`, null, {
+            requireToken: true,
+        });
     }
 }

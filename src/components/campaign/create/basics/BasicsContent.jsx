@@ -10,7 +10,7 @@ import { setBasics } from '@/store/campaignSlice';
 import { storageApi } from '@/api/storageApi';
 import { campaignApi } from '@/api/campaignApi';
 import { useCategories } from '@/hooks/useCategories';
-
+import { useNavigate } from 'react-router-dom';
 // Category label mapping for Vietnamese
 const CATEGORY_LABELS = {
   ART: 'Nghệ thuật',
@@ -29,6 +29,7 @@ const CATEGORY_LABELS = {
 export default function BasicsContent({ campaignId, isEditMode = false }) {
   const dispatch = useDispatch();
   const basicsData = useSelector((state) => state.campaign.basics);
+  const navigate = useNavigate();
 
   // Use custom hook for categories with error handling
   const { categories: categoriesData, loading: loadingCategories, error: categoriesError, refetch: refetchCategories } = useCategories();
@@ -53,6 +54,7 @@ export default function BasicsContent({ campaignId, isEditMode = false }) {
   const [isInitialized, setIsInitialized] = useState(false);
   const imageInputRef = useRef(null);
   const videoInputRef = useRef(null);
+  const navigationTimeoutRef = useRef(null);
 
   // Show error toast if categories fail to load
   useEffect(() => {
@@ -172,6 +174,11 @@ export default function BasicsContent({ campaignId, isEditMode = false }) {
         // Save merged data to Redux
         dispatch(setBasics(updatedFormData));
         toast.success(successMsg, { id: toastId });
+        // Wait 3 seconds so user can see the success toast/modal, then navigate
+        if (navigationTimeoutRef.current) clearTimeout(navigationTimeoutRef.current);
+        navigationTimeoutRef.current = setTimeout(() => {
+          navigate(`/campaigns/${responseData.campaignId}/dashboard`);
+        }, 3000);
       } else {
         toast.error('Không nhận được phản hồi từ server', { id: toastId });
       }
@@ -214,6 +221,15 @@ export default function BasicsContent({ campaignId, isEditMode = false }) {
       }
     }
   };
+
+  // Clear any pending navigation timeout when component unmounts
+  useEffect(() => {
+    return () => {
+      if (navigationTimeoutRef.current) {
+        clearTimeout(navigationTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleImageChange = async (e) => {
     const file = e.target.files?.[0];

@@ -9,7 +9,7 @@ import RolesProvider from '@/components/dashboard/roles/context/roles-context';
 import { useRoles } from '@/components/dashboard/roles/context/roles-context';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { PermissionsProvider } from '@/components/dashboard/permissions/context/permissions-context';
-import Loading from '@/components/common/loading';
+import Loading from '@/components/common/Loading';
 
 function RolesContent() {
   const { roles, isLoading, error } = useRoles();

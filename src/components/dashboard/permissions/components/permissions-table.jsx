@@ -23,7 +23,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { SortableTreeItem } from './sortable-tree';
 import { toast } from 'react-toastify';
 import { permissionsApi } from '@/api/permissionApi';
-import Loading from '@/components/common/loading';
+import Loading from '@/components/common/Loading';
 import { Input } from '@/components/ui/input';
 import { PermissionsPrimaryButtons } from './permissions-primary-buttons';
 import { Table, TableHeader, TableRow, TableHead } from '@/components/ui/table';
@@ -87,7 +87,7 @@ function DroppableArea({ children }) {
         'space-y-2 p-4 rounded-lg border-2 border-dashed border-border bg-white dark:bg-darker-2 transition-colors duration-200',
         isOver && 'border-primary bg-muted/60 dark:bg-primary/20 scale-[1.02]',
         !children &&
-          'min-h-[100px] flex items-center justify-center text-muted-foreground dark:text-text-white'
+        'min-h-[100px] flex items-center justify-center text-muted-foreground dark:text-text-white'
       )}
     >
       <h3 className="text-lg font-medium text-text-primary dark:text-white transition-colors duration-300">Permissions khác</h3>

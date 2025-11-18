@@ -7,7 +7,7 @@ import { Loader2 } from 'lucide-react';
 import { usePermissions } from '@/components/dashboard/permissions/context/permissions-context';
 import { PermissionsTable } from '@/components/dashboard/permissions/components/permissions-table';
 import { PermissionsDialogs } from '@/components/dashboard/permissions/components/permissions-dialogs';
-import Loading from '@/components/common/loading';
+import Loading from '@/components/common/Loading';
 
 function PermissionsContent() {
   const { permissions, isLoading, error } = usePermissions();

@@ -174,7 +174,7 @@ export default function BasicsContent({ campaignId, isEditMode = false }) {
         // Save merged data to Redux
         dispatch(setBasics(updatedFormData));
         toast.success(successMsg, { id: toastId });
-        // Wait 3 seconds so user can see the success toast/modal, then navigate
+        
         if (navigationTimeoutRef.current) clearTimeout(navigationTimeoutRef.current);
         navigationTimeoutRef.current = setTimeout(() => {
           navigate(`/campaigns/${responseData.campaignId}/dashboard`);

@@ -1,10 +1,28 @@
 import { httpService } from './http';
 
 export const campaignApi = {
-    getAllCampaigns(params) {
+    getAllCampaigns(params = {}) {
+        const { filter, page = 1, size = 10, sort } = params;
+
+        // Build params object
+        const requestParams = {
+            page,
+            size,
+        };
+
+        // Add filter if provided (will be URL encoded by httpService)
+        if (filter) {
+            requestParams.filter = filter;
+        }
+
+        // Add sort if provided
+        if (sort) {
+            requestParams.sort = sort;
+        }
+
         return httpService.get('/campaigns', {
-            requireToken: true,
-            params,
+            requireToken: false,
+            params: requestParams,
         });
     },
 
@@ -77,6 +95,24 @@ export const campaignApi = {
     getAllCategories() {
         return httpService.get('/campaigns/categories', {
             requireToken: false,
+        });
+    },
+
+    getAllCampaignStatus() {
+        return httpService.get('/campaigns/statuses', {
+            requireToken: false,
+        });
+    },
+
+    submitMyCampaign(campaignId) {
+        return httpService.post(`/campaigns/${campaignId}/submit-review`, null, {
+            requireToken: true,
+        });
+    },
+
+    endMyCampaign(campaignId) {
+        return httpService.post(`/campaigns/${campaignId}/end`, null, {
+            requireToken: true,
         });
     }
 }

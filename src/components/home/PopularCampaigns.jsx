@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import ProjectCard from './ProjectCard';
-import { mockProjects } from '@/data/mockProjects';
+import { useCampaigns } from '@/hooks/useCampaigns';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 
@@ -14,8 +14,13 @@ export const PopularCampaigns = () => {
   const [swiperRef, setSwiperRef] = useState(null);
   const [isReady, setIsReady] = useState(false);
 
-  // Sử dụng mock data - có thể thay bằng API call sau
-  const campaigns = mockProjects;
+  // Fetch popular campaigns - sorted by backerCount
+  const { campaigns, loading } = useCampaigns({
+    filter: "campaignStatus in ['ACTIVE','SUCCESSFUL']",
+    page: 1,
+    size: 12,
+    sort: 'backersCount,desc', // Sort by popularity (backer count)
+  });
 
   // Force layout calculation and enable smooth transitions after mount
   useEffect(() => {
@@ -30,6 +35,24 @@ export const PopularCampaigns = () => {
 
     return () => clearTimeout(timer);
   }, [swiperRef]);
+
+  console.log('Popular campaigns loaded:', campaigns);
+
+  // Show loading state
+  if (loading) {
+    return (
+      <section className="py-12 sm:py-12 lg:py-18 bg-background-light-2 dark:bg-darker transition-colors duration-300">
+        <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-center py-20">
+            <div className="text-center">
+              <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+              <p className="text-muted-foreground">Đang tải...</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-12 sm:py-12 lg:py-18 bg-background-light-2 dark:bg-darker transition-colors duration-300">
@@ -107,7 +130,7 @@ export const PopularCampaigns = () => {
           className={`pb-2 transition-opacity duration-300 ${isReady ? 'opacity-100' : 'opacity-0'}`}
         >
           {campaigns.map((campaign) => (
-            <SwiperSlide key={campaign.id} className="pt-6">
+            <SwiperSlide key={campaign.campaignId} className="pt-6">
               <ProjectCard
                 project={campaign}
                 onBookmarkToggle={(id, bookmarked) => {

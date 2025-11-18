@@ -25,12 +25,12 @@ export function AuthProvider({ children }) {
     storageService.clearAuth();
     try {
       window.localStorage.removeItem("user");
-    } catch (_) {}
+    } catch (_) { }
     setUser(null);
     setIsLoggedIn(false);
     stopTokenRefreshInterval();
 
-    authApi.logout().catch(() => {});
+    authApi.logout().catch(() => { });
   }, []);
 
   const fetchUserData = useCallback(async () => {
@@ -42,7 +42,7 @@ export function AuthProvider({ children }) {
         storageService.setUser(userData);
         try {
           window.localStorage.setItem("user", JSON.stringify(userData));
-        } catch (_) {}
+        } catch (_) { }
         return userData;
       }
     } catch (error) {
@@ -65,7 +65,7 @@ export function AuthProvider({ children }) {
         }
         try {
           await fetchUserData();
-        } catch (err) {}
+        } catch (err) { }
       }
 
       setIsInitializing(false);
@@ -84,7 +84,7 @@ export function AuthProvider({ children }) {
       storageService.setUser(userFromLogin);
       try {
         window.localStorage.setItem("user", JSON.stringify(userFromLogin));
-      } catch (_) {}
+      } catch (_) { }
     }
     fetchUserData();
     startTokenRefreshInterval();
@@ -136,7 +136,7 @@ export function AuthProvider({ children }) {
     <AuthContext.Provider
       value={{ isLoggedIn, user, login, logout, hasRole, fetchUserData }}
     >
-            {children}   {" "}
+      {children}
     </AuthContext.Provider>
   );
 }

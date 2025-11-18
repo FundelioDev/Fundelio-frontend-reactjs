@@ -31,3 +31,32 @@ export const formatDate = (date) => {
 export const formatNumber = (num) => {
   return new Intl.NumberFormat('vi-VN').format(num);
 };
+
+/**
+ * Calculate days left until end date
+ * @param {Date|string} endDate - End date
+ * @returns {number} Number of days left (negative if past due)
+ */
+export const calculateDaysLeft = (endDate) => {
+  if (!endDate) return 0;
+
+  const now = new Date();
+  const end = new Date(endDate);
+  const diffTime = end.getTime() - now.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  return diffDays;
+};
+
+/**
+ * Calculate funding progress percentage
+ * @param {number} currentAmount - Current funded amount
+ * @param {number} fundingGoal - Target funding goal
+ * @returns {number} Progress percentage (0-100+)
+ */
+export const calculateProgress = (currentAmount, fundingGoal) => {
+  if (!fundingGoal || fundingGoal === 0) return 0;
+
+  const progress = (currentAmount / fundingGoal) * 100;
+  return Math.round(progress * 100) / 100; // Round to 2 decimal places
+};

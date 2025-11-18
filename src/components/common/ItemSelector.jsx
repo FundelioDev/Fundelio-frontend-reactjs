@@ -1,39 +1,43 @@
 import { useState, useMemo } from "react"
 import Button from "./Button"
 import Input from "./Input"
-import { Check } from "lucide-react"
+import { Check, Search } from "lucide-react"
 
-export default function ItemSelector({ items, selectedItems, onConfirm, onClose }) {
+export default function ItemSelector({ items, selectedItems, onConfirm, onClose, isAddOnMode = false }) {
   const [searchTerm, setSearchTerm] = useState("")
   const [localSelected, setLocalSelected] = useState(selectedItems)
 
   const filteredItems = useMemo(() => {
-    return items.filter((item) => item.title.toLowerCase().includes(searchTerm.toLowerCase()))
+    return items.filter((item) => {
+      const itemName = item.name || item.title || ''
+      return itemName.toLowerCase().includes(searchTerm.toLowerCase())
+    })
   }, [items, searchTerm])
 
   const handleQtyChange = (itemId, qty) => {
     if (qty <= 0) {
-      setLocalSelected((prev) => prev.filter((item) => item.itemId !== itemId))
+      setLocalSelected((prev) => prev.filter((item) => item.catalogItemId !== itemId))
     } else {
       setLocalSelected((prev) => {
-        const existing = prev.find((item) => item.itemId === itemId)
+        const existing = prev.find((item) => item.catalogItemId === itemId)
         if (existing) {
-          return prev.map((item) => (item.itemId === itemId ? { ...item, qty } : item))
+          return prev.map((item) => (item.catalogItemId === itemId ? { ...item, quantity: qty } : item))
         } else {
-          return [...prev, { itemId, qty }]
+          return [...prev, { catalogItemId: itemId, quantity: qty }]
         }
       })
     }
   }
 
   const handleToggleItem = (itemId) => {
-    const existing = localSelected.find((item) => item.itemId === itemId)
+    const existing = localSelected.find((item) => item.catalogItemId === itemId)
     if (existing) {
       // Remove item
-      setLocalSelected((prev) => prev.filter((item) => item.itemId !== itemId))
+      setLocalSelected((prev) => prev.filter((item) => item.catalogItemId !== itemId))
     } else {
-      // Add item with default qty = 1
-      setLocalSelected((prev) => [...prev, { itemId, qty: 1 }])
+      // Add item with default quantity = 1 (or 0 for add-on mode)
+      const defaultQty = isAddOnMode ? 0 : 1
+      setLocalSelected((prev) => [...prev, { catalogItemId: itemId, quantity: defaultQty }])
     }
   }
 
@@ -71,12 +75,16 @@ export default function ItemSelector({ items, selectedItems, onConfirm, onClose 
 
         {/* Search */}
         <div className="p-6 border-b border-border">
-          <Input
-            type="text"
-            placeholder="Tìm kiếm thành phần..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
+            <Input
+              type="text"
+              placeholder="Tìm kiếm thành phần..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
         </div>
 
         {/* Items List */}
@@ -88,24 +96,27 @@ export default function ItemSelector({ items, selectedItems, onConfirm, onClose 
           ) : (
             <div className="space-y-3">
               {filteredItems.map((item) => {
-                const selected = localSelected.find((s) => s.itemId === item.id)
+                const itemId = item.catalogItemId || item.id
+                const itemName = item.name || item.title
+                const itemImage = item.imageUrl || item.image
+                const selected = localSelected.find((s) => s.catalogItemId === itemId)
                 const isSelected = !!selected
 
                 return (
                   <div
-                    key={item.id}
-                    onClick={() => handleToggleItem(item.id)}
+                    key={itemId}
+                    onClick={() => handleToggleItem(itemId)}
                     className={`flex items-center justify-between p-4 border rounded-sm cursor-pointer transition-all ${isSelected
-                        ? 'border-primary bg-primary/5'
-                        : 'border-border hover:border-primary/50'
+                      ? 'border-primary bg-primary/5'
+                      : 'border-border hover:border-primary/50'
                       }`}
                   >
                     {/* Left side: Image + Title */}
                     <div className="flex items-center gap-4 flex-1 min-w-0">
-                      {item.image ? (
+                      {itemImage ? (
                         <img
-                          src={item.image}
-                          alt={item.title}
+                          src={itemImage}
+                          alt={itemName}
                           className="w-16 h-16 object-cover rounded flex-shrink-0"
                         />
                       ) : (
@@ -113,24 +124,35 @@ export default function ItemSelector({ items, selectedItems, onConfirm, onClose 
                           <span className="text-xs text-muted-foreground">No img</span>
                         </div>
                       )}
-                      <p className="font-medium text-foreground truncate">{item.title}</p>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-foreground truncate">{itemName}</p>
+                        {item.price && (
+                          <p className="text-sm text-muted-foreground">{item.price.toLocaleString()} VND</p>
+                        )}
+                      </div>
                     </div>
 
                     {/* Right side: Quantity input (if selected) + Check icon */}
                     <div className="flex items-center gap-3 ml-4 flex-shrink-0">
-                      {isSelected && (
+                      {isSelected && !isAddOnMode && (
                         <input
                           type="number"
-                          value={selected.qty}
+                          value={selected.quantity}
                           onChange={(e) => {
                             e.stopPropagation()
                             const qty = Number.parseInt(e.target.value) || 1
-                            handleQtyChange(item.id, qty)
+                            handleQtyChange(itemId, qty)
                           }}
                           onClick={(e) => e.stopPropagation()}
                           className="w-16 text-center border border-border rounded px-2 py-1 bg-background text-foreground font-medium"
                           min="1"
                         />
+                      )}
+
+                      {isSelected && isAddOnMode && (
+                        <span className="text-sm text-muted-foreground px-2">
+                          (Backer chọn)
+                        </span>
                       )}
 
                       {isSelected && (

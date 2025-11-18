@@ -8,8 +8,6 @@ import React from 'react';
 const BlankSection = React.memo(({ blank }) => {
   const { id, order, titleHtml, contentHtml } = blank;
 
-  console.log('Loading BlankSection:', id, order, titleHtml);
-
   return (
     <section
       id={id}
@@ -36,7 +34,7 @@ const BlankSection = React.memo(({ blank }) => {
             [&>iframe]:w-full [&>iframe]:aspect-video [&>iframe]:rounded-xl [&>iframe]:my-4
             [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:my-3 [&>ul]:text-text-secondary dark:[&>ul]:text-text-white
             [&>ol]:list-decimal [&>ol]:pl-6 [&>ol]:my-3 [&>ol]:text-text-secondary dark:[&>ol]:text-text-white
-            [&>a]:text-primary [&>a]:underline [&>a]:hover:text-primary-600"
+            [&>a]:text-primary [&>a]:underline [&>a]:hover:text-primary-600 text-muted-foreground"
           dangerouslySetInnerHTML={{ __html: contentHtml }}
         />
       )}

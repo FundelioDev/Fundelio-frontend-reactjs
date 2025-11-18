@@ -1,33 +1,37 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from './ui/Button';
 // eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
 import { Card } from './ui/Card';
 import { Sparkles as SparklesIcon, Users as UsersIcon, MapPin as MapPinIcon, Calendar as CalendarIcon } from 'lucide-react';
+import { RewardDetailModal } from './reward-detail/RewardDetailModal';
+
 /**
  * RewardCard Component
  * Displays a single reward option with Kickstarter-style UI
  */
-const RewardCard = ({ reward, layoutMode, onPledge }) => {
+const RewardCard = ({ reward, layoutMode, onPledge, campaignId }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const {
-    image_url,
+    imageUrl,
     title,
-    min_pledge_amount,
+    minPledgedAmount,
     description,
-    backers,
-    ships_to,
-    estimated_delivery,
+    backersCount,
+    shipsTo,
+    estimatedDelivery,
   } = reward;
 
   const isVertical = layoutMode === 'vertical';
 
   // Format price
-  //  const priceLabel = `US$ ${min_pledge_amount}`;
+  //  const priceLabel = `US$ ${minPledgedAmount}`;
   //  const pledgeActionLabel = `Pledge ${priceLabel}`;
 
   // Format delivery date
-  const eta = estimated_delivery ? new Date(estimated_delivery).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'TBD';
-
+  const eta = estimatedDelivery ? new Date(estimatedDelivery).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'TBD';
+  console.log("rewardddd", reward);
   return (
     <motion.div
       layout
@@ -54,7 +58,7 @@ const RewardCard = ({ reward, layoutMode, onPledge }) => {
             }`}
         >
           <img
-            src={image_url || reward.image}
+            src={imageUrl}
             alt={title}
             className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-110"
           />
@@ -129,7 +133,7 @@ const RewardCard = ({ reward, layoutMode, onPledge }) => {
                 <UsersIcon className="w-4 h-4 text-primary" strokeWidth={2} />
               </div>
               <span className="font-medium">
-                <strong className="font-bold text-primary">{backers}</strong> người ủng hộ
+                <strong className="font-bold text-primary">{backersCount || 0}</strong> người ủng hộ
               </span>
             </motion.div>
 
@@ -141,7 +145,7 @@ const RewardCard = ({ reward, layoutMode, onPledge }) => {
               <div className="w-8 h-8 rounded-sm bg-secondary/10 flex items-center justify-center">
                 <MapPinIcon className="w-4 h-4 text-secondary" strokeWidth={2} />
               </div>
-              <span className="font-medium">Giao đến: {ships_to}</span>
+              <span className="font-medium">Giao đến: {Array.isArray(shipsTo) ? shipsTo.join(', ') : (shipsTo || 'Chưa xác định')}</span>
             </motion.div>
 
             <motion.div
@@ -161,9 +165,9 @@ const RewardCard = ({ reward, layoutMode, onPledge }) => {
             <motion.div className="flex-1" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
               <Button
                 className="w-full font-semibold bg-primary text-white shadow-lg relative overflow-hidden group/btn"
-                onClick={() => onPledge && onPledge(reward)}
+                onClick={() => setIsModalOpen(true)}
               >
-                <span className="relative z-10">{min_pledge_amount} VND</span>
+                <span className="relative z-10">{minPledgedAmount || 0} VND</span>
                 <motion.div
                   className="absolute inset-0 bg-white/20"
                   initial={{ x: '-100%' }}
@@ -177,6 +181,7 @@ const RewardCard = ({ reward, layoutMode, onPledge }) => {
               <Button
                 variant="outline"
                 className="w-full font-semibold relative overflow-hidden group/btn"
+                onClick={() => setIsModalOpen(true)}
               >
                 <span className="relative z-10 group-hover/btn:text-white transition-colors duration-300">Xem chi tiết</span>
                 <motion.div
@@ -195,6 +200,17 @@ const RewardCard = ({ reward, layoutMode, onPledge }) => {
           <div className="absolute inset-0 gradient-1 rounded-bl-full"></div>
         </div>
       </Card>
+
+      {/* Reward Detail Modal */}
+      <RewardDetailModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        reward={reward}
+        items={[]}
+        addOns={[]}
+        onSelectReward={onPledge}
+        campaignId={campaignId}
+      />
     </motion.div>
   );
 }

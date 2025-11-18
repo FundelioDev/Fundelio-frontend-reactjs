@@ -5,30 +5,33 @@ import Checkbox from "@/components/common/Checkbox"
 import ItemSelector from "@/components/common/ItemSelector"
 import Textarea from "@/components/common/Textarea"
 import Tip from "@/components/common/Tip"
+import { Switch } from "@/components/ui/switch"
 import { Trash2, X } from "lucide-react"
+import { storageApi } from "@/api/storageApi"
+import { rewardApi } from "@/api/rewardApi"
+import toast from 'react-hot-toast'
 
-const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onChange, type = 'reward' }, ref) => {
+const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onChange, campaignId, type = 'reward', fieldErrors = {} }, ref) => {
   const isAddon = type === 'addon'
   const formRef = useRef(null)
 
   const [formData, setFormData] = useState({
-    id: isAddon ? `a${Date.now()}` : `r${Date.now()}`,
+    rewardId: null,
     title: "",
     description: "",
-    image: null,
-    minPledgeAmount: 0,
-    items: [],
-    additionalItems: [],
-    delivery: { month: new Date().getMonth() + 1, year: new Date().getFullYear() },
+    imageUrl: null,
+    shipsTo: [],
+    estimatedDelivery: "",
+    items: {
+      included: [],
+      addOn: []
+    },
     shipping: isAddon ? undefined : "anywhere",
-    shippingCountries: [],
     limitTotal: null,
-    limitPerBacker: isAddon ? undefined : null,
-    allowAddOns: isAddon ? undefined : false,
-    offeredWithRewardIds: isAddon ? [] : undefined,
+    rewardStatus: "AVAILABLE", // Default status
     ...reward, // Merge with existing reward data if editing
   })
-  const [errors, setErrors] = useState({})
+  const [isUploadingImage, setIsUploadingImage] = useState(false)
   const [showItemSelector, setShowItemSelector] = useState(false)
   const [showAdditionalItemSelector, setShowAdditionalItemSelector] = useState(false)
   const [countries, setCountries] = useState([])
@@ -37,13 +40,41 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
   const [showCountryDropdown, setShowCountryDropdown] = useState(false)
   const fileInputRef = useRef(null)
 
-  // Calculate minPledgeAmount based on selected items
+  useEffect(() => {
+    if (reward) {
+      setFormData(reward)
+    }
+  }, [reward])
+
+  // Convert shipsTo string array to country objects after countries are loaded
+  useEffect(() => {
+    if (countries.length > 0 && formData.shipsTo && Array.isArray(formData.shipsTo) && formData.shipsTo.length > 0) {
+      const firstItem = formData.shipsTo[0]
+
+      if (typeof firstItem === 'string' && firstItem !== "Trên toàn cầu") {
+        const matchedCountries = formData.shipsTo
+          .map(countryName =>
+            countries.find(c => c.niceName === countryName || c.name === countryName)
+          )
+          .filter(Boolean) // Remove null/undefined
+
+        if (matchedCountries.length > 0) {
+          const newData = { ...formData, shipsTo: matchedCountries }
+          setFormData(newData)
+          if (onChange) onChange(newData)
+        }
+      }
+    }
+  }, [countries])
+
   const minPledgeAmount = useMemo(() => {
-    return formData.items.reduce((total, selectedItem) => {
-      const item = items.find((i) => i.id === selectedItem.itemId)
-      return total + (item?.price || 0) * selectedItem.qty
+    const includedItems = formData.items?.included || []
+    if (includedItems.length === 0) return 0
+
+    return includedItems.reduce((total, item) => {
+      return total + (item.price || 0) * (item.quantity || 1)
     }, 0)
-  }, [formData.items, items])
+  }, [formData.items])
 
   // Filter countries based on search
   const filteredCountries = useMemo(() => {
@@ -71,14 +102,18 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
     }
   }, [formData.shipping, countries.length])
 
-  // Update formData.minPledgeAmount when minPledgeAmount changes
+  // Update estimatedDelivery when component mounts or when editing
   useEffect(() => {
-    if (formData.minPledgeAmount !== minPledgeAmount) {
-      const newData = { ...formData, minPledgeAmount }
+    if (!formData.estimatedDelivery) {
+      const now = new Date()
+      const delivery = new Date(now.getFullYear(), now.getMonth() + 1, 20)
+      const isoDate = delivery.toISOString().split('T')[0]
+
+      const newData = { ...formData, estimatedDelivery: isoDate }
       setFormData(newData)
-      onChange(newData)
+      if (onChange) onChange(newData)
     }
-  }, [minPledgeAmount])
+  }, [])
 
   // Expose submit method to parent via ref
   useImperativeHandle(ref, () => ({
@@ -94,66 +129,112 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
     const newValue = type === "checkbox" ? checked : value
-    setFormData((prev) => ({ ...prev, [name]: newValue }))
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: null }))
-    }
-    onChange({ ...formData, [name]: newValue })
-  }
 
-  const handleRewardToggle = (rewardId) => {
-    const newData = {
-      ...formData,
-      offeredWithRewardIds: formData.offeredWithRewardIds.includes(rewardId)
-        ? formData.offeredWithRewardIds.filter((id) => id !== rewardId)
-        : [...formData.offeredWithRewardIds, rewardId],
+    let newData = { ...formData, [name]: newValue }
+
+    // Reset shipsTo when switching shipping mode
+    if (name === "shipping") {
+      if (value === "anywhere") {
+        newData.shipsTo = ["Trên toàn cầu"]
+      } else if (value === "custom") {
+        newData.shipsTo = []
+      }
     }
+
     setFormData(newData)
-    onChange(newData)
+    if (onChange) onChange(newData)
   }
 
-  const handleImageChange = (e) => {
+  const handleImageChange = async (e) => {
     const file = e.target.files?.[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onload = (event) => {
+    if (!file) return
+
+    try {
+      setIsUploadingImage(true)
+      toast.loading('Đang tải ảnh lên...', { id: 'upload-reward-image' })
+
+      const response = await storageApi.uploadSingleFile(file, 'rewards')
+
+      if (response?.data?.data?.fileUrl) {
         const newData = {
           ...formData,
-          image: event.target?.result,
+          imageUrl: response.data.data.fileUrl,
         }
         setFormData(newData)
-        onChange(newData)
+        if (onChange) onChange(newData)
+        toast.success('Tải ảnh lên thành công!', { id: 'upload-reward-image' })
+      } else {
+        throw new Error('Không nhận được URL ảnh từ server')
       }
-      reader.readAsDataURL(file)
+    } catch (error) {
+      console.error('Upload image error:', error)
+
+      let errorMessage = 'Tải ảnh lên thất bại'
+      if (error.errors && Array.isArray(error.errors)) {
+        errorMessage = error.errors[0]?.message || errorMessage
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message
+      } else if (error.message) {
+        errorMessage = error.message
+      }
+
+      toast.error(errorMessage, { id: 'upload-reward-image' })
+    } finally {
+      setIsUploadingImage(false)
     }
   }
 
-  const handleDeliveryChange = (field, value) => {
+  const handleDeliveryChange = (value) => {
     const newData = {
       ...formData,
-      delivery: { ...formData.delivery, [field]: Number.parseInt(value) },
+      estimatedDelivery: value,
     }
     setFormData(newData)
-    onChange(newData)
+    if (onChange) onChange(newData)
   }
 
   const handleItemsChange = (selectedItems) => {
+    // selectedItems is array like: [{ catalogItemId: "xxx", quantity: 2 }]
+    // Map to full item objects with quantity
+    const itemsWithDetails = selectedItems.map(selectedItem => {
+      const fullItem = items.find(i => i.catalogItemId === selectedItem.catalogItemId)
+      return {
+        ...fullItem,
+        quantity: selectedItem.quantity
+      }
+    })
+
     const newData = {
       ...formData,
-      items: selectedItems,
+      items: {
+        ...formData.items,
+        included: itemsWithDetails
+      }
     }
     setFormData(newData)
-    onChange(newData)
+    if (onChange) onChange(newData)
     setShowItemSelector(false)
   }
 
   const handleAdditionalItemsChange = (selectedItems) => {
+    // For add-on items, quantity is 0 (backer will choose)
+    const itemsWithDetails = selectedItems.map(selectedItem => {
+      const fullItem = items.find(i => i.catalogItemId === selectedItem.catalogItemId)
+      return {
+        ...fullItem,
+        quantity: 0
+      }
+    })
+
     const newData = {
       ...formData,
-      additionalItems: selectedItems,
+      items: {
+        ...formData.items,
+        addOn: itemsWithDetails
+      }
     }
     setFormData(newData)
-    onChange(newData)
+    if (onChange) onChange(newData)
     setShowAdditionalItemSelector(false)
   }
 
@@ -175,48 +256,67 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
   }
 
   const handleCountryToggle = (country) => {
-    const isSelected = formData?.shippingCountries?.find(c => c.id === country.id)
+    const isSelected = formData?.shipsTo?.find(c => c.id === country.id)
 
     const newData = {
       ...formData,
-      shippingCountries: isSelected
-        ? (formData?.shippingCountries || []).filter(c => c.id !== country.id)
-        : [...(formData?.shippingCountries || []), country]
+      shipsTo: isSelected
+        ? (formData?.shipsTo || []).filter(c => c.id !== country.id)
+        : [...(formData?.shipsTo || []), country]
     }
     setFormData(newData)
-    onChange(newData)
+    if (onChange) onChange(newData)
   }
 
   const handleCountryRemove = (countryId) => {
     const newData = {
       ...formData,
-      shippingCountries: formData.shippingCountries?.filter(c => c.id !== countryId)
+      shipsTo: formData.shipsTo?.filter(c => c.id !== countryId)
     }
     setFormData(newData)
-    onChange(newData)
+    if (onChange) onChange(newData)
   }
 
-  const validate = () => {
-    const newErrors = {}
-    if (!formData.title.trim()) {
-      newErrors.title = "Tiêu đề là bắt buộc"
+  const handleRemoveItem = async (catalogItemId, itemType) => {
+    // Find the rewardItemId for this catalog item
+    const itemsArray = itemType === 'included' ? formData.items?.included : formData.items?.addOn
+    const itemToRemove = itemsArray?.find(i => i.catalogItemId === catalogItemId)
+
+    // If editing an existing reward and item has rewardItemId, call API to delete
+    if (formData.rewardId && itemToRemove?.rewardItemId && campaignId) {
+      try {
+        await rewardApi.deleteCatalogItemsToReward(
+          campaignId,
+          formData.rewardId,
+          [itemToRemove.rewardItemId]
+        )
+        toast.success('Đã xóa thành phần khỏi phần thưởng')
+      } catch (error) {
+        console.error('Error deleting catalog item from reward:', error)
+        toast.error(error.response?.data?.message || 'Không thể xóa thành phần')
+        return // Don't update local state if API call failed
+      }
     }
-    if (formData.items.length === 0) {
-      newErrors.items = "Vui lòng chọn ít nhất một thành phần"
+
+    // Update local state
+    const newItems = itemsArray?.filter(i => i.catalogItemId !== catalogItemId) || []
+    const newData = {
+      ...formData,
+      items: {
+        ...formData.items,
+        [itemType]: newItems
+      }
     }
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
+    setFormData(newData)
+    if (onChange) onChange(newData)
   }
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    if (validate()) {
-      onSave(formData)
-    }
+    onSave(formData)
   }
 
-  const currentYear = new Date().getFullYear()
-  const years = Array.from({ length: 4 }, (_, i) => currentYear + i)
+  // console.log('RewardForm formData:', formData)
 
   return (
     <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
@@ -232,20 +332,22 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
               value={formData.title}
               onChange={handleChange}
               placeholder="Ví dụ: Phiên bản giới hạn có chữ ký"
-              error={errors.title}
+              error={fieldErrors.title}
             />
-            {errors.title && <p className="mt-1 text-sm text-destructive">{errors.title}</p>}
+            {fieldErrors.title && <p className="mt-1 text-sm text-destructive">{fieldErrors.title}</p>}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Mô tả (tùy chọn)</label>
+            <label className="block text-sm font-medium text-foreground mb-2">Mô tả<span className="text-lg font-bold text-primary">*</span></label>
             <Textarea
               name="description"
               value={formData.description}
               onChange={handleChange}
               placeholder="Mô tả giá trị khác biệt của phần thưởng này..."
               rows={3}
+              error={fieldErrors.description}
             />
+            {fieldErrors.description && <p className="mt-1 text-sm text-destructive">{fieldErrors.description}</p>}
             <Tip className="mt-2">
               Tạo ấn tượng đầu tiên tốt nhất cho <strong>nhà tài trợ</strong> với tiêu đề tuyệt vời.
             </Tip>
@@ -253,15 +355,44 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
         </div>
       </div>
 
+      {/* Reward Status Section */}
+      <div className="rounded-sm border border-border bg-white dark:bg-darker-2 p-6">
+        <h3 className="text-lg font-semibold text-foreground mb-4">Trạng thái phần thưởng</h3>
+        <div className="flex items-center justify-between p-4 bg-muted/30 dark:bg-muted/10 rounded-lg">
+          <div className="flex-1">
+            <p className="font-medium text-foreground mb-1">
+              {formData.rewardStatus === "AVAILABLE" ? "Đang mở bán" : "Đã hết hàng"}
+            </p>
+            <p className="text-sm text-muted-foreground">
+              {formData.rewardStatus === "AVAILABLE"
+                ? "Người ủng hộ có thể chọn phần thưởng này"
+                : "Phần thưởng tạm thời không khả dụng"}
+            </p>
+          </div>
+          <Switch
+            checked={formData.rewardStatus === "AVAILABLE"}
+            onCheckedChange={(checked) => {
+              const newData = {
+                ...formData,
+                rewardStatus: checked ? "AVAILABLE" : "SOLD_OUT"
+              }
+              setFormData(newData)
+              if (onChange) onChange(newData)
+            }}
+            className="ml-4"
+          />
+        </div>
+      </div>
+
       {/* Image Section */}
       <div className="rounded-sm border border-border bg-white dark:bg-darker-2 p-6">
-        <h3 className="text-lg font-semibold text-foreground">Hình ảnh</h3>
+        <h3 className="text-lg font-semibold text-foreground">Hình ảnh<span className="text-lg font-bold text-primary">*</span></h3>
         <p className="text-sm text-text-primary dark:text-white mb-4">
           Thêm hình ảnh sản phẩm của bạn để giúp người ủng hộ hiểu chính xác phần thưởng của họ là gì.
         </p>
 
         {/* Upload Area - Only show when no image */}
-        {!formData.image && (
+        {!formData.imageUrl && (
           <div className="flex flex-col items-center">
             <div className="w-full max-w-2xl">
               <div className="border-2 border-dashed border-border rounded-sm p-8 bg-muted/30 hover:bg-muted/50 transition-colors">
@@ -271,8 +402,9 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
                     variant="gradient"
                     onClick={() => fileInputRef.current?.click()}
                     className="px-6 py-3 border border-border rounded-sm text-foreground bg-background hover:bg-muted transition-colors font-medium"
+                    disabled={isUploadingImage}
                   >
-                    Tải ảnh lên
+                    {isUploadingImage ? 'Đang tải lên...' : 'Tải ảnh lên'}
                   </Button>
 
                   <p className="text-md text-text-primary dark:text-white">Chọn một tệp.</p>
@@ -289,18 +421,19 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
                 accept="image/*"
                 onChange={handleImageChange}
                 className="hidden"
+                disabled={isUploadingImage}
               />
             </div>
           </div>
         )}
 
         {/* Image Preview - Only show when image exists */}
-        {formData.image && (
+        {formData.imageUrl && (
           <div className="flex flex-col items-center">
             <div className="w-full max-w-2xl">
               <div className="relative aspect-video rounded-sm overflow-hidden bg-muted border border-border">
                 <img
-                  src={formData.image}
+                  src={formData.imageUrl}
                   alt="Preview"
                   className="w-full h-full object-cover"
                 />
@@ -310,17 +443,19 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   className="px-4 py-2 border border-border rounded-sm text-foreground bg-background hover:bg-muted transition-colors text-sm font-medium"
+                  disabled={isUploadingImage}
                 >
-                  Thay đổi
+                  {isUploadingImage ? 'Đang tải...' : 'Thay đổi'}
                 </button>
                 <button
                   type="button"
                   onClick={() => {
-                    const newData = { ...formData, image: null }
+                    const newData = { ...formData, imageUrl: null }
                     setFormData(newData)
-                    onChange(newData)
+                    if (onChange) onChange(newData)
                   }}
                   className="px-4 py-2 border border-destructive text-destructive rounded-sm hover:bg-destructive/10 transition-colors text-sm font-medium"
+                  disabled={isUploadingImage}
                 >
                   Xóa ảnh
                 </button>
@@ -332,9 +467,11 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
               accept="image/*"
               onChange={handleImageChange}
               className="hidden"
+              disabled={isUploadingImage}
             />
           </div>
         )}
+        {fieldErrors.imageUrl && <p className="mt-2 text-sm text-destructive">{fieldErrors.imageUrl}</p>}
       </div>
 
       {/* Pricing Section */}
@@ -342,7 +479,7 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
         <h3 className="text-lg font-semibold text-foreground mb-4">Giá ủng hộ tối thiểu</h3>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Giá (VND)<span className="text-lg font-bold text-primary">*</span></label>
+            <label className="block text-sm font-medium text-foreground mb-2">Giá (VND)</label>
             <Input
               type="number"
               name="minPledgeAmount"
@@ -352,55 +489,39 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
               className="bg-muted cursor-not-allowed"
             />
             <p className="mt-2 text-sm text-muted-foreground">
-              Giá tự động tính dựa trên tổng giá của các thành phần bao gồm
-            </p>
-          </div>
-
-          <div className="p-3 bg-muted/50 rounded-sm border border-border">
-            <p className="text-sm text-text-primary dark:text-white">
-              ℹ️ <strong>Thuế thu ở Pledge Manager:</strong> Để sử dụng Pledge Manager của Kickstarter, giá được đặt cho
-              mỗi phần thưởng không được bao gồm thuế. Chúng tôi sẽ tính toán và thu bất kỳ thuế áp dụng nào từ mỗi
-              backer dựa trên vị trí của họ, sau khi chiến dịch của bạn kết thúc.
+              Giá tự động tính dựa trên tổng giá × số lượng của các thành phần bao gồm
             </p>
           </div>
         </div>
       </div>
 
-      {/* Items Section */}
+      {/* Items Section - INCLUDED items */}
       {!isAddon && (<div className="rounded-sm border border-border bg-white dark:bg-darker-2 p-6">
-        <h3 className="text-lg font-semibold text-foreground mb-4">Thành phần bao gồm</h3>
+        <h3 className="text-lg font-semibold text-foreground mb-4">Thành phần bao gồm<span className="text-lg font-bold text-primary">*</span></h3>
         <div className="space-y-4">
           <Button type="button" onClick={() => setShowItemSelector(true)} variant="secondary" className="w-full">
             Chọn thành phần
           </Button>
 
-          {errors.items && <p className="text-sm text-destructive">{errors.items}</p>}
+          {fieldErrors.includedItems && <p className="text-sm text-destructive">{fieldErrors.includedItems}</p>}
 
-          {formData.items.length > 0 && (
+          {formData?.items?.included && formData.items.included.length > 0 && (
             <div className="space-y-2">
-              {formData.items.map((selectedItem) => {
-                const item = items.find((i) => i.id === selectedItem.itemId)
-                return (
-                  <div key={selectedItem.itemId} className="flex items-center justify-between p-3 bg-muted rounded-sm">
-                    <span className="text-foreground font-medium">
-                      {item?.title} × {selectedItem.qty}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const newItems = formData.items.filter((i) => i.itemId !== selectedItem.itemId)
-                        const newData = { ...formData, items: newItems }
-                        setFormData(newData)
-                        onChange(newData)
-                      }}
-                      className="text-destructive hover:text-destructive/80 p-1 rounded hover:bg-destructive/10 transition-colors"
-                      title="Xóa"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                )
-              })}
+              {formData.items.included.map((item) => (
+                <div key={item.catalogItemId} className="flex items-center justify-between p-3 bg-muted rounded-sm">
+                  <span className="text-foreground font-medium">
+                    {item.name || 'Unknown Item'} × {item.quantity || 1}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveItem(item.catalogItemId, 'included')}
+                    className="text-destructive hover:text-destructive/80 p-1 rounded hover:bg-destructive/10 transition-colors"
+                    title="Xóa"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
             </div>
           )}
           <Tip className="mt-2">Ít nhất 1 component. Mỗi component tương ứng 1 món sẽ giao cho backer.</Tip>
@@ -408,88 +529,63 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
       </div>
       )}
 
-      {/* Additional Items Section */}
+      {/* Additional Items Section - ADD_ON items */}
       {!isAddon && (<div className="rounded-sm border border-border bg-white dark:bg-darker-2 p-6">
-        <h3 className="text-lg font-semibold text-foreground mb-4">Thành phần thêm vào</h3>
+        <h3 className="text-lg font-semibold text-foreground mb-4">Thành phần thêm vào (Add-on)</h3>
         <div className="space-y-4">
           <Button type="button" onClick={() => setShowAdditionalItemSelector(true)} variant="secondary" className="w-full">
             Chọn thành phần thêm
           </Button>
 
-          {formData.additionalItems && formData.additionalItems.length > 0 && (
+          {formData.items?.addOn && formData.items.addOn.length > 0 && (
             <div className="space-y-2">
-              {formData.additionalItems.map((selectedItem) => {
-                const item = items.find((i) => i.id === selectedItem.itemId)
-                return (
-                  <div key={selectedItem.itemId} className="flex items-center justify-between p-3 bg-muted rounded-sm">
-                    <span className="text-foreground font-medium">
-                      {item?.title} × {selectedItem.qty}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const newItems = formData.additionalItems.filter((i) => i.itemId !== selectedItem.itemId)
-                        const newData = { ...formData, additionalItems: newItems }
-                        setFormData(newData)
-                        onChange(newData)
-                      }}
-                      className="text-destructive hover:text-destructive/80 p-1 rounded hover:bg-destructive/10 transition-colors"
-                      title="Xóa"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                )
-              })}
+              {formData.items.addOn.map((item) => (
+                <div key={item.catalogItemId} className="flex items-center justify-between p-3 bg-muted rounded-sm">
+                  <span className="text-foreground font-medium">
+                    {item.name || 'Unknown Item'} (Backer tự chọn số lượng)
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveItem(item.catalogItemId, 'addOn')}
+                    className="text-destructive hover:text-destructive/80 p-1 rounded hover:bg-destructive/10 transition-colors"
+                    title="Xóa"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
             </div>
           )}
-          <Tip className="mt-2">Thành phần tùy chọn có thể được backer thêm vào phần thưởng này.</Tip>
+          <Tip className="mt-2">Thành phần tùy chọn có thể được backer thêm vào phần thưởng này. Số lượng do backer tự chọn.</Tip>
         </div>
       </div>
       )}
 
       {/* Delivery Section */}
       <div className="rounded-sm border border-border bg-white dark:bg-darker-2 p-6">
-        <h3 className="text-lg font-semibold text-foreground mb-4">Thời gian giao dự kiến</h3>
-        <div className="grid grid-cols-2 gap-4">
+        <h3 className="text-lg font-semibold text-foreground mb-4">Thời gian giao dự kiến<span className="text-lg font-bold text-primary">*</span></h3>
+        <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Tháng</label>
-            <select
-              value={formData.delivery.month}
-              onChange={(e) => handleDeliveryChange("month", e.target.value)}
-              className="w-full px-3 py-2 border border-border rounded-sm bg-background text-foreground"
-            >
-              {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
-                <option key={month} value={month}>
-                  Tháng {month}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-2">Năm</label>
-            <select
-              value={formData.delivery.year}
-              onChange={(e) => handleDeliveryChange("year", e.target.value)}
-              className="w-full px-3 py-2 border border-border rounded-sm bg-background text-foreground"
-            >
-              {years.map((year) => (
-                <option key={year} value={year}>
-                  {year}
-                </option>
-              ))}
-            </select>
+            <label className="block text-sm font-medium text-foreground mb-2">Ngày giao hàng (YYYY-MM-DD)</label>
+            <Input
+              type="date"
+              name="estimatedDelivery"
+              value={formData.estimatedDelivery}
+              onChange={(e) => handleDeliveryChange(e.target.value)}
+              error={fieldErrors.estimatedDelivery}
+            />
+            {fieldErrors.estimatedDelivery && <p className="mt-1 text-sm text-destructive">{fieldErrors.estimatedDelivery}</p>}
+            <Tip className="mt-2">
+              Thời gian giao hàng ước tính giúp bạn và nhà tài trợ của bạn biết khi nào họ có thể mong đợi phần thưởng của mình.
+            </Tip>
           </div>
         </div>
-        <Tip className="mt-4">
-          Thời gian giao hàng ước tính giúp bạn và nhà tài trợ của bạn biết khi nào họ có thể mong đợi phần thưởng của mình.
-        </Tip>
       </div>
 
       {/* Shipping Section - Only for rewards */}
       {!isAddon && (
         <div className="rounded-sm border border-border bg-white dark:bg-darker-2 p-6">
-          <h3 className="text-lg font-semibold text-foreground mb-4">Vận chuyển</h3>
+          <h3 className="text-lg font-semibold text-foreground mb-4">Vận chuyển<span className="text-lg font-bold text-primary">*</span></h3>
           <div className="space-y-3">
             <label className="flex items-center gap-3 cursor-pointer">
               <input
@@ -551,7 +647,7 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
                         ) : (
                           <div className="p-2 space-y-1">
                             {filteredCountries.map((country) => {
-                              const isSelected = formData?.shippingCountries?.find(c => c.id === country.id)
+                              const isSelected = formData?.shipsTo?.find(c => c.id === country.id)
                               return (
                                 <label
                                   key={country.id}
@@ -565,11 +661,6 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
                                     onClick={(e) => e.stopPropagation()}
                                     className="w-4 h-4"
                                   />
-                                  {/* <img
-                                    src={country.flag}
-                                    alt={country.niceName}
-                                    className="w-5 h-5 rounded object-cover"
-                                  /> */}
                                   <span className="text-sm text-foreground flex-1">
                                     {country.niceName}
                                   </span>
@@ -583,7 +674,7 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
                         {filteredCountries.length > 0 && (
                           <div className="border-t border-border p-2 bg-muted/30">
                             <div className="flex items-center justify-between text-xs text-muted-foreground">
-                              <span>Đã chọn: {formData?.shippingCountries?.length || 0}</span>
+                              <span>Đã chọn: {formData?.shipsTo?.length || 0}</span>
                               <button
                                 type="button"
                                 onClick={(e) => {
@@ -603,27 +694,22 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
                 </div>
 
                 {/* Selected Countries Tags */}
-                {formData.shippingCountries && formData.shippingCountries?.length > 0 && (
+                {formData.shipsTo && formData.shipsTo.length > 0 && formData.shipsTo[0] !== "Trên toàn cầu" && (
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-2">
-                      Quốc gia đã chọn ({formData.shippingCountries.length})
+                      Quốc gia đã chọn ({formData.shipsTo.length})
                     </label>
                     <div className="flex flex-wrap gap-2">
-                      {formData.shippingCountries.map((country) => (
+                      {formData.shipsTo.map((country) => (
                         <div
                           key={country.id}
                           className="group inline-flex items-center gap-2 px-3 py-1.5 bg-primary/10 border border-primary/30 rounded-full text-sm font-medium text-foreground hover:bg-primary/20 transition-colors"
                         >
-                          <img
-                            src={country.flag}
-                            alt={country.niceName}
-                            className="w-4 h-4 rounded-full object-cover"
-                          />
                           <span>{country.niceName}</span>
                           <button
                             type="button"
                             onClick={() => handleCountryRemove(country.id)}
-                            className="opacity-0 group-hover:opacity-100 transition-opacity"
+                            className="opacity-70 group-hover:opacity-100 transition-opacity"
                             title="Xóa"
                           >
                             <X className="w-4 h-4 text-destructive hover:text-destructive/80" />
@@ -635,6 +721,7 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
                 )}
               </div>
             )}
+            {fieldErrors.shipsTo && <p className="mt-2 text-sm text-destructive">{fieldErrors.shipsTo}</p>}
           </div>
         </div>
       )}
@@ -659,7 +746,7 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
         </div>
       )}
 
-      {/* Limits Section */}
+      {/* Limits Section
       <div className="rounded-sm border border-border bg-white dark:bg-darker-2 p-6">
         <h3 className="text-lg font-semibold text-foreground mb-4">Giới hạn</h3>
         <div className="space-y-4">
@@ -667,6 +754,7 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
             <label className="block text-sm font-medium text-foreground mb-2">Tổng số suất (tùy chọn)</label>
             <Input
               type="number"
+              name="limitTotal"
               value={formData.limitTotal || ""}
               onChange={(e) => {
                 const newData = {
@@ -674,52 +762,40 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
                   limitTotal: e.target.value ? Number.parseInt(e.target.value) : null,
                 }
                 setFormData(newData)
-                onChange(newData)
+                if (onChange) onChange(newData)
               }}
               placeholder="Không giới hạn"
               min="1"
               onWheel={(e) => e.target.blur()}
             />
           </div>
-          {/* {!isAddon && (
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-2">Giới hạn mỗi backer (tùy chọn)</label>
-              <Input
-                type="number"
-                value={formData.limitPerBacker || ""}
-                onChange={(e) => {
-                  const newData = {
-                    ...formData,
-                    limitPerBacker: e.target.value ? Number.parseInt(e.target.value) : null,
-                  }
-                  setFormData(newData)
-                  onChange(newData)
-                }}
-                placeholder="Không giới hạn"
-                min="1"
-              />
-            </div>
-          )} */}
         </div>
-      </div>
+      </div> */}
 
-      {/* Item Selector Modal */}
+      {/* Item Selector Modal for INCLUDED items */}
       {showItemSelector && (
         <ItemSelector
           items={items}
-          selectedItems={formData.items}
+          selectedItems={(formData.items?.included || []).map(item => ({
+            catalogItemId: item.catalogItemId,
+            quantity: item.quantity || 1
+          }))}
           onConfirm={handleItemsChange}
           onClose={() => setShowItemSelector(false)}
         />
       )}
 
-      {/* Additional Item Selector Modal */}
+      {/* Additional Item Selector Modal for ADD_ON items */}
       {showAdditionalItemSelector && (
         <ItemSelector
           items={items}
-          selectedItems={formData.additionalItems || []}
+          selectedItems={(formData.items?.addon || []).map(item => ({
+            catalogItemId: item.catalogItemId,
+            quantity: 0
+          }))}
           onConfirm={handleAdditionalItemsChange}
           onClose={() => setShowAdditionalItemSelector(false)}
+          isAddOnMode={true} // Pass flag to disable quantity input
         />
       )}
 
@@ -730,7 +806,7 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
             Hủy
           </Button>
           <Button type="submit" variant="gradient">
-            Lưu {isAddon ? 'Add-on' : 'Phần thưởng'}
+            Lưu phần thưởng
           </Button>
         </div>
       </div>

@@ -6,7 +6,7 @@ export const userApi = {
   updateEmail: (payload) =>
     httpService.put("/users/update-email", payload),
 
-    verifyChangeEmail(payload) {
+  verifyChangeEmail(payload) {
     return httpService.post('/users/verify-change-email', payload, {
       requireToken: true,
     });
@@ -23,4 +23,9 @@ export const userApi = {
 
   updatePassword: (payload) =>
     httpService.put("/users/update-password", payload),
+
+  becomeFounder: () =>
+    httpService.post("/users/founder-requests", null, {
+      requireToken: true,
+    }),
 };

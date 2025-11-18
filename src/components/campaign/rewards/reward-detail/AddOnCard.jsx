@@ -19,7 +19,7 @@ export function AddOnCard({ addon, isSelected, onToggle }) {
                 <div className="aspect-square w-full rounded-t-md overflow-hidden bg-gray-100 dark:bg-darker">
                     <img
                         src={addon.image || addon.imageUrl}
-                        alt={addon.title}
+                        alt={addon.name || addon.title}
                         className="w-full h-full rounded-t-md object-cover"
                     />
                 </div>
@@ -28,7 +28,7 @@ export function AddOnCard({ addon, isSelected, onToggle }) {
                 <div className="p-4 space-y-3">
                     {/* Title */}
                     <h4 className="font-bold text-foreground text-base line-clamp-2 min-h-[3rem]">
-                        {addon.title}
+                        {addon.name || addon.title}
                     </h4>
 
                     {/* Price */}

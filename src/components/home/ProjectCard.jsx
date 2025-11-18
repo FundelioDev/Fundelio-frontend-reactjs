@@ -10,42 +10,50 @@ export const ProjectCard = ({
   mode = 'default',
   variant = 'default', // 'default' | 'expired'
 }) => {
-  const {
-    id,
-    title,
-    authorName,
-    authorAvatarUrl,
-    imageUrl,
-    daysLeft,
-    progressPercent,
-    pledged,
-    goal,
-    description,
-    category,
-    location,
-    bookmarked = false,
-    backerCount = 0,
-    likeCount = 0,
-    status,
-  } = project;
+  // Map API fields to component usage
+  const campaignId = project.campaignId || project.id;
+  const title = project.title;
+  const authorName = project.owner
+    ? `${project.owner.firstName || ''} ${project.owner.lastName || ''}`.trim() || project.owner.nickname
+    : 'Anonymous';
+  const authorAvatarUrl = project.owner?.avatarUrl;
+  const imageUrl = project.introImageUrl || project.imageUrl;
+  const pledgedAmount = project.pledgedAmount || project.pledged || 0;
+  const goalAmount = project.goalAmount || project.goal || 0;
+  const backersCount = project.backersCount || project.backerCount || 0;
+  const likeCount = project.likeCount || 0;
+  const campaignStatus = project.campaignStatus || project.status;
+  const category = project.campaignCategory || project.category || 'Crowdfunding';
+  const description = project.description;
+  const location = project.location;
+  const bookmarked = project.bookmarked || false;
+
+  // Calculate derived values
+  const calculateDaysLeft = (endDate) => {
+    if (!endDate) return 0;
+    const end = new Date(endDate);
+    const now = new Date();
+    const daysLeft = Math.ceil((end - now) / (1000 * 60 * 60 * 24));
+    return Math.max(0, daysLeft);
+  };
+
+  const calculateProgress = () => {
+    if (!goalAmount || goalAmount === 0) return 0;
+    return Math.round((pledgedAmount / goalAmount) * 100);
+  };
+
+  const daysLeft = calculateDaysLeft(project.endDate);
+  const progressPercent = calculateProgress();
 
   const handleBookmarkClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    onBookmarkToggle?.(id, !bookmarked);
+    onBookmarkToggle?.(campaignId, !bookmarked);
   };
 
-  const formatCurrency = (amount) => {
-    // If amount is already formatted as string, return it
-    if (typeof amount === 'string') return amount;
-
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
+    const formatPrice = (price) => {
+        return new Intl.NumberFormat('vi-VN').format(price);
+    };
 
   const formatNumber = (num) => {
     if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
@@ -100,11 +108,11 @@ export const ProjectCard = ({
         <div className="absolute bottom-4 left-4 flex items-center gap-4 text-white z-10">
           <div className="flex items-center gap-1.5 bg-darker-2-light/40 backdrop-blur-sm px-3 py-1.5 rounded-full">
             <Heart className="w-4 h-4 fill-white" />
-            <span className="text-sm font-semibold">{formatNumber(likeCount || 22700)}</span>
+            <span className="text-sm font-semibold">{formatNumber(likeCount)}</span>
           </div>
           <div className="flex items-center gap-1.5 bg-darker-2-light/40 backdrop-blur-sm px-3 py-1.5 rounded-full">
             <Users className="w-4 h-4" />
-            <span className="text-sm font-semibold">{formatNumber(backerCount || 8700)}</span>
+            <span className="text-sm font-semibold">{formatNumber(backersCount)}</span>
           </div>
         </div>
 
@@ -165,7 +173,7 @@ export const ProjectCard = ({
             <div className="flex-1 min-w-0">
               <p className="text-xs text-muted-foreground mb-0.5">Tổng kinh phí</p>
               <p className="text-lg font-bold text-text-primary dark:text-white truncate">
-                {typeof pledged === 'string' ? pledged : pledged} VND
+                {formatPrice(pledgedAmount)} VND
               </p>
             </div>
 

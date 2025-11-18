@@ -4,25 +4,24 @@ import React, { useEffect } from 'react';
  * TocMenu — NestJS-like timeline with dots + vertical line
  */
 const TocMenu = ({ blanks = [], activeId, onClickItem }) => {
-  
-  useEffect(() => {
-    console.log('📋 TocMenu received:', {
-      blanksCount: blanks.length,
-      activeId,
-      blankIds: blanks.map((b) => b.id),
-    });
-  }, [activeId, blanks]);
 
   if (!blanks?.length) return null;
 
   const handleClick = (id) => {
     if (onClickItem) return onClickItem(id);
     const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
+    if (el) {
+      // Calculate offset for sticky header + tabs (~136px total)
+      const headerOffset = 140;
+      const elementPosition = el.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
 
-  console.log('Rendering TocMenu with blanks:', blanks);
-  console.log('Active ID:', activeId);
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }
+  };
 
   return (
     <nav
@@ -39,14 +38,8 @@ const TocMenu = ({ blanks = [], activeId, onClickItem }) => {
       >
         <ul className="space-y-1">
           {blanks.map((b, idx) => {
-            // Convert both to string for comparison
             const isActive = String(activeId) === String(b.id);
-            console.log('TocMenu Item:', {
-              id: b.id,
-              isActive,
-            });
 
-            console.log('Rendering TocMenu Item:', b.id, 'activeId:', activeId);
             return (
               <li key={b.id}>
                 <button

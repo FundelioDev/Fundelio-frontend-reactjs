@@ -80,7 +80,7 @@ const useScrollSpy = (sectionIds) => {
   return activeId;
 };
 
-const RewardsPage = ({ rewards = [], items = [], addOns = [], onPledge }) => {
+const RewardsPage = ({ rewards = [], items = [], addOns = [], onPledge, campaignId }) => {
   const [selectedRewards, setSelectedRewards] = useState([]);
   const [selectedAddOns, setSelectedAddOns] = useState([]);
 
@@ -141,6 +141,9 @@ const RewardsPage = ({ rewards = [], items = [], addOns = [], onPledge }) => {
     }
   };
 
+  console.log('RewardsPage render:', rewards);
+
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[250px_minmax(0,1fr)_250px] gap-6 lg:gap-8">
       {/* Left Column - TOC Menu */}
@@ -156,6 +159,7 @@ const RewardsPage = ({ rewards = [], items = [], addOns = [], onPledge }) => {
           addOns={addOns}
           onSelectReward={handleSelectReward}
           onSelectAddOn={handleSelectAddOn}
+          campaignId={campaignId}
         />
       </div>
 

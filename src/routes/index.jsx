@@ -21,13 +21,17 @@ import YourProjectsPage from '@/pages/YourProjectsPage';
 import NotFoundPage from '@/pages/NotFoundPage';
 import ForbiddenPage from '@/pages/ForbiddenPage';
 import UserProfilePage from "@/pages/UserProfilePage";
+import PledgeSummaryPage from '@/pages/PledgeSummaryPage';
+import BecomeFounderPage from '@/pages/BecomeFounderPage';
 
 import VerifyChangeEmail from '@/components/auth/VerifyChangeEmail';
 
 import CampaignOverviewPage from '@/components/campaign/dashboard/CampaignOverviewPage';
+import CampaignStatisticsPage from '@/components/campaign/dashboard/CampaignStatisticsPage';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
-
-
+import WebSocketTestComponent from '@/components/websocket/WebSocketTestComponent';
+import MyPledgesPage from '@/pages/pledges/MyPledgesPage';
+import SearchPage from '@/pages/SearchPage';
 /**
  * Application routes configuration
  */
@@ -40,22 +44,29 @@ export const router = createBrowserRouter([
       { index: true, element: <LandingPage /> },
 
       { path: 'home', element: <HomePage /> },
+      { path: 'search', element: <SearchPage /> },
 
       { path: 'dashboard', element: <DashboardPage /> },
       { path: 'profile', element: <UserProfilePage /> },
+      { path: 'become-founder', element: <BecomeFounderPage /> },
+      { path: 'my-pledges', element: <MyPledgesPage /> },
+      { path: 'search', element: <SearchPage /> },
       {
         path: 'campaigns',
         children: [
           { path: 'detail', element: <CampaignDetailPage /> },
           { path: 'preview/:campaignId', element: <CampaignDetailPage isPreviewMode={true} /> },
           { path: ':campaignId', element: <CampaignDetailPage /> },
+          { path: ':campaignId/pledge', element: <PledgeSummaryPage /> },
           { path: ':campaignId/dashboard', element: <CampaignOverviewPage /> },
+          { path: ':campaignId/statistics', element: <CampaignStatisticsPage /> },
         ],
       },
 
       { path: 'wallet', element: <WalletPage /> },
 
       { path: 'your-projects', element: <YourProjectsPage /> },
+      { path: 'websocket', element: <WebSocketTestComponent /> },
     ]
   },
   {

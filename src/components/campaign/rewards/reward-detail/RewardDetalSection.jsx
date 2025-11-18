@@ -3,11 +3,11 @@ import { RewardDetailCard } from './RewardDetailCard';
 import { AddOnCard } from './AddOnCard';
 import { useState } from 'react';
 
-export function RewardDetailSection({ rewards = [], items = [], addOns = [], onSelectReward, onSelectAddOn }) {
+export function RewardDetailSection({ rewards = [], items = [], addOns = [], onSelectReward, onSelectAddOn, campaignId }) {
   const [selectedAddOns, setSelectedAddOns] = useState({});
 
   const handleToggleAddOn = (addon) => {
-    const key = addon.id;
+    const key = addon.catalogItemId || addon.id;
     const newSelectedState = !selectedAddOns[key];
 
     setSelectedAddOns(prev => ({
@@ -41,6 +41,7 @@ export function RewardDetailSection({ rewards = [], items = [], addOns = [], onS
                 items={items}
                 addOns={addOns}
                 onSelectReward={onSelectReward}
+                campaignId={campaignId}
               />
             </motion.div>
           );
@@ -65,14 +66,14 @@ export function RewardDetailSection({ rewards = [], items = [], addOns = [], onS
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {addOns.map((addon, index) => (
               <motion.div
-                key={addon.id}
+                key={addon.catalogItemId || addon.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: index * 0.05 }}
               >
                 <AddOnCard
                   addon={addon}
-                  isSelected={selectedAddOns[addon.id]}
+                  isSelected={selectedAddOns[addon.catalogItemId || addon.id]}
                   onToggle={() => handleToggleAddOn(addon)}
                 />
               </motion.div>

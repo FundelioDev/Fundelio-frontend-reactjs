@@ -104,7 +104,7 @@ export default function CreateCampaignTabs({
 
         {/* Rewards Tab */}
         {activeTab === 'rewards' && (
-          <RewardCreateTab />
+          <RewardCreateTab campaignId={campaignId} />
         )}
       </div>
     </div>

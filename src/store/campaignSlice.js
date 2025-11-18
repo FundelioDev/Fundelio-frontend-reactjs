@@ -16,8 +16,8 @@ const initialState = {
     campaignCategory: '',
     introImageUrl: '',
     introVideoUrl: '',
-    startTime: getDateString(0), // Today
-    endTime: getDateString(60), // 60 days from now
+    startDate: getDateString(0), // Today
+    endDate: getDateString(60), // 60 days from now
     acceptedTerms: false, // Not sent to API, only for UI validation
   },
 
@@ -44,20 +44,7 @@ const initialState = {
 
   // REWARDS STATE - WITH SAMPLE DATA
   rewards: {
-    items: [
-      {
-        id: 'item-sample-001',
-        title: 'Sách in bìa cứng phiên bản đặc biệt',
-        image: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=600&h=400&fit=crop',
-        rewardRefs: [],
-      },
-      {
-        id: 'item-sample-002',
-        title: 'Bộ sticker độc quyền',
-        image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&h=400&fit=crop',
-        rewardRefs: [],
-      },
-    ],
+    items: [],
     rewards: [
       {
         id: 'reward-sample-001',
@@ -65,10 +52,7 @@ const initialState = {
         description: 'Ưu đãi đặc biệt cho những người ủng hộ sớm! Bao gồm sản phẩm chính thức cùng các phần thưởng độc quyền chỉ dành cho Early Bird. Số lượng có hạn!',
         image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=400&fit=crop',
         price: 49,
-        items: [
-          { itemId: 'item-sample-001', qty: 1 },
-          { itemId: 'item-sample-002', qty: 1 },
-        ],
+        items: [],
         delivery: { 
           month: new Date().getMonth() + 4, // 3 months from now
           year: new Date().getFullYear() 
@@ -84,10 +68,7 @@ const initialState = {
         description: 'Phần thưởng tiêu chuẩn cho các backer ủng hộ dự án. Bao gồm sản phẩm chính và các bonus items.',
         image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&h=400&fit=crop',
         price: 79,
-        items: [
-          { itemId: 'item-sample-001', qty: 2 },
-          { itemId: 'item-sample-002', qty: 2 },
-        ],
+        items: [],
         delivery: { 
           month: new Date().getMonth() + 4,
           year: new Date().getFullYear() 
@@ -171,17 +152,24 @@ const campaignSlice = createSlice({
 
     // ============ REWARDS ACTIONS ============
     // Items
+    setItems: (state, action) => {
+      state.rewards.items = action.payload;
+    },
     addItem: (state, action) => {
       state.rewards.items.push(action.payload);
     },
     updateItem: (state, action) => {
-      const index = state.rewards.items.findIndex((item) => item.id === action.payload.id);
+      const index = state.rewards.items.findIndex((item) => 
+        item.catalogItemId === action.payload.catalogItemId
+      );
       if (index !== -1) {
         state.rewards.items[index] = action.payload;
       }
     },
     deleteItem: (state, action) => {
-      state.rewards.items = state.rewards.items.filter((item) => item.id !== action.payload);
+      state.rewards.items = state.rewards.items.filter((item) => 
+        item.catalogItemId !== action.payload
+      );
     },
 
     // Rewards
@@ -253,6 +241,7 @@ export const {
   deleteBlank,
   resetStory,
   // Rewards - Items
+  setItems,
   addItem,
   updateItem,
   deleteItem,

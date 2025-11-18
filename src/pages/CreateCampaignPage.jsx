@@ -77,8 +77,8 @@ export default function CreateCampaignPage() {
             campaignCategory: campaignData.campaignCategory || '',
             introImageUrl: campaignData.introImageUrl || '',
             introVideoUrl: campaignData.introVideoUrl || '',
-            startTime: campaignData.startTime ? campaignData.startTime.split('T')[0] : '',
-            endTime: campaignData.endTime ? campaignData.endTime.split('T')[0] : '',
+            startDate: campaignData.startDate,
+            endDate: campaignData.endDate,
             acceptedTerms: true,
           };
 

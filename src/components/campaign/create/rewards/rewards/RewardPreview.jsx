@@ -32,43 +32,30 @@ export default function RewardPreview({ reward, items, rewards, type = 'reward' 
     )
   }
 
-  const rewardItems = reward.items
-    ?.map((item) => ({
-      ...item,
-      title: items.find((i) => i.id === item.itemId)?.title,
-    }))
-    .filter((item) => item.title) || []
-
-  const applicableRewards = isAddon && reward.offeredWithRewardIds && rewards
-    ? reward.offeredWithRewardIds
-        .map((rewardId) => rewards.find((r) => r.id === rewardId)?.title)
-        .filter(Boolean)
-    : []
-
   return (
     <div className="sticky top-6 rounded-sm border border-border bg-white dark:bg-darker-2 p-6 space-y-4">
       <h3 className="text-lg font-semibold text-foreground">Xem trước</h3>
 
-      {reward.image && (
+      {reward.imageUrl && (
         <div className="aspect-video rounded-lg overflow-hidden bg-muted">
-          <img src={reward.image || "/placeholder.svg"} alt={reward.title} className="w-full h-full object-cover" />
+          <img src={reward.imageUrl || "/placeholder.svg"} alt={reward.title} className="w-full h-full object-cover" />
         </div>
       )}
 
       <div>
         <h4 className="font-semibold text-foreground line-clamp-2">{reward.title}</h4>
         <p className={`text-2xl font-bold mt-2 flex items-center gap-2 ${isAddon ? 'text-secondary' : 'text-primary'}`}>
-          {reward.price}
+          {reward.minPledgedAmount || 0}
           <span className="text-sm">VND</span>
         </p>
       </div>
 
-      {rewardItems.length > 0 && (
+      {reward?.items?.included.length > 0 && (
         <div className="space-y-2">
           <p className="text-xs font-medium text-muted-foreground uppercase">Thành phần</p>
-          {rewardItems.map((item) => (
-            <div key={item.itemId} className="text-sm text-foreground">
-              • {item.title} × {item.qty}
+          {reward?.items?.included.map((item) => (
+            <div key={item.catalogItemId} className="text-sm text-foreground">
+              • {item.name} × {item.bundleQuantity}
             </div>
           ))}
         </div>
@@ -89,18 +76,6 @@ export default function RewardPreview({ reward, items, rewards, type = 'reward' 
 
       {!isAddon && reward.shipping === "anywhere" && (
         <div className="text-xs text-muted-foreground bg-muted/50 p-2 rounded">✓ Ship toàn cầu</div>
-      )}
-
-      {isAddon && applicableRewards.length > 0 && (
-        <div className="text-xs text-muted-foreground bg-muted/50 p-2 rounded">
-          ✓ Áp dụng cho {applicableRewards.length} phần thưởng
-        </div>
-      )}
-
-      {reward.limitTotal && (
-        <div className="text-xs text-muted-foreground bg-muted/50 p-2 rounded">
-          ⚠️ Giới hạn: {reward.limitTotal} suất
-        </div>
       )}
     </div>
   )

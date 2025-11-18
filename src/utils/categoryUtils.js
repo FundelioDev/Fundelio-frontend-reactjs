@@ -94,14 +94,15 @@ export const formatCategory = (category) => {
   
   // Nếu category là string (VD: 'ART', 'GAMES')
   const key = typeof category === 'string' ? category : (category.name || category.key || category);
+  const categoryId = typeof category === 'object' ? (category.categoryId || category.id) : null;
   
   return {
-    id: typeof category === 'object' ? category.id : key,
+    id: categoryId || key,
     key: key,
     name: getCategoryLabel(key),
     icon: getCategoryIcon(key),
     color: getCategoryColor(key),
-    href: `/category/${key.toLowerCase()}`,
+    href: categoryId ? `/search?category=${categoryId}` : `/category/${key.toLowerCase()}`,
   };
 };
 

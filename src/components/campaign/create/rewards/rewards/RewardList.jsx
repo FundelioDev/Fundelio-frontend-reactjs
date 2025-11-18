@@ -37,7 +37,7 @@ export default function RewardList({ rewards, items, onEdit, onDelete, onDuplica
       <div className="space-y-4">
         {rewards.map((reward) => (
           <RewardCard
-            key={reward.id}
+            key={reward.rewardId}
             data={reward}
             items={items}
             type="reward"

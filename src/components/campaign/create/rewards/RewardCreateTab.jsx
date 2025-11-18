@@ -1,53 +1,8 @@
 import { useState, useEffect } from "react"
-import { useSelector, useDispatch } from "react-redux"
 import ComponentsTab from "./tabs/ComponenstTab"
 import RewardsTab from "./tabs/RewardsTab"
 
-/**
- * @typedef {Object} Item
- * @property {string} id
- * @property {string} title
- * @property {string} [image]
- * @property {string[]} [rewardRefs]
- */
-
-/**
- * @typedef {Object} Reward
- * @property {string} id
- * @property {string} title
- * @property {string} [description]
- * @property {string} [image]
- * @property {number} price
- * @property {Array<{itemId: string, qty: number}>} items
- * @property {{month: number, year: number}} delivery
- * @property {'anywhere' | 'custom'} shipping
- * @property {number} [limitTotal]
- * @property {number} [limitPerBacker]
- * @property {boolean} [allowAddOns]
- */
-
-/**
- * @typedef {Object} AddOn
- * @property {string} id
- * @property {string} title
- * @property {number} price
- * @property {string} [image]
- * @property {Array<{itemId: string, qty: number}>} items
- * @property {{month: number, year: number}} [delivery]
- * @property {string[]} [offeredWithRewardIds]
- * @property {number} [limitTotal]
- */
-
-/**
- * @typedef {Object} RewardsState
- * @property {Item[]} items
- * @property {Reward[]} rewards
- * @property {AddOn[]} addOns
- */
-
-export default function RewardCreateTab() {
-  const dispatch = useDispatch();
-  const rewardsState = useSelector((state) => state.campaign.rewards);
+export default function RewardCreateTab({ campaignId }) {
   const [activeTab, setActiveTab] = useState("component");
 
   // Sync URL hash with active tab
@@ -97,14 +52,12 @@ export default function RewardCreateTab() {
       <div className="space-y-6">
         {activeTab === "component" && (
           <ComponentsTab
-            state={rewardsState}
-            dispatch={dispatch}
+            campaignId={campaignId}
           />
         )}
         {activeTab === "rewards" && (
           <RewardsTab
-            state={rewardsState}
-            dispatch={dispatch}
+            campaignId={campaignId}
           />
         )}
       </div>

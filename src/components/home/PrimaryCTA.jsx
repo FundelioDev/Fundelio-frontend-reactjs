@@ -1,6 +1,7 @@
 import React from 'react';
 import Button from '../common/Button';
 import { Sparkles } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export const PrimaryCTA = ({
   heading = 'Biến ý tưởng thành hiện thực',
@@ -8,6 +9,7 @@ export const PrimaryCTA = ({
   buttonText = 'Khởi tạo dự án ngay',
   buttonHref = '/create',
 }) => {
+  const navigate = useNavigate();
   return (
     <section
       className="pb-14 sm:pb-16 lg:pb-20 bg-gray-50 dark:bg-darker transition-colors duration-300"
@@ -46,15 +48,20 @@ export const PrimaryCTA = ({
 
             {/* CTA Button */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+
               <Button
                 as="a"
                 href={buttonHref}
                 variant="secondary"
                 size="lg"
+                onClick={() => {
+                  navigate('/become-founder');
+                }}
                 className="min-w-[220px] bg-white text-primary hover:bg-white/90 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300"
               >
                 {buttonText}
               </Button>
+
               <Button
                 as="a"
                 href="/explore"

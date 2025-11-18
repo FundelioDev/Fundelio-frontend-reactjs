@@ -1,12 +1,12 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import Flip from "gsap/Flip";
 import toast, { Toaster } from 'react-hot-toast';
 import { HeartHandshake } from 'lucide-react';
-import coin from '/packages/coin.svg';
+import { useCampaignProgress } from '@/websocket/hooks';
+import { pledgeApi } from "@/api/pledgeApi";
 gsap.registerPlugin(Flip);
 
-// Wreath Laurel Component
 const WreathLaurel = ({ rank, className = "" }) => {
   const colors = {
     1: "#FFD700", // Gold
@@ -29,32 +29,169 @@ const WreathLaurel = ({ rank, className = "" }) => {
   );
 };
 
-// Dữ liệu ban đầu cho 10 backers
-const initialBackers = [
-  { id: 1, name: "Alice Johnson", avatar: "AJ", amount: 5000, color: "#FF6B6B" },
-  { id: 2, name: "Bob Smith", avatar: "BS", amount: 4500, color: "#4ECDC4" },
-  { id: 3, name: "Charlie Brown", avatar: "CB", amount: 3800, color: "#45B7D1" },
-  { id: 4, name: "Diana Prince", avatar: "DP", amount: 3200, color: "#FFA07A" },
-  { id: 5, name: "Evan Williams", avatar: "EW", amount: 2900, color: "#98D8C8" },
-  { id: 6, name: "Fiona Green", avatar: "FG", amount: 2500, color: "#F7B731" },
-  { id: 7, name: "George Miller", avatar: "GM", amount: 2100, color: "#5F27CD" },
-  { id: 8, name: "Hannah Davis", avatar: "HD", amount: 1800, color: "#00B894" },
-  { id: 9, name: "Ivan Petrov", avatar: "IP", amount: 1500, color: "#FF6348" },
-  { id: 10, name: "Julia Anderson", avatar: "JA", amount: 1200, color: "#786FA6" },
-];
+// Generate random color for avatar
+const getRandomColor = () => {
+  const colors = [
+    "#FF6B6B", "#4ECDC4", "#45B7D1", "#FFA07A", "#98D8C8",
+    "#F7B731", "#5F27CD", "#00B894", "#FF6348", "#786FA6"
+  ];
+  return colors[Math.floor(Math.random() * colors.length)];
+};
 
-/**
- * Leaderboard Component
- * Hiển thị top 10 backers với animation khi xếp hạng thay đổi
- */
-const Leaderboard = () => {
-  const [backers, setBackers] = useState(() =>
-    [...initialBackers].sort((a, b) => b.amount - a.amount)
-  );
-  const [updatedBackerId, setUpdatedBackerId] = useState(null);
+// Generate avatar initials from name
+const getInitials = (name) => {
+  if (!name) return "??";
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+};
+
+const Leaderboard = ({ campaignId }) => {
+  const [backers, setBackers] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const listRef = useRef(null);
   const flipStateRef = useRef(null);
+  const backerColorsRef = useRef({});
+  const lastToastKeyRef = useRef(null);
+
+  // Fetch initial top backers
+  useEffect(() => {
+    const fetchInitialBackers = async () => {
+      try {
+        setIsLoading(true);
+        const response = await pledgeApi.getTopBackersOfCampaign(campaignId);
+        console.log('📊 Initial top backers:', response);
+
+        if (response.data.data && Array.isArray(response.data.data)) {
+          const initialBackers = response.data.data.map(backer => {
+            // Generate color for each backer
+            if (!backerColorsRef.current[backer.backerId]) {
+              backerColorsRef.current[backer.backerId] = getRandomColor();
+            }
+
+            return {
+              ...backer,
+              avatar: getInitials(backer.backerName),
+              color: backerColorsRef.current[backer.backerId],
+            };
+          });
+
+          setBackers(initialBackers.sort((a, b) => b.totalPledged - a.totalPledged));
+        }
+      } catch (error) {
+        console.error('❌ Failed to fetch initial backers:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (campaignId) {
+      fetchInitialBackers();
+    }
+  }, [campaignId]);
+
   const amountRefs = useRef({});
+
+  // Subscribe to campaign progress updates
+  const handleCampaignProgress = useCallback((progressData) => {
+    console.log('📊 Campaign progress update:', progressData);
+
+    const data = progressData.data || progressData;
+
+    // Update backers from topBackers
+    if (data.topBackers && Array.isArray(data.topBackers)) {
+      // Capture state before update
+      if (listRef.current) {
+        flipStateRef.current = Flip.getState(
+          listRef.current.querySelectorAll(".backer-row")
+        );
+      }
+
+      setBackers(prev => {
+        const newBackers = data.topBackers.map(backer => {
+          // Preserve color if exists, otherwise generate new one
+          if (!backerColorsRef.current[backer.backerId]) {
+            backerColorsRef.current[backer.backerId] = getRandomColor();
+          }
+
+          return {
+            ...backer,
+            avatar: getInitials(backer.backerName),
+            color: backerColorsRef.current[backer.backerId],
+          };
+        });
+
+        // Sort by totalPledged descending (should already be sorted from backend)
+        return newBackers.sort((a, b) => b.totalPledged - a.totalPledged);
+      });
+    }
+
+    // Show toast for latest pledge
+    if (data.latestPledge) {
+      const pledge = data.latestPledge;
+      const toastKey = `${pledge.pledgeId || pledge.id || pledge.backerId}-${pledge.totalPledged || pledge.amount || 0}-${pledge.createdAt || ''}`;
+
+      if (lastToastKeyRef.current === toastKey) {
+        return;
+      }
+      lastToastKeyRef.current = toastKey;
+
+      toast.custom((t) => (
+        <div
+          className={`${t.visible ? 'animate-enter' : 'animate-leave'
+            } max-w-xs w-full bg-white dark:bg-darker-2 shadow-lg rounded-sm pointer-events-auto flex items-center gap-3 p-2 border border-border-light dark:border-border`}
+        >
+          <div className="flex-shrink-0 bg-indigo-200 p-2 rounded-full">
+            <HeartHandshake className="w-6 h-6 text-indigo-700" />
+          </div>
+          <div className="flex-1 flex flex-col gap-1">
+            <p className="text-sm font-semibold text-text-primary dark:text-white">
+              {pledge.backerName}
+            </p>
+            <div className="flex items-center gap-1.5">
+              <span className="text-md font-bold text-[#27e28b]">
+                +{(pledge.totalAmount || pledge.amount || 0).toLocaleString('vi-VN')} VND
+              </span>
+            </div>
+          </div>
+        </div>
+      ), {
+        duration: 3000,
+        position: 'top-right',
+      });
+
+      // Animate the amount for the backer who just pledged
+      if (pledge.backerId && amountRefs.current[pledge.backerId]) {
+        const amountElement = amountRefs.current[pledge.backerId];
+
+        // Pulse effect
+        gsap.fromTo(
+          amountElement.parentElement,
+          { scale: 1 },
+          {
+            scale: 1.15,
+            duration: 0.3,
+            ease: "back.out(2)",
+            yoyo: true,
+            repeat: 1
+          }
+        );
+
+        // Highlight effect
+        gsap.fromTo(
+          amountElement.parentElement,
+          { backgroundColor: 'rgba(30, 199, 148, 0.3)' },
+          {
+            backgroundColor: 'rgba(30, 199, 148, 0)',
+            duration: 1,
+            ease: "power2.out"
+          }
+        );
+      }
+    }
+  }, []);
+
+  useCampaignProgress(campaignId, handleCampaignProgress);
 
   // Animate khi "backers" thay đổi
   useLayoutEffect(() => {
@@ -80,113 +217,6 @@ const Leaderboard = () => {
     flipStateRef.current = null;
   }, [backers]);
 
-  // Mô phỏng thay đổi số tiền theo thời gian thực
-  useEffect(() => {
-    const timer = setInterval(() => {
-      // 1) Chụp trạng thái hiện tại trước khi thay đổi
-      flipStateRef.current = Flip.getState(
-        listRef.current.querySelectorAll(".backer-row")
-      );
-
-      // 2) Cập nhật dữ liệu - cộng tiền ngẫu nhiên cho 1 backer
-      setBackers((prev) => {
-        const arr = [...prev];
-        const randomIndex = Math.floor(Math.random() * arr.length);
-        const selectedBacker = arr[randomIndex];
-        const deltaAmount = 1000 + Math.floor(Math.random() * 500); // 1k - 500k VND
-
-        // Lưu ID của backer được cập nhật để animate
-        setUpdatedBackerId(selectedBacker.id);
-
-        // Hiển thị toast notification
-        toast.custom((t) => (
-          <div
-            className={`${t.visible ? 'animate-enter' : 'animate-leave'
-              } max-w-xs w-full bg-white dark:bg-darker-2 shadow-lg rounded-sm pointer-events-auto flex items-center gap-3 p-2 border border-border-light dark:border-border`}
-          >
-            <div className="flex-shrink-0 bg-indigo-200 p-2 rounded-full">
-              <HeartHandshake className="w-6 h-6 text-indigo-700" />
-            </div>
-            <div className="flex-1 flex flex-col gap-1">
-              <p className="text-sm font-semibold text-text-primary dark:text-white">
-                {selectedBacker.name}
-              </p>
-              <div className="flex items-center gap-1.5">
-                <span className="text-md font-bold text-[#27e28b]">
-                  +{deltaAmount.toLocaleString('vi-VN')} VND
-                </span>
-              </div>
-            </div>
-          </div>
-        ), {
-          duration: 1500,
-          position: 'top-right',
-        });
-
-        // Animate số tiền tăng lên
-        const oldAmount = selectedBacker.amount;
-        const newAmount = oldAmount + deltaAmount;
-
-        // Cộng thêm tiền cho backer được chọn
-        arr[randomIndex] = {
-          ...arr[randomIndex],
-          amount: newAmount
-        };
-
-        // Animate count up effect
-        if (amountRefs.current[selectedBacker.id]) {
-          const amountElement = amountRefs.current[selectedBacker.id];
-          const obj = { value: oldAmount };
-
-          gsap.to(obj, {
-            value: newAmount,
-            duration: 0.8,
-            ease: "power2.out",
-            onUpdate: () => {
-              if (amountElement) {
-                amountElement.textContent = Math.floor(obj.value).toLocaleString('vi-VN');
-              }
-            }
-          });
-
-          // Pulse effect
-          gsap.fromTo(
-            amountElement.parentElement,
-            { scale: 1 },
-            {
-              scale: 1.15,
-              duration: 0.3,
-              ease: "back.out(2)",
-              yoyo: true,
-              repeat: 1
-            }
-          );
-
-          // Highlight effect
-          gsap.fromTo(
-            amountElement.parentElement,
-            { backgroundColor: 'rgba(30, 199, 148, 0.3)' },
-            {
-              backgroundColor: 'rgba(30, 199, 148, 0)',
-              duration: 1,
-              ease: "power2.out"
-            }
-          );
-        }
-
-        // Sắp xếp lại theo số tiền giảm dần
-        arr.sort((a, b) => b.amount - a.amount);
-
-        return arr.slice(0, 10); // Đảm bảo chỉ hiển thị top 10
-      });
-
-      // Reset updated backer sau 1 giây
-      setTimeout(() => setUpdatedBackerId(null), 1000);
-    }, 2500); // Thay đổi mỗi 2.5 giây
-
-    return () => clearInterval(timer);
-  }, []);
-
   // Format số tiền VND
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('vi-VN').format(amount);
@@ -199,6 +229,8 @@ const Leaderboard = () => {
     if (rank === 3) return "🥉";
     return null;
   };
+
+  console.log("BBBB", backers);
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -224,81 +256,96 @@ const Leaderboard = () => {
 
       {/* Leaderboard List */}
       <div className="bg-white dark:bg-darker-2 rounded-xl border border-border-light dark:border-white/10 overflow-hidden shadow-lg">
-        <ul ref={listRef} className="divide-y divide-border-light dark:divide-white/10">
-          {backers.map((backer, index) => {
-            const rank = index + 1;
-            const medal = getMedalEmoji(rank);
-            const isTopThree = rank <= 3;
+        {isLoading ? (
+          <div className="p-12 text-center">
+            <p className="text-muted-foreground text-lg">
+              Đang tải...
+            </p>
+          </div>
+        ) : backers.length === 0 ? (
+          <div className="p-12 text-center">
+            <p className="text-muted-foreground text-lg">
+              Chưa có người ủng hộ nào
+            </p>
+            <p className="text-muted-foreground text-sm mt-2">
+              Hãy là người đầu tiên ủng hộ chiến dịch này!
+            </p>
+          </div>
+        ) : (
+          <ul ref={listRef} className="divide-y divide-border-light dark:divide-white/10">
+            {backers.map((backer, index) => {
+              const rank = index + 1;
+              const medal = getMedalEmoji(rank);
+              const isTopThree = rank <= 3;
 
-            return (
-              <li
-                key={backer.id}
-                data-id={backer.id}
-                className={`
+              return (
+                <li
+                  key={backer.backerId}
+                  data-id={backer.backerId}
+                  className={`
                   backer-row flex items-center gap-4 p-3 transition-colors duration-200
                   ${isTopThree
-                    ? 'bg-gradient-to-r from-primary/5 to-transparent dark:from-primary/10'
-                    : 'hover:bg-background-lighter dark:hover:bg-darker'
-                  }
+                      ? 'bg-gradient-to-r from-primary/5 to-transparent dark:from-primary/10'
+                      : 'hover:bg-background-lighter dark:hover:bg-darker'
+                    }
                 `}
-              >
-                {/* Rank Number */}
-                <div className="flex items-center justify-center w-14 h-14 relative flex-shrink-0">
-                  {isTopThree ? (
-                    <div className="relative w-full h-full flex items-center justify-center">
-                      {/* Wreath Background */}
-                      <WreathLaurel rank={rank} className="absolute inset-0 w-full h-full opacity-60 -mt-0.5" />
-                      {/* Rank Number on top */}
-                      <span className="relative z-10 text-xl font-bold text-text-primary dark:text-white drop-shadow-lg">
+                >
+                  {/* Rank Number */}
+                  <div className="flex items-center justify-center w-14 h-14 relative flex-shrink-0">
+                    {isTopThree ? (
+                      <div className="relative w-full h-full flex items-center justify-center">
+                        {/* Wreath Background */}
+                        <WreathLaurel rank={rank} className="absolute inset-0 w-full h-full opacity-60 -mt-0.5" />
+                        {/* Rank Number on top */}
+                        <span className="relative z-10 text-xl font-bold text-text-primary dark:text-white drop-shadow-lg">
+                          #{rank}
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="text-xl font-bold tabular-nums text-text-secondary dark:text-white/60">
                         #{rank}
                       </span>
-                    </div>
-                  ) : (
-                    <span className="text-xl font-bold tabular-nums text-text-secondary dark:text-white/60">
-                      #{rank}
-                    </span>
-                  )}
-                </div>
-
-                {/* Avatar */}
-                <div
-                  className="flex items-center justify-center w-12 h-12 rounded-full text-white font-bold text-sm"
-                  style={{ backgroundColor: backer.color }}
-                >
-                  {backer.avatar}
-                </div>
-
-                {/* Name */}
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-lg text-text-primary dark:text-white truncate">
-                    {backer.name}
-                  </h3>
-                  {isTopThree && (
-                    <p className="text-xs text-primary font-medium">
-                      Người đóng góp hàng đầu
-                    </p>
-                  )}
-                </div>
-
-                {/* Amount */}
-                <div className="text-right px-3 py-2 rounded-lg">
-                  <div className="flex items-center gap-2 justify-end">
-                    <span
-                      ref={(el) => amountRefs.current[backer.id] = el}
-                      className="text-xl font-bold text-[#3eca88] tabular-nums"
-                    >
-                      {formatCurrency(backer.amount)}
-                    </span>
-                    <span className="text-sm font-semibold text-[#3eca88]">VND</span>
+                    )}
                   </div>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
+
+                  {/* Avatar */}
+                  <div
+                    className="flex items-center justify-center w-12 h-12 rounded-full text-white font-bold text-sm"
+                    style={{ backgroundColor: backer.color }}
+                  >
+                    {backer.avatar}
+                  </div>
+
+                  {/* Name */}
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-lg text-text-primary dark:text-white truncate">
+                      {backer.backerName}
+                    </h3>
+                    {isTopThree && (
+                      <p className="text-xs text-primary font-medium">
+                        Người đóng góp hàng đầu
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Amount */}
+                  <div className="text-right px-3 py-2 rounded-lg">
+                    <div className="flex items-center gap-2 justify-end">
+                      <span
+                        ref={(el) => amountRefs.current[backer.backerId] = el}
+                        className="text-xl font-bold text-[#3eca88] tabular-nums"
+                      >
+                        {formatCurrency(backer.totalPledged)}
+                      </span>
+                      <span className="text-sm font-semibold text-[#3eca88]">VND</span>
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        )}
       </div>
     </div>
   );
-};
-
-export default Leaderboard;
+}; export default Leaderboard;

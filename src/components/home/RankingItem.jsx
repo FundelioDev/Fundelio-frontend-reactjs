@@ -1,6 +1,16 @@
 import React from 'react';
 
 const RankingItem = ({ rank, project, type = 'funding', isFirst = false, isLast = false }) => {
+  // Map API fields
+  const campaignId = project.campaignId || project.id;
+  const title = project.title;
+  const authorName = project.owner
+    ? `${project.owner.firstName || ''} ${project.owner.lastName || ''}`.trim() || project.owner.nickname
+    : 'Anonymous';
+  const imageUrl = project.introImageUrl || project.imageUrl;
+  const pledgedAmount = project.pledgedAmount || project.pledged || 0;
+  const backersCount = project.backersCount || project.backerCount || 0;
+
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
@@ -40,7 +50,7 @@ const RankingItem = ({ rank, project, type = 'funding', isFirst = false, isLast 
   };
 
   return (
-    <a href={`/campaign/${project.id}`} className={getItemClasses()}>
+    <a href={`/campaigns/${campaignId}`} className={getItemClasses()}>
       {/* Rank Badge - Wreath for top 3, plain number otherwise */}
       <div className="flex items-center justify-center w-14 h-14 relative flex-shrink-0">
         {isTopThree ? (
@@ -60,8 +70,8 @@ const RankingItem = ({ rank, project, type = 'funding', isFirst = false, isLast 
       {/* Project Image */}
       <div className="relative w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden">
         <img
-          src={project.imageUrl || '/placeholder.svg'}
-          alt={project.title}
+          src={imageUrl || '/placeholder.svg'}
+          alt={title}
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
         />
         {rank === 1 && (
@@ -72,10 +82,10 @@ const RankingItem = ({ rank, project, type = 'funding', isFirst = false, isLast 
       {/* Project Info */}
       <div className="flex-1 min-w-0">
         <h3 className="text-sm font-bold text-gray-900 dark:text-white line-clamp-1 mb-1 group-hover:text-primary transition-colors">
-          {project.title}
+          {title}
         </h3>
         <p className="text-xs text-gray-600 dark:text-text-white">
-          bởi {project.authorName}
+          bởi {authorName}
         </p>
       </div>
 
@@ -86,8 +96,8 @@ const RankingItem = ({ rank, project, type = 'funding', isFirst = false, isLast 
         </div>
         <div className="text-sm font-bold text-gray-900 dark:text-white">
           {type === 'funding'
-            ? formatCurrency(project.pledged)
-            : formatNumber(project.backerCount || 0)
+            ? formatCurrency(pledgedAmount)
+            : formatNumber(backersCount)
           }
         </div>
       </div>

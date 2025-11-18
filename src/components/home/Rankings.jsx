@@ -1,10 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import { Trophy, TrendingUp, Users, ChevronDown } from 'lucide-react';
 import RankingItem from './RankingItem';
-import { mockProjects } from '@/data/mockProjects';
+import { useCampaigns } from '@/hooks/useCampaigns';
 
 export const Rankings = ({
-  projects = mockProjects,
   title = 'Xếp hạng',
 }) => {
   const [timeFilter, setTimeFilter] = useState('24h');
@@ -12,19 +11,37 @@ export const Rankings = ({
   const [showAllFunding, setShowAllFunding] = useState(false);
   const [showAllAudience, setShowAllAudience] = useState(false);
 
-  // Get top 10 by funding
-  const topByFunding = useMemo(() => {
-    return [...projects]
-      .sort((a, b) => b.pledged - a.pledged)
-      .slice(0, 10);
-  }, [projects]);
+  // Fetch campaigns for ranking - by funding
+  const { campaigns: topByFunding, loading: fundingLoading } = useCampaigns({
+    filter: "campaignStatus in ['ACTIVE','SUCCESSFUL']",
+    page: 1,
+    size: 10,
+    sort: 'pledgedAmount,desc', // Sort by funding amount
+  });
 
-  // Get top 10 by audience (backers)
-  const topByAudience = useMemo(() => {
-    return [...projects]
-      .sort((a, b) => (b.backerCount || 0) - (a.backerCount || 0))
-      .slice(0, 10);
-  }, [projects]);
+  // Fetch campaigns for ranking - by audience
+  const { campaigns: topByAudience, loading: audienceLoading } = useCampaigns({
+    filter: "campaignStatus in ['ACTIVE','SUCCESSFUL']",
+    page: 1,
+    size: 10,
+    sort: 'backersCount,desc', // Sort by backer count
+  });
+
+  // Show loading state
+  if (fundingLoading || audienceLoading) {
+    return (
+      <section className="py-12 sm:py-16 lg:py-20 bg-background-light-2 dark:bg-darker transition-colors duration-300">
+        <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-center py-20">
+            <div className="text-center">
+              <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+              <p className="text-muted-foreground">Đang tải...</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-12 sm:py-16 lg:py-20 bg-background-light-2 dark:bg-darker transition-colors duration-300">

@@ -2,19 +2,28 @@ import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight, Flame, Users, DollarSign } from 'lucide-react';
 import ProjectCard from './ProjectCard';
 import ProjectLists from './ProjectLists';
-import { mockProjects } from '@/data/mockProjects';
-import { mockCampaigns } from '@/data/mockCampaigns';
+import { useCampaigns } from '@/hooks/useCampaigns';
 
 export const FeaturedSpotlight = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const itemsPerPage = 4; // 2x2 grid
 
-  // Mock data cho Featured (lấy 8 dự án đầu)
-  const featuredCampaigns = mockProjects.slice(0, 8);
-  
-  // Mock data cho Spotlight - Sử dụng mockCampaigns cho các dự án gần đây
-  const spotlightCampaigns = mockCampaigns;
-  
+  // Fetch featured campaigns (ACTIVE status)
+  const { campaigns: featuredCampaigns, loading: featuredLoading } = useCampaigns({
+    filter: "campaignStatus in ['ACTIVE']",
+    page: 1,
+    size: 8,
+    sort: 'createdAt,desc',
+  });
+
+  // Fetch recent campaigns (ACTIVE and SUCCESSFUL status)
+  const { campaigns: spotlightCampaigns, loading: spotlightLoading } = useCampaigns({
+    filter: "campaignStatus in ['ACTIVE','SUCCESSFUL']",
+    page: 1,
+    size: 20,
+    sort: 'createdAt,desc',
+  });
+
   const totalPages = Math.ceil(featuredCampaigns.length / itemsPerPage);
 
   const getCurrentPageItems = () => {
@@ -34,26 +43,21 @@ export const FeaturedSpotlight = () => {
   const canGoPrev = currentPage > 0;
   const canGoNext = currentPage < totalPages - 1;
 
-  const formatTimeAgo = (dateString) => {
-    const startDate = new Date(dateString);
-    const now = new Date();
-    const hoursDiff = Math.abs(now - startDate) / 36e5; // Convert milliseconds to hours
-    
-    if (hoursDiff < 1) return `${Math.round(hoursDiff * 60)} phút trước`;
-    if (hoursDiff < 24) return `${Math.round(hoursDiff)} giờ trước`;
-    return `${Math.round(hoursDiff / 24)} ngày trước`;
-  };
-
-  const calculateDaysLeft = (endDate) => {
-    const end = new Date(endDate);
-    const now = new Date();
-    const daysLeft = Math.ceil((end - now) / (1000 * 60 * 60 * 24));
-    return Math.max(0, daysLeft);
-  };
-
-  const calculateProgress = (pledged, goal) => {
-    return Math.round((pledged / goal) * 100);
-  };
+  // Show loading state
+  if (featuredLoading || spotlightLoading) {
+    return (
+      <section className="py-12 sm:py-16 lg:py-20 transition-colors duration-300">
+        <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-center py-20">
+            <div className="text-center">
+              <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+              <p className="text-muted-foreground">Đang tải...</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-12 sm:py-16 lg:py-20 transition-colors duration-300">
@@ -80,11 +84,10 @@ export const FeaturedSpotlight = () => {
                   <button
                     onClick={handlePrevPage}
                     disabled={!canGoPrev}
-                    className={`p-2 rounded-lg transition-all duration-200 ${
-                      canGoPrev
-                        ? 'bg-primary text-white hover:bg-primary-600 hover:scale-105'
-                        : 'bg-gray-200 dark:bg-gray-700 text-gray-400 cursor-not-allowed'
-                    }`}
+                    className={`p-2 rounded-lg transition-all duration-200 ${canGoPrev
+                      ? 'bg-primary text-white hover:bg-primary-600 hover:scale-105'
+                      : 'bg-gray-200 dark:bg-gray-700 text-gray-400 cursor-not-allowed'
+                      }`}
                     aria-label="Previous page"
                   >
                     <ChevronLeft className="w-5 h-5" />
@@ -93,11 +96,10 @@ export const FeaturedSpotlight = () => {
                   <button
                     onClick={handleNextPage}
                     disabled={!canGoNext}
-                    className={`p-2 rounded-lg transition-all duration-200 ${
-                      canGoNext
-                        ? 'bg-primary text-white hover:bg-primary-600 hover:scale-105'
-                        : 'bg-gray-200 dark:bg-gray-700 text-gray-400 cursor-not-allowed'
-                    }`}
+                    className={`p-2 rounded-lg transition-all duration-200 ${canGoNext
+                      ? 'bg-primary text-white hover:bg-primary-600 hover:scale-105'
+                      : 'bg-gray-200 dark:bg-gray-700 text-gray-400 cursor-not-allowed'
+                      }`}
                     aria-label="Next page"
                   >
                     <ChevronRight className="w-5 h-5" />
@@ -109,9 +111,9 @@ export const FeaturedSpotlight = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 {getCurrentPageItems().map((campaign) => (
                   <ProjectCard
-                    key={campaign.id}
+                    key={campaign.campaignId}
                     project={campaign}
-                    asLink={`/campaigns/detail`}
+                    asLink={`/campaigns/${campaign.campaignId}`}
                     onBookmarkToggle={(id, bookmarked) => {
                       console.log('Bookmark toggled:', id, bookmarked);
                     }}
@@ -125,11 +127,10 @@ export const FeaturedSpotlight = () => {
                   <button
                     key={index}
                     onClick={() => setCurrentPage(index)}
-                    className={`h-2 rounded-full transition-all duration-300 ${
-                      index === currentPage
-                        ? 'w-8 bg-primary'
-                        : 'w-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400'
-                    }`}
+                    className={`h-2 rounded-full transition-all duration-300 ${index === currentPage
+                      ? 'w-8 bg-primary'
+                      : 'w-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400'
+                      }`}
                     aria-label={`Go to page ${index + 1}`}
                   />
                 ))}
@@ -152,27 +153,40 @@ export const FeaturedSpotlight = () => {
               {/* Scrollable List with Fade Effect */}
               <div className="relative">
                 {/* Scrollable Container */}
-                <div 
+                <div
                   className="space-y-2 overflow-y-auto pr-2 pl-2 scrollbar-primary"
-                  style={{ 
+                  style={{
                     maxHeight: 'calc(2 * 595px + 1.5rem)', // Height of 2 cards + gap
                     minHeight: 'calc(2 * 595px + 1.5rem)',
                   }}
                 >
                   {spotlightCampaigns.map((campaign, index) => {
-                    const daysLeft = calculateDaysLeft(campaign.end_date);
-                    const progressPercent = calculateProgress(campaign.pledged_amount, campaign.goal_amount);
-                    
+                    const calculateDaysLeft = (endDate) => {
+                      if (!endDate) return 0;
+                      const end = new Date(endDate);
+                      const now = new Date();
+                      const daysLeft = Math.ceil((end - now) / (1000 * 60 * 60 * 24));
+                      return Math.max(0, daysLeft);
+                    };
+
+                    const calculateProgress = (pledged, goal) => {
+                      if (!goal || goal === 0) return 0;
+                      return Math.round((pledged / goal) * 100);
+                    };
+
+                    const daysLeft = calculateDaysLeft(campaign.endDate);
+                    const progressPercent = calculateProgress(campaign.pledgedAmount, campaign.goalAmount);
+
                     return (
-                      <a 
-                        key={campaign.campaign_id}
-                        href={`/campaigns/detail`}
+                      <a
+                        key={campaign.campaignId}
+                        href={`/campaigns/${campaign.campaignId}`}
                         className="flex items-center gap-2 px-2.5 py-2 bg-white dark:bg-darker-2 inset-shadow-2xs shadow-md rounded-md hover:scale-[1.02] transition-all duration-200 group"
                       >
                         {/* Thumbnail */}
                         <div className="relative w-16 h-16 flex-shrink-0 rounded-md overflow-hidden">
                           <img
-                            src={campaign.heroImageUrl || '/placeholder.svg'}
+                            src={campaign.introImageUrl || '/placeholder.svg'}
                             alt={campaign.title}
                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                           />
@@ -191,21 +205,21 @@ export const FeaturedSpotlight = () => {
                               </span>
                             )}
                           </div>
-                          
+
                           <h3 className="text-xs font-bold text-text-primary dark:text-white line-clamp-2 group-hover:text-primary transition-colors mb-1">
                             {campaign.title}
                           </h3>
-                          
+
                           {/* Campaign stats with icons */}
                           <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
                             <div className="flex items-center gap-1">
                               <Users className="w-3 h-3" />
-                              <span>{campaign.backers_count}</span>
+                              <span>{campaign.backersCount}</span>
                             </div>
                             <span>•</span>
                             <div className="flex items-center gap-1 font-semibold text-primary">
                               <DollarSign className="w-3 h-3" />
-                              <span>{campaign.pledged_amount.toLocaleString()}</span>
+                              <span>{campaign.pledgedAmount.toLocaleString()}</span>
                             </div>
                           </div>
                         </div>
@@ -215,7 +229,7 @@ export const FeaturedSpotlight = () => {
                 </div>
 
                 {/* Bottom Fade Overlay - chỉ hiện khi có scrollbar */}
-                <div 
+                <div
                   className="absolute bottom-0 left-0 right-0 h-3 bg-gradient-to-t from-gray-50 dark:from-darker to-transparent pointer-events-none"
                   aria-hidden="true"
                 />

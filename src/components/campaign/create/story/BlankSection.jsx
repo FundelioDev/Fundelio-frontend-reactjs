@@ -85,7 +85,7 @@ function BlankSection({ blank, onTitleChange, onContentChange, onFocus }) {
         // Create and insert actual image
         const img = document.createElement('img');
         img.src = imageUrl;
-        img.className = 'max-w-full h-auto block mx-auto my-4 rounded-xl';
+        img.className = 'max-w-full h-auto block mx-auto my-4';
         img.alt = file.name;
 
         placeBlock(editorRef.current, img);

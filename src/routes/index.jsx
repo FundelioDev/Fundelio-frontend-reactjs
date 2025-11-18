@@ -16,31 +16,27 @@ import UsersPage from '@/pages/admin/UsersPage';
 import RolesPage from '@/pages/admin/RolesPage';
 import PermissionsPage from '@/pages/admin/PermissionsPage';
 import AdminCampaignsPage from '@/pages/admin/AdminCampaignsPage';
-import WalletPage from '@/pages/WalletPage';
 import YourProjectsPage from '@/pages/YourProjectsPage';
 import NotFoundPage from '@/pages/NotFoundPage';
 import ForbiddenPage from '@/pages/ForbiddenPage';
 import UserProfilePage from "@/pages/UserProfilePage";
 
 import VerifyChangeEmail from '@/components/auth/VerifyChangeEmail';
-
 import CampaignOverviewPage from '@/components/campaign/dashboard/CampaignOverviewPage';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 
+// --- IMPORT CÁC COMPONENT VÍ ---
+import PaymentPage from '@/components/wallet/PaymentPage';
+import History from '@/components/wallet/History';
+import PaymentCallback from '@/components/wallet/PaymentCallback'; // <--- MỚI THÊM
 
-/**
- * Application routes configuration
- */
 export const router = createBrowserRouter([
   {
     path: '/',
     element: <RootLayout />,
-
     children: [
       { index: true, element: <LandingPage /> },
-
       { path: 'home', element: <HomePage /> },
-
       { path: 'dashboard', element: <DashboardPage /> },
       { path: 'profile', element: <UserProfilePage /> },
       {
@@ -53,7 +49,10 @@ export const router = createBrowserRouter([
         ],
       },
 
-      { path: 'wallet', element: <WalletPage /> },
+      // --- CẤU HÌNH ROUTE VÍ ---
+      { path: 'wallet', element: <History /> },             // Trang chính: Lịch sử
+      { path: 'payment', element: <PaymentPage /> },        // Trang nạp tiền
+      { path: 'payment/callback', element: <PaymentCallback /> }, // Trang xử lý kết quả
 
       { path: 'your-projects', element: <YourProjectsPage /> },
     ]
@@ -100,7 +99,6 @@ export const router = createBrowserRouter([
       { path: 'verify-change-email', element: <VerifyChangeEmail /> },
     ],
   },
-  // Catch all 404 - must be last
   {
     path: '*',
     element: <NotFoundPage />,

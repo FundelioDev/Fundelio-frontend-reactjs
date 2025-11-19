@@ -108,8 +108,16 @@ function DroppableArea({ children }) {
 }
 
 export function PermissionsTable() {
-  const { modules, permissions, isLoading, setOpen, setCurrentRow, refetch } =
-    usePermissions();
+  const {
+    modules,
+    permissions,
+    isLoading,
+    setOpen,
+    setCurrentRow,
+    refetch,
+    collapsedModules,
+    setCollapsedModules,
+  } = usePermissions();
   const [expandedModules, setExpandedModules] = useState({});
   const [openCreateModule, setOpenCreateModule] = useState(false);
   const [deleteData, setDeleteData] = useState(null);
@@ -122,7 +130,6 @@ export function PermissionsTable() {
       },
     })
   );
-  const [collapsedModules, setCollapsedModules] = useState({});
   const [isDragging, setIsDragging] = useState(false);
 
   // Cập nhật collapsedModules khi modules thay đổi
@@ -130,13 +137,18 @@ export function PermissionsTable() {
   useEffect(() => {
     setCollapsedModules((prev) => {
       const newState = { ...prev };
+      let hasChanges = false;
+
       modules.forEach((moduleName) => {
         // Chỉ set mặc định cho module mới, giữ nguyên trạng thái của module cũ
         if (!(moduleName in newState)) {
           newState[moduleName] = true; // Mặc định đóng cho module mới
+          hasChanges = true;
         }
       });
-      return newState;
+
+      // Chỉ update state nếu có module mới được thêm vào
+      return hasChanges ? newState : prev;
     });
   }, [modules]);
 
@@ -214,7 +226,9 @@ export function PermissionsTable() {
           return;
         }
 
+        // Refetch data - state collapsedModules sẽ được giữ nguyên vì nó nằm trong Context
         await refetch();
+
         toast.success(response?.data?.message || 'Cập nhật module thành công');
       }
     } catch (error) {

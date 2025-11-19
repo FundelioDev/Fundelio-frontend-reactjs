@@ -9,7 +9,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2 } from 'lucide-react';
 import { useUsers } from '@/components/dashboard/users/context/users-context';
 import RolesProvider from '@/components/dashboard/roles/context/roles-context';
-import Loading from '@/components/common/loading';
+import Loading from '@/components/common/Loading';
 
 function UsersContent() {
   const { users, isLoading, error } = useUsers();

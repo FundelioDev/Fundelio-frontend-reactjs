@@ -16,7 +16,6 @@ import UsersPage from '@/pages/admin/UsersPage';
 import RolesPage from '@/pages/admin/RolesPage';
 import PermissionsPage from '@/pages/admin/PermissionsPage';
 import AdminCampaignsPage from '@/pages/admin/AdminCampaignsPage';
-import WalletPage from '@/pages/WalletPage';
 import YourProjectsPage from '@/pages/YourProjectsPage';
 import NotFoundPage from '@/pages/NotFoundPage';
 import ForbiddenPage from '@/pages/ForbiddenPage';
@@ -25,34 +24,33 @@ import PledgeSummaryPage from '@/pages/PledgeSummaryPage';
 import BecomeFounderPage from '@/pages/BecomeFounderPage';
 
 import VerifyChangeEmail from '@/components/auth/VerifyChangeEmail';
-
 import CampaignOverviewPage from '@/components/campaign/dashboard/CampaignOverviewPage';
 import CampaignStatisticsPage from '@/components/campaign/dashboard/CampaignStatisticsPage';
 import FounderDashboardPage from '@/pages/FounderDashboardPage';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import PaymentPage from '@/components/wallet/PaymentPage';
+import History from '@/components/wallet/History';
+import PaymentCallback from '@/components/wallet/PaymentCallback';
 import WebSocketTestComponent from '@/components/websocket/WebSocketTestComponent';
 import MyPledgesPage from '@/pages/pledges/MyPledgesPage';
 import SearchPage from '@/pages/SearchPage';
 import TermsOfServicePage from '@/pages/TermsOfServicePage';
 import PrivacyPolicyPage from '@/pages/PrivacyPolicyPage';
 import RefundPolicyPage from '@/pages/RefundPolicyPage';
-/**
- * Application routes configuration
- */
+
 export const router = createBrowserRouter([
   {
     path: '/',
     element: <RootLayout />,
-
     children: [
       { index: true, element: <LandingPage /> },
-
       { path: 'home', element: <HomePage /> },
       { path: 'search', element: <SearchPage /> },
 
       { path: 'terms-of-service', element: <TermsOfServicePage /> },
       { path: 'privacy-policy', element: <PrivacyPolicyPage /> },
       { path: 'refund-policy', element: <RefundPolicyPage /> },
+
 
       { path: 'dashboard', element: <DashboardPage /> },
       { path: 'founder-dashboard', element: <FounderDashboardPage /> },
@@ -78,7 +76,10 @@ export const router = createBrowserRouter([
         ],
       },
 
-      { path: 'wallet', element: <WalletPage /> },
+      // --- CẤU HÌNH ROUTE VÍ ---
+      { path: 'wallet', element: <History /> },             // Trang chính: Lịch sử
+      { path: 'payment', element: <PaymentPage /> },        // Trang nạp tiền
+      { path: 'payment/callback', element: <PaymentCallback /> }, // Trang xử lý kết quả
 
       { path: 'your-projects', element: <YourProjectsPage /> },
       { path: 'websocket', element: <WebSocketTestComponent /> },
@@ -126,7 +127,6 @@ export const router = createBrowserRouter([
       { path: 'verify-change-email', element: <VerifyChangeEmail /> },
     ],
   },
-  // Catch all 404 - must be last
   {
     path: '*',
     element: <NotFoundPage />,

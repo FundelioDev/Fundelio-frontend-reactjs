@@ -4,7 +4,8 @@ import Select from "react-select";
 import { Country, City } from "country-state-city";
 import { storageApi } from "@/api/storageApi";
 import { userApi } from "@/api/userApi";
-import { useAuth } from "@/contexts/AuthContext"; // (SỬA 1: Import useAuth)
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "react-hot-toast";
 
 export default function UpdateProfile() {
   const { user, fetchUserData } = useAuth();
@@ -12,16 +13,13 @@ export default function UpdateProfile() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [nickname, setNickname] = useState("");
-  const [phone, setPhone] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [biography, setBiography] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
   const [avatarFile, setAvatarFile] = useState(null);
   const [country, setCountry] = useState(null);
   const [city, setCity] = useState(null);
-  const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
-
-  // (SỬA 4: Xóa 'initialLoading' state)
 
   const countryOptions = useMemo(
     () => Country.getAllCountries().map((c) => ({ value: c.isoCode, label: c.name })),
@@ -36,16 +34,13 @@ export default function UpdateProfile() {
     }));
   }, [country]);
 
-  // (SỬA 5: Thay thế useEffect ban đầu)
-  // useEffect này sẽ tự động điền dữ liệu vào form
-  // khi 'user' từ AuthContext được tải
   useEffect(() => {
     if (user) {
       console.log("Populating form from AuthContext user:", user);
       setFirstName(user.firstName ?? "");
       setLastName(user.lastName ?? "");
       setNickname(user.nickname ?? "");
-      setPhone(user.phone ?? "");
+      setPhoneNumber(user.phoneNumber ?? "");
       setBiography(user.biography ?? "");
       setAvatarUrl(user.avatarUrl ?? "");
 
@@ -60,7 +55,7 @@ export default function UpdateProfile() {
       if (user.city) setCity({ value: user.city, label: user.city });
       else setCity(null);
     }
-  }, [user]); // Phụ thuộc vào 'user' từ context
+  }, [user]);
 
   const handleAvatarChange = (e) => {
     const file = e.target.files?.[0];
@@ -72,9 +67,8 @@ export default function UpdateProfile() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage("");
     if (!firstName.trim() || !lastName.trim()) {
-      setMessage("Vui lòng nhập họ và tên.");
+      toast.error("Vui lòng nhập họ và tên.");
       return;
     }
 
@@ -85,20 +79,21 @@ export default function UpdateProfile() {
       if (avatarFile) {
         try {
           console.log("Uploading avatar file...");
-          const uploadRes = await storageApi.uploadSingleFile(avatarFile, "avatars");
+          const uploadRes = await storageApi.uploadSingleFile(avatarFile, "users/avatars");
+          
           console.log("Upload response:", uploadRes?.data);
           avatarLink =
             uploadRes?.data?.url ||
             uploadRes?.data?.data?.url ||
             uploadRes?.data?.fileUrl ||
             uploadRes?.data?.data?.fileUrl;
+            
           if (!avatarLink || !/^https?:\/\//.test(avatarLink)) {
             console.warn("Upload did not return http URL, ignoring avatarUrl.");
             avatarLink = undefined;
           }
         } catch (uploadErr) {
-          // ... (xử lý lỗi upload)
-          setMessage("Tải ảnh lên thất bại. Vui lòng thử lại.");
+          toast.error("Tải ảnh lên thất bại. Vui lòng thử lại.");
           setLoading(false);
           return;
         }
@@ -107,6 +102,7 @@ export default function UpdateProfile() {
       const payload = {
         firstName: firstName.trim(),
         lastName: lastName.trim(),
+        phoneNumber: phoneNumber.trim(),
         nickname: nickname.trim() || undefined,
         biography: biography.trim() || undefined,
         city: city?.label || undefined,
@@ -117,10 +113,10 @@ export default function UpdateProfile() {
       console.log("Sending update-profile payload:", JSON.stringify(payload, null, 2));
       const res = await userApi.updateProfile(payload);
       console.log("Update response:", res?.status, res?.data);
-      setMessage(res?.data?.message || "Cập nhật thành công!");
+      
+      toast.success(res?.data?.message || "Cập nhật thành công!");
       setAvatarFile(null);
 
-      // (SỬA 6: Thay vì gọi userApi.getMe(), gọi hàm của context)
       try {
         await fetchUserData();
         console.log("AuthContext user re-fetched!");
@@ -129,17 +125,27 @@ export default function UpdateProfile() {
       }
     } catch (err) {
       console.error("Update error:", err?.response?.status, err?.response?.data || err);
-      const errMsg = err?.response?.data?.message || "Cập nhật thất bại!";
-      setMessage(errMsg);
+      
+      const backendErrors = err?.response?.data?.errors;
+      const singleMessage = err?.response?.data?.message;
+
+      if (Array.isArray(backendErrors) && backendErrors.length > 0) {
+        backendErrors.forEach((err) => {
+          if (err.message) {
+            toast.error(err.message, { icon: "⚠️" });
+          }
+        });
+      } else if (singleMessage) {
+        toast.error(singleMessage);
+      } else {
+        toast.error("Cập nhật thất bại!");
+      }
+
     } finally {
       setLoading(false);
     }
   };
 
-  // (SỬA 7: Xóa toàn bộ khối 'if (initialLoading)')
-
-  // Tất cả JSX (return) giữ nguyên như code bạn đã sửa ở trên
-  // (sử dụng state local 'firstName', 'lastName', 'avatarUrl'...)
   return (
     <form
       onSubmit={handleSubmit}
@@ -215,7 +221,7 @@ export default function UpdateProfile() {
         <div>
           <label className="block text-sm font-medium mb-1">Số điện thoại</label>
           <input
-            value={phone}
+            value={phoneNumber}
             disabled
             className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm bg-gray-100 text-gray-500"
             placeholder="Số điện thoại"
@@ -251,10 +257,6 @@ export default function UpdateProfile() {
           />
         </div>
       </div>
-
-      {message && (
-        <p className="text-sm text-center text-red-500 mb-4 whitespace-pre-wrap">{message}</p>
-      )}
 
       <div className="flex justify-end">
         <button

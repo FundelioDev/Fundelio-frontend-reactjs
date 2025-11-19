@@ -127,9 +127,9 @@ class Http {
 
           if (errorData?.errors && Array.isArray(errorData.errors)) {
             shouldRefresh = errorData.errors.some(
-              (err) => err.code === 1009 || err.code === 1005
+              (err) => err.code === 1005
             );
-          } else if (errorData?.code === 1009 || errorData?.code === 1005) {
+          } else if (errorData?.code === 1005) {
             shouldRefresh = true;
           }
 

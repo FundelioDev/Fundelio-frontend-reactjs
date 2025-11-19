@@ -28,6 +28,7 @@ import CampaignOverviewPage from '@/components/campaign/dashboard/CampaignOvervi
 import CampaignStatisticsPage from '@/components/campaign/dashboard/CampaignStatisticsPage';
 import FounderDashboardPage from '@/pages/FounderDashboardPage';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import { PublicRoute } from '@/components/auth/PublicRoute';
 import PaymentPage from '@/components/wallet/PaymentPage';
 import History from '@/components/wallet/History';
 import PaymentCallback from '@/components/wallet/PaymentCallback';
@@ -43,21 +44,64 @@ export const router = createBrowserRouter([
     path: '/',
     element: <RootLayout />,
     children: [
+      // Public routes - no login required
       { index: true, element: <LandingPage /> },
       { path: 'home', element: <HomePage /> },
       { path: 'search', element: <SearchPage /> },
-
       { path: 'terms-of-service', element: <TermsOfServicePage /> },
       { path: 'privacy-policy', element: <PrivacyPolicyPage /> },
       { path: 'refund-policy', element: <RefundPolicyPage /> },
 
+      // Protected routes - require login
+      {
+        path: 'dashboard',
+        element: (
+          <PublicRoute requiresAuth>
+            <DashboardPage />
+          </PublicRoute>
+        )
+      },
+      {
+        path: 'founder-dashboard',
+        element: (
+          <PublicRoute requiresAuth>
+            <FounderDashboardPage />
+          </PublicRoute>
+        )
+      },
+      {
+        path: 'profile',
+        element: (
+          <PublicRoute requiresAuth>
+            <UserProfilePage />
+          </PublicRoute>
+        )
+      },
+      {
+        path: 'become-founder',
+        element: (
+          <PublicRoute requiresAuth>
+            <BecomeFounderPage />
+          </PublicRoute>
+        )
+      },
+      {
+        path: 'my-pledges',
+        element: (
+          <PublicRoute requiresAuth>
+            <MyPledgesPage />
+          </PublicRoute>
+        )
+      },
+      {
+        path: 'your-projects',
+        element: (
+          <PublicRoute requiresAuth>
+            <YourProjectsPage />
+          </PublicRoute>
+        )
+      },
 
-      { path: 'dashboard', element: <DashboardPage /> },
-      { path: 'founder-dashboard', element: <FounderDashboardPage /> },
-      { path: 'profile', element: <UserProfilePage /> },
-      { path: 'become-founder', element: <BecomeFounderPage /> },
-      { path: 'my-pledges', element: <MyPledgesPage /> },
-      { path: 'search', element: <SearchPage /> },
       {
         path: 'campaigns',
         children: [
@@ -67,31 +111,84 @@ export const router = createBrowserRouter([
             element: <CampaignDetailPage isPreviewMode={true} />,
           },
           { path: ':campaignId', element: <CampaignDetailPage /> },
-          { path: ':campaignId/pledge', element: <PledgeSummaryPage /> },
-          { path: ':campaignId/dashboard', element: <CampaignOverviewPage /> },
+          {
+            path: ':campaignId/pledge',
+            element: (
+              <PublicRoute requiresAuth>
+                <PledgeSummaryPage />
+              </PublicRoute>
+            )
+          },
+          {
+            path: ':campaignId/dashboard',
+            element: (
+              <PublicRoute requiresAuth>
+                <CampaignOverviewPage />
+              </PublicRoute>
+            )
+          },
           {
             path: ':campaignId/statistics',
-            element: <CampaignStatisticsPage />,
+            element: (
+              <PublicRoute requiresAuth>
+                <CampaignStatisticsPage />
+              </PublicRoute>
+            ),
           },
         ],
       },
 
-      // --- CẤU HÌNH ROUTE VÍ ---
-      { path: 'wallet', element: <History /> },             // Trang chính: Lịch sử
-      { path: 'payment', element: <PaymentPage /> },        // Trang nạp tiền
-      { path: 'payment/callback', element: <PaymentCallback /> }, // Trang xử lý kết quả
+      // Wallet routes - require login
+      {
+        path: 'wallet',
+        element: (
+          <PublicRoute requiresAuth>
+            <History />
+          </PublicRoute>
+        )
+      },
+      {
+        path: 'payment',
+        element: (
+          <PublicRoute requiresAuth>
+            <PaymentPage />
+          </PublicRoute>
+        )
+      },
+      {
+        path: 'payment/callback',
+        element: (
+          <PublicRoute requiresAuth>
+            <PaymentCallback />
+          </PublicRoute>
+        )
+      },
 
-      { path: 'your-projects', element: <YourProjectsPage /> },
-      { path: 'websocket', element: <WebSocketTestComponent /> },
+      {
+        path: 'websocket',
+        element: (
+          <PublicRoute requiresAuth>
+            <WebSocketTestComponent />
+          </PublicRoute>
+        )
+      },
     ],
   },
   {
     path: '/campaigns/create',
-    element: <CreateCampaignPage />,
+    element: (
+      <PublicRoute requiresAuth>
+        <CreateCampaignPage />
+      </PublicRoute>
+    ),
   },
   {
     path: '/campaigns/:campaignId/edit',
-    element: <CreateCampaignPage />,
+    element: (
+      <PublicRoute requiresAuth>
+        <CreateCampaignPage />
+      </PublicRoute>
+    ),
   },
   {
     path: '/auth',

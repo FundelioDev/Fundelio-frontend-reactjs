@@ -1,9 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
+import { useNavigate } from 'react-router-dom';
 import Button from './Button';
-import { mockCampaigns } from '../../data/mockCampaigns';
+import { campaignApi } from '@/api/campaignApi';
 
 const Hero = () => {
+  const navigate = useNavigate();
+  const [campaigns, setCampaigns] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
@@ -16,7 +20,35 @@ const Hero = () => {
   const overlayRef = useRef(null);
   const hasAnimatedCTA = useRef(false);
 
-  const totalSlides = mockCampaigns.length;
+  const totalSlides = campaigns.length;
+
+  // Fetch top campaigns from API
+  useEffect(() => {
+    const fetchHeroCampaigns = async () => {
+      try {
+        setLoading(true);
+        // Spring Filter: ACTIVE and SUCCESSFUL campaigns, sorted by pledgedAmount
+        const response = await campaignApi.getAllCampaigns({
+          filter: "campaignStatus in ['ACTIVE','SUCCESSFUL']",
+          sort: 'pledgedAmount,desc',
+          size: 7,
+          page: 1,
+        });
+
+        if (response?.data?.data?.content && response.data.data.content.length > 0) {
+          setCampaigns(response.data.data.content);
+        }
+      } catch (error) {
+        console.error('Error fetching hero campaigns:', error);
+        // Fallback to empty array on error
+        setCampaigns([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchHeroCampaigns();
+  }, []);
 
   // Initial CTA animation - only runs once on mount
   useEffect(() => {
@@ -150,9 +182,11 @@ const Hero = () => {
   // };
 
   const handleSeeCampaign = () => {
-    const campaign = mockCampaigns[currentSlide];
-    console.log('Navigate to campaign:', campaign.id);
-    // TODO: Implement navigation logic
+    if (campaigns.length === 0) return;
+
+    const campaign = campaigns[currentSlide];
+    // Navigate to campaign detail page
+    navigate(`/campaigns/${campaign.campaignId}`);
 
     // Animate button on click
     gsap.to(ctaRef.current, {
@@ -167,6 +201,8 @@ const Hero = () => {
   };
 
   const handleSlideChange = (index) => {
+    if (campaigns.length === 0) return;
+
     setIsAnimating(true);
     setTimeout(() => {
       setCurrentSlide(index);
@@ -175,6 +211,29 @@ const Hero = () => {
       setIsPaused(false);
     }, 300);
   };
+
+  // Show loading state
+  if (loading) {
+    return (
+      <section className="relative min-h-[100vh] overflow-hidden w-full flex items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-white text-lg">Đang tải chiến dịch nổi bật...</p>
+        </div>
+      </section>
+    );
+  }
+
+  // Empty state if no campaigns
+  if (campaigns.length === 0) {
+    return (
+      <section className="relative min-h-[100vh] overflow-hidden w-full flex items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800">
+        <div className="text-center">
+          <p className="text-white text-xl">Chưa có chiến dịch nổi bật</p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section
@@ -185,14 +244,14 @@ const Hero = () => {
     // onMouseLeave={handleMouseLeave}
     >
       {/* Background Images */}
-      {mockCampaigns.map((campaign, index) => (
+      {campaigns.map((campaign, index) => (
         <div
-          key={campaign.id}
+          key={campaign.campaignId}
           className={`absolute inset-0 h-full w-full transition-opacity duration-500 ${index === currentSlide ? 'opacity-100' : 'opacity-0'
             }`}
         >
           <img
-            src={campaign.heroImageUrl}
+            src={campaign.introImageUrl || 'https://via.placeholder.com/1920x1080?text=Campaign'}
             alt={campaign.title}
             className="h-full w-full object-cover object-center"
           />
@@ -234,7 +293,7 @@ const Hero = () => {
               }}
               aria-live="polite"
             >
-              {mockCampaigns[currentSlide].title}
+              {campaigns[currentSlide].title}
             </h1>
           </div>
 
@@ -242,12 +301,12 @@ const Hero = () => {
           <div className="perspective-1000">
             <p
               ref={descriptionRef}
-              className="hidden md:block text-base lg:text-xl text-white/95 max-w-2xl leading-relaxed font-light"
+              className="hidden md:block text-base lg:text-xl line-clamp-3 text-white/95 max-w-2xl leading-relaxed font-light"
               style={{
                 textShadow: '0 2px 10px rgba(0, 0, 0, 0.7)',
               }}
             >
-              {mockCampaigns[currentSlide].description ||
+              {campaigns[currentSlide].description ||
                 'Discover and support amazing campaigns that make a difference'}
             </p>
           </div>
@@ -315,23 +374,23 @@ const Hero = () => {
             startIndex = Math.max(0, endIndex - maxVisible);
           }
 
-          const visibleSlides = mockCampaigns.slice(startIndex, endIndex);
+          const visibleSlides = campaigns.slice(startIndex, endIndex);
 
           return visibleSlides.map((campaign, idx) => {
             const actualIndex = startIndex + idx;
             return (
               <button
-                key={actualIndex}
+                key={campaign.campaignId}
                 onClick={() => handleSlideChange(actualIndex)}
                 className={`group relative overflow-hidden rounded-sm transition-all duration-300 border-2 flex-shrink-0 ${actualIndex === currentSlide
-                    ? "border-primary shadow-lg shadow-primary/50 scale-103 sm:scale-105"
-                    : "border-white/20 opacity-60 hover:opacity-100 hover:scale-105 hover:border-white/40"
+                  ? "border-primary shadow-lg shadow-primary/50 scale-103 sm:scale-105"
+                  : "border-white/20 opacity-60 hover:opacity-100 hover:scale-105 hover:border-white/40"
                   }`}
                 aria-label={`Go to slide ${actualIndex + 1}: ${campaign.title}`}
                 aria-current={actualIndex === currentSlide ? "true" : "false"}
               >
                 <img
-                  src={campaign.heroImageUrl || "/placeholder.svg?height=96&width=128&query=campaign-thumbnail"}
+                  src={campaign.introImageUrl || "/placeholder.svg?height=96&width=128&query=campaign-thumbnail"}
                   alt={campaign.title}
                   className="h-11 w-16 object-cover sm:h-12 sm:w-20 transition-transform duration-300 group-hover:scale-110"
                 />

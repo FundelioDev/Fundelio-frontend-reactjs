@@ -92,7 +92,7 @@ export default function AdminLayout() {
   const userEmail = user?.email || '';
 
   return (
-    <div className='flex h-screen bg-gray-50 dark:bg-darker'>
+    <div className='flex max-h-[100vh] max-w-[100vw] overflow-y-hidden bg-gray-50 dark:bg-darker'>
       {/* Sidebar */}
       <aside
         className={`${
@@ -103,7 +103,11 @@ export default function AdminLayout() {
         <div className='h-16 flex items-center justify-between px-4 border-b border-gray-200 dark:border-gray-800'>
           {sidebarOpen && (
             <Link to='/home' className='flex items-center space-x-2'>
-               <img src="/logo.png" alt="Fundelio" className="w-10 h-10 md:w-12 md:h-12" />
+              <img
+                src='/logo.png'
+                alt='Fundelio'
+                className='w-10 h-10 md:w-12 md:h-12'
+              />
             </Link>
           )}
           <Button

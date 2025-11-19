@@ -2,8 +2,31 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Bell, Share2, ChevronLeft, ChevronRight, Play } from 'lucide-react';
 import Button from '@/components/common/Button';
+import { buildVideoEmbed } from '@/utils/embed';
 
-// VideoPlayer component with play button overlay
+// Helper function to check if URL is YouTube
+const isYouTubeUrl = (url) => {
+  if (!url) return false;
+  return url.includes('youtube.com') || url.includes('youtu.be');
+};
+
+// Helper function to extract YouTube video ID
+const getYouTubeVideoId = (url) => {
+  try {
+    const urlObj = new URL(url);
+    if (urlObj.hostname.includes('youtube.com')) {
+      return urlObj.searchParams.get('v');
+    }
+    if (urlObj.hostname === 'youtu.be') {
+      return urlObj.pathname.slice(1);
+    }
+  } catch {
+    return null;
+  }
+  return null;
+};
+
+// VideoPlayer component with play button overlay (for server videos)
 const VideoPlayer = ({ url }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const videoRef = React.useRef(null);
@@ -42,6 +65,21 @@ const VideoPlayer = ({ url }) => {
           </div>
         </button>
       )}
+    </div>
+  );
+};
+
+// YouTube Embed component
+const YouTubeEmbed = ({ videoId }) => {
+  return (
+    <div className="relative w-full h-full">
+      <iframe
+        src={`https://www.youtube.com/embed/${videoId}?rel=0`}
+        className="w-full h-full"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+        title="YouTube video player"
+      />
     </div>
   );
 };
@@ -112,7 +150,16 @@ const CampaignHeader = ({
     mediaItems.push({ type: 'image', url: introImageUrl });
   }
   if (introVideoUrl) {
-    mediaItems.push({ type: 'video', url: introVideoUrl });
+    // Check if it's YouTube URL
+    if (isYouTubeUrl(introVideoUrl)) {
+      const videoId = getYouTubeVideoId(introVideoUrl);
+      if (videoId) {
+        mediaItems.push({ type: 'youtube', url: introVideoUrl, videoId });
+      }
+    } else {
+      // Server video
+      mediaItems.push({ type: 'video', url: introVideoUrl });
+    }
   }
 
   const totalMedia = mediaItems.length;
@@ -250,6 +297,8 @@ const CampaignHeader = ({
                       className="w-full h-full object-cover"
                       loading="eager"
                     />
+                  ) : mediaItems[currentMediaIndex].type === 'youtube' ? (
+                    <YouTubeEmbed videoId={mediaItems[currentMediaIndex].videoId} />
                   ) : (
                     <VideoPlayer url={mediaItems[currentMediaIndex].url} />
                   )}

@@ -22,6 +22,8 @@ export function AuthProvider({ children }) {
   const [isInitializing, setIsInitializing] = useState(true);
 
   const logout = useCallback(() => {
+    authApi.logout().catch(() => { });
+
     storageService.clearAuth();
     try {
       window.localStorage.removeItem("user");
@@ -29,8 +31,6 @@ export function AuthProvider({ children }) {
     setUser(null);
     setIsLoggedIn(false);
     stopTokenRefreshInterval();
-
-    authApi.logout().catch(() => { });
   }, []);
 
   const fetchUserData = useCallback(async () => {

@@ -64,34 +64,34 @@ export default function DashboardPage() {
     }, []);
 
     // Fetch campaigns
+    const fetchCampaigns = async () => {
+        if (!user?.userId) {
+            setLoading(false);
+            return;
+        }
+
+        try {
+            setLoading(true);
+            const response = await campaignApi.getUserCampaigns(user.userId, {
+                page: pagination.currentPage,
+                size: pagination.pageSize,
+                sort: 'createdAt,desc',
+            });
+
+            if (response?.data?.data) {
+                const { content, meta } = response.data.data;
+                setCampaigns(content);
+                setPagination(meta);
+            }
+        } catch (error) {
+            console.error('Error fetching campaigns:', error);
+            toast.error('Không thể tải danh sách chiến dịch');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const fetchCampaigns = async () => {
-            if (!user?.userId) {
-                setLoading(false);
-                return;
-            }
-
-            try {
-                setLoading(true);
-                const response = await campaignApi.getUserCampaigns(user.userId, {
-                    page: pagination.currentPage,
-                    size: pagination.pageSize,
-                    sort: 'createdAt,desc',
-                });
-
-                if (response?.data?.data) {
-                    const { content, meta } = response.data.data;
-                    setCampaigns(content);
-                    setPagination(meta);
-                }
-            } catch (error) {
-                console.error('Error fetching campaigns:', error);
-                toast.error('Không thể tải danh sách chiến dịch');
-            } finally {
-                setLoading(false);
-            }
-        };
-
         fetchCampaigns();
     }, [user?.userId, pagination.currentPage, pagination.pageSize]);
 
@@ -118,13 +118,40 @@ export default function DashboardPage() {
             <main className="flex-1 pt-20">
                 <div className="max-w-container mx-auto px-4 sm:px-6 py-12">
                     {/* Page Header */}
-                    <div className="mb-8">
-                        <h1 className="text-3xl font-bold text-text-primary dark:text-white mb-2">
-                            Bảng điều khiển
-                        </h1>
-                        <p className="text-muted-foreground">
-                            Quản lý các chiến dịch gây quỹ của bạn
-                        </p>
+                    <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div>
+                            <h1 className="text-3xl font-bold text-text-primary dark:text-white mb-2">
+                                Bảng điều khiển
+                            </h1>
+                            <p className="text-muted-foreground">
+                                Quản lý các chiến dịch gây quỹ của bạn
+                            </p>
+                        </div>
+
+                        {/* Founder Dashboard Link */}
+                        {campaigns.length > 0 && (
+                            <Button
+                                variant="outline"
+                                size="md"
+                                onClick={() => navigate('/founder-dashboard')}
+                                className="flex items-center gap-2"
+                            >
+                                <svg
+                                    className="w-5 h-5"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                                    />
+                                </svg>
+                                Xem Dashboard Tổng Quan
+                            </Button>
+                        )}
                     </div>
 
                     {loading ? (
@@ -205,8 +232,8 @@ export default function DashboardPage() {
                                     <button
                                         onClick={() => setSelectedStatus('ALL')}
                                         className={`px-4 py-2 rounded-full text-sm font-medium transition-all border ${selectedStatus === 'ALL'
-                                                ? 'bg-primary text-white border-primary'
-                                                : 'bg-white dark:bg-darker-2 text-text-primary dark:text-white border-border hover:border-primary/50'
+                                            ? 'bg-primary text-white border-primary'
+                                            : 'bg-white dark:bg-darker-2 text-text-primary dark:text-white border-border hover:border-primary/50'
                                             }`}
                                     >
                                         Tất cả ({campaigns.length})
@@ -218,8 +245,8 @@ export default function DashboardPage() {
                                                 key={status}
                                                 onClick={() => setSelectedStatus(status)}
                                                 className={`px-4 py-2 rounded-full text-sm font-medium transition-all border ${selectedStatus === status
-                                                        ? getStatusColor(status)
-                                                        : 'bg-white dark:bg-darker-2 text-text-primary dark:text-white border-border hover:border-primary/50'
+                                                    ? getStatusColor(status)
+                                                    : 'bg-white dark:bg-darker-2 text-text-primary dark:text-white border-border hover:border-primary/50'
                                                     }`}
                                             >
                                                 {label.split(' – ')[0]} ({count})
@@ -234,14 +261,28 @@ export default function DashboardPage() {
                                 <h2 className="text-xl font-semibold text-text-primary dark:text-white">
                                     Chiến dịch của bạn ({pagination.totalElements})
                                 </h2>
-                                <Button
+                                {/* <Button
                                     variant="gradient"
                                     onClick={handleCreateCampaign}
                                     className="flex items-center gap-2"
                                 >
                                     <Plus className="w-5 h-5" />
                                     Tạo chiến dịch mới
-                                </Button>
+                                </Button> */}
+                                <button onClick={handleCreateCampaign} className="border-2 border-blue-400 bg-blue-400 rounded-lg cursor-pointer py-2.5 px-4 transition-all duration-200 ease-in-out text-base hover:bg-blue-600 hover:border-blue-600">
+                                    <span class="flex justify-center items-center text-white font-semibold">
+                                        <svg
+                                            height="24"
+                                            width="24"
+                                            viewBox="0 0 24 24"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                        >
+                                            <path d="M0 0h24v24H0z" fill="none"></path>
+                                            <path d="M11 11V5h2v6h6v2h-6v6h-2v-6H5v-2z" fill="currentColor"></path>
+                                        </svg>
+                                        Tạo chiến dịch
+                                    </span>
+                                </button>
                             </div>
 
                             {/* Campaigns List (horizontal items) */}
@@ -259,6 +300,7 @@ export default function DashboardPage() {
                                         <CampaignDashboardItem
                                             key={campaign.campaignId}
                                             campaign={campaign}
+                                            onActionComplete={fetchCampaigns}
                                         />
                                     ))
                                 )}

@@ -88,7 +88,7 @@ export const PopularCampaigns = () => {
           modules={[Navigation, Pagination, Autoplay]}
           spaceBetween={24}
           slidesPerView={1}
-          slidesPerGroup={4}
+          slidesPerGroup={1}
           speed={600}
           loop={false}
           observer={true}
@@ -120,10 +120,12 @@ export const PopularCampaigns = () => {
           breakpoints={{
             640: {
               slidesPerView: 2,
+              slidesPerGroup: 1,
               spaceBetween: 16,
             },
             1024: {
               slidesPerView: 4,
+              slidesPerGroup: 2,
               spaceBetween: 24,
             },
           }}
@@ -133,17 +135,11 @@ export const PopularCampaigns = () => {
             <SwiperSlide key={campaign.campaignId} className="pt-6">
               <ProjectCard
                 project={campaign}
-                onBookmarkToggle={(id, bookmarked) => {
-                  console.log('Bookmark toggled:', id, bookmarked);
-                  // TODO: Implement bookmark logic
-                }}
+                asLink={`/campaigns/${campaign.campaignId}`}
               />
             </SwiperSlide>
           ))}
         </Swiper>
-
-        {/* Page Indicators */}
-        <div className="popular-pagination flex justify-center gap-2 mt-8"></div>
       </div>
     </section>
   );

@@ -16,66 +16,179 @@ import UsersPage from '@/pages/admin/UsersPage';
 import RolesPage from '@/pages/admin/RolesPage';
 import PermissionsPage from '@/pages/admin/PermissionsPage';
 import AdminCampaignsPage from '@/pages/admin/AdminCampaignsPage';
-import WalletPage from '@/pages/WalletPage';
 import YourProjectsPage from '@/pages/YourProjectsPage';
 import NotFoundPage from '@/pages/NotFoundPage';
 import ForbiddenPage from '@/pages/ForbiddenPage';
-import UserProfilePage from "@/pages/UserProfilePage";
+import UserProfilePage from '@/pages/UserProfilePage';
 import PledgeSummaryPage from '@/pages/PledgeSummaryPage';
 import BecomeFounderPage from '@/pages/BecomeFounderPage';
 
 import VerifyChangeEmail from '@/components/auth/VerifyChangeEmail';
-
 import CampaignOverviewPage from '@/components/campaign/dashboard/CampaignOverviewPage';
 import CampaignStatisticsPage from '@/components/campaign/dashboard/CampaignStatisticsPage';
+import FounderDashboardPage from '@/pages/FounderDashboardPage';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import { PublicRoute } from '@/components/auth/PublicRoute';
+import PaymentPage from '@/components/wallet/PaymentPage';
+import History from '@/components/wallet/History';
+import PaymentCallback from '@/components/wallet/PaymentCallback';
 import WebSocketTestComponent from '@/components/websocket/WebSocketTestComponent';
 import MyPledgesPage from '@/pages/pledges/MyPledgesPage';
 import SearchPage from '@/pages/SearchPage';
-/**
- * Application routes configuration
- */
+import TermsOfServicePage from '@/pages/TermsOfServicePage';
+import PrivacyPolicyPage from '@/pages/PrivacyPolicyPage';
+import RefundPolicyPage from '@/pages/RefundPolicyPage';
+
 export const router = createBrowserRouter([
   {
     path: '/',
     element: <RootLayout />,
-
     children: [
+      // Public routes - no login required
       { index: true, element: <LandingPage /> },
-
       { path: 'home', element: <HomePage /> },
       { path: 'search', element: <SearchPage /> },
+      { path: 'terms-of-service', element: <TermsOfServicePage /> },
+      { path: 'privacy-policy', element: <PrivacyPolicyPage /> },
+      { path: 'refund-policy', element: <RefundPolicyPage /> },
 
-      { path: 'dashboard', element: <DashboardPage /> },
-      { path: 'profile', element: <UserProfilePage /> },
-      { path: 'become-founder', element: <BecomeFounderPage /> },
-      { path: 'my-pledges', element: <MyPledgesPage /> },
-      { path: 'search', element: <SearchPage /> },
+      // Protected routes - require login
+      {
+        path: 'dashboard',
+        element: (
+          <PublicRoute requiresAuth>
+            <DashboardPage />
+          </PublicRoute>
+        )
+      },
+      {
+        path: 'founder-dashboard',
+        element: (
+          <PublicRoute requiresAuth>
+            <FounderDashboardPage />
+          </PublicRoute>
+        )
+      },
+      {
+        path: 'profile',
+        element: (
+          <PublicRoute requiresAuth>
+            <UserProfilePage />
+          </PublicRoute>
+        )
+      },
+      {
+        path: 'become-founder',
+        element: (
+          <PublicRoute requiresAuth>
+            <BecomeFounderPage />
+          </PublicRoute>
+        )
+      },
+      {
+        path: 'my-pledges',
+        element: (
+          <PublicRoute requiresAuth>
+            <MyPledgesPage />
+          </PublicRoute>
+        )
+      },
+      {
+        path: 'your-projects',
+        element: (
+          <PublicRoute requiresAuth>
+            <YourProjectsPage />
+          </PublicRoute>
+        )
+      },
+
       {
         path: 'campaigns',
         children: [
           { path: 'detail', element: <CampaignDetailPage /> },
-          { path: 'preview/:campaignId', element: <CampaignDetailPage isPreviewMode={true} /> },
+          {
+            path: 'preview/:campaignId',
+            element: <CampaignDetailPage isPreviewMode={true} />,
+          },
           { path: ':campaignId', element: <CampaignDetailPage /> },
-          { path: ':campaignId/pledge', element: <PledgeSummaryPage /> },
-          { path: ':campaignId/dashboard', element: <CampaignOverviewPage /> },
-          { path: ':campaignId/statistics', element: <CampaignStatisticsPage /> },
+          {
+            path: ':campaignId/pledge',
+            element: (
+              <PublicRoute requiresAuth>
+                <PledgeSummaryPage />
+              </PublicRoute>
+            )
+          },
+          {
+            path: ':campaignId/dashboard',
+            element: (
+              <PublicRoute requiresAuth>
+                <CampaignOverviewPage />
+              </PublicRoute>
+            )
+          },
+          {
+            path: ':campaignId/statistics',
+            element: (
+              <PublicRoute requiresAuth>
+                <CampaignStatisticsPage />
+              </PublicRoute>
+            ),
+          },
         ],
       },
 
-      { path: 'wallet', element: <WalletPage /> },
+      // Wallet routes - require login
+      {
+        path: 'wallet',
+        element: (
+          <PublicRoute requiresAuth>
+            <History />
+          </PublicRoute>
+        )
+      },
+      {
+        path: 'payment',
+        element: (
+          <PublicRoute requiresAuth>
+            <PaymentPage />
+          </PublicRoute>
+        )
+      },
+      {
+        path: 'payment/callback',
+        element: (
+          <PublicRoute requiresAuth>
+            <PaymentCallback />
+          </PublicRoute>
+        )
+      },
 
-      { path: 'your-projects', element: <YourProjectsPage /> },
-      { path: 'websocket', element: <WebSocketTestComponent /> },
-    ]
+      {
+        path: 'websocket',
+        element: (
+          <PublicRoute requiresAuth>
+            <WebSocketTestComponent />
+          </PublicRoute>
+        )
+      },
+    ],
   },
   {
     path: '/campaigns/create',
-    element: <CreateCampaignPage />,
+    element: (
+      <PublicRoute requiresAuth>
+        <CreateCampaignPage />
+      </PublicRoute>
+    ),
   },
   {
     path: '/campaigns/:campaignId/edit',
-    element: <CreateCampaignPage />,
+    element: (
+      <PublicRoute requiresAuth>
+        <CreateCampaignPage />
+      </PublicRoute>
+    ),
   },
   {
     path: '/auth',
@@ -89,7 +202,7 @@ export const router = createBrowserRouter([
   {
     path: '/admin',
     element: (
-      <ProtectedRoute requiredRole="ADMIN">
+      <ProtectedRoute requiredRole='ADMIN'>
         <AdminLayout />
       </ProtectedRoute>
     ),
@@ -111,7 +224,6 @@ export const router = createBrowserRouter([
       { path: 'verify-change-email', element: <VerifyChangeEmail /> },
     ],
   },
-  // Catch all 404 - must be last
   {
     path: '*',
     element: <NotFoundPage />,

@@ -149,12 +149,6 @@ export default function ItemSelector({ items, selectedItems, onConfirm, onClose,
                         />
                       )}
 
-                      {isSelected && isAddOnMode && (
-                        <span className="text-sm text-muted-foreground px-2">
-                          (Backer chọn)
-                        </span>
-                      )}
-
                       {isSelected && (
                         <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
                           <Check className="w-4 h-4 text-white" />

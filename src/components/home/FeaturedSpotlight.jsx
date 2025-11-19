@@ -2,27 +2,16 @@ import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight, Flame, Users, DollarSign } from 'lucide-react';
 import ProjectCard from './ProjectCard';
 import ProjectLists from './ProjectLists';
-import { useCampaigns } from '@/hooks/useCampaigns';
 
-export const FeaturedSpotlight = () => {
+/**
+ * @param {Object} campaigns - Object with featured and spotlight arrays
+ * @param {boolean} loading - Loading state from parent
+ */
+export const FeaturedSpotlight = ({ campaigns = { featured: [], spotlight: [] }, loading = false }) => {
   const [currentPage, setCurrentPage] = useState(0);
   const itemsPerPage = 4; // 2x2 grid
 
-  // Fetch featured campaigns (ACTIVE status)
-  const { campaigns: featuredCampaigns, loading: featuredLoading } = useCampaigns({
-    filter: "campaignStatus in ['ACTIVE']",
-    page: 1,
-    size: 8,
-    sort: 'createdAt,desc',
-  });
-
-  // Fetch recent campaigns (ACTIVE and SUCCESSFUL status)
-  const { campaigns: spotlightCampaigns, loading: spotlightLoading } = useCampaigns({
-    filter: "campaignStatus in ['ACTIVE','SUCCESSFUL']",
-    page: 1,
-    size: 20,
-    sort: 'createdAt,desc',
-  });
+  const { featured: featuredCampaigns = [], spotlight: spotlightCampaigns = [] } = campaigns;
 
   const totalPages = Math.ceil(featuredCampaigns.length / itemsPerPage);
 
@@ -44,7 +33,7 @@ export const FeaturedSpotlight = () => {
   const canGoNext = currentPage < totalPages - 1;
 
   // Show loading state
-  if (featuredLoading || spotlightLoading) {
+  if (loading) {
     return (
       <section className="py-12 sm:py-16 lg:py-20 transition-colors duration-300">
         <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
@@ -156,8 +145,8 @@ export const FeaturedSpotlight = () => {
                 <div
                   className="space-y-2 overflow-y-auto pr-2 pl-2 scrollbar-primary"
                   style={{
-                    maxHeight: 'calc(2 * 595px + 1.5rem)', // Height of 2 cards + gap
-                    minHeight: 'calc(2 * 595px + 1.5rem)',
+                    maxHeight: 'calc(2 * 526px + 1.5rem)', // Height of 2 cards + gap
+                    minHeight: 'calc(2 * 526px + 1.5rem)',
                   }}
                 >
                   {spotlightCampaigns.map((campaign, index) => {
@@ -218,8 +207,7 @@ export const FeaturedSpotlight = () => {
                             </div>
                             <span>•</span>
                             <div className="flex items-center gap-1 font-semibold text-primary">
-                              <DollarSign className="w-3 h-3" />
-                              <span>{campaign.pledgedAmount.toLocaleString()}</span>
+                              <span>{campaign.pledgedAmount.toLocaleString()} VND</span>
                             </div>
                           </div>
                         </div>

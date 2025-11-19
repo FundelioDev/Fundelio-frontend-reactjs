@@ -8,6 +8,9 @@ import { RewardDetailModal } from './RewardDetailModal';
 export function RewardDetailCard({ reward, items = [], addOns = [], onSelectReward, showChooseButton = false, campaignId }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // Check if sold out
+  const isSoldOut = reward.rewardStatus === 'SOLD_OUT';
+
   // Format delivery date
   const eta = reward.estimated_delivery
     ? new Date(reward.estimated_delivery).toLocaleDateString('vi-VN', { month: 'long', year: 'numeric' })
@@ -23,19 +26,29 @@ export function RewardDetailCard({ reward, items = [], addOns = [], onSelectRewa
 
   return (
     <>
-      <Card className="overflow-hidden rounded-lg border border-border/50 hover:shadow-lg transition-shadow bg-white dark:bg-darker-2">
+      <Card className={`overflow-hidden rounded-lg border border-border/50 hover:shadow-lg transition-shadow bg-white dark:bg-darker-2 ${isSoldOut ? 'opacity-60 grayscale' : ''}`}>
         {/* Flexbox Layout - Image Left, Content Right */}
         <div className="flex flex-col md:flex-row">
           {/* Left - Image Section */}
           <div className="md:w-1/2 lg:w-1/2 flex-shrink-0">
-            <div className=" aspect-[4/3] h-full overflow-hidden bg-gray-100 dark:bg-darker">
+            <div className=" aspect-[4/3] h-full overflow-hidden bg-gray-100 dark:bg-darker relative">
               <img
                 src={reward.imageUrl || reward.image}
                 alt={reward.imageAlt || reward.title}
                 className="w-full h-full object-cover"
               />
+
+              {/* SOLD OUT Overlay */}
+              {isSoldOut && (
+                <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                  <div className="bg-red-600 text-white px-8 py-4 rounded-sm font-bold text-2xl shadow-lg transform -rotate-12">
+                    ĐÃ HẾT
+                  </div>
+                </div>
+              )}
+
               {/* Featured Badge */}
-              {reward.featured && (
+              {reward.featured && !isSoldOut && (
                 <div className="absolute top-3 left-3">
                   <span className="px-3 py-1 bg-primary text-white text-xs font-bold rounded-sm">
                     NỔI BẬT
@@ -69,7 +82,7 @@ export function RewardDetailCard({ reward, items = [], addOns = [], onSelectRewa
               )}
 
               {/* More info link */}
-              <div onClick={() => setIsModalOpen(true)} className="text-primary text-base font-semibold hover:underline mb-6 inline-flex items-center gap-1">
+              <div onClick={() => setIsModalOpen(true)} className="text-primary text-sm font-semibold hover:underline mb-6 inline-flex items-center gap-1">
                 Xem thêm <ChevronRight className="w-4 h-4" />
               </div>
 
@@ -92,25 +105,31 @@ export function RewardDetailCard({ reward, items = [], addOns = [], onSelectRewa
                 <div className="space-y-3 p-5 md:p-7 pt-0">
                   <Button
                     className="w-full font-bold text-white bg-primary hover:bg-primary/90 shadow-lg h-14 text-base"
-                    onClick={() => setIsModalOpen(true)}
+                    onClick={() => !isSoldOut && setIsModalOpen(true)}
+                    disabled={isSoldOut}
                   >
-                    CHỌN GÓI NÀY
+                    {isSoldOut ? 'ĐÃ HẾT - KHÔNG KHẢ DỤNG' : 'CHỌN GÓI NÀY'}
                   </Button>
-                  <div className="text-center text-sm font-semibold text-muted-foreground">HOẶC</div>
-                  <Button
-                    variant="outline"
-                    className="w-full font-bold h-14 text-base border-2 border-primary text-primary hover:bg-primary/10"
-                    onClick={() => setIsModalOpen(true)}
-                  >
-                    + CHỌN GÓI KHÁC
-                  </Button>
+                  {!isSoldOut && (
+                    <>
+                      <div className="text-center text-sm font-semibold text-muted-foreground">HOẶC</div>
+                      <Button
+                        variant="outline"
+                        className="w-full font-bold h-14 text-base border-2 border-primary text-primary hover:bg-primary/10"
+                        onClick={() => setIsModalOpen(true)}
+                      >
+                        + CHỌN GÓI KHÁC
+                      </Button>
+                    </>
+                  )}
                 </div>
               ) : (
                 <Button
                   className="w-full font-bold text-white bg-primary hover:bg-primary/90 shadow-lg rounded-none rounded-b-r-lg h-11 text-base"
-                  onClick={() => setIsModalOpen(true)}
+                  onClick={() => !isSoldOut && setIsModalOpen(true)}
+                  disabled={isSoldOut}
                 >
-                  THÊM VÀO GIỎ
+                  {isSoldOut ? 'ĐÃ HẾT' : 'THÊM VÀO GIỎ'}
                 </Button>
               )}
             </div>

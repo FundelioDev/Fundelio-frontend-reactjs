@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { Search, SlidersHorizontal, X } from 'lucide-react';
 import { useSelector } from 'react-redux';
-import {campaignApi} from '@/api/campaignApi';
+import { campaignApi } from '@/api/campaignApi';
 import SearchFilters from './search/SearchFilters';
 import SearchResults from './search/SearchResults';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
@@ -18,7 +18,6 @@ import LoadingSpinner from '@/components/common/LoadingSpinner';
  * - Spring Filter backend integration
  */
 const SearchPage = () => {
-    const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
     const categories = useSelector(state => state.categories.categories);
 
@@ -37,8 +36,14 @@ const SearchPage = () => {
     const [totalResults, setTotalResults] = useState(0);
 
     // UI state
-    const [showFilters, setShowFilters] = useState(true);
-    const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+    const defaultFilterState = {
+        selectedCategories: [],
+        priceRange: { min: '', max: '' },
+        campaignStatus: 'all',
+        sortBy: 'newest',
+    };
+    const [pendingFilters, setPendingFilters] = useState(defaultFilterState);
+    const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
 
     // Infinite scroll observer
     const observerTarget = useRef(null);
@@ -50,36 +55,46 @@ const SearchPage = () => {
         const sortParam = searchParams.get('sort');
         const queryParam = searchParams.get('q');
 
-        if (categoryParam) {
-            setSelectedCategories(categoryParam.split(','));
-        }
-        if (statusParam) {
-            setCampaignStatus(statusParam);
-        }
-        if (sortParam) {
-            setSortBy(sortParam);
-        }
+        const initialCategories = categoryParam ? categoryParam.split(',') : [];
+        const initialStatus = statusParam || 'all';
+        const initialSort = sortParam || 'newest';
+
+        setSelectedCategories(initialCategories);
+        setCampaignStatus(initialStatus);
+        setSortBy(initialSort);
+
         if (queryParam) {
             setSearchQuery(queryParam);
         }
+
+        setPendingFilters({
+            selectedCategories: initialCategories,
+            priceRange: { min: '', max: '' },
+            campaignStatus: initialStatus,
+            sortBy: initialSort,
+        });
     }, []);
 
     // Build Spring Filter query
     const buildSpringFilter = useCallback(() => {
         const filters = [];
 
-        // Category filter: "categoryId in (1, 2, 3)"
+        // Category filter: campaignCategory in ['FILM','ART']
         if (selectedCategories.length > 0) {
-            filters.push(`categoryId in (${selectedCategories.join(', ')})`);
+            const categoryList = selectedCategories.map(cat => `'${cat}'`).join(',');
+            filters.push(`campaignCategory in [${categoryList}]`);
         }
 
-        // Status filter
+        // Status filter - Default to ACTIVE and SUCCESSFUL if status is 'all'
         if (campaignStatus === 'active') {
             filters.push(`campaignStatus: 'ACTIVE'`);
         } else if (campaignStatus === 'upcoming') {
             filters.push(`campaignStatus: 'UPCOMING'`);
         } else if (campaignStatus === 'ended') {
             filters.push(`campaignStatus: 'ENDED'`);
+        } else if (campaignStatus === 'all') {
+            // Default: only show ACTIVE and SUCCESSFUL campaigns
+            filters.push(`campaignStatus in ['ACTIVE','SUCCESSFUL']`);
         }
 
         // Price range (fundingGoal)
@@ -185,11 +200,34 @@ const SearchPage = () => {
 
     // Reset filters
     const handleResetFilters = () => {
-        setSelectedCategories([]);
-        setPriceRange({ min: '', max: '' });
-        setCampaignStatus('all');
-        setSortBy('newest');
+        setSelectedCategories(defaultFilterState.selectedCategories);
+        setPriceRange(defaultFilterState.priceRange);
+        setCampaignStatus(defaultFilterState.campaignStatus);
+        setSortBy(defaultFilterState.sortBy);
         setSearchQuery('');
+        setPendingFilters(defaultFilterState);
+    };
+
+    const handleOpenFilters = () => {
+        setPendingFilters({
+            selectedCategories,
+            priceRange,
+            campaignStatus,
+            sortBy,
+        });
+        setIsFilterPanelOpen(true);
+    };
+
+    const handleApplyFilters = () => {
+        setSelectedCategories(pendingFilters.selectedCategories);
+        setPriceRange(pendingFilters.priceRange);
+        setCampaignStatus(pendingFilters.campaignStatus);
+        setSortBy(pendingFilters.sortBy);
+        setIsFilterPanelOpen(false);
+    };
+
+    const handlePendingReset = () => {
+        setPendingFilters(defaultFilterState);
     };
 
     // Active filter count
@@ -199,172 +237,145 @@ const SearchPage = () => {
         (campaignStatus !== 'all' ? 1 : 0) +
         (searchQuery ? 1 : 0);
 
+    const pendingFilterCount =
+        pendingFilters.selectedCategories.length +
+        (pendingFilters.priceRange.min || pendingFilters.priceRange.max ? 1 : 0) +
+        (pendingFilters.campaignStatus !== 'all' ? 1 : 0) +
+        (pendingFilters.sortBy !== 'newest' ? 1 : 0);
+
     return (
-        <main className="min-h-screen bg-background">
+        <main className="min-h-screen bg-background-light-2 dark:bg-darker text-white transition-colors">
             {/* Search Header */}
-            <header className="bg-white dark:bg-darker border-b border-border">
+            <header className="bg-transparent border-b border-white/10 dark:border-white/5">
                 <div className="max-w-container mx-auto px-4 lg:px-6 py-6">
                     {/* Search Bar */}
                     <div className="relative max-w-2xl">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-secondary" />
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                         <input
                             type="text"
                             placeholder="Tìm kiếm chiến dịch..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full h-12 pl-12 pr-4 rounded-lg border border-border bg-background text-text focus:outline-none focus:ring-2 focus:ring-primary/50"
+                            className="w-full h-12 pl-12 pr-4 rounded-lg border border-white/10 bg-white/5 text-white placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/60"
                         />
                     </div>
 
                     {/* Results count & filter toggle */}
                     <div className="flex items-center justify-between mt-4">
-                        <p className="text-sm text-text-secondary">
+                        <p className="text-sm text-muted-foreground">
                             {loading ? 'Đang tìm kiếm...' : `${totalResults} kết quả`}
                         </p>
 
-                        <div className="flex items-center gap-3">
-                            {/* Desktop: Toggle sidebar */}
-                            <button
-                                onClick={() => setShowFilters(!showFilters)}
-                                className="hidden lg:flex items-center gap-2 px-4 py-2 rounded-lg border border-border hover:bg-muted transition-colors"
-                            >
-                                <SlidersHorizontal className="w-4 h-4" />
-                                <span className="text-sm font-medium">
-                                    {showFilters ? 'Ẩn bộ lọc' : 'Hiện bộ lọc'}
+                        <button
+                            onClick={handleOpenFilters}
+                            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-white/15 bg-white/5 hover:bg-white/10 transition-colors"
+                        >
+                            <SlidersHorizontal className="w-4 h-4" />
+                            <span className="text-sm font-medium text-white">Bộ lọc</span>
+                            {activeFilterCount > 0 && (
+                                <span className="flex items-center justify-center w-5 h-5 rounded-full bg-secondary text-black text-xs font-bold">
+                                    {activeFilterCount}
                                 </span>
-                                {activeFilterCount > 0 && (
-                                    <span className="flex items-center justify-center w-5 h-5 rounded-full bg-primary text-white text-xs font-bold">
-                                        {activeFilterCount}
-                                    </span>
-                                )}
-                            </button>
-
-                            {/* Mobile: Open modal */}
-                            <button
-                                onClick={() => setIsMobileFilterOpen(true)}
-                                className="lg:hidden flex items-center gap-2 px-4 py-2 rounded-lg border border-border hover:bg-muted transition-colors"
-                            >
-                                <SlidersHorizontal className="w-4 h-4" />
-                                <span className="text-sm font-medium">Bộ lọc</span>
-                                {activeFilterCount > 0 && (
-                                    <span className="flex items-center justify-center w-5 h-5 rounded-full bg-primary text-white text-xs font-bold">
-                                        {activeFilterCount}
-                                    </span>
-                                )}
-                            </button>
-                        </div>
+                            )}
+                        </button>
                     </div>
                 </div>
             </header>
 
             {/* Main Content */}
             <div className="max-w-container mx-auto px-4 lg:px-6 py-8">
-                <div className="flex gap-8">
-                    {/* Filters Sidebar (Desktop) */}
-                    {showFilters && (
-                        <aside className="hidden lg:block w-80 flex-shrink-0">
-                            <div className="sticky top-[88px]">
-                                <SearchFilters
-                                    categories={categories}
-                                    selectedCategories={selectedCategories}
-                                    onCategoryChange={setSelectedCategories}
-                                    priceRange={priceRange}
-                                    onPriceRangeChange={setPriceRange}
-                                    campaignStatus={campaignStatus}
-                                    onStatusChange={setCampaignStatus}
-                                    sortBy={sortBy}
-                                    onSortChange={setSortBy}
-                                    onReset={handleResetFilters}
-                                    activeFilterCount={activeFilterCount}
-                                />
-                            </div>
-                        </aside>
-                    )}
+                {/* Results */}
+                <section className="min-w-0">
+                    {loading && page === 0 ? (
+                        <div className="flex items-center justify-center py-20">
+                            <LoadingSpinner />
+                        </div>
+                    ) : campaigns.length > 0 ? (
+                        <>
+                            <SearchResults campaigns={campaigns} />
 
-                    {/* Results */}
-                    <section className="flex-1 min-w-0">
-                        {loading && page === 0 ? (
-                            <div className="flex items-center justify-center py-20">
-                                <LoadingSpinner />
-                            </div>
-                        ) : campaigns.length > 0 ? (
-                            <>
-                                <SearchResults campaigns={campaigns} />
+                            {/* Infinite scroll trigger */}
+                            {hasMore && (
+                                <div ref={observerTarget} className="py-8 flex justify-center">
+                                    <LoadingSpinner label="Đang tải thêm chiến dịch..." />
+                                </div>
+                            )}
 
-                                {/* Infinite scroll trigger */}
-                                {hasMore && (
-                                    <div ref={observerTarget} className="py-8 flex justify-center">
-                                        <LoadingSpinner />
-                                    </div>
-                                )}
-
-                                {!hasMore && campaigns.length > 0 && (
-                                    <p className="text-center text-text-secondary py-8">
-                                        Đã hiển thị tất cả {totalResults} kết quả
-                                    </p>
-                                )}
-                            </>
-                        ) : (
-                            <div className="text-center py-20">
-                                <Search className="w-16 h-16 mx-auto text-text-secondary mb-4" />
-                                <h3 className="text-xl font-semibold text-text mb-2">
-                                    Không tìm thấy chiến dịch
-                                </h3>
-                                <p className="text-text-secondary mb-6">
-                                    Thử điều chỉnh bộ lọc hoặc từ khóa tìm kiếm
+                            {!hasMore && campaigns.length > 0 && (
+                                <p className="text-center text-muted-foreground py-8">
+                                    Đã hiển thị tất cả {totalResults} kết quả
                                 </p>
-                                <button
-                                    onClick={handleResetFilters}
-                                    className="px-6 py-2 rounded-lg bg-primary text-white hover:bg-primary/90 transition-colors"
-                                >
-                                    Đặt lại bộ lọc
-                                </button>
-                            </div>
-                        )}
-                    </section>
-                </div>
+                            )}
+                        </>
+                    ) : (
+                        <div className="text-center py-20">
+                            <Search className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+                            <h3 className="text-xl font-semibold text-white mb-2">
+                                Không tìm thấy chiến dịch
+                            </h3>
+                            <p className="text-muted-foreground mb-6">
+                                Thử điều chỉnh bộ lọc hoặc từ khóa tìm kiếm
+                            </p>
+                            <button
+                                onClick={handleResetFilters}
+                                className="px-6 py-2 rounded-lg bg-white text-gray-900 hover:bg-gray-100 transition-colors font-semibold"
+                            >
+                                Đặt lại bộ lọc
+                            </button>
+                        </div>
+                    )}
+                </section>
             </div>
 
-            {/* Mobile Filter Modal */}
-            {isMobileFilterOpen && (
-                <div className="lg:hidden fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center">
-                    <div className="bg-white dark:bg-darker w-full sm:max-w-lg sm:rounded-t-2xl max-h-[90vh] overflow-y-auto">
-                        {/* Modal Header */}
-                        <div className="sticky top-0 bg-white dark:bg-darker border-b border-border px-4 py-4 flex items-center justify-between">
-                            <h3 className="text-lg font-semibold text-text">Bộ lọc</h3>
+            {/* Filter Overlay */}
+            {isFilterPanelOpen && (
+                <div className="fixed inset-0 z-50 flex">
+                    <div
+                        className="flex-1 bg-black/50 backdrop-blur-sm"
+                        onClick={() => setIsFilterPanelOpen(false)}
+                        aria-hidden="true"
+                    />
+                    <aside className="w-full max-w-md h-full sm:h-auto sm:max-h-screen bg-[#0c111b] text-white dark:bg-darker shadow-2xl overflow-y-auto border-l border-white/10">
+                        <div className="sticky top-0 bg-[#0c111b] dark:bg-darker border-b border-white/10 px-5 py-4 flex items-center justify-between">
+                            <h3 className="text-lg font-semibold">Bộ lọc nâng cao</h3>
                             <button
-                                onClick={() => setIsMobileFilterOpen(false)}
-                                className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-muted transition-colors"
+                                onClick={() => setIsFilterPanelOpen(false)}
+                                className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors"
+                                aria-label="Đóng bộ lọc"
                             >
                                 <X className="w-5 h-5" />
                             </button>
                         </div>
-
-                        {/* Filters */}
-                        <div className="p-4">
+                        <div className="p-5">
                             <SearchFilters
                                 categories={categories}
-                                selectedCategories={selectedCategories}
-                                onCategoryChange={setSelectedCategories}
-                                priceRange={priceRange}
-                                onPriceRangeChange={setPriceRange}
-                                campaignStatus={campaignStatus}
-                                onStatusChange={setCampaignStatus}
-                                sortBy={sortBy}
-                                onSortChange={setSortBy}
-                                onReset={handleResetFilters}
-                                activeFilterCount={activeFilterCount}
+                                selectedCategories={pendingFilters.selectedCategories}
+                                onCategoryChange={(value) => setPendingFilters((prev) => ({ ...prev, selectedCategories: value }))}
+                                priceRange={pendingFilters.priceRange}
+                                onPriceRangeChange={(value) => setPendingFilters((prev) => ({ ...prev, priceRange: value }))}
+                                campaignStatus={pendingFilters.campaignStatus}
+                                onStatusChange={(value) => setPendingFilters((prev) => ({ ...prev, campaignStatus: value }))}
+                                sortBy={pendingFilters.sortBy}
+                                onSortChange={(value) => setPendingFilters((prev) => ({ ...prev, sortBy: value }))}
+                                onReset={handlePendingReset}
+                                activeFilterCount={pendingFilterCount}
                             />
-
-                            {/* Apply Button */}
+                        </div>
+                        <div className="border-t border-white/10 px-5 py-4 flex flex-col sm:flex-row gap-3">
                             <button
-                                onClick={() => setIsMobileFilterOpen(false)}
-                                className="w-full mt-6 py-3 rounded-lg bg-primary text-white font-medium hover:bg-primary/90 transition-colors"
+                                onClick={handlePendingReset}
+                                className="w-full py-3 rounded-lg border border-white/15 text-sm font-medium hover:bg-white/5 transition-colors"
                             >
-                                Áp dụng
+                                Đặt lại
+                            </button>
+                            <button
+                                onClick={handleApplyFilters}
+                                className="w-full py-3 rounded-lg bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition-colors"
+                            >
+                                Áp dụng bộ lọc
                             </button>
                         </div>
-                    </div>
+                    </aside>
                 </div>
             )}
         </main>

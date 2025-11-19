@@ -1,5 +1,27 @@
 import { httpService } from './http';
 
+/**
+ * Extracts relative path from full URL
+ * @param {string} filePath - Full URL or relative path
+ * @returns {string} - Relative path
+ */
+const extractRelativePath = (filePath) => {
+  if (!filePath) return '';
+  
+  // If it's already a relative path, return as is
+  if (!filePath.includes('http')) {
+    return filePath;
+  }
+  
+  // Extract path after domain
+  try {
+    const url = new URL(filePath);
+    return url.pathname.substring(1); // Remove leading slash
+  } catch (error) {
+    return filePath;
+  }
+};
+
 export const storageApi = {
     /**
      * Upload a single file

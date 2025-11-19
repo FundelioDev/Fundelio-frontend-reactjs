@@ -486,7 +486,7 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
               value={minPledgeAmount}
               placeholder="0"
               disabled
-              className="bg-muted cursor-not-allowed"
+              className="bg-black/30 cursor-not-allowed"
             />
             <p className="mt-2 text-sm text-muted-foreground">
               Giá tự động tính dựa trên tổng giá × số lượng của các thành phần bao gồm
@@ -542,7 +542,7 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
               {formData.items.addOn.map((item) => (
                 <div key={item.catalogItemId} className="flex items-center justify-between p-3 bg-muted rounded-sm">
                   <span className="text-foreground font-medium">
-                    {item.name || 'Unknown Item'} (Backer tự chọn số lượng)
+                    {item.name || 'Unknown Item'}
                   </span>
                   <button
                     type="button"

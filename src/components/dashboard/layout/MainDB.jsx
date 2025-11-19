@@ -18,4 +18,4 @@ export function Main({ className, fixed, children, ...props }) {
   );
 }
 
-Main.displayName = 'Main'; 
+Main.displayName = 'Main';

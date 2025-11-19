@@ -88,7 +88,7 @@ export default function AdminCampaignsPage() {
   const handleApprove = async (campaign) => {
     try {
       await campaignApi.updateCampaignStatus(campaign.campaignId, {
-        campaignStatus: 'APPROVED',
+        campaignStatus: 'ACTIVE',
       });
 
       toast.success('Đã phê duyệt chiến dịch');

@@ -36,14 +36,15 @@ export default function MyPledgesPage() {
             }
 
             const response = await pledgeApi.getMyPledges(params);
-
+            console.log('Pledges response:', response);
             if (response?.data?.success) {
-                setPledges(response.data.data || []);
+                setPledges(response.data.data.content || []);
                 // If API returns pagination info
                 if (response.data.totalPages !== undefined) {
                     setTotalPages(response.data.totalPages);
                 }
             } else {
+                setPledges([]);
                 toast.error('Không thể tải danh sách cam kết');
             }
         } catch (error) {

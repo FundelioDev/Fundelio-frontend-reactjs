@@ -122,9 +122,10 @@ export const CampaignDetailDialog = ({
 
           {/* Tabs */}
           <Tabs defaultValue='overview' className='w-full'>
-            <TabsList className='grid w-full grid-cols-3'>
+            <TabsList className='grid w-full grid-cols-4'>
               <TabsTrigger value='overview'>Tổng quan</TabsTrigger>
               <TabsTrigger value='creator'>Người tạo</TabsTrigger>
+              <TabsTrigger value='statistics'>Thống kê</TabsTrigger>
               <TabsTrigger value='timeline'>Lịch sử</TabsTrigger>
             </TabsList>
 
@@ -209,6 +210,58 @@ export const CampaignDetailDialog = ({
                     {campaign.owner?.userId || 'N/A'}
                   </p>
                 </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value='statistics' className='space-y-4'>
+              <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
+                <Card className='p-4'>
+                  <p className='text-sm text-gray-600 dark:text-text-white mb-1'>
+                    Mục tiêu
+                  </p>
+                  <p className='text-xl font-bold text-gray-900 dark:text-gray-100'>
+                    {formatCurrency(campaign.goalAmount || 0)}
+                  </p>
+                </Card>
+                <Card className='p-4'>
+                  <p className='text-sm text-gray-600 dark:text-text-white mb-1'>
+                    Đã đạt
+                  </p>
+                  <p className='text-xl font-bold text-primary'>
+                    {formatCurrency(campaign.pledgedAmount || campaign.currentAmount || 0)}
+                  </p>
+                </Card>
+                <Card className='p-4'>
+                  <p className='text-sm text-gray-600 dark:text-text-white mb-1'>
+                    Tiến độ
+                  </p>
+                  <p className='text-xl font-bold text-green-600 dark:text-green-400'>
+                    {Math.min(100, Math.round(((campaign.pledgedAmount || campaign.currentAmount || 0) / (campaign.goalAmount || 1)) * 100))}%
+                  </p>
+                </Card>
+                <Card className='p-4'>
+                  <p className='text-sm text-gray-600 dark:text-text-white mb-1'>
+                    Người ủng hộ
+                  </p>
+                  <p className='text-xl font-bold text-blue-600 dark:text-blue-400'>
+                    {campaign.backersCount || campaign.backerCount || 0}
+                  </p>
+                </Card>
+              </div>
+
+              {/* View Full Statistics Button */}
+              <div className='pt-4'>
+                <Button
+                  variant='outline'
+                  className='w-full'
+                  onClick={() => {
+                    navigate(`/campaigns/${campaign.campaignId}/statistics?fromAdmin=true`);
+                    onOpenChange(false);
+                  }}
+                >
+                  <TrendingUp className='w-4 h-4 mr-2' />
+                  Xem thống kê chi tiết
+                </Button>
               </div>
             </TabsContent>
 

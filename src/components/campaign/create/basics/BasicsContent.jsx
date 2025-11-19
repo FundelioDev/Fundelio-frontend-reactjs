@@ -11,6 +11,7 @@ import { storageApi } from '@/api/storageApi';
 import { campaignApi } from '@/api/campaignApi';
 import { useCategories } from '@/hooks/useCategories';
 import { useNavigate } from 'react-router-dom';
+import { buildVideoEmbed } from '@/utils/embed';
 // Category label mapping for Vietnamese
 const CATEGORY_LABELS = {
   ART: 'Nghệ thuật',
@@ -50,6 +51,8 @@ export default function BasicsContent({ campaignId, isEditMode = false }) {
   const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [isUploadingVideo, setIsUploadingVideo] = useState(false);
+  const [videoUrlInput, setVideoUrlInput] = useState('');
+  const [isLoadingVideoUrl, setIsLoadingVideoUrl] = useState(false);
   const [fieldErrors, setFieldErrors] = useState({});
   const [isInitialized, setIsInitialized] = useState(false);
   const imageInputRef = useRef(null);
@@ -281,6 +284,7 @@ export default function BasicsContent({ campaignId, isEditMode = false }) {
       if (response?.data?.data?.fileUrl) {
         const videoUrl = response.data.data.fileUrl;
         setFormData(prev => ({ ...prev, introVideoUrl: videoUrl }));
+        setVideoUrlInput(''); // Clear URL input when uploading file
         console.log('Video uploaded successfully:', videoUrl);
         toast.success('Tải video lên thành công!', { id: 'upload-video' });
       } else {
@@ -293,6 +297,40 @@ export default function BasicsContent({ campaignId, isEditMode = false }) {
     } finally {
       setIsUploadingVideo(false);
       if (videoInputRef.current) videoInputRef.current.value = '';
+    }
+  };
+
+  const handleVideoUrlSubmit = async () => {
+    if (!videoUrlInput.trim()) {
+      toast.error('Vui lòng nhập URL video');
+      return;
+    }
+
+    try {
+      setIsLoadingVideoUrl(true);
+      toast.loading('Đang kiểm tra video...', { id: 'load-video-url' });
+
+      // Use buildVideoEmbed to validate and extract video URL
+      const embedElement = buildVideoEmbed(videoUrlInput);
+
+      if (!embedElement) {
+        toast.error('URL không được hỗ trợ. Vui lòng sử dụng YouTube hoặc Vimeo', { id: 'load-video-url' });
+        setIsLoadingVideoUrl(false);
+        return;
+      }
+
+      // Extract the embed URL from the iframe
+      const embedUrl = embedElement.src;
+
+      // Set the embed URL as the video URL
+      setFormData(prev => ({ ...prev, introVideoUrl: embedUrl }));
+      toast.success('Thêm video thành công!', { id: 'load-video-url' });
+      setVideoUrlInput(''); // Clear input after success
+    } catch (error) {
+      console.error('Error loading video URL:', error);
+      toast.error('Không thể tải video từ URL này', { id: 'load-video-url' });
+    } finally {
+      setIsLoadingVideoUrl(false);
     }
   };
 
@@ -571,6 +609,36 @@ export default function BasicsContent({ campaignId, isEditMode = false }) {
         <div className="rounded-sm border border-border bg-white dark:bg-darker-2 p-6">
           <h3 className="text-md font-semibold text-text-primary dark:text-white mb-4">Video giới thiệu</h3>
 
+          {/* Video URL Input - Always show when no video */}
+          {!formData.introVideoUrl && (
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-text-primary dark:text-white mb-2">
+                Dán URL video (YouTube, Vimeo, v.v.)
+              </label>
+              <div className="flex gap-2">
+                <Input
+                  type="url"
+                  value={videoUrlInput}
+                  onChange={(e) => setVideoUrlInput(e.target.value)}
+                  placeholder="https://www.youtube.com/watch?v=..."
+                  className="flex-1"
+                  disabled={isLoadingVideoUrl}
+                />
+                <Button
+                  type="button"
+                  onClick={handleVideoUrlSubmit}
+                  disabled={isLoadingVideoUrl || !videoUrlInput.trim()}
+                  className="px-6"
+                >
+                  {isLoadingVideoUrl ? 'Đang tải...' : 'Thêm'}
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                Hoặc tải video lên từ máy tính của bạn bên dưới
+              </p>
+            </div>
+          )}
+
           {/* Upload Area - Only show when no video */}
           {!formData.introVideoUrl && (
             <div className="flex flex-col items-center">
@@ -611,11 +679,21 @@ export default function BasicsContent({ campaignId, isEditMode = false }) {
             <div className="flex flex-col items-center">
               <div className="w-full max-w-2xl">
                 <div className="relative aspect-video rounded-sm overflow-hidden bg-muted border border-border">
-                  <video
-                    src={formData.introVideoUrl}
-                    className="w-full h-full object-cover"
-                    controls
-                  />
+                  {/* Check if it's an embed URL (YouTube/Vimeo) or uploaded video */}
+                  {formData.introVideoUrl.includes('youtube.com/embed') || formData.introVideoUrl.includes('player.vimeo.com') ? (
+                    <iframe
+                      src={formData.introVideoUrl}
+                      className="w-full h-full"
+                      allowFullScreen
+                      title="Video preview"
+                    />
+                  ) : (
+                    <video
+                      src={formData.introVideoUrl}
+                      className="w-full h-full object-cover"
+                      controls
+                    />
+                  )}
                 </div>
                 <div className="mt-3 flex justify-center gap-3">
                   <button
@@ -627,7 +705,10 @@ export default function BasicsContent({ campaignId, isEditMode = false }) {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setFormData(prev => ({ ...prev, introVideoUrl: null }))}
+                    onClick={() => {
+                      setFormData(prev => ({ ...prev, introVideoUrl: null }));
+                      setVideoUrlInput(''); // Clear URL input when removing video
+                    }}
                     className="px-4 py-2 border border-destructive text-destructive rounded-sm hover:bg-destructive/10 transition-colors text-sm font-medium"
                   >
                     Xóa video

@@ -9,7 +9,8 @@ import React from 'react';
 const LoadingSpinner = ({
     size = 'md',
     color = 'primary',
-    className = ''
+    className = '',
+    label = ''
 }) => {
     // Size mapping
     const sizeClasses = {
@@ -26,18 +27,21 @@ const LoadingSpinner = ({
         gray: 'border-gray-300 dark:border-gray-600 border-t-gray-600 dark:border-t-gray-300',
     };
 
-    return (
-        <div
-            className={`
+    const spinnerClass = `
         inline-block rounded-full animate-spin
         ${sizeClasses[size]}
         ${colorClasses[color]}
-        ${className}
-      `}
-            role="status"
-            aria-label="Loading"
-        >
+    `;
+
+    return (
+        <div className={`flex flex-col items-center justify-center gap-2 ${className}`} role="status" aria-label="Loading">
+            <div className={spinnerClass.trim()} />
             <span className="sr-only">Đang tải...</span>
+            {label && (
+                <p className="text-sm text-muted-foreground text-center">
+                    {label}
+                </p>
+            )}
         </div>
     );
 };

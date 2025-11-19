@@ -1,27 +1,15 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Line, Bar, Doughnut } from 'react-chartjs-2';
-import {
-    Chart as ChartJS,
-    CategoryScale,
-    LinearScale,
-    PointElement,
-    LineElement,
-    BarElement,
-    ArcElement,
-    Title,
-    Tooltip,
-    Legend,
-    Filler,
-} from 'chart.js';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import Header from '@/components/common/Header';
 import Button from '@/components/common/Button';
 import { campaignApi } from '@/api/campaignApi';
 import { rewardApi } from '@/api/rewardApi';
 import { pledgeApi } from '@/api/pledgeApi';
+import FundingProgressTimeline from './FundingProgressTimeline';
+import PledgesDistributionChart from './PledgesDistributionChart';
+import RecentPledgesTable from './RecentPledgesTable';
+import PerformanceIndicators from './PerformanceIndicators';
 import {
-    Mail,
-    ShoppingCart,
     Users,
     TrendingUp,
     Download,
@@ -30,26 +18,11 @@ import {
     Target,
     AlertCircle,
     CheckCircle,
-    Clock,
     Activity,
     DollarSign,
     UserCheck,
     Wallet
 } from 'lucide-react';
-
-// Register ChartJS components
-ChartJS.register(
-    CategoryScale,
-    LinearScale,
-    PointElement,
-    LineElement,
-    BarElement,
-    ArcElement,
-    Title,
-    Tooltip,
-    Legend,
-    Filler
-);
 
 // NOTE: Hiện chưa có API analytics riêng, nên phần chart đang dùng mock data
 // dựa trên campaign & rewards. Sau này có thể thay bằng endpoint chuyên biệt.
@@ -173,102 +146,21 @@ const buildFundraisingProgressData = (campaign, pledges = []) => {
             tension: 0.4,
         }]
     };
-};// Build reward performance bar data
-const buildRewardBarData = (rewards = []) => {
-    if (!rewards || rewards.length === 0) return { labels: [], datasets: [] };
-
-    const sortedRewards = [...rewards]
-        .sort((a, b) => (b.backersCount || 0) - (a.backersCount || 0))
-        .slice(0, 5);
-
-    return {
-        labels: sortedRewards.map(r => {
-            const title = r.title || 'Unknown';
-            return title.length > 20 ? title.substring(0, 17) + '...' : title;
-        }),
-        datasets: [{
-            label: 'Số người ủng hộ',
-            data: sortedRewards.map(r => r.backersCount || 0),
-            backgroundColor: [
-                'rgba(62, 202, 136, 0.8)',
-                'rgba(37, 99, 235, 0.8)',
-                'rgba(245, 158, 11, 0.8)',
-                'rgba(239, 68, 68, 0.8)',
-                'rgba(168, 85, 247, 0.8)',
-            ],
-        }]
-    };
 };
 
-// Calculate campaign health status
-// Căn cứ:
-// 1. Progress %: Đã đạt bao nhiêu % mục tiêu
-// 2. Days Left: Còn bao nhiêu ngày
-// 3. Velocity: Tốc độ gây quỹ hiện tại vs tốc độ cần thiết
-//    - Current Velocity = Tiền đã huy động / Số ngày đã chạy
-//    - Required Velocity = Tiền còn thiếu / Số ngày còn lại
-//    - Nếu currentVelocity >= requiredVelocity * 0.8 → Tốt (đang on track)
-const calculateCampaignHealth = (campaign, pledges = []) => {
-    if (!campaign) return { status: 'unknown', message: '', color: 'gray' };
+const formatCurrency = (value = 0, { suffix = '₫', maximumFractionDigits = 0 } = {}) => {
+    const number = Number.isFinite(value) ? value : 0;
+    return `${number.toLocaleString('vi-VN', { maximumFractionDigits })}${suffix ? ` ${suffix}` : ''}`.trim();
+};
 
-    const goalAmount = campaign.goalAmount || 1;
-    const currentAmount = campaign.currentAmount || 0;
-    const progressPercent = (currentAmount / goalAmount) * 100;
+const formatPercent = (value, fallback = '—') => {
+    if (!Number.isFinite(value)) return fallback;
+    return `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`;
+};
 
-    const endDate = campaign.endDate ? new Date(campaign.endDate) : null;
-    const today = new Date();
-    const daysLeft = endDate ? Math.ceil((endDate - today) / (1000 * 60 * 60 * 24)) : 0;
-
-    // Calculate velocity
-    const startDate = campaign.startDate ? new Date(campaign.startDate) : new Date();
-    const daysPassed = Math.max(1, Math.ceil((today - startDate) / (1000 * 60 * 60 * 24)));
-    const currentVelocity = currentAmount / daysPassed;
-    const requiredVelocity = daysLeft > 0 ? (goalAmount - currentAmount) / daysLeft : 0;
-
-    if (progressPercent >= 100) {
-        return {
-            status: 'Đạt mục tiêu',
-            message: 'Chiến dịch đã đạt mục tiêu gây quỹ!',
-            color: 'green',
-            icon: CheckCircle
-        };
-    }
-
-    if (daysLeft <= 0) {
-        return {
-            status: 'Đã kết thúc',
-            message: progressPercent >= 80
-                ? 'Chiến dịch gần đạt mục tiêu'
-                : 'Chiến dịch chưa đạt mục tiêu',
-            color: progressPercent >= 80 ? 'yellow' : 'red',
-            icon: Clock
-        };
-    }
-
-    if (daysLeft <= 7 && progressPercent < 70) {
-        return {
-            status: 'Cần chú ý',
-            message: `Còn ${daysLeft} ngày, cần tăng tốc để đạt mục tiêu`,
-            color: 'orange',
-            icon: AlertCircle
-        };
-    }
-
-    if (currentVelocity >= requiredVelocity * 0.8) {
-        return {
-            status: 'Tốt',
-            message: 'Chiến dịch đang phát triển ổn định',
-            color: 'green',
-            icon: TrendingUp
-        };
-    }
-
-    return {
-        status: 'Trung bình',
-        message: 'Chiến dịch cần thêm sự quan tâm',
-        color: 'blue',
-        icon: Activity
-    };
+const formatRatioPercent = (value, fallback = '—') => {
+    if (!Number.isFinite(value)) return fallback;
+    return `${(value * 100).toFixed(0)}%`;
 };
 
 const ChartCard = ({ title, children, action }) => (
@@ -364,9 +256,261 @@ const StatCard = ({ title, value, icon: Icon, trend, trendValue, progress }) => 
     );
 };
 
+const getPriorityStyles = (severity = 'neutral') => {
+    const variants = {
+        critical: {
+            container: 'border-red-200 bg-red-50 dark:border-red-800/70 dark:bg-red-900/20',
+            dot: 'bg-red-500'
+        },
+        warning: {
+            container: 'border-amber-200 bg-amber-50 dark:border-amber-800/70 dark:bg-amber-900/20',
+            dot: 'bg-amber-500'
+        },
+        info: {
+            container: 'border-blue-200 bg-blue-50 dark:border-blue-800/70 dark:bg-blue-900/20',
+            dot: 'bg-blue-500'
+        },
+        success: {
+            container: 'border-emerald-200 bg-emerald-50 dark:border-emerald-800/70 dark:bg-emerald-900/20',
+            dot: 'bg-emerald-500'
+        },
+        neutral: {
+            container: 'border-border bg-gray-50 dark:bg-dark',
+            dot: 'bg-gray-400'
+        }
+    };
+
+    return variants[severity] || variants.neutral;
+};
+
+const FounderManagementPanel = ({ data }) => {
+    if (!data) return null;
+
+    return (
+        <div className="bg-white dark:bg-darker-2 rounded-sm border border-border p-4 sm:p-5 shadow-card">
+            <div className="flex items-center justify-between mb-4">
+                <div>
+                    <p className="text-xs uppercase tracking-wide text-muted-foreground">Command Center</p>
+                    <h3 className="text-base sm:text-lg font-semibold text-text-primary dark:text-white">Bảng điều hành Founder</h3>
+                </div>
+                <div className="px-3 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                    {Math.round(Math.min(200, Math.max(0, data.runwayCoverage || 0)))}% mục tiêu dự kiến
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {data.summaryMetrics.map(metric => {
+                    const Icon = metric.icon;
+                    const toneClass = metric.tone === 'positive'
+                        ? 'text-emerald-600 dark:text-emerald-400'
+                        : metric.tone === 'warning'
+                            ? 'text-amber-600 dark:text-amber-400'
+                            : 'text-muted-foreground';
+
+                    return (
+                        <div key={metric.key} className="border border-border rounded-sm p-3 hover:border-primary/40 transition-colors">
+                            <div className="flex items-center justify-between mb-2">
+                                <p className="text-xs font-medium text-muted-foreground">{metric.label}</p>
+                                {Icon && <Icon className="w-4 h-4 text-muted-foreground" />}
+                            </div>
+                            <p className="text-xl font-semibold text-text-primary dark:text-white">{metric.value}</p>
+                            <p className={`text-xs mt-1 ${toneClass}`}>
+                                {metric.caption}
+                            </p>
+                        </div>
+                    );
+                })}
+            </div>
+
+            <div className="mt-6">
+                <p className="text-sm font-semibold text-text-primary dark:text-white mb-3">
+                    Ưu tiên tuần này
+                </p>
+                <div className="space-y-3">
+                    {data.priorities.map((priority, idx) => {
+                        const priorityStyles = getPriorityStyles(priority.severity);
+                        return (
+                            <div
+                                key={`${priority.title}-${idx}`}
+                                className={`flex items-start gap-3 rounded-sm border p-3 transition-all ${priorityStyles.container}`}
+                            >
+                                <span className={`w-2 h-2 rounded-full mt-1.5 ${priorityStyles.dot}`} />
+                                <div className="flex-1">
+                                    <p className="text-sm font-semibold text-text-primary dark:text-white">{priority.title}</p>
+                                    <p className="text-xs text-muted-foreground mt-0.5">{priority.description}</p>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const CommunityInsightsPanel = ({ data }) => {
+    if (!data) return null;
+
+    const cards = [
+        {
+            key: 'new-backers',
+            label: 'Backer mới (7 ngày)',
+            value: data.newBackers7d,
+            caption: 'người ủng hộ gần nhất',
+            icon: Users
+        },
+        {
+            key: 'avg-ticket',
+            label: 'Avg. ticket size',
+            value: formatCurrency(data.avgTicket),
+            caption: 'Giá trị trung bình / pledge',
+            icon: Wallet
+        },
+        {
+            key: 'high-value',
+            label: `Pledge ≥ ${(data.highValueThreshold / 1000).toFixed(0)}K`,
+            value: formatRatioPercent(data.highValueShare, '0%'),
+            caption: 'Tỷ trọng doanh thu từ pledge lớn',
+            icon: DollarSign
+        },
+        {
+            key: 'total-backers',
+            label: 'Backer active',
+            value: data.uniqueBackers,
+            caption: `${data.totalPledges} pledges đang mở`,
+            icon: UserCheck
+        },
+    ];
+
+    return (
+        <div className="bg-white dark:bg-darker-2 rounded-sm border border-border p-4 sm:p-5 shadow-card">
+            <div className="flex items-center justify-between mb-4">
+                <div>
+                    <p className="text-xs uppercase tracking-wide text-muted-foreground">Community Pulse</p>
+                    <h3 className="text-base sm:text-lg font-semibold text-text-primary dark:text-white">
+                        Sức khỏe cộng đồng ủng hộ
+                    </h3>
+                </div>
+                <div className="px-3 py-1 rounded-full text-xs font-medium bg-secondary/10 text-secondary">
+                    Theo dõi tự động
+                </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+                {cards.map(card => {
+                    const Icon = card.icon;
+                    return (
+                        <div key={card.key} className="rounded-sm border border-border p-3">
+                            <div className="flex items-center gap-2 mb-2">
+                                {Icon && <Icon className="w-4 h-4 text-primary" />}
+                                <span className="text-xs font-semibold text-muted-foreground">{card.label}</span>
+                            </div>
+                            <p className="text-xl font-semibold text-text-primary dark:text-white">{card.value}</p>
+                            <p className="text-xs text-muted-foreground mt-1">{card.caption}</p>
+                        </div>
+                    );
+                })}
+            </div>
+            <div className="mt-6">
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <span>Tỷ lệ backer quay lại</span>
+                    <span className="font-semibold text-text-primary dark:text-white">
+                        {formatRatioPercent(data.repeatRate || 0, '0%')}
+                    </span>
+                </div>
+                <div className="w-full h-2 bg-gray-100 dark:bg-gray-700 rounded-full mt-2">
+                    <div
+                        className="h-2 rounded-full bg-gradient-to-r from-primary to-secondary"
+                        style={{ width: `${Math.min(100, Math.max(0, (data.repeatRate || 0) * 100))}%` }}
+                    />
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                    {data.repeatRate < 0.15
+                        ? 'Ít backer quay lại, nên gửi update hoặc ưu đãi dành riêng.'
+                        : 'Backer quay lại ổn định, tiếp tục duy trì nhịp tương tác.'}
+                </p>
+            </div>
+        </div>
+    );
+};
+
+const FulfillmentReadinessPanel = ({ data }) => {
+    if (!data) return null;
+
+    return (
+        <div className="bg-white dark:bg-darker-2 rounded-sm border border-border p-4 sm:p-5 shadow-card">
+            <div className="flex items-center justify-between mb-4">
+                <div>
+                    <p className="text-xs uppercase tracking-wide text-muted-foreground">Fulfillment</p>
+                    <h3 className="text-base sm:text-lg font-semibold text-text-primary dark:text-white">
+                        Chuẩn bị giao phần thưởng
+                    </h3>
+                </div>
+                <div className="text-xs text-muted-foreground text-right">
+                    Giá trị cam kết
+                    <p className="text-sm font-semibold text-text-primary dark:text-white">
+                        {formatCurrency(data.totalCommittedValue)}
+                    </p>
+                </div>
+            </div>
+
+            {data.topRewardsByRevenue.length === 0 ? (
+                <div className="text-sm text-muted-foreground py-6 text-center">
+                    Chưa có dữ liệu phần thưởng
+                </div>
+            ) : (
+                <div className="space-y-3">
+                    {data.topRewardsByRevenue.map(reward => (
+                        <div key={reward.rewardId || reward.title} className="border border-border rounded-sm p-3">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-sm font-semibold text-text-primary dark:text-white">{reward.title}</p>
+                                    <p className="text-xs text-muted-foreground">
+                                        Doanh thu: {formatCurrency(reward.revenue)} · {reward.claimed} backer
+                                    </p>
+                                </div>
+                                {Number.isFinite(reward.totalQuantity) && (
+                                    <span className="text-xs font-medium text-muted-foreground">
+                                        Còn {reward.remaining}/{reward.totalQuantity}
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            <div className="mt-6">
+                {data.lowInventoryRewards.length > 0 ? (
+                    <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-sm font-semibold text-amber-600 dark:text-amber-400">
+                            <AlertCircle className="w-4 h-4" />
+                            Reward sắp hết hàng
+                        </div>
+                        {data.lowInventoryRewards.slice(0, 3).map(reward => (
+                            <div key={`low-${reward.rewardId || reward.title}`} className="flex items-center justify-between text-xs border border-amber-200 dark:border-amber-800/70 bg-amber-50 dark:bg-amber-900/20 rounded-sm px-3 py-2">
+                                <span className="font-medium text-text-primary dark:text-white truncate pr-2">{reward.title}</span>
+                                <span className="text-amber-600 dark:text-amber-400">
+                                    {reward.remaining} còn lại ({formatRatioPercent(reward.remainingRatio || 0)})
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="flex items-center gap-2 text-sm text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/70 rounded-sm px-3 py-2">
+                        <CheckCircle className="w-4 h-4" />
+                        Tồn kho phần thưởng đang an toàn.
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+};
+
 export default function CampaignStatisticsPage() {
     const { campaignId } = useParams();
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const fromAdmin = searchParams.get('fromAdmin') === 'true';
     const [campaign, setCampaign] = useState(null);
     const [rewards, setRewards] = useState([]);
     const [pledges, setPledges] = useState([]);
@@ -448,16 +592,6 @@ export default function CampaignStatisticsPage() {
         [campaign, pledges]
     );
 
-    const rewardBarData = useMemo(() =>
-        buildRewardBarData(rewards),
-        [rewards]
-    );
-
-    const campaignHealth = useMemo(() =>
-        calculateCampaignHealth(campaign, pledges),
-        [campaign, pledges]
-    );
-
     // Calculate stats
     const totalPledges = pledges.length;
     const totalPledgedAmount = pledges.reduce((sum, p) => sum + (p.pledgeAmount || p.amount || 0), 0);
@@ -465,6 +599,177 @@ export default function CampaignStatisticsPage() {
 
     // Calculate unique backers from pledges
     const uniqueBackers = new Set(pledges.map(p => p.userId || p.user?.userId)).size;
+
+    const founderOpsData = useMemo(() => {
+        if (!campaign) return null;
+
+        const now = new Date();
+        const msInDay = 1000 * 60 * 60 * 24;
+        const goalAmount = campaign.goalAmount || 0;
+        const pledgedAmount = campaign.currentAmount ?? campaign.pledgedAmount ?? totalPledgedAmount;
+        const startDate = campaign.startDate ? new Date(campaign.startDate) : null;
+        const endDate = campaign.endDate ? new Date(campaign.endDate) : null;
+        const defaultDuration = pledges.length > 0 && pledges[pledges.length - 1]?.createdAt
+            ? Math.max(1, Math.ceil(Math.abs(now - new Date(pledges[pledges.length - 1].createdAt)) / msInDay))
+            : 30;
+        const daysElapsed = startDate
+            ? Math.max(1, Math.ceil((now - startDate) / msInDay))
+            : defaultDuration;
+        const daysLeft = endDate ? Math.max(0, Math.ceil((endDate - now) / msInDay)) : 0;
+        const avgDaily = pledgedAmount / Math.max(1, daysElapsed);
+        const gapToGoal = Math.max(goalAmount - pledgedAmount, 0);
+        const requiredDaily = daysLeft > 0 ? gapToGoal / daysLeft : 0;
+        const projectedAmount = daysLeft > 0 ? avgDaily * (daysElapsed + daysLeft) : pledgedAmount;
+        const runwayCoverage = goalAmount ? (projectedAmount / goalAmount) * 100 : 0;
+
+        const last7Start = new Date(now);
+        last7Start.setDate(now.getDate() - 6);
+        const prev7Start = new Date(last7Start);
+        prev7Start.setDate(last7Start.getDate() - 7);
+
+        const sumByAmount = (list = []) => list.reduce((sum, pledge) => sum + (pledge.pledgeAmount || pledge.amount || 0), 0);
+
+        const last7Pledges = pledges.filter(p => p.createdAt && new Date(p.createdAt) >= last7Start);
+        const prev7Pledges = pledges.filter(p => {
+            if (!p.createdAt) return false;
+            const date = new Date(p.createdAt);
+            return date >= prev7Start && date < last7Start;
+        });
+
+        const last7Total = sumByAmount(last7Pledges);
+        const prev7Total = sumByAmount(prev7Pledges);
+        const weeklyTrend = prev7Total > 0 ? ((last7Total - prev7Total) / prev7Total) * 100 : null;
+
+        const last7Backers = new Set(last7Pledges.map(p => p.userId || p.user?.userId).filter(Boolean));
+        const newBackers7d = last7Backers.size;
+
+        const highValueThreshold = 500000;
+        const highValueAmount = pledges.reduce((sum, pledge) => {
+            const amount = pledge.pledgeAmount || pledge.amount || 0;
+            return sum + (amount >= highValueThreshold ? amount : 0);
+        }, 0);
+        const highValueShare = totalPledgedAmount > 0 ? highValueAmount / totalPledgedAmount : 0;
+
+        const rewardStatuses = rewards.map(reward => {
+            const totalQuantity = reward.quantity ?? reward.maxQuantity ?? reward.availableQuantity ?? null;
+            const claimed = reward.backersCount || 0;
+            const minAmount = reward.minPledgedAmount ?? reward.price ?? reward.amount ?? 0;
+            const remaining = Number.isFinite(totalQuantity) ? Math.max(totalQuantity - claimed, 0) : null;
+            const remainingRatio = Number.isFinite(totalQuantity) && totalQuantity > 0
+                ? remaining / totalQuantity
+                : null;
+            return {
+                rewardId: reward.rewardId || reward.id,
+                title: reward.title || 'Phần thưởng',
+                claimed,
+                totalQuantity,
+                remaining,
+                remainingRatio,
+                minAmount,
+                revenue: minAmount * claimed
+            };
+        });
+
+        const lowInventoryRewards = rewardStatuses.filter(status =>
+            Number.isFinite(status.totalQuantity) &&
+            status.totalQuantity > 0 &&
+            status.remainingRatio !== null &&
+            status.remainingRatio <= 0.3
+        );
+
+        const topRewardsByRevenue = [...rewardStatuses]
+            .sort((a, b) => b.revenue - a.revenue)
+            .slice(0, 3);
+
+        const totalCommittedValue = rewardStatuses.reduce((sum, status) => sum + status.revenue, 0);
+
+        const priorities = [];
+        if (requiredDaily > 0 && avgDaily < requiredDaily) {
+            priorities.push({
+                title: 'Tốc độ gây quỹ chưa đạt',
+                description: `Thiếu khoảng ${formatCurrency(Math.max(requiredDaily - avgDaily, 0))} mỗi ngày để bắt kịp mục tiêu`,
+                severity: 'critical'
+            });
+        }
+        if (lowInventoryRewards.length > 0) {
+            priorities.push({
+                title: 'Chuẩn bị fulfilment',
+                description: `${lowInventoryRewards.length} phần thưởng còn dưới 30% số lượng`,
+                severity: 'warning'
+            });
+        }
+        if (newBackers7d < Math.max(5, uniqueBackers * 0.05)) {
+            priorities.push({
+                title: 'Kích hoạt backer mới',
+                description: 'Lượng backer mới trong 7 ngày thấp, nên lên kế hoạch cập nhật/PR',
+                severity: 'info'
+            });
+        }
+        if (priorities.length === 0) {
+            priorities.push({
+                title: 'Chỉ số ổn định',
+                description: 'Các luồng vận hành đều trong ngưỡng an toàn. Tiếp tục duy trì nhịp cập nhật.',
+                severity: 'success'
+            });
+        }
+
+        const summaryMetrics = [
+            {
+                key: 'weekly-cash',
+                label: 'Dòng tiền 7 ngày',
+                value: formatCurrency(last7Total),
+                caption: weeklyTrend === null ? 'Chưa đủ dữ liệu để so sánh' : `${formatPercent(weeklyTrend)} vs tuần trước`,
+                tone: weeklyTrend === null ? 'neutral' : weeklyTrend >= 0 ? 'positive' : 'warning',
+                icon: Wallet
+            },
+            {
+                key: 'projection',
+                label: 'Dự báo cuối kỳ',
+                value: formatCurrency(projectedAmount),
+                caption: goalAmount > 0 ? `${Math.round(Math.min(200, Math.max(0, runwayCoverage)))}% mục tiêu` : 'Chưa thiết lập mục tiêu',
+                tone: runwayCoverage >= 100 ? 'positive' : 'warning',
+                icon: TrendingUp
+            },
+            {
+                key: 'gap',
+                label: 'Khoảng cách đến mục tiêu',
+                value: gapToGoal <= 0 ? 'Đã đạt' : formatCurrency(gapToGoal),
+                caption: daysLeft > 0 ? `${daysLeft} ngày còn lại` : 'Đang khóa sổ chiến dịch',
+                tone: gapToGoal <= 0 ? 'positive' : 'warning',
+                icon: Target
+            },
+            {
+                key: 'velocity',
+                label: 'Tốc độ huy động',
+                value: `${formatCurrency(avgDaily)} /ngày`,
+                caption: requiredDaily > 0 ? `Cần ${formatCurrency(requiredDaily)} /ngày để đạt mục tiêu` : 'Đã vượt ngưỡng cần thiết',
+                tone: requiredDaily === 0 || avgDaily >= requiredDaily ? 'positive' : 'warning',
+                icon: Activity
+            },
+        ];
+
+        return {
+            summaryMetrics,
+            priorities,
+            runwayCoverage,
+            communityMetrics: {
+                avgTicket: avgPledgeAmount,
+                repeatRate: totalPledges > 0 ? (totalPledges - uniqueBackers) / totalPledges : 0,
+                newBackers7d,
+                highValueShare,
+                highValueThreshold,
+                totalPledges,
+                uniqueBackers,
+                highValueAmount,
+                last7Total
+            },
+            fulfillmentMetrics: {
+                totalCommittedValue,
+                lowInventoryRewards,
+                topRewardsByRevenue
+            }
+        };
+    }, [campaign, pledges, rewards, totalPledgedAmount, avgPledgeAmount, totalPledges, uniqueBackers]);
 
     // Chart options
     const areaChartOptions = {
@@ -544,61 +849,6 @@ export default function CampaignStatisticsPage() {
         }
     };
 
-    const barChartOptions = {
-        responsive: true,
-        maintainAspectRatio: false,
-        indexAxis: 'y',
-        plugins: {
-            legend: {
-                display: false,
-            },
-            tooltip: {
-                callbacks: {
-                    label: (context) => {
-                        return `Số người: ${context.parsed.x}`;
-                    }
-                }
-            }
-        },
-        scales: {
-            x: {
-                title: {
-                    display: true,
-                    text: 'Số người ủng hộ',
-                    color: 'rgb(107, 114, 128)',
-                    font: {
-                        size: 11,
-                        weight: 'bold'
-                    }
-                },
-                ticks: {
-                    color: 'rgb(107, 114, 128)'
-                },
-                grid: {
-                    color: 'rgba(229, 231, 235, 0.5)'
-                },
-                beginAtZero: true
-            },
-            y: {
-                title: {
-                    display: true,
-                    text: 'Phần thưởng',
-                    color: 'rgb(107, 114, 128)',
-                    font: {
-                        size: 11,
-                        weight: 'bold'
-                    }
-                },
-                ticks: {
-                    color: 'rgb(107, 114, 128)'
-                },
-                grid: {
-                    display: false
-                }
-            }
-        }
-    };
-
     if (loading) {
         return (
             <div className="min-h-screen flex flex-col bg-background-light-2 dark:bg-darker">
@@ -640,7 +890,7 @@ export default function CampaignStatisticsPage() {
         <div className="min-h-screen flex flex-col bg-background-light-2 dark:bg-darker">
             <Header variant="light" />
 
-            <main className="flex-1 pt-20 pb-10">
+            <main className="flex-1 pt-24 pb-10">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-6">
                     {/* Page header */}
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -653,10 +903,10 @@ export default function CampaignStatisticsPage() {
                         <div className="flex flex-wrap gap-2">
                             <Button
                                 variant="outline"
-                                onClick={() => navigate(`/campaigns/${campaignId}/dashboard`)}
+                                onClick={() => navigate(fromAdmin ? '/admin/campaigns' : `/campaigns/${campaignId}/dashboard`)}
                                 className="gap-2"
                             >
-                                Quay lại
+                                {fromAdmin ? 'Về Admin' : 'Quay lại'}
                             </Button>
                             <Button
                                 variant="primary"
@@ -669,61 +919,50 @@ export default function CampaignStatisticsPage() {
                         </div>
                     </div>
 
-                    {/* Stat cards - 4 cards in a row */}
+                    {/* Stat cards - Row 1: Main Metrics from Backend */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         <StatCard
-                            title="Tổng cam kết"
-                            value={totalPledges.toLocaleString()}
+                            title="Mục tiêu gây quỹ"
+                            value={goal >= 1000000
+                                ? `${(goal / 1000000).toFixed(1)}M`
+                                : `${(goal / 1000).toFixed(0)}K`
+                            }
                             icon={Target}
-                            progress={Math.min(100, (totalPledges / 100) * 100)}
+                            progress={100}
                         />
                         <StatCard
-                            title="Số tiền đã huy động"
-                            value={totalPledgedAmount >= 1000000
-                                ? `${(totalPledgedAmount / 1000000).toFixed(1)}M`
-                                : `${(totalPledgedAmount / 1000).toFixed(0)}K`
+                            title="Đã huy động"
+                            value={pledged >= 1000000
+                                ? `${(pledged / 1000000).toFixed(1)}M`
+                                : `${(pledged / 1000).toFixed(0)}K`
                             }
                             icon={DollarSign}
                             progress={progressPercent}
                         />
                         <StatCard
-                            title="Nhà tài trợ"
-                            value={uniqueBackers.toLocaleString()}
+                            title="Người ủng hộ"
+                            value={backersCount.toLocaleString()}
                             icon={UserCheck}
-                            progress={Math.min(100, (uniqueBackers / 50) * 100)}
+                            progress={Math.min(100, (backersCount / Math.max(1, backersCount)) * 100)}
                         />
                         <StatCard
-                            title="Trung bình/người"
-                            value={avgPledgeAmount >= 1000000
-                                ? `${(avgPledgeAmount / 1000000).toFixed(1)}M`
-                                : `${(avgPledgeAmount / 1000).toFixed(0)}K`
-                            }
-                            icon={Wallet}
-                            progress={Math.min(100, (avgPledgeAmount / 500000) * 100)}
+                            title="Tiến độ"
+                            value={`${progressPercent}%`}
+                            icon={TrendingUp}
+                            progress={progressPercent}
                         />
                     </div>                    {/* Main content - 2 columns */}
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         {/* Left: Fundraising Progress Area Chart (large) */}
                         <div className="lg:col-span-2">
-                            <ChartCard
-                                title="Tiến độ gây quỹ theo thời gian"
-                                action={
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-xl font-bold text-primary">
-                                            {progressPercent}%
-                                        </span>
-                                    </div>
-                                }
-                            >
-                                <Line data={fundraisingProgressData} options={areaChartOptions} />
-                            </ChartCard>
+                            <FundingProgressTimeline pledges={pledges} campaign={campaign} />
                         </div>
 
                         {/* Right: Top Backers from API */}
                         <div className="lg:col-span-1">
-                            <div className="bg-white dark:bg-darker-2 rounded-lg border border-border p-4 sm:p-6 h-full flex flex-col">
-                                <h2 className="text-base sm:text-lg font-semibold text-text-primary dark:text-white mb-4">
-                                    Top Backers
+                            <div className="bg-white dark:bg-darker-2 rounded-sm border border-border p-3 shadow-card h-full flex flex-col">
+                                <h2 className="text-base font-semibold text-text-primary dark:text-white mb-3">
+                                    🏆 Top Backers
                                 </h2>
                                 <div className="flex-1 overflow-y-auto max-h-[400px] space-y-3 pr-2" style={{ scrollbarWidth: 'thin' }}>
                                     {topBackers.length === 0 ? (
@@ -761,10 +1000,10 @@ export default function CampaignStatisticsPage() {
                                                     <div className="text-right">
                                                         <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold text-white bg-gradient-to-r from-emerald-500 to-green-500 shadow-sm">
                                                             {totalAmount >= 1000000
-                                                                ? `${(totalAmount / 1000000).toFixed(1)}M VND`
+                                                                ? `${(totalAmount / 1000000).toFixed(1)}M`
                                                                 : totalAmount >= 1000
-                                                                    ? `${(totalAmount / 1000).toFixed(0)}K VND`
-                                                                    : `${totalAmount.toLocaleString('vi-VN')} VND`
+                                                                    ? `${(totalAmount / 1000).toFixed(0)}K`
+                                                                    : `${totalAmount.toLocaleString('vi-VN')}`
                                                             }
                                                         </span>
                                                     </div>
@@ -777,143 +1016,27 @@ export default function CampaignStatisticsPage() {
                         </div>
                     </div>
 
-                    {/* Bottom row - 3 new relevant sections */}
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        {/* 1. Reward Performance Bar Chart */}
-                        <div className="lg:col-span-1">
-                            <ChartCard title="Hiệu suất phần thưởng">
-                                {!rewardBarData.labels || rewardBarData.labels.length === 0 ? (
-                                    <div className="flex items-center justify-center h-full text-sm text-muted-foreground">
-                                        Chưa có dữ liệu phần thưởng
-                                    </div>
-                                ) : (
-                                    <Bar data={rewardBarData} options={barChartOptions} />
-                                )}
-                            </ChartCard>
-                        </div>
-
-                        {/* 2. Campaign Health Status */}
-                        <div className="lg:col-span-1">
-                            <div className="bg-white dark:bg-darker-2 rounded-lg border border-border p-6 h-full">
-                                <h2 className="text-lg font-semibold text-text-primary dark:text-white mb-4">
-                                    Tình trạng chiến dịch
-                                </h2>
-                                <div className="flex flex-col items-center justify-center h-[calc(100%-2rem)]">
-                                    {campaignHealth.icon && (
-                                        <campaignHealth.icon
-                                            className={`w-16 h-16 mb-4 ${campaignHealth.color === 'green' ? 'text-green-500' :
-                                                campaignHealth.color === 'yellow' ? 'text-yellow-500' :
-                                                    campaignHealth.color === 'orange' ? 'text-orange-500' :
-                                                        campaignHealth.color === 'red' ? 'text-red-500' :
-                                                            'text-blue-500'
-                                                }`}
-                                        />
-                                    )}
-                                    <h3 className={`text-xl font-bold mb-2 ${campaignHealth.color === 'green' ? 'text-green-600 dark:text-green-400' :
-                                        campaignHealth.color === 'yellow' ? 'text-yellow-600 dark:text-yellow-400' :
-                                            campaignHealth.color === 'orange' ? 'text-orange-600 dark:text-orange-400' :
-                                                campaignHealth.color === 'red' ? 'text-red-600 dark:text-red-400' :
-                                                    'text-blue-600 dark:text-blue-400'
-                                        }`}>
-                                        {campaignHealth.status}
-                                    </h3>
-                                    <p className="text-sm text-center text-muted-foreground">
-                                        {campaignHealth.message}
-                                    </p>
-                                    <div className="mt-6 w-full">
-                                        <div className="flex justify-between text-xs text-muted-foreground mb-1">
-                                            <span>Tiến độ</span>
-                                            <span>{progressPercent}%</span>
-                                        </div>
-                                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                                            <div
-                                                className={`h-2 rounded-full transition-all ${campaignHealth.color === 'green' ? 'bg-green-500' :
-                                                    campaignHealth.color === 'yellow' ? 'bg-yellow-500' :
-                                                        campaignHealth.color === 'orange' ? 'bg-orange-500' :
-                                                            campaignHealth.color === 'red' ? 'bg-red-500' :
-                                                                'bg-blue-500'
-                                                    }`}
-                                                style={{ width: `${progressPercent}%` }}
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* 3. Campaign Milestones & Goals */}
-                        <div className="lg:col-span-1">
-                            <div className="bg-white dark:bg-darker-2 rounded-lg border border-border p-6 h-full">
-                                <h2 className="text-lg font-semibold text-text-primary dark:text-white mb-4">
-                                    🎯 Mục tiêu & Tiến độ
-                                </h2>
-                                <div className="space-y-6">
-                                    {/* Goal Progress */}
-                                    <div>
-                                        <div className="flex justify-between text-sm mb-2">
-                                            <span className="text-muted-foreground">Mục tiêu gây quỹ</span>
-                                            <span className="font-semibold text-text-primary dark:text-white">
-                                                {goal.toLocaleString('vi-VN')} đ
-                                            </span>
-                                        </div>
-                                        <div className="flex justify-between text-sm mb-1">
-                                            <span className="text-muted-foreground">Đã đạt được</span>
-                                            <span className="font-bold text-primary">
-                                                {pledged.toLocaleString('vi-VN')} đ ({progressPercent}%)
-                                            </span>
-                                        </div>
-                                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 mb-4">
-                                            <div
-                                                className="bg-gradient-to-r from-primary to-secondary h-3 rounded-full transition-all"
-                                                style={{ width: `${progressPercent}%` }}
-                                            />
-                                        </div>
-                                    </div>
-
-                                    {/* Time Progress */}
-                                    <div>
-                                        <div className="flex justify-between text-sm mb-2">
-                                            <span className="text-muted-foreground">Thời gian chiến dịch</span>
-                                            <span className="font-semibold text-text-primary dark:text-white">
-                                                {campaign.endDate
-                                                    ? `${Math.max(0, Math.ceil((new Date(campaign.endDate) - new Date()) / (1000 * 60 * 60 * 24)))} ngày còn lại`
-                                                    : 'Không giới hạn'
-                                                }
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    {/* Key Metrics */}
-                                    <div className="grid grid-cols-2 gap-3">
-                                        <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
-                                            <p className="text-xs text-muted-foreground mb-1">Tổng cam kết</p>
-                                            <p className="text-lg font-bold text-blue-600 dark:text-blue-400">
-                                                {totalPledges}
-                                            </p>
-                                        </div>
-                                        <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg">
-                                            <p className="text-xs text-muted-foreground mb-1">Nhà tài trợ</p>
-                                            <p className="text-lg font-bold text-green-600 dark:text-green-400">
-                                                {uniqueBackers}
-                                            </p>
-                                        </div>
-                                        <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg">
-                                            <p className="text-xs text-muted-foreground mb-1">Phần thưởng</p>
-                                            <p className="text-lg font-bold text-purple-600 dark:text-purple-400">
-                                                {rewards.length}
-                                            </p>
-                                        </div>
-                                        <div className="bg-orange-50 dark:bg-orange-900/20 p-3 rounded-lg">
-                                            <p className="text-xs text-muted-foreground mb-1">TB/người</p>
-                                            <p className="text-lg font-bold text-orange-600 dark:text-orange-400">
-                                                {(avgPledgeAmount / 1000).toFixed(0)}K
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    {/* Row 2: Pledges Distribution + Performance Indicators */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <PledgesDistributionChart pledges={pledges} />
+                        <PerformanceIndicators campaign={campaign} pledges={pledges} />
                     </div>
+
+                    {/* Row 3: Recent Pledges Table (full width) */}
+                    <RecentPledgesTable pledges={pledges} />
+
+                    {founderOpsData && (
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <FounderManagementPanel data={founderOpsData} />
+                            <CommunityInsightsPanel data={founderOpsData.communityMetrics} />
+                        </div>
+                    )}
+
+                    {founderOpsData && (
+                        <div className="grid grid-cols-1 gap-6">
+                            <FulfillmentReadinessPanel data={founderOpsData.fulfillmentMetrics} />
+                        </div>
+                    )}
                 </div>
             </main>
         </div>

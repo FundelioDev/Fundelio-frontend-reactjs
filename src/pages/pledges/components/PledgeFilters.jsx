@@ -70,7 +70,7 @@ export default function PledgeFilters({ onFilterChange, currentFilter }) {
                     </div>
 
                     {/* Custom Filter Input */}
-                    <div className="mb-4">
+                    {/* <div className="mb-4">
                         <label className="block text-sm font-medium text-text-primary dark:text-white mb-2">
                             Bộ lọc tùy chỉnh (Spring Filter)
                         </label>
@@ -92,7 +92,7 @@ export default function PledgeFilters({ onFilterChange, currentFilter }) {
                                 Spring Filter syntax
                             </a>
                         </p>
-                    </div>
+                    </div> */}
 
                     {/* Actions */}
                     <div className="flex items-center justify-end gap-2">

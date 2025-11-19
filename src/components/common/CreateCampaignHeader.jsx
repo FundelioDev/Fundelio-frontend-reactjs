@@ -11,7 +11,8 @@ import {
   FolderOpen,
   Wallet,
   LayoutDashboard,
-  ArrowLeft
+  ArrowLeft,
+  ShieldCheck,
 } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 import Button from './Button';
@@ -192,6 +193,19 @@ export const CreateCampaignHeader = ({
                           <LayoutDashboard className="w-4 h-4" />
                           <span>Bảng điều khiển</span>
                         </Link>
+
+                        {/* Admin link - only show if user has ADMIN role */}
+                        {user?.rolesSecured?.some(role => role.name === 'ADMIN') && (
+                          <Link
+                            to="/admin"
+                            onClick={() => setIsUserMenuOpen(false)}
+                            className="flex items-center gap-3 px-3 py-2 text-sm text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-lg transition-colors"
+                          >
+                            <ShieldCheck className="w-4 h-4" />
+                            <span>Quản trị hệ thống</span>
+                          </Link>
+                        )}
+
                         <div className="border-t-2 border-border my-3"></div>
                         <a
                           href="#"
@@ -304,23 +318,23 @@ export const CreateCampaignHeader = ({
                 onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                 className="flex-shrink-0"
               >
-               <img
-                src={avatarUrl}
-                alt={displayName}
-                className='w-9 h-9 rounded-full ring-2 ring-gray-200 dark:ring-gray-700'
-                onError={(e) => {
-                  // Fallback nếu avatar lỗi
-                  const firstName = user?.firstName || user?.first_name || '';
-                  const lastName = user?.lastName || user?.last_name || '';
-                  const fullName =
-                    `${firstName} ${lastName}`.trim() ||
-                    user?.email ||
-                    user?.name ||
-                    'User';
-                  const encodedName = encodeURIComponent(fullName);
-                  e.target.src = `https://ui-avatars.com/api/?name=${encodedName}&size=150&background=random`;
-                }}
-              />
+                <img
+                  src={avatarUrl}
+                  alt={displayName}
+                  className='w-9 h-9 rounded-full ring-2 ring-gray-200 dark:ring-gray-700'
+                  onError={(e) => {
+                    // Fallback nếu avatar lỗi
+                    const firstName = user?.firstName || user?.first_name || '';
+                    const lastName = user?.lastName || user?.last_name || '';
+                    const fullName =
+                      `${firstName} ${lastName}`.trim() ||
+                      user?.email ||
+                      user?.name ||
+                      'User';
+                    const encodedName = encodeURIComponent(fullName);
+                    e.target.src = `https://ui-avatars.com/api/?name=${encodedName}&size=150&background=random`;
+                  }}
+                />
               </button>
             ) : (
               <Button

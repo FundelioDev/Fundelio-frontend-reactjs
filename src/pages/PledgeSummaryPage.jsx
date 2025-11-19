@@ -3,6 +3,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ChevronDown, ChevronUp, Check, AlertCircle } from 'lucide-react';
 import Button from '@/components/common/Button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
 import { RewardItem } from '@/components/campaign/rewards/reward-detail/RewardItem';
 import { Card } from '@/components/campaign/rewards/ui/Card';
 import { usePledgeEvents } from '@/websocket/hooks';
@@ -33,10 +34,8 @@ export default function PledgeSummaryPage() {
     // Get pledge data from navigation state
     const pledgeData = location.state?.pledgeData;
 
-    console.log('pledgeData:', pledgeData);
     // Subscribe to pledge events - MUST be called before any early returns
     const handlePledgeSuccess = useCallback((data) => {
-        console.log('✅ Pledge successful:', data);
 
         if (timeoutRef.current) {
             clearTimeout(timeoutRef.current);
@@ -315,7 +314,7 @@ export default function PledgeSummaryPage() {
     };
 
     return (
-        <div className="min-h-screen bg-background-light-2 dark:bg-darker py-8">
+        <div className="min-h-screen bg-background-light-2 dark:bg-darker pb-8 pt-24">
             <div className="container mx-auto max-w-4xl px-4">
                 <h1 className="text-3xl font-bold text-foreground mb-8">Xác nhận ủng hộ</h1>
 
@@ -438,14 +437,15 @@ export default function PledgeSummaryPage() {
                                     Số tiền thưởng thêm (tùy chọn)
                                 </label>
                                 <div className="flex items-center gap-2">
-                                    <input
+                                    <Input
                                         type="number"
-                                        min="0"
-                                        step="10000"
-                                        value={bonusAmount}
-                                        onChange={(e) => setBonusAmount(Math.max(0, parseInt(e.target.value) || 0))}
-                                        className="flex-1 px-4 py-2 rounded-md border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                                        value={bonusAmount || ''}
+                                        onChange={(e) => {
+                                            const value = e.target.value;
+                                            setBonusAmount(value === '' ? 0 : Math.max(0, parseInt(value) || 0));
+                                        }}
                                         placeholder="0"
+                                        className="flex-1"
                                     />
                                     <span className="text-muted-foreground">VND</span>
                                 </div>

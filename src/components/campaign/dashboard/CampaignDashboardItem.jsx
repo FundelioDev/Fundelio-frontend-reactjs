@@ -3,11 +3,10 @@ import { ChevronRight, Trash2, XCircle, BarChart3 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Button from '@/components/common/Button';
 import ConfirmModal from '@/components/common/ConfirmModal';
+import SimpleConfirmModal from '@/components/common/SimpleConfirmModal';
 import { campaignApi } from '@/api/campaignApi';
 import toast from 'react-hot-toast';
-/**
- * Get campaign status label in Vietnamese
- */
+
 const getCampaignStatusLabel = (status) => {
     const labels = {
         DRAFT: 'Bản nháp',
@@ -21,96 +20,106 @@ const getCampaignStatusLabel = (status) => {
     return labels[status] || status;
 };
 
-/**
- * Get campaign status color classes
- */
 const getCampaignStatusColor = (status) => {
     const colors = {
         DRAFT: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
         ACTIVE: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
         PENDING: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
-        PAUSED: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
-        ENDED: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
+        APPROVED: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
+        ENDED: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
         SUCCESSFUL: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
         FAILED: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
     };
     return colors[status] || colors.DRAFT;
 };
 
-/**
- * Get mock image based on category
- */
-const getMockImage = (category) => {
-    const mockImages = {
-        art: 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=600&h=400&fit=crop',
-        design: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=600&h=400&fit=crop',
-        games: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=600&h=400&fit=crop',
-        technology: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&h=400&fit=crop',
-        music: 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=600&h=400&fit=crop',
-        film: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=600&h=400&fit=crop',
-        food: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&h=400&fit=crop',
-        fashion: 'https://images.unsplash.com/photo-1558769132-cb1aea7c8a0b?w=600&h=400&fit=crop',
-        publishing: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=600&h=400&fit=crop',
-        photography: 'https://images.unsplash.com/photo-1452587925148-ce544e77e70d?w=600&h=400&fit=crop',
-    };
-    return mockImages[category?.toLowerCase()] || 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=600&h=400&fit=crop';
-};
-
-/**
- * CampaignDashboardItem - Campaign card for dashboard (horizontal layout)
- */
-export default function CampaignDashboardItem({ campaign }) {
+export default function CampaignDashboardItem({ campaign, onActionComplete }) {
     const navigate = useNavigate();
     const [isProcessing, setIsProcessing] = useState(false);
     const [showCancelModal, setShowCancelModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [successMessage, setSuccessMessage] = useState({ title: '', description: '' });
 
     const handleEdit = () => {
         navigate(`/campaigns/${campaign.campaignId}/dashboard`);
     };
 
     const handleViewStats = () => {
-        // TODO: Navigate to campaign statistics page
         navigate(`/campaigns/${campaign.campaignId}/statistics`);
+
+
     };
 
     const handleCancelRequest = async () => {
+        const toastId = 'end-campaign';
         try {
             setIsProcessing(true);
-            const response = await campaignApi.updateCampaignStatus(campaign.campaignId, {
-                campaignStatus: 'CANCELLED'
-            });
+            setShowCancelModal(false);
+            toast.loading('Đang kết thúc chiến dịch...', { id: toastId });
+
+            const response = await campaignApi.endMyCampaign(campaign.campaignId);
 
             if (response?.data?.success) {
-                toast.success('Đã hủy yêu cầu đánh giá thành công!');
-                // Reload page to update status
-                window.location.reload();
+                toast.success('Kết thúc chiến dịch thành công!', { id: toastId });
+
+                // Show success modal
+                setSuccessMessage({
+                    title: 'Kết thúc chiến dịch thành công!',
+                    description: `Chiến dịch "${campaign.title}" đã được kết thúc. Trang sẽ tự động cập nhật.`
+                });
+                setShowSuccessModal(true);
+
+                // Refresh data after modal
+                setTimeout(() => {
+                    setShowSuccessModal(false);
+                    if (onActionComplete) {
+                        onActionComplete();
+                    }
+                }, 2000);
             } else {
-                toast.error('Không thể hủy yêu cầu');
+                toast.error('Không thể kết thúc chiến dịch', { id: toastId });
             }
         } catch (error) {
-            console.error('Error cancelling request:', error);
-            toast.error(error.response?.data?.message || 'Lỗi khi hủy yêu cầu');
+            console.error('Error ending campaign:', error);
+            toast.error(error.response?.data?.message || error.errors?.[0]?.message || 'Lỗi khi kết thúc chiến dịch', { id: toastId });
         } finally {
             setIsProcessing(false);
         }
     };
 
     const handleDeleteCampaign = async () => {
+        const toastId = 'delete-campaign';
         try {
             setIsProcessing(true);
+            setShowDeleteModal(false);
+            toast.loading('Đang xóa dự án...', { id: toastId });
+
             const response = await campaignApi.deleteCampaign(campaign.campaignId);
 
             if (response?.data?.success) {
-                toast.success('Xóa dự án thành công!');
-                // Reload page to remove deleted campaign
-                window.location.reload();
+                toast.success('Xóa dự án thành công!', { id: toastId });
+
+                // Show success modal
+                setSuccessMessage({
+                    title: 'Xóa dự án thành công!',
+                    description: `Dự án "${campaign.title}" đã được xóa khỏi hệ thống. Trang sẽ tự động cập nhật.`
+                });
+                setShowSuccessModal(true);
+
+                // Refresh data after modal
+                setTimeout(() => {
+                    setShowSuccessModal(false);
+                    if (onActionComplete) {
+                        onActionComplete();
+                    }
+                }, 2000);
             } else {
-                toast.error('Không thể xóa dự án');
+                toast.error('Không thể xóa dự án', { id: toastId });
             }
         } catch (error) {
             console.error('Error deleting campaign:', error);
-            toast.error(error.response?.data?.message || 'Lỗi khi xóa dự án');
+            toast.error(error.response?.data?.message || 'Lỗi khi xóa dự án', { id: toastId });
         } finally {
             setIsProcessing(false);
         }
@@ -122,7 +131,7 @@ export default function CampaignDashboardItem({ campaign }) {
         : 'Unknown';
 
     // Mock image URL (since API doesn't have imageUrl yet)
-    const imageUrl = campaign.introImageUrl || getMockImage(campaign.category);
+    const imageUrl = campaign.introImageUrl;
 
     return (
         <div
@@ -135,9 +144,6 @@ export default function CampaignDashboardItem({ campaign }) {
                         src={imageUrl}
                         alt={campaign.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        onError={(e) => {
-                            e.target.src = getMockImage(campaign.campaignCategory);
-                        }}
                     />
                 </div>
 
@@ -177,7 +183,7 @@ export default function CampaignDashboardItem({ campaign }) {
                                 className="flex items-center gap-1 px-3 py-2 border rounded-xs border-orange-500 text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20"
                             >
                                 <XCircle className="w-4 h-4" />
-                                <span>Hủy yêu cầu</span>
+                                <span>Kết thúc dự án</span>
                             </button>
                         )}
 
@@ -220,11 +226,11 @@ export default function CampaignDashboardItem({ campaign }) {
                 isOpen={showCancelModal}
                 onClose={() => setShowCancelModal(false)}
                 onConfirm={handleCancelRequest}
-                title="Hủy yêu cầu duyệt"
+                title="Kết thúc chiến dịch"
                 titleKeyword={`${campaign.title}`}
-                description={`Bạn có chắc chắn muốn hủy yêu cầu duyệt cho dự án "${campaign.title}"? Bạn có thể gửi lại yêu cầu sau khi hủy.`}
-                confirmKeyword="cancel"
-                confirmButtonText="Hủy yêu cầu"
+                description={`Bạn có chắc chắn muốn kết thúc chiến dịch "${campaign.title}"? Chiến dịch sẽ chuyển sang trạng thái "Đã kết thúc" và không thể tiếp tục gây quỹ.`}
+                confirmKeyword="end"
+                confirmButtonText="Kết thúc"
                 cancelButtonText="Quay lại"
                 type="warning"
             />
@@ -241,6 +247,28 @@ export default function CampaignDashboardItem({ campaign }) {
                 confirmButtonText="Xóa"
                 cancelButtonText="Hủy"
                 type="danger"
+            />
+
+            {/* Success Modal */}
+            <SimpleConfirmModal
+                isOpen={showSuccessModal}
+                onClose={() => {
+                    setShowSuccessModal(false);
+                    if (onActionComplete) {
+                        onActionComplete();
+                    }
+                }}
+                onConfirm={() => {
+                    setShowSuccessModal(false);
+                    if (onActionComplete) {
+                        onActionComplete();
+                    }
+                }}
+                title={successMessage.title}
+                description={successMessage.description}
+                confirmButtonText="OK"
+                cancelButtonText=""
+                type="success"
             />
         </div>
     );

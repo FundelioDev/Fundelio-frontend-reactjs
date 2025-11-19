@@ -21,12 +21,15 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [isInitializing, setIsInitializing] = useState(true);
 
-  const logout = useCallback(() => {
-    authApi.logout().catch(() => { });
-
+  const logout = useCallback(async () => {
+    try {
+      await authApi.logout();
+    } catch (error) {
+      console.error('Logout API error:', error);
+    }
     storageService.clearAuth();
     try {
-      window.localStorage.removeItem("user");
+      window.localStorage.removeItem('user');
     } catch (_) { }
     setUser(null);
     setIsLoggedIn(false);

@@ -1,6 +1,7 @@
 import { Outlet, useLocation } from 'react-router-dom';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
+import ScrollToTop from '../components/common/ScrollToTop';
 import { useWebSocketConnection } from '@/websocket/hooks';
 
 export default function RootLayout() {
@@ -22,15 +23,18 @@ export default function RootLayout() {
   const isHeaderFixed = !isCampaignDetail;
 
   return (
-    <div className={`flex flex-col min-h-screen ${!isCampaignDetail ? 'overflow-x-hidden' : ''}`}>
-      {location.pathname !== '/' && !isPreviewMode && <Header variant={headerVariant} isFixed={isHeaderFixed} />}
-      {/*  */}
-      <main className={`flex-1 ${!isCampaignDetail ? 'overflow-x-hidden' : ''}`}>
-        <Outlet />
-      </main>
+    <>
+      <ScrollToTop />
+      <div className={`flex flex-col min-h-screen ${!isCampaignDetail ? 'overflow-x-hidden' : ''}`}>
+        {location.pathname !== '/' && !isPreviewMode && <Header variant={headerVariant} isFixed={isHeaderFixed} />}
+        {/*  */}
+        <main className={`flex-1 ${!isCampaignDetail ? 'overflow-x-hidden' : ''}`}>
+          <Outlet />
+        </main>
 
-      {/* <Footer /> */}
-      {location.pathname !== '/' && !isPreviewMode && <Footer />}
-    </div>
+        {/* <Footer /> */}
+        {location.pathname !== '/' && !isPreviewMode && <Footer />}
+      </div>
+    </>
   );
 }

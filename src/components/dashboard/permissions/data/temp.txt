@@ -29,7 +29,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { SortableTreeItem } from './sortable-tree';
 import { toast } from 'react-toastify';
 import { permissionsApi } from '@/api/permissionApi';
-import Loading from '@/components/common/Loading';
+import Loading from '@/components/common/loading';
 import { Input } from '@/components/ui/input';
 import { PermissionsPrimaryButtons } from './permissions-primary-buttons';
 import { Table, TableHeader, TableRow, TableHead } from '@/components/ui/table';
@@ -92,7 +92,7 @@ function DroppableArea({ children }) {
         'space-y-2 p-4 rounded-lg border-2 border-dashed border-border bg-white dark:bg-darker-2 transition-colors duration-200',
         isOver && 'border-primary bg-muted/60 dark:bg-primary/20 scale-[1.02]',
         !children &&
-        'min-h-[100px] flex items-center justify-center text-muted-foreground dark:text-text-white'
+          'min-h-[100px] flex items-center justify-center text-muted-foreground dark:text-text-white'
       )}
     >
       <h3 className='text-lg font-medium text-text-primary dark:text-white transition-colors duration-300'>
@@ -108,16 +108,8 @@ function DroppableArea({ children }) {
 }
 
 export function PermissionsTable() {
-  const {
-    modules,
-    permissions,
-    isLoading,
-    setOpen,
-    setCurrentRow,
-    refetch,
-    collapsedModules,
-    setCollapsedModules,
-  } = usePermissions();
+  const { modules, permissions, isLoading, setOpen, setCurrentRow, refetch } =
+    usePermissions();
   const [expandedModules, setExpandedModules] = useState({});
   const [openCreateModule, setOpenCreateModule] = useState(false);
   const [deleteData, setDeleteData] = useState(null);
@@ -130,6 +122,7 @@ export function PermissionsTable() {
       },
     })
   );
+  const [collapsedModules, setCollapsedModules] = useState({});
   const [isDragging, setIsDragging] = useState(false);
 
   // Cập nhật collapsedModules khi modules thay đổi
@@ -137,18 +130,13 @@ export function PermissionsTable() {
   useEffect(() => {
     setCollapsedModules((prev) => {
       const newState = { ...prev };
-      let hasChanges = false;
-
       modules.forEach((moduleName) => {
         // Chỉ set mặc định cho module mới, giữ nguyên trạng thái của module cũ
         if (!(moduleName in newState)) {
           newState[moduleName] = true; // Mặc định đóng cho module mới
-          hasChanges = true;
         }
       });
-
-      // Chỉ update state nếu có module mới được thêm vào
-      return hasChanges ? newState : prev;
+      return newState;
     });
   }, [modules]);
 
@@ -226,9 +214,7 @@ export function PermissionsTable() {
           return;
         }
 
-        // Refetch data - state collapsedModules sẽ được giữ nguyên vì nó nằm trong Context
         await refetch();
-
         toast.success(response?.data?.message || 'Cập nhật module thành công');
       }
     } catch (error) {

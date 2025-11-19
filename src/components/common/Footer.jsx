@@ -25,8 +25,9 @@ export const Footer = () => {
       links: [
         { name: 'Câu hỏi thường gặp', href: '#faq' },
         { name: 'Liên hệ', href: '#contact' },
-        { name: 'Điều khoản sử dụng', href: '#terms' },
-        { name: 'Chính sách bảo mật', href: '#privacy' },
+        { name: 'Điều khoản sử dụng', href: '/terms-of-service' },
+        { name: 'Chính sách bảo mật', href: '/privacy-policy' },
+        { name: 'Chính sách hoàn tiền', href: '/refund-policy' },
       ],
     },
     {
@@ -78,12 +79,21 @@ export const Footer = () => {
               <ul className="space-y-2 sm:space-y-3">
                 {section.links.map((link, linkIndex) => (
                   <li key={linkIndex}>
-                    <a
-                      href={link.href}
-                      className="text-text-secondary dark:text-text-white hover:text-primary dark:hover:text-primary-400 transition-colors duration-200 text-sm"
-                    >
-                      {link.name}
-                    </a>
+                    {link.href.startsWith('/') ? (
+                      <Link
+                        to={link.href}
+                        className="text-text-secondary dark:text-text-white hover:text-primary dark:hover:text-primary-400 transition-colors duration-200 text-sm"
+                      >
+                        {link.name}
+                      </Link>
+                    ) : (
+                      <a
+                        href={link.href}
+                        className="text-text-secondary dark:text-text-white hover:text-primary dark:hover:text-primary-400 transition-colors duration-200 text-sm"
+                      >
+                        {link.name}
+                      </a>
+                    )}
                   </li>
                 ))}
               </ul>

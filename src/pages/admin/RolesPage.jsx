@@ -22,7 +22,9 @@ function RolesContent() {
   if (error) {
     return (
       <Alert variant='destructive'>
-        <AlertDescription>{error}</AlertDescription>
+        <AlertDescription>
+          {error?.message || 'Đã xảy ra lỗi khi tải dữ liệu'}
+        </AlertDescription>
       </Alert>
     );
   }

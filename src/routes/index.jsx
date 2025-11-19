@@ -20,7 +20,7 @@ import WalletPage from '@/pages/WalletPage';
 import YourProjectsPage from '@/pages/YourProjectsPage';
 import NotFoundPage from '@/pages/NotFoundPage';
 import ForbiddenPage from '@/pages/ForbiddenPage';
-import UserProfilePage from "@/pages/UserProfilePage";
+import UserProfilePage from '@/pages/UserProfilePage';
 import PledgeSummaryPage from '@/pages/PledgeSummaryPage';
 import BecomeFounderPage from '@/pages/BecomeFounderPage';
 
@@ -33,6 +33,9 @@ import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import WebSocketTestComponent from '@/components/websocket/WebSocketTestComponent';
 import MyPledgesPage from '@/pages/pledges/MyPledgesPage';
 import SearchPage from '@/pages/SearchPage';
+import TermsOfServicePage from '@/pages/TermsOfServicePage';
+import PrivacyPolicyPage from '@/pages/PrivacyPolicyPage';
+import RefundPolicyPage from '@/pages/RefundPolicyPage';
 /**
  * Application routes configuration
  */
@@ -47,6 +50,10 @@ export const router = createBrowserRouter([
       { path: 'home', element: <HomePage /> },
       { path: 'search', element: <SearchPage /> },
 
+      { path: 'terms-of-service', element: <TermsOfServicePage /> },
+      { path: 'privacy-policy', element: <PrivacyPolicyPage /> },
+      { path: 'refund-policy', element: <RefundPolicyPage /> },
+
       { path: 'dashboard', element: <DashboardPage /> },
       { path: 'founder-dashboard', element: <FounderDashboardPage /> },
       { path: 'profile', element: <UserProfilePage /> },
@@ -57,11 +64,17 @@ export const router = createBrowserRouter([
         path: 'campaigns',
         children: [
           { path: 'detail', element: <CampaignDetailPage /> },
-          { path: 'preview/:campaignId', element: <CampaignDetailPage isPreviewMode={true} /> },
+          {
+            path: 'preview/:campaignId',
+            element: <CampaignDetailPage isPreviewMode={true} />,
+          },
           { path: ':campaignId', element: <CampaignDetailPage /> },
           { path: ':campaignId/pledge', element: <PledgeSummaryPage /> },
           { path: ':campaignId/dashboard', element: <CampaignOverviewPage /> },
-          { path: ':campaignId/statistics', element: <CampaignStatisticsPage /> },
+          {
+            path: ':campaignId/statistics',
+            element: <CampaignStatisticsPage />,
+          },
         ],
       },
 
@@ -69,7 +82,7 @@ export const router = createBrowserRouter([
 
       { path: 'your-projects', element: <YourProjectsPage /> },
       { path: 'websocket', element: <WebSocketTestComponent /> },
-    ]
+    ],
   },
   {
     path: '/campaigns/create',
@@ -91,7 +104,7 @@ export const router = createBrowserRouter([
   {
     path: '/admin',
     element: (
-      <ProtectedRoute requiredRole="ADMIN">
+      <ProtectedRoute requiredRole='ADMIN'>
         <AdminLayout />
       </ProtectedRoute>
     ),

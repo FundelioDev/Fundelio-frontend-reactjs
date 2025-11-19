@@ -60,7 +60,9 @@ export const startTokenRefreshInterval = () => {
   }
 
   console.log(
-    `Start automatic token refresh every ${REFRESH_TOKEN_INTERVAL / 1000} seconds`
+    `Start automatic token refresh every ${
+      REFRESH_TOKEN_INTERVAL / 1000
+    } seconds`
   );
   refreshTokenIntervalId = window.setInterval(() => {
     if (storageService.getAccessToken()) {
@@ -124,8 +126,10 @@ class Http {
           let shouldRefresh = false;
 
           if (errorData?.errors && Array.isArray(errorData.errors)) {
-            shouldRefresh = errorData.errors.some((err) => err.code === 1009);
-          } else if (errorData?.code === 1009) {
+            shouldRefresh = errorData.errors.some(
+              (err) => err.code === 1009 || err.code === 1005
+            );
+          } else if (errorData?.code === 1009 || errorData?.code === 1005) {
             shouldRefresh = true;
           }
 

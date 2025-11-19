@@ -1,70 +1,62 @@
-import { useState } from 'react';
-import { mockUsers } from '@/data/mockAdminData';
-import {
-  UsersTableHeader,
-  UsersTable,
-  UserDetailDialog,
-} from '@/components/admin/users';
+'use client';
 
-export default function UsersPage() {
-  const [users, setUsers] = useState(mockUsers);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterRole, setFilterRole] = useState('all');
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [showDetailDialog, setShowDetailDialog] = useState(false);
+import { Main } from '@/components/dashboard/layout/MainDB';
+import { UsersProvider } from '@/components/dashboard/users/context/users-context';
+import { UsersTable } from '@/components/dashboard/users/components/users-table';
+import { UsersDialogs } from '@/components/dashboard/users/components/users-dialogs';
+import { UsersPrimaryButtons } from '@/components/dashboard/users/components/users-primary-buttons';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Loader2 } from 'lucide-react';
+import { useUsers } from '@/components/dashboard/users/context/users-context';
+import RolesProvider from '@/components/dashboard/roles/context/roles-context';
+import Loading from '@/components/common/loading';
 
-  const filteredUsers = users.filter((user) => {
-    const matchesSearch =
-      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesRole = filterRole === 'all' || user.role === filterRole;
-    return matchesSearch && matchesRole;
-  });
+function UsersContent() {
+  const { users, isLoading, error } = useUsers();
 
-  const handleViewDetail = (user) => {
-    setSelectedUser(user);
-    setShowDetailDialog(true);
-  };
+  if (isLoading) {
+    return <Loading />;
+  }
 
-  const handleEdit = (user) => {
-    console.log('Edit user:', user);
-    // Implement edit logic
-  };
-
-  const handleDelete = (user) => {
-    console.log('Delete user:', user);
-    // Implement delete logic
-  };
-
-  const handleAddUser = () => {
-    console.log('Add new user');
-    // Implement add user logic
-  };
+  if (error) {
+    return (
+      <Alert variant='destructive'>
+        <AlertDescription>
+          {error?.message || 'Đã xảy ra lỗi khi tải dữ liệu'}
+        </AlertDescription>
+      </Alert>
+    );
+  }
 
   return (
-    <div className='space-y-6'>
-      <UsersTableHeader
-        totalUsers={users.length}
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
-        filterRole={filterRole}
-        onFilterChange={setFilterRole}
-        onAddUser={handleAddUser}
-      />
+    <>
+      <div className='mb-2 flex items-center justify-between space-y-2 flex-wrap'>
+        <div>
+          <h2 className='text-2xl font-bold tracking-tight text-text-primary dark:text-white transition-colors duration-300'>
+            Quản lý người dùng
+          </h2>
+          <p className='text-muted-foreground dark:text-text-white transition-colors duration-300'>
+            Quản lý và quản trị người dùng trong hệ thống
+          </p>
+        </div>
+        <UsersPrimaryButtons />
+      </div>
+      <div className='-mx-4 flex-1 overflow-auto px-4 py-1'>
+        <UsersTable data={users} />
+      </div>
+      <UsersDialogs />
+    </>
+  );
+}
 
-      <UsersTable
-        users={filteredUsers}
-        onViewDetail={handleViewDetail}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-      />
-
-      <UserDetailDialog
-        user={selectedUser}
-        open={showDetailDialog}
-        onOpenChange={setShowDetailDialog}
-        onEdit={handleEdit}
-      />
-    </div>
+export default function UsersPage() {
+  return (
+    <UsersProvider>
+      <RolesProvider>
+        <Main>
+          <UsersContent />
+        </Main>
+      </RolesProvider>
+    </UsersProvider>
   );
 }

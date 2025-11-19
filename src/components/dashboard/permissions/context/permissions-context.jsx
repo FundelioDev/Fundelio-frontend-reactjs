@@ -11,6 +11,7 @@ export function PermissionsProvider({ children }) {
   const [modules, setModules] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [collapsedModules, setCollapsedModules] = useState({});
 
   const fetchData = async () => {
     try {
@@ -69,6 +70,8 @@ export function PermissionsProvider({ children }) {
         isLoading,
         error,
         refetch: fetchData,
+        collapsedModules,
+        setCollapsedModules,
       }}
     >
       {children}

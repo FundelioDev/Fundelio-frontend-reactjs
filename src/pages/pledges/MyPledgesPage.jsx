@@ -79,7 +79,7 @@ export default function MyPledgesPage() {
                         Các chiến dịch tôi đã ủng hộ
                     </h1>
                     <p className="text-muted-foreground">
-                        Danh sách tất cả các cam kết ủng hộ của bạn
+                        Danh sách tất cả các chiến dịch mà bạn đã ủng hộ
                     </p>
                 </header>
 

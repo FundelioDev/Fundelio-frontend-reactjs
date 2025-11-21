@@ -320,7 +320,7 @@ const Hero = () => {
                 className="group relative overflow-hidden uppercase shadow-2xl hover:shadow-cyan-500/50 sm:text-lg md:text-xl md:px-8 md:py-3 bg-gradient-to-r from-cyan-500 via-blue-600 to-blue-700 hover:from-cyan-400 hover:via-blue-500 hover:to-blue-600 text-white border-0 transition-all duration-500 font-bold tracking-wider rounded-full"
               >
                 <span className="relative z-10 flex items-center gap-2">
-                  See Campaign
+                  XEM CHIẾN DỊCH
                   <svg
                     className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1"
                     fill="none"

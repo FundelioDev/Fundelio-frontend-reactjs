@@ -34,6 +34,7 @@ const SearchPage = () => {
     const [page, setPage] = useState(0);
     const [hasMore, setHasMore] = useState(true);
     const [totalResults, setTotalResults] = useState(0);
+    const isInitialMount = useRef(true);
 
     // UI state
     const defaultFilterState = {
@@ -73,7 +74,7 @@ const SearchPage = () => {
             campaignStatus: initialStatus,
             sortBy: initialSort,
         });
-    }, []);
+    }, [searchParams]);
 
     // Build Spring Filter query
     const buildSpringFilter = useCallback(() => {
@@ -182,6 +183,11 @@ const SearchPage = () => {
 
     // Update URL params when filters change
     useEffect(() => {
+        if (isInitialMount.current) {
+            isInitialMount.current = false;
+            return;
+        }
+
         const params = new URLSearchParams();
         if (selectedCategories.length > 0) {
             params.set('category', selectedCategories.join(','));
@@ -243,6 +249,7 @@ const SearchPage = () => {
         (pendingFilters.campaignStatus !== 'all' ? 1 : 0) +
         (pendingFilters.sortBy !== 'newest' ? 1 : 0);
 
+    console.log('campaigns', campaigns)
     return (
         <main className="min-h-screen bg-background-light-2 dark:bg-darker text-white transition-colors">
             {/* Search Header */}

@@ -119,7 +119,7 @@ export const RecentActivities = ({ campaigns = [] }) => {
             {/* View All Button */}
             {campaigns.length > 5 && (
                 <button
-                    onClick={() => navigate('/your-projects')}
+                    onClick={() => navigate('/dashboard')}
                     className="w-full mt-3 py-2 text-xs sm:text-sm font-medium text-primary hover:text-primary-600 transition-colors"
                 >
                     Xem tất cả chiến dịch →

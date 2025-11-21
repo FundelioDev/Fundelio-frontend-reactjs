@@ -527,7 +527,7 @@ export default function CampaignOverviewPage() {
                     <div className="mb-8">
                         {/* Back to Founder Dashboard Button */}
                         <button
-                            onClick={() => navigate('/founder-dashboard')}
+                            onClick={() => navigate('/dashboard')}
                             className="flex items-center gap-2 text-sm text-primary hover:text-primary-600 mb-4 transition-colors"
                         >
                             <ChevronRight className="w-4 h-4 rotate-180" />

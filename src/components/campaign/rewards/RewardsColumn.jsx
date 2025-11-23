@@ -37,6 +37,7 @@ const RewardsColumn = ({
         currency={currency}
         isPreview={isPreview}
         isOwnerViewing={isOwnerViewing}
+        campaignId={campaignId}
         onPledge={(pledge) =>
           onPledge && onPledge({ type: 'no-reward', ...pledge })
         }

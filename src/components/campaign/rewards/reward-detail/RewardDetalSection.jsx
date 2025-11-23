@@ -21,9 +21,9 @@ export function RewardDetailSection({ rewards = [], items = [], addOns = [], onS
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 w-full">
       {/* Rewards Section */}
-      <div className="space-y-6">
+      <div className="space-y-6 w-full">
         {rewards.map((reward, index) => {
           const rewardId = reward.rewardId || reward.reward_id || reward.id;
 

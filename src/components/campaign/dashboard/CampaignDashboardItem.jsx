@@ -132,6 +132,7 @@ export default function CampaignDashboardItem({ campaign, onActionComplete }) {
 
     // Mock image URL (since API doesn't have imageUrl yet)
     const imageUrl = campaign.introImageUrl;
+    const hasImage = imageUrl && imageUrl.trim() !== '';
 
     return (
         <div
@@ -139,12 +140,21 @@ export default function CampaignDashboardItem({ campaign, onActionComplete }) {
         >
             <div className="flex flex-col sm:flex-row gap-0 sm:gap-6">
                 {/* Image Container */}
-                <div className="w-full sm:w-64 h-48 rounded-md flex-shrink-0 overflow-hidden bg-gray-100 dark:bg-gray-800">
-                    <img
-                        src={imageUrl}
-                        alt={campaign.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
+                <div className="w-full sm:w-64 h-48 rounded-md flex-shrink-0 overflow-hidden bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                    {hasImage ? (
+                        <img
+                            src={imageUrl}
+                            alt=""
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            onError={(e) => {
+                                e.target.style.display = 'none';
+                            }}
+                        />
+                    ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-gray-200 dark:bg-gray-700">
+                            <div className="text-gray-400 dark:text-gray-500 text-sm">Không có ảnh</div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Content */}

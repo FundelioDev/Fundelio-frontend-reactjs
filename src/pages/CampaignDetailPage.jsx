@@ -201,6 +201,8 @@ export default function CampaignDetailPage() {
   const avatarUrl = useMemo(() => {
     const owner = campaignData?.owner;
     if (!owner) return null;
+    // Return avatarUrl from owner, or null if not available
+    return owner.avatarUrl || null;
   }, [campaignData?.owner]);
 
   const handlePickPerk = () => console.log('Pick Your Perk clicked');
@@ -276,6 +278,7 @@ export default function CampaignDetailPage() {
     name: `${campaignData.owner.firstName || ''} ${campaignData.owner.lastName || ''}`.trim() || 'Creator',
     username: campaignData.owner.email || 'creator',
     avatar: avatarUrl,
+    avatarUrl: avatarUrl, // Also include avatarUrl for compatibility
     bio: campaignData.owner.bio || 'Campaign creator',
     badges: [],
     stats: {

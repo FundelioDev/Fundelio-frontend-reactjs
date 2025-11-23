@@ -42,7 +42,7 @@ export const FounderGrowthChart = ({ campaigns = [], founderGrowth }) => {
         }
         
         // Fallback: calculate from campaigns
-        const sourceCampaigns = campaigns?.length ? campaigns : ADMIN_CHARTS_MOCK_CAMPAIGNS;
+    const sourceCampaigns = campaigns?.length ? campaigns : ADMIN_CHARTS_MOCK_CAMPAIGNS;
         const months = [];
         const founderCounts = [];
         const now = new Date();

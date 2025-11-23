@@ -300,8 +300,8 @@ export function RewardDetailModal({ isOpen, onClose, reward, items = [], addOns 
                             <span>{isInteractionLocked ? lockedActionLabel : 'XÁC NHẬN ỦNG HỘ'}</span>
                             {!isInteractionLocked && (
                                 <>
-                                    <span className="text-lg">•</span>
-                                    <span className="font-bold">{formatPrice(calculateTotal())} VND</span>
+                            <span className="text-lg">•</span>
+                            <span className="font-bold">{formatPrice(calculateTotal())} VND</span>
                                 </>
                             )}
                         </Button>

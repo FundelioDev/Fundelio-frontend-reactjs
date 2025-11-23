@@ -139,9 +139,15 @@ const CampaignHeader = ({
 
   // Tạo array media từ image và video
   const mediaItems = [];
+
+  // Luôn đảm bảo có ít nhất một image (placeholder nếu không có introImageUrl)
   if (introImageUrl) {
-    mediaItems.push({ type: 'image', url: introImageUrl });
+    mediaItems.push({ type: 'image', url: introImageUrl, isPlaceholder: false });
+  } else {
+    // Thêm placeholder image khi không có introImageUrl
+    mediaItems.push({ type: 'placeholder', isPlaceholder: true });
   }
+
   if (introVideoUrl) {
     // Check if it's YouTube URL
     if (isYouTubeUrl(introVideoUrl)) {
@@ -291,7 +297,34 @@ const CampaignHeader = ({
                       alt={`Hình ảnh chiến dịch cho ${title}`}
                       className="w-full h-full object-cover"
                       loading="eager"
+                      onError={(e) => {
+                        // Fallback to gradient placeholder if image fails to load
+                        e.target.style.display = 'none';
+                        const parent = e.target.parentElement;
+                        if (parent && !parent.querySelector('.placeholder-gradient')) {
+                          const placeholder = document.createElement('div');
+                          placeholder.className = 'placeholder-gradient absolute inset-0 bg-gradient-to-br from-[#0894e2]/20 via-[#0a1628] to-[#fce65a]/10 flex items-center justify-center';
+                          placeholder.innerHTML = `
+                            <div class="text-center text-white/50">
+                              <svg class="w-16 h-16 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                              </svg>
+                              <p class="text-sm">Không có hình ảnh</p>
+                            </div>
+                          `;
+                          parent.appendChild(placeholder);
+                        }
+                      }}
                     />
+                  ) : mediaItems[currentMediaIndex].type === 'placeholder' ? (
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#0894e2]/20 via-[#0a1628] to-[#fce65a]/10 flex items-center justify-center">
+                      <div className="text-center text-white/50">
+                        <svg className="w-16 h-16 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <p className="text-sm">Không có hình ảnh</p>
+                      </div>
+                    </div>
                   ) : mediaItems[currentMediaIndex].type === 'youtube' ? (
                     <YouTubeEmbed videoId={mediaItems[currentMediaIndex].videoId} />
                   ) : (

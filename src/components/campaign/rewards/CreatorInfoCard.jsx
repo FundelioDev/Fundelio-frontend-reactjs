@@ -10,22 +10,33 @@ const CreatorInfoCard = ({ creator }) => {
     created = 0,
     backed = 0,
     avatar,
+    avatarUrl,
     bio = '',
     moreHref = '#',
   } = creator;
 
-  console.log("creator", creator.avatar)
+  // Use avatarUrl first, then fallback to avatar
+  const displayAvatar = avatarUrl || avatar;
 
   return (
     <div className="border border-border rounded-sm p-4 bg-white dark:bg-darker-2 shadpw-sm">
       {/* Avatar & Name */}
       <div className="flex items-center gap-3 mb-3">
-        {avatar ? (
+        {displayAvatar ? (
           <div className="w-12 h-12 rounded-full overflow-hidden border border-border bg-muted flex-shrink-0">
             <img
-              src={avatar}
+              src={displayAvatar}
               alt={`${name} avatar`}
               className="w-full h-full object-cover"
+              onError={(e) => {
+                // Hide image on error, show default
+                e.target.style.display = 'none';
+                e.target.parentElement.innerHTML = `
+                  <div class="w-12 h-12 rounded-full bg-muted border border-border shadow-card flex items-center justify-center flex-shrink-0">
+                    <span class="text-muted-foreground text-lg font-medium">${name.charAt(0).toUpperCase()}</span>
+                  </div>
+                `;
+              }}
             />
           </div>
         ) : (

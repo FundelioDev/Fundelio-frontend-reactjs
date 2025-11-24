@@ -27,8 +27,28 @@ ChartJS.register(
  * Funding Progress Timeline - Area Chart
  * Shows cumulative fundraising over time
  */
-export const FundingProgressTimeline = ({ pledges = [], campaign }) => {
+export const FundingProgressTimeline = ({ pledges = [], campaign, fundingTimeline }) => {
     const chartData = useMemo(() => {
+        // Use fundingTimeline from API if provided
+        if (fundingTimeline?.labels && fundingTimeline?.data) {
+            return {
+                labels: fundingTimeline.labels,
+                datasets: [
+                    {
+                        label: 'Tổng gây quỹ tích lũy',
+                        data: fundingTimeline.data,
+                        fill: true,
+                        borderColor: 'rgb(8, 148, 226)',
+                        backgroundColor: 'rgba(8, 148, 226, 0.1)',
+                        tension: 0.4,
+                        pointRadius: 2,
+                        pointHoverRadius: 4,
+                    },
+                ],
+            };
+        }
+
+        // Fallback: calculate from pledges
         if (!campaign) return { labels: [], datasets: [] };
 
         const now = new Date();
@@ -68,7 +88,7 @@ export const FundingProgressTimeline = ({ pledges = [], campaign }) => {
                 },
             ],
         };
-    }, [pledges, campaign]);
+    }, [pledges, campaign, fundingTimeline]);
 
     const options = {
         responsive: true,

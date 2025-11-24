@@ -19,8 +19,6 @@ const CampaignTabs = ({ initialTab = 'campaign', campaignProps = {}, onTabChange
     }
   };
 
-  console.log('CvcampaignProps:', campaignProps);
-
   // Fix: Check both campaignStatus and isPreview, with proper fallback
   const isPreviewMode = campaignProps.campaignStatus === 'DRAFT' ||
     campaignProps.isPreview === true ||
@@ -32,6 +30,8 @@ const CampaignTabs = ({ initialTab = 'campaign', campaignProps = {}, onTabChange
     { id: 'creator', label: 'Người tạo' },
     ...(!isPreviewMode ? [{ id: 'leaderboard', label: 'Bảng xếp hạng' }] : []),
   ];
+
+  console.log("y campaignProps:", campaignProps)
 
   return (
     <div>
@@ -92,6 +92,8 @@ const CampaignTabs = ({ initialTab = 'campaign', campaignProps = {}, onTabChange
                 addOns={campaignProps.addOns || []}
                 onPledge={campaignProps.onPledge}
                 campaignId={campaignProps.campaignId}
+                isPreview={campaignProps.isPreview}
+                isOwnerViewing={campaignProps.isOwnerViewing}
               />
             </div>
           )}

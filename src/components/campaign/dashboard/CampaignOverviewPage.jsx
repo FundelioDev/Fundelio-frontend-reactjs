@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Check, AlertCircle, ChevronRight, Trash2, Send, StopCircle } from 'lucide-react';
+import { Check, AlertCircle, ChevronRight, Trash2, Send, StopCircle, Eye } from 'lucide-react';
 import Header from '@/components/common/Header';
 import Button from '@/components/common/Button';
 import ConfirmModal from '@/components/common/ConfirmModal';
@@ -8,6 +8,13 @@ import SimpleConfirmModal from '@/components/common/SimpleConfirmModal';
 import { campaignApi } from '@/api/campaignApi';
 import { rewardApi } from '@/api/rewardApi';
 import { getErrorMessage, getSuccessMessage } from '@/utils/errorHandler';
+import {
+    getStatusLabel,
+    getStatusBadgeColor,
+    canPerformAction,
+    getEditButtonType,
+    isReadOnly,
+} from '@/utils/campaignStatusConfig';
 
 const checkBasicsComplete = (campaign) => {
     if (!campaign) return false;
@@ -367,6 +374,14 @@ export default function CampaignOverviewPage() {
         navigate(`/campaigns/${campaignId}/edit?tab=story`);
     };
 
+    // Get status-based configuration
+    const status = campaign?.campaignStatus;
+    const editButtonType = status ? getEditButtonType(status) : 'edit';
+    const isViewMode = editButtonType === 'view';
+    const readOnlyMode = status ? isReadOnly(status) : false;
+    const canSubmit = canPerformAction(status, 'canSubmit');
+    const isSubmitDisabled = !canSubmit || campaign?.campaignStatus === "PENDING";
+
     const handleSubmitForReview = async () => {
         // Show confirmation modal
         setShowSubmitReviewModal(true);
@@ -483,10 +498,6 @@ export default function CampaignOverviewPage() {
 
     const allSectionsComplete = completionStatus.basics && completionStatus.rewards && completionStatus.story;
 
-    console.log('SSSS:', campaign?.campaignStatus);
-    console.log('CHECK STATUS:', campaign?.campaignStatus === 'ACTIVE');
-    console.log("allSectionsComplete", allSectionsComplete);
-
     if (loading) {
         return (
             <div className="min-h-screen flex flex-col bg-background-light-2 dark:bg-darker">
@@ -527,7 +538,7 @@ export default function CampaignOverviewPage() {
                     <div className="mb-8">
                         {/* Back to Founder Dashboard Button */}
                         <button
-                            onClick={() => navigate('/founder-dashboard')}
+                            onClick={() => navigate('/dashboard')}
                             className="flex items-center gap-2 text-sm text-primary hover:text-primary-600 mb-4 transition-colors"
                         >
                             <ChevronRight className="w-4 h-4 rotate-180" />
@@ -576,11 +587,11 @@ export default function CampaignOverviewPage() {
                     {/* Review Section */}
                     <div className="mb-4">
                         <SubmissionSection
-                            title="Đánh giá dự án"
+                            title="Gửi dự án"
                             description="Chúng tôi sẽ kiểm tra để đảm bảo rằng nó tuân thủ các quy tắc và hướng dẫn của chúng tôi. Vui lòng chờ 1-3 ngày làm việc để nhận được phản hồi."
                             icon={Send}
-                            disabled={campaign.campaignStatus === "PENDING"}
-                            onClick={handleSubmitForReview}
+                            disabled={isSubmitDisabled}
+                            onClick={canSubmit ? handleSubmitForReview : undefined}
                         />
                     </div>
 
@@ -607,26 +618,21 @@ export default function CampaignOverviewPage() {
                         />
                     </div>
 
-                    {/* Delete Campaign Button */}
+                    {/* Action Buttons */}
                     <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700 flex gap-4">
-                        <button
-                            onClick={() => setShowDeleteModal(true)}
-                            disabled={campaign.campaignStatus !== 'DRAFT' && campaign.campaignStatus !== 'ENDED'}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${(campaign.campaignStatus === 'DRAFT' || campaign.campaignStatus === 'ENDED')
-                                ? 'text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 border border-red-200 dark:border-red-800'
-                                : 'text-gray-400 dark:text-gray-600 cursor-not-allowed opacity-50 border border-gray-200 dark:border-gray-700'
-                                }`}
-                            title={
-                                (campaign.campaignStatus !== 'DRAFT' && campaign.campaignStatus !== 'ENDED')
-                                    ? 'Chỉ có thể xóa dự án ở trạng thái Bản nháp hoặc Đã kết thúc'
-                                    : 'Xóa dự án'
-                            }
-                        >
-                            <Trash2 className="w-4 h-4" />
-                            <span>Xóa dự án</span>
-                        </button>
+                        {/* Delete Button */}
+                        {canPerformAction(status, 'canDelete') && (
+                            <button
+                                onClick={() => setShowDeleteModal(true)}
+                                className="flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 border border-red-200 dark:border-red-800"
+                            >
+                                <Trash2 className="w-4 h-4" />
+                                <span>Xóa dự án</span>
+                            </button>
+                        )}
 
-                        {(campaign.campaignStatus !== 'DRAFT' && campaign.campaignStatus !== 'ENDED') && (
+                        {/* End Campaign Button */}
+                        {canPerformAction(status, 'canEnd') && (
                             <button
                                 onClick={() => setShowEndCampaignModal(true)}
                                 className="flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20 border border-orange-200 dark:border-orange-800"
@@ -672,7 +678,7 @@ export default function CampaignOverviewPage() {
                 isOpen={showSubmitReviewModal}
                 onClose={() => setShowSubmitReviewModal(false)}
                 onConfirm={handleConfirmSubmitReview}
-                title="Gửi dự án để Admin phê duyệt"
+                title="Gửi dự án để admin phê duyệt"
                 description={`Bạn có chắc chắn muốn gửi dự án này để admin phê duyệt? Sau khi gửi, dự án sẽ chuyển sang trạng thái "Đang chờ duyệt" và bạn cần chờ 1-3 ngày làm việc để nhận phản hồi.`}
                 confirmButtonText="Gửi đánh giá"
                 cancelButtonText="Hủy"

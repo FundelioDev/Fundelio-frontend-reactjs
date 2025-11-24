@@ -6,7 +6,7 @@ import RewardForm from "../rewards/RewardForm"
 import RewardPreview from "../rewards/RewardPreview"
 import toast from 'react-hot-toast'
 
-export default function RewardTiersTab({ campaignId }) {
+export default function RewardTiersTab({ campaignId, isReadOnly = false }) {
   const [rewards, setRewards] = useState([])
   const [items, setItems] = useState([])
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -22,6 +22,15 @@ export default function RewardTiersTab({ campaignId }) {
       fetchCatalogItems()
     }
   }, [campaignId])
+
+  useEffect(() => {
+    if (isReadOnly) {
+      setIsFormOpen(false)
+      setEditingReward(null)
+      setPreviewReward(null)
+      setFieldErrors({})
+    }
+  }, [isReadOnly])
 
   const fetchRewards = async () => {
     try {
@@ -52,6 +61,7 @@ export default function RewardTiersTab({ campaignId }) {
   }
 
   const handleCreate = () => {
+    if (isReadOnly) return
     setEditingReward(null)
     setPreviewReward(null)
     setFieldErrors({})
@@ -59,6 +69,7 @@ export default function RewardTiersTab({ campaignId }) {
   }
 
   const handleEdit = async (reward) => {
+    if (isReadOnly) return
     try {
       toast.loading('Đang tải chi tiết phần thưởng...', { id: 'fetch-reward-detail' })
 
@@ -85,6 +96,7 @@ export default function RewardTiersTab({ campaignId }) {
   }
 
   const handleSave = async (reward) => {
+    if (isReadOnly) return
     setFieldErrors({})
 
     try {
@@ -221,6 +233,7 @@ export default function RewardTiersTab({ campaignId }) {
   }
 
   const handleDelete = async (rewardId) => {
+    if (isReadOnly) return
     try {
       setIsLoading(true)
 
@@ -242,6 +255,7 @@ export default function RewardTiersTab({ campaignId }) {
   }
 
   const handleDuplicate = (reward) => {
+    if (isReadOnly) return
     console.log('Duplicating reward:', reward)
     const duplicated = {
       ...reward,
@@ -269,6 +283,7 @@ export default function RewardTiersTab({ campaignId }) {
           onDuplicate={handleDuplicate}
           onCreate={handleCreate}
           isLoading={isLoading}
+          isReadOnly={isReadOnly}
         />
       ) : (
         <div className="flex flex-col lg:flex-row gap-6">

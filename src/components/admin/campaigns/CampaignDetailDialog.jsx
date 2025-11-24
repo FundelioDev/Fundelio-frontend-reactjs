@@ -10,19 +10,20 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Check, X, Clock, Eye, Loader, TrendingUp, TrendingDown, Ban } from 'lucide-react';
+import { Check, X, Clock, Eye, Loader, TrendingUp, TrendingDown, Ban, FileText } from 'lucide-react';
 import { formatCurrency } from '@/utils/formatters';
 import { useNavigate } from 'react-router-dom';
 
 const getStatusBadge = (status) => {
   const statusConfig = {
+    DRAFT: { variant: 'secondary', label: 'Bản nháp', icon: FileText },
     PENDING: { variant: 'warning', label: 'Chờ duyệt', icon: Clock },
     APPROVED: { variant: 'success', label: 'Đã duyệt', icon: Check },
     REJECTED: { variant: 'destructive', label: 'Từ chối', icon: X },
     ACTIVE: { variant: 'default', label: 'Đang gây quỹ', icon: Loader },
     SUCCESSFUL: { variant: 'success', label: 'Thành công', icon: TrendingUp },
     FAILED: { variant: 'destructive', label: 'Thất bại', icon: TrendingDown },
-    CANCELLED: { variant: 'secondary', label: 'Đã hủy', icon: Ban },
+    ENDED: { variant: 'secondary', label: 'Kết thúc', icon: Ban },
   };
 
   const config = statusConfig[status] || statusConfig.PENDING;
@@ -39,7 +40,47 @@ const getStatusBadge = (status) => {
 const formatDate = (dateString) => {
   if (!dateString) return 'N/A';
   try {
-    const date = new Date(dateString);
+    let date;
+
+    // Handle format: "2025-11-22 10:22:19 AM"
+    if (typeof dateString === 'string' && dateString.includes(' AM') || dateString.includes(' PM')) {
+      // Parse format: "YYYY-MM-DD HH:MM:SS AM/PM"
+      const parts = dateString.split(' ');
+      if (parts.length >= 3) {
+        const datePart = parts[0]; // "2025-11-22"
+        const timePart = parts[1]; // "10:22:19"
+        const ampm = parts[2]; // "AM" or "PM"
+
+        const [year, month, day] = datePart.split('-');
+        const [hours, minutes, seconds] = timePart.split(':');
+
+        let hour24 = parseInt(hours, 10);
+        if (ampm === 'PM' && hour24 !== 12) {
+          hour24 += 12;
+        } else if (ampm === 'AM' && hour24 === 12) {
+          hour24 = 0;
+        }
+
+        date = new Date(
+          parseInt(year, 10),
+          parseInt(month, 10) - 1,
+          parseInt(day, 10),
+          hour24,
+          parseInt(minutes, 10),
+          parseInt(seconds, 10)
+        );
+      } else {
+        date = new Date(dateString);
+      }
+    } else {
+      date = new Date(dateString);
+    }
+
+    // Check if date is valid
+    if (isNaN(date.getTime())) {
+      return 'N/A';
+    }
+
     return date.toLocaleDateString('vi-VN', {
       year: 'numeric',
       month: '2-digit',
@@ -48,7 +89,7 @@ const formatDate = (dateString) => {
       minute: '2-digit',
     });
   } catch {
-    return dateString;
+    return 'N/A';
   }
 };
 
@@ -88,6 +129,8 @@ export const CampaignDetailDialog = ({
     });
     onOpenChange(false);
   };
+
+  console.log('Campaign Status: DB', campaign);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -169,7 +212,7 @@ export const CampaignDetailDialog = ({
                     Thời gian
                   </p>
                   <p className='text-sm font-semibold text-gray-900 dark:text-gray-100'>
-                    {formatDate(campaign.startTime)} - {formatDate(campaign.endTime)}
+                    {formatDate(campaign.startDate)} - {formatDate(campaign.endDate)}
                   </p>
                 </Card>
               </div>

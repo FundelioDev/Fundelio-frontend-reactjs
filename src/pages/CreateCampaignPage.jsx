@@ -11,6 +11,7 @@ import { generatePreviewId, savePreviewData } from '@/utils/previewStorage';
 import { setBasics, initializeStory, resetCampaign, addBlank as addBlankAction } from '@/store/campaignSlice';
 import { campaignApi } from '@/api/campaignApi';
 import { campaignSectionApi } from '@/api/campaignSectionApi';
+import { isReadOnly } from '@/utils/campaignStatusConfig';
 
 export default function CreateCampaignPage() {
   const navigate = useNavigate();
@@ -146,7 +147,6 @@ export default function CreateCampaignPage() {
     } catch (error) {
       console.error('Auto-save error:', error);
       setSaveStatus('idle');
-      toast.error('Lỗi khi tự động lưu');
     }
   }, [isEditMode, campaignId, blanks]);
 
@@ -349,7 +349,6 @@ export default function CreateCampaignPage() {
       navigate(`/campaigns/preview/${campaignId}`, {
         state: { isPreview: true },
       });
-      toast.success('Đang chuyển đến trang xem trước...');
       return;
     }
 
@@ -392,8 +391,6 @@ export default function CreateCampaignPage() {
     navigate(`/campaigns/preview/${previewId}`, {
       state: { campaignData, isPreview: true },
     });
-
-    toast.success('Đang chuyển đến trang xem trước...');
   };
 
   return (
@@ -430,6 +427,7 @@ export default function CreateCampaignPage() {
               saveStatus={saveStatus}
               campaignId={campaignId}
               isEditMode={isEditMode}
+              isReadOnly={campaign ? isReadOnly(campaign.campaignStatus) : false}
             />
           </div>
         </main>

@@ -10,7 +10,7 @@ import { RewardDetailModal } from './reward-detail/RewardDetailModal';
  * RewardCard Component
  * Displays a single reward option with Kickstarter-style UI
  */
-const RewardCard = ({ reward, layoutMode, onPledge, campaignId }) => {
+const RewardCard = ({ reward, layoutMode, onPledge, campaignId, isPreview = false, isOwnerViewing = false }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const {
@@ -26,6 +26,12 @@ const RewardCard = ({ reward, layoutMode, onPledge, campaignId }) => {
 
   const isVertical = layoutMode === 'vertical';
   const isSoldOut = rewardStatus === 'SOLD_OUT';
+  const isInteractionLocked = isPreview || isOwnerViewing;
+  const lockedLabel = isPreview
+    ? 'Chỉ xem trước'
+    : isOwnerViewing
+      ? 'Bạn là tác giả'
+      : '';
 
   // Format price
   //  const priceLabel = `US$ ${minPledgedAmount}`;
@@ -176,10 +182,16 @@ const RewardCard = ({ reward, layoutMode, onPledge, campaignId }) => {
             <motion.div className="flex-1" whileHover={{ scale: isSoldOut ? 1 : 1.02 }} whileTap={{ scale: isSoldOut ? 1 : 0.98 }}>
               <Button
                 className="w-full font-semibold bg-primary text-white shadow-lg relative overflow-hidden group/btn"
-                onClick={() => !isSoldOut && setIsModalOpen(true)}
-                disabled={isSoldOut}
+                onClick={() => !isSoldOut && !isInteractionLocked && setIsModalOpen(true)}
+                disabled={isSoldOut || isInteractionLocked}
               >
-                <span className="relative z-10">{isSoldOut ? 'ĐÃ HẾT' : `${minPledgedAmount || 0} VND`}</span>
+                <span className="relative z-10">
+                  {isSoldOut
+                    ? 'ĐÃ HẾT'
+                    : isInteractionLocked
+                      ? lockedLabel
+                      : `${minPledgedAmount || 0} VND`}
+                </span>
                 {!isSoldOut && (
                   <motion.div
                     className="absolute inset-0 bg-white/20"
@@ -195,11 +207,11 @@ const RewardCard = ({ reward, layoutMode, onPledge, campaignId }) => {
               <Button
                 variant="outline"
                 className="w-full font-semibold relative overflow-hidden group/btn"
-                onClick={() => !isSoldOut && setIsModalOpen(true)}
-                disabled={isSoldOut}
+                onClick={() => !isSoldOut && !isInteractionLocked && setIsModalOpen(true)}
+                disabled={isSoldOut || isInteractionLocked}
               >
                 <span className="relative z-10 group-hover/btn:text-white transition-colors duration-300">
-                  {isSoldOut ? 'Không khả dụng' : 'Xem chi tiết'}
+                  {isSoldOut ? 'Không khả dụng' : isInteractionLocked ? lockedLabel : 'Xem chi tiết'}
                 </span>
                 {!isSoldOut && (
                   <motion.div
@@ -229,6 +241,8 @@ const RewardCard = ({ reward, layoutMode, onPledge, campaignId }) => {
         addOns={[]}
         onSelectReward={onPledge}
         campaignId={campaignId}
+        isPreview={isPreview}
+        isOwnerViewing={isOwnerViewing}
       />
     </motion.div>
   );

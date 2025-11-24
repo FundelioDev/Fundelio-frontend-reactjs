@@ -2,7 +2,7 @@ import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { X, Plus, Info } from 'lucide-react';
 
-export function PledgeSummaryCard({ selectedRewards = [], selectedAddOns = [], onRemoveItem, onPickAddOns, onSubmit }) {
+export function PledgeSummaryCard({ selectedRewards = [], selectedAddOns = [], onRemoveItem, onPickAddOns, onSubmit, isPreview = false, isOwnerViewing = false }) {
     const formatPrice = (price) => {
         return new Intl.NumberFormat('vi-VN').format(price);
     };
@@ -37,7 +37,7 @@ export function PledgeSummaryCard({ selectedRewards = [], selectedAddOns = [], o
 
     if (!hasItems) {
         return (
-            <Card className="sticky top-8 p-4 bg-white dark:bg-darker-2 border border-border/50">
+            <Card className="sticky top-[56px] max-h-[calc(100vh-56px)] overflow-y-auto p-4 bg-white dark:bg-darker-2 border border-border/50">
                 <h3 className="text-xs font-semibold text-muted-foreground mb-3">SẢN PHẨM CỦA BẠN</h3>
                 <p className="text-sm text-muted-foreground text-center py-8">
                     Chưa có sản phẩm nào được chọn
@@ -47,7 +47,7 @@ export function PledgeSummaryCard({ selectedRewards = [], selectedAddOns = [], o
     }
 
     return (
-        <Card className="sticky top-8 p-4 bg-white dark:bg-darker-2 border border-border/50">
+        <Card className="sticky top-[56px] max-h-[calc(100vh-56px)] overflow-y-auto p-4 bg-white dark:bg-darker-2 border border-border/50">
             <h3 className="text-xs font-semibold text-muted-foreground mb-3">SẢN PHẨM CỦA BẠN</h3>
 
             {/* Selected Rewards */}
@@ -131,9 +131,14 @@ export function PledgeSummaryCard({ selectedRewards = [], selectedAddOns = [], o
                 variant="outline"
                 className="w-full mb-4 font-semibold text-sm h-9"
                 onClick={onPickAddOns}
+                disabled={isPreview || isOwnerViewing}
             >
                 <Plus className="w-3 h-3 mr-1" />
-                CHỌN TIỆN ÍCH BỔ SUNG
+                {isPreview
+                    ? 'Không khả dụng'
+                    : isOwnerViewing
+                        ? 'Nhà sáng tạo không thể ủng hộ'
+                        : 'CHỌN TIỆN ÍCH BỔ SUNG'}
             </Button>
 
             {/* Total */}
@@ -151,10 +156,15 @@ export function PledgeSummaryCard({ selectedRewards = [], selectedAddOns = [], o
 
             {/* Submit Button */}
             <Button
-                className="w-full font-bold text-white bg-primary hover:bg-primary/90 h-10 text-sm mb-2"
+                className="w-full font-bold text-white bg-primary hover:bg-primary/90 h-10 text-sm mb-2 disabled:cursor-not-allowed"
                 onClick={onSubmit}
+                disabled={isPreview || isOwnerViewing}
             >
-                XÁC NHẬN ỦNG HỘ
+                {isPreview
+                    ? 'XEM TRƯỚC'
+                    : isOwnerViewing
+                        ? 'Nhà sáng tạo không thể ủng hộ'
+                        : 'XÁC NHẬN ỦNG HỘ'}
             </Button>
 
             {/* Manage pledge link */}

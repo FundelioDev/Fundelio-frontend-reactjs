@@ -84,6 +84,8 @@ const CampaignPage = ({
   currency = 'USD',
   onPledge,
   campaignId,
+  isPreview = false,
+  isOwnerViewing = false,
 }) => {
   // Sort blanks and get section IDs
   const sortedBlanks = [...blanks].sort((a, b) => a.order - b.order);
@@ -109,6 +111,8 @@ const CampaignPage = ({
           currency={currency}
           onPledge={onPledge}
           campaignId={campaignId}
+          isPreview={isPreview}
+          isOwnerViewing={isOwnerViewing}
         />
       </div>
     </div>

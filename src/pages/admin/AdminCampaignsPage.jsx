@@ -77,6 +77,7 @@ export default function AdminCampaignsPage() {
       const response = await campaignApi.getCampaignById(campaign.campaignId);
       if (response?.data?.data) {
         setSelectedCampaign(response.data.data);
+        console.log('Selected Campaign: ', response.data.data);
         setShowDetailDialog(true);
       }
     } catch (error) {
@@ -132,13 +133,14 @@ export default function AdminCampaignsPage() {
     // Count from all campaigns regardless of current filter
     return {
       all: pagination.totalElements,
+      draft: campaigns.filter((c) => c.campaignStatus === 'DRAFT').length,
       pending: campaigns.filter((c) => c.campaignStatus === 'PENDING').length,
       approved: campaigns.filter((c) => c.campaignStatus === 'APPROVED').length,
       rejected: campaigns.filter((c) => c.campaignStatus === 'REJECTED').length,
       active: campaigns.filter((c) => c.campaignStatus === 'ACTIVE').length,
       successful: campaigns.filter((c) => c.campaignStatus === 'SUCCESSFUL').length,
       failed: campaigns.filter((c) => c.campaignStatus === 'FAILED').length,
-      cancelled: campaigns.filter((c) => c.campaignStatus === 'CANCELLED').length,
+      ended: campaigns.filter((c) => c.campaignStatus === 'ENDED').length,
     };
   };
 

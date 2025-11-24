@@ -1,72 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import { DollarSign, Users, Megaphone, TrendingUp } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
-import { campaignApi } from '@/api/campaignApi';
+import { dashboardApi } from '@/api/dashboardApi';
 import FounderStatCard from './FounderStatCard';
 import FundraisingProgressChart from './FundraisingProgressChart';
 import CampaignStatusDistribution from './CampaignStatusDistribution';
 import TopCampaignsChart from './TopCampaignsChart';
 import RecentActivities from './RecentActivities';
-import mockFounderCampaigns from '@/data/mockFounderDashboard';
 
 /**
  * Main Founder Dashboard Component
  * Displays overview statistics and charts for founder's campaigns
  */
 export const FounderDashboard = () => {
-    const { user } = useAuth();
-    const [campaigns, setCampaigns] = useState([]);
+    const [dashboardData, setDashboardData] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [useMockData] = useState(true); // Set to false to use real API
 
     useEffect(() => {
-        const loadFounderCampaigns = async () => {
+        const loadDashboardData = async () => {
             try {
                 setLoading(true);
-
-                // Use mock data for UI testing
-                if (useMockData) {
-                    setTimeout(() => {
-                        setCampaigns(mockFounderCampaigns);
-                        setLoading(false);
-                    }, 800); // Simulate API delay
-                    return;
-                }
-
-                // Real API call
-                if (!user?.userId) return;
-                const response = await campaignApi.getUserCampaigns(user.userId, {
-                    page: 1,
-                    size: 1000,
-                    sort: 'createdAt,desc',
-                });
-
-                if (response?.data?.content) {
-                    setCampaigns(response.data.content);
+                const response = await dashboardApi.getFounderDashboardData();
+                
+                if (response?.data?.data) {
+                    setDashboardData(response.data.data);
                 }
             } catch (error) {
-                console.error('Error loading founder campaigns:', error);
+                console.error('Error loading founder dashboard:', error);
             } finally {
                 setLoading(false);
             }
         };
 
-        loadFounderCampaigns();
-    }, [user?.userId, useMockData]);
-
-    // Calculate stats
-    const totalPledged = campaigns.reduce((sum, c) => sum + (c.pledgedAmount || 0), 0);
-    const totalBackers = campaigns.reduce((sum, c) => sum + (c.backersCount || 0), 0);
-    const totalCampaigns = campaigns.length;
-    const successfulCampaigns = campaigns.filter((c) => c.campaignStatus === 'SUCCESSFUL').length;
-    const successRate =
-        totalCampaigns > 0 ? ((successfulCampaigns / totalCampaigns) * 100).toFixed(1) : 0;
-
-    // Mock trend data (you can calculate real trends later)
-    const pledgedTrend = 12.5;
-    const backersTrend = 8.3;
-    const campaignsTrend = 0;
-    const successRateTrend = 5.2;
+        loadDashboardData();
+    }, []);
 
     const formatCurrency = (amount) => {
         return new Intl.NumberFormat('vi-VN', {
@@ -87,6 +53,16 @@ export const FounderDashboard = () => {
         );
     }
 
+    if (!dashboardData) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <p className="text-muted-foreground">Không có dữ liệu</p>
+            </div>
+        );
+    }
+
+    const { overview, trends, weeklyProgress, campaignsByStatus, topCampaigns, recentActivities } = dashboardData;
+
     return (
         <div className="min-h-screen bg-background-light-2 dark:bg-darker py-6 px-4 sm:px-6 lg:px-8">
             <div className="max-w-container mx-auto">
@@ -104,47 +80,51 @@ export const FounderDashboard = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                     <FounderStatCard
                         title="Tổng gây quỹ"
-                        value={formatCurrency(totalPledged)}
+                        value={formatCurrency(overview?.totalPledged || 0)}
                         icon={DollarSign}
-                        trend={pledgedTrend}
+                        trend={trends?.pledgedTrend >= 0 ? 'up' : 'down'}
+                        trendValue={Math.abs(trends?.pledgedTrend || 0)}
                         trendLabel="vs tuần trước"
                     />
                     <FounderStatCard
                         title="Người ủng hộ"
-                        value={totalBackers.toLocaleString('vi-VN')}
+                        value={(overview?.totalBackers || 0).toLocaleString('vi-VN')}
                         icon={Users}
-                        trend={backersTrend}
+                        trend={trends?.backersTrend >= 0 ? 'up' : 'down'}
+                        trendValue={Math.abs(trends?.backersTrend || 0)}
                         trendLabel="vs tuần trước"
                     />
                     <FounderStatCard
                         title="Chiến dịch"
-                        value={totalCampaigns}
+                        value={overview?.totalCampaigns || 0}
                         icon={Megaphone}
-                        trend={campaignsTrend}
+                        trend={trends?.campaignsTrend >= 0 ? 'up' : 'down'}
+                        trendValue={Math.abs(trends?.campaignsTrend || 0)}
                         trendLabel="vs tuần trước"
                     />
                     <FounderStatCard
                         title="Tỷ lệ thành công"
-                        value={`${successRate}%`}
+                        value={`${(overview?.successRate || 0).toFixed(1)}%`}
                         icon={TrendingUp}
-                        trend={successRateTrend}
+                        trend={trends?.successRateTrend >= 0 ? 'up' : 'down'}
+                        trendValue={Math.abs(trends?.successRateTrend || 0)}
                         trendLabel="vs tuần trước"
                     />
                 </div>
 
                 {/* Charts Row */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-                    <FundraisingProgressChart campaigns={campaigns} />
-                    <CampaignStatusDistribution campaigns={campaigns} />
+                    <FundraisingProgressChart weeklyProgress={weeklyProgress} />
+                    <CampaignStatusDistribution campaignsByStatus={campaignsByStatus} />
                 </div>
 
                 {/* Bottom Row */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                     <div className="lg:col-span-2">
-                        <TopCampaignsChart campaigns={campaigns} />
+                        <TopCampaignsChart topCampaigns={topCampaigns} />
                     </div>
                     <div className="lg:col-span-1">
-                        <RecentActivities campaigns={campaigns} />
+                        <RecentActivities recentActivities={recentActivities} />
                     </div>
                 </div>
             </div>

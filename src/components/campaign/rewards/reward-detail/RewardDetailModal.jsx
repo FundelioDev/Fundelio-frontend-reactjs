@@ -10,13 +10,14 @@ import { Button } from '../ui/Button';
 import { Plus, Minus, X, Users, Truck, Info, Trash2 } from 'lucide-react';
 import { RewardItem } from './RewardItem';
 
-export function RewardDetailModal({ isOpen, onClose, reward, items = [], addOns = [], onSelectReward, campaignId }) {
+export function RewardDetailModal({ isOpen, onClose, reward, items = [], addOns = [], onSelectReward, campaignId, isPreview = false, isOwnerViewing = false }) {
     const navigate = useNavigate();
     const [selectedAddOns, setSelectedAddOns] = useState([]);
     const includedItems = reward.items?.included || [];
     const filteredAddOns = reward.items?.addOn || [];
 
     const toggleAddOn = (addonCatalogId) => {
+        if (isPreview || isOwnerViewing) return;
         setSelectedAddOns((prev) => {
             const exists = prev.find((a) => String(a.catalogItemId) === String(addonCatalogId));
             if (exists) {
@@ -44,6 +45,7 @@ export function RewardDetailModal({ isOpen, onClose, reward, items = [], addOns 
     }, [selectedAddOns]);
 
     const updateAddOnQuantity = (addonCatalogId, delta) => {
+        if (isPreview || isOwnerViewing) return;
         setSelectedAddOns((prev) =>
             prev.map((addon) =>
                 String(addon.catalogItemId) === String(addonCatalogId)
@@ -54,6 +56,7 @@ export function RewardDetailModal({ isOpen, onClose, reward, items = [], addOns 
     };
 
     const removeAddOn = (addonCatalogId) => {
+        if (isPreview || isOwnerViewing) return;
         setSelectedAddOns((prev) => prev.filter((a) => String(a.catalogItemId) !== String(addonCatalogId)));
     };
 
@@ -72,6 +75,7 @@ export function RewardDetailModal({ isOpen, onClose, reward, items = [], addOns 
     };
 
     const handleSubmit = () => {
+        if (isPreview || isOwnerViewing) return;
         const pledgeData = {
             reward,
             quantity: 1,
@@ -90,6 +94,11 @@ export function RewardDetailModal({ isOpen, onClose, reward, items = [], addOns 
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }, 100);
     };
+
+    const isInteractionLocked = isPreview || isOwnerViewing;
+    const lockedActionLabel = isPreview
+        ? 'Không thể ủng hộ ở chế độ xem trước'
+        : 'Nhà sáng tạo không thể ủng hộ chiến dịch của mình';
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
@@ -207,7 +216,7 @@ export function RewardDetailModal({ isOpen, onClose, reward, items = [], addOns 
                                                             <div className="flex items-center border border-border dark:border-gray-600 rounded-lg bg-background dark:bg-darker overflow-hidden shadow-sm">
                                                                 <button
                                                                     onClick={() => updateAddOnQuantity(key, -1)}
-                                                                    disabled={quantity === 1}
+                                                                    disabled={quantity === 1 || isInteractionLocked}
                                                                     className="h-9 w-9 flex items-center justify-center hover:bg-muted dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                                                 >
                                                                     <Minus className="w-4 h-4 text-foreground" />
@@ -217,7 +226,7 @@ export function RewardDetailModal({ isOpen, onClose, reward, items = [], addOns 
                                                                 </div>
                                                                 <button
                                                                     onClick={() => updateAddOnQuantity(key, 1)}
-                                                                    disabled={quantity === 10}
+                                                                    disabled={quantity === 10 || isInteractionLocked}
                                                                     className="h-9 w-9 flex items-center justify-center hover:bg-muted dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                                                 >
                                                                     <Plus className="w-4 h-4 text-foreground" />
@@ -225,7 +234,8 @@ export function RewardDetailModal({ isOpen, onClose, reward, items = [], addOns 
                                                             </div>
                                                             <button
                                                                 onClick={() => removeAddOn(key)}
-                                                                className="h-9 w-9 flex items-center justify-center rounded-lg text-muted-foreground hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all shadow-sm border border-transparent hover:border-red-200 dark:hover:border-red-800"
+                                                                disabled={isInteractionLocked}
+                                                                className="h-9 w-9 flex items-center justify-center rounded-lg text-muted-foreground hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all shadow-sm border border-transparent hover:border-red-200 dark:hover:border-red-800 disabled:opacity-50 disabled:cursor-not-allowed"
                                                                 title="Xóa tiện ích này"
                                                             >
                                                                 <Trash2 className="w-4 h-4" />
@@ -234,7 +244,8 @@ export function RewardDetailModal({ isOpen, onClose, reward, items = [], addOns 
                                                     ) : (
                                                         <button
                                                             onClick={() => toggleAddOn(key)}
-                                                            className="px-4 py-2 rounded-lg border border-dashed border-primary/40 text-sm font-semibold text-primary hover:bg-primary/5 transition-colors"
+                                                            className="px-4 py-2 rounded-lg border border-dashed border-primary/40 text-sm font-semibold text-primary hover:bg-primary/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                            disabled={isInteractionLocked}
                                                         >
                                                             Thêm
                                                         </button>
@@ -282,12 +293,17 @@ export function RewardDetailModal({ isOpen, onClose, reward, items = [], addOns 
                         </div> */}
 
                         <Button
-                            className="w-full font-bold text-white bg-primary hover:bg-primary/90 h-14 text-base flex items-center justify-center gap-3"
+                            className="w-full font-bold text-white bg-primary hover:bg-primary/90 h-14 text-base flex items-center justify-center gap-3 disabled:cursor-not-allowed"
                             onClick={handleSubmit}
+                            disabled={isInteractionLocked}
                         >
-                            <span>XÁC NHẬN ỦNG HỘ</span>
+                            <span>{isInteractionLocked ? lockedActionLabel : 'XÁC NHẬN ỦNG HỘ'}</span>
+                            {!isInteractionLocked && (
+                                <>
                             <span className="text-lg">•</span>
                             <span className="font-bold">{formatPrice(calculateTotal())} VND</span>
+                                </>
+                            )}
                         </Button>
                     </div>
                 </div>

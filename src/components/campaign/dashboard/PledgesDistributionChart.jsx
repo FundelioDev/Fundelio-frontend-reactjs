@@ -16,8 +16,37 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
  * Pledges Distribution Chart - Bar Chart
  * Groups pledges by amount ranges
  */
-export const PledgesDistributionChart = ({ pledges = [] }) => {
+export const PledgesDistributionChart = ({ pledges = [], pledgesDistribution }) => {
     const chartData = useMemo(() => {
+        // Use pledgesDistribution from API if provided
+        if (pledgesDistribution?.ranges && pledgesDistribution?.counts) {
+            return {
+                labels: pledgesDistribution.ranges,
+                datasets: [
+                    {
+                        label: 'Số lượng pledges',
+                        data: pledgesDistribution.counts,
+                        backgroundColor: [
+                            'rgba(99, 102, 241, 0.8)',
+                            'rgba(16, 185, 129, 0.8)',
+                            'rgba(245, 158, 11, 0.8)',
+                            'rgba(239, 68, 68, 0.8)',
+                            'rgba(168, 85, 247, 0.8)',
+                        ],
+                        borderColor: [
+                            'rgb(99, 102, 241)',
+                            'rgb(16, 185, 129)',
+                            'rgb(245, 158, 11)',
+                            'rgb(239, 68, 68)',
+                            'rgb(168, 85, 247)',
+                        ],
+                        borderWidth: 1,
+                    },
+                ],
+            };
+        }
+
+        // Fallback: calculate from pledges
         if (!pledges || pledges.length === 0) {
             return {
                 labels: ['< 100K', '100K-500K', '500K-1M', '1M-5M', '> 5M'],
@@ -93,7 +122,7 @@ export const PledgesDistributionChart = ({ pledges = [] }) => {
                 },
             ],
         };
-    }, [pledges]);
+    }, [pledges, pledgesDistribution]);
 
     const options = {
         responsive: true,

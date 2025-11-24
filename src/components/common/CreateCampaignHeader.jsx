@@ -39,8 +39,8 @@ export const CreateCampaignHeader = ({
   const { isLoggedIn, user, logout } = useAuth();
 
   const avatarUrl = useMemo(() => {
-    if (user?.avatar) {
-      return user.avatar;
+    if (user?.avatarUrl) {
+      return user.avatarUrl;
     }
 
     // Lấy tên từ user để tạo avatar
@@ -70,6 +70,21 @@ export const CreateCampaignHeader = ({
     { id: 'story', label: 'Câu chuyện' },
     { id: 'rewards', label: 'Phần thưởng' },
   ];
+
+  const buildSearchUrl = (params = {}) => {
+    const searchParams = new URLSearchParams();
+    if (params.status) {
+      searchParams.set('status', params.status);
+    }
+    if (params.sort) {
+      searchParams.set('sort', params.sort);
+    }
+    if (params.category) {
+      searchParams.set('category', params.category);
+    }
+    const query = searchParams.toString();
+    return `/search${query ? `?${query}` : ''}`;
+  };
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -168,7 +183,7 @@ export const CreateCampaignHeader = ({
                   <img
                     src={avatarUrl}
                     alt={displayName}
-                    className='w-9 h-9 rounded-full ring-2 ring-gray-200 dark:ring-gray-700 relative z-10'
+                    className='w-9 h-9 rounded-full ring-2 ring-gray-200 dark:ring-gray-700 object-cover relative z-10'
                   />
                   {/* <ChevronDown
                     className={`w-4 h-4 text-text-primary dark:text-white transition-transform ${isUserMenuOpen ? 'rotate-180' : ''
@@ -222,7 +237,7 @@ export const CreateCampaignHeader = ({
                           <span>Cài đặt</span>
                         </a>
                         <Link
-                          to="/your-projects"
+                          to="/my-pledges"
                           onClick={() => setIsUserMenuOpen(false)}
                           className="flex items-center gap-3 px-3 py-2 text-sm text-text-primary dark:text-white hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-colors"
                         >
@@ -321,7 +336,7 @@ export const CreateCampaignHeader = ({
                 <img
                   src={avatarUrl}
                   alt={displayName}
-                  className='w-9 h-9 rounded-full ring-2 ring-gray-200 dark:ring-gray-700'
+                  className='w-9 h-9 rounded-full ring-2 ring-gray-200 dark:ring-gray-700 object-cover'
                   onError={(e) => {
                     // Fallback nếu avatar lỗi
                     const firstName = user?.firstName || user?.first_name || '';

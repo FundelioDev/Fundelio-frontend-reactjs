@@ -15,9 +15,9 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 /**
  * Top Funded Campaigns - Horizontal Bar Chart for Admin
  */
-export const TopFundedCampaignsChart = ({ campaigns = [] }) => {
-    // Sort by pledgedAmount and get top 10
-    const topCampaigns = [...campaigns]
+export const TopFundedCampaignsChart = ({ campaigns = [], topFundedCampaigns }) => {
+    // Use topFundedCampaigns from API if provided, otherwise calculate from campaigns
+    const topCampaigns = topFundedCampaigns || [...campaigns]
         .sort((a, b) => (b.pledgedAmount || 0) - (a.pledgedAmount || 0))
         .slice(0, 10);
 
@@ -104,7 +104,7 @@ export const TopFundedCampaignsChart = ({ campaigns = [] }) => {
         },
     };
 
-    if (campaigns.length === 0) {
+    if (topCampaigns.length === 0) {
         return (
             <div className="bg-white dark:bg-darker-2 p-3 sm:p-4 rounded-sm shadow-card">
                 <h3 className="text-base sm:text-lg font-bold text-text-primary dark:text-white mb-4">

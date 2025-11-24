@@ -28,10 +28,34 @@ const ProjectLists = ({ className = '' }) => {
   };
 
   const projectLists = [
-    { id: 'active', name: 'Đang gây quỹ', icon: Rocket, color: 'text-primary', filters: { status: 'active' } },
-    { id: 'upcoming', name: 'Sắp ra mắt', icon: Clock, color: 'text-amber-300', filters: { status: 'upcoming' } },
-    { id: 'ended', name: 'Đã hoàn thành', icon: Flag, color: 'text-slate-300', filters: { status: 'ended' } },
-    { id: 'most_funded', name: 'Nhiều ủng hộ nhất', icon: Trophy, color: 'text-emerald-300', filters: { sort: 'most_funded' } },
+    {
+      id: 'fundraising',
+      name: 'Đang gây quỹ',
+      icon: Rocket,
+      color: 'text-primary',
+      filters: { status: 'all' },
+    },
+    {
+      id: 'new_launches',
+      name: 'Mới ra mắt',
+      icon: Clock,
+      color: 'text-amber-300',
+      filters: { status: 'all', sort: 'startDate_desc' },
+    },
+    {
+      id: 'needs_support',
+      name: 'Cần tiếp sức',
+      icon: Flag,
+      color: 'text-slate-300',
+      filters: { status: 'active', sort: 'needs_support' },
+    },
+    {
+      id: 'most_funded',
+      name: 'Nhiều ủng hộ nhất',
+      icon: Trophy,
+      color: 'text-emerald-300',
+      filters: { status: 'all', sort: 'backersCount' },
+    },
   ];
 
   return (
@@ -53,12 +77,14 @@ const ProjectLists = ({ className = '' }) => {
                 <Link
                   key={list.id}
                   to={buildSearchUrl(list.filters)}
-                  className="flex items-center justify-between p-4 bg-white dark:bg-darker-2 rounded-lg dark:hover:bg-gray-700 shadow-md cursor-pointer transition-all duration-200 group"
+                  className="flex items-center justify-between gap-4 p-4 bg-white dark:bg-darker-2 rounded-lg dark:hover:bg-gray-700 shadow-md cursor-pointer transition-all duration-200 group"
                 >
-                  <span className="text-lg font-medium text-gray-900 dark:text-gray-200 group-hover:text-primary transition-colors">
-                    {list.name}
-                  </span>
-                  <Icon className={`w-5 h-5 ${list.color}`} />
+                  <div className="flex-1">
+                    <p className="text-lg font-medium text-gray-900 dark:text-gray-200 group-hover:text-primary transition-colors">
+                      {list.name}
+                    </p>
+                  </div>
+                  <Icon className={`w-5 h-5 flex-shrink-0 ${list.color}`} />
                 </Link>
               );
             })}

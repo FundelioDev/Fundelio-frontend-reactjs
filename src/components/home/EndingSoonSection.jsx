@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Clock, AlertCircle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Clock, AlertCircle, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import ProjectCard from './ProjectCard';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
@@ -53,7 +54,7 @@ export const EndingSoonSection = ({ campaigns = [], loading = false }) => {
                     <div className="flex items-center gap-3">
                         <AlertCircle className="w-6 h-6 sm:w-7 sm:h-7 text-red-500" />
                         <h2 className="text-2xl sm:text-3xl font-bold text-text-primary dark:text-white transition-colors duration-300">
-                            ⏰ Sắp Kết Thúc
+                            Sắp Kết Thúc
                         </h2>
                     </div>
 
@@ -79,9 +80,9 @@ export const EndingSoonSection = ({ campaigns = [], loading = false }) => {
                 </div>
 
                 {/* Description */}
-                <p className="text-sm sm:text-base text-muted-foreground dark:text-gray-400 mb-6">
+                {/* <p className="text-sm sm:text-base text-muted-foreground dark:text-gray-400 mb-6">
                     Còn ít ngày để ủng hộ! Đừng bỏ lỡ cơ hội tham gia những dự án tuyệt vời này.
-                </p>
+                </p> */}
 
                 {/* Swiper */}
                 <Swiper
@@ -127,6 +128,22 @@ export const EndingSoonSection = ({ campaigns = [], loading = false }) => {
                         </SwiperSlide>
                     ))}
                 </Swiper>
+
+                {/* Pagination Dots */}
+                {campaigns.length > 4 && (
+                    <div className="ending-pagination flex justify-center gap-2 mt-8"></div>
+                )}
+
+                {/* View More Button */}
+                <div className="flex justify-end mt-1">
+                    <Link
+                        to="/search"
+                        className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary hover:text-primary-600 dark:text-primary-400 dark:hover:text-primary-300 transition-colors duration-200"
+                    >
+                        <span>Xem thêm chiến dịch</span>
+                        <ArrowRight className="w-4 h-4" />
+                    </Link>
+                </div>
             </div>
         </section>
     );

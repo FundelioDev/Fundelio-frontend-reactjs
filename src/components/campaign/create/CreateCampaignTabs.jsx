@@ -38,6 +38,7 @@ export default function CreateCampaignTabs({
   onTabChange,
   campaignId,
   isEditMode,
+  isReadOnly = false,
 }) {
   // Use external activeTab if provided, otherwise use internal state
   const [internalActiveTab, setInternalActiveTab] = useState('story');
@@ -50,7 +51,7 @@ export default function CreateCampaignTabs({
       <div>
         {/* Basic Tab */}
         {activeTab === 'basic' && (
-          <BasicsContent campaignId={campaignId} isEditMode={isEditMode} />
+          <BasicsContent campaignId={campaignId} isEditMode={isEditMode} isReadOnly={isReadOnly} />
         )}
 
         {/* Story Tab */}
@@ -60,21 +61,24 @@ export default function CreateCampaignTabs({
             <aside className="lg:sticky lg:top-20 h-auto lg:max-h-[75vh] bg-white dark:bg-darker lg:self-start ">
               <SidebarTOC
                 blanks={blanks}
-                onAddBlank={onAddBlank}
+                onAddBlank={isReadOnly ? undefined : onAddBlank}
                 onNavigate={scrollToBlank}
-                onReorder={onReorderBlanks}
-                onDelete={onDeleteBlank}
+                onReorder={isReadOnly ? undefined : onReorderBlanks}
+                onDelete={isReadOnly ? undefined : onDeleteBlank}
+                isReadOnly={isReadOnly}
               />
             </aside>
 
             {/* Main Content */}
             <main className="w-full min-w-0">
               {/* Toolbar */}
-              <StoryToolbar
-                activeEditorRef={activeEditorRef}
-                onSave={save}
-                saveStatus={saveStatus}
-              />
+              {!isReadOnly && (
+                <StoryToolbar
+                  activeEditorRef={activeEditorRef}
+                  onSave={save}
+                  saveStatus={saveStatus}
+                />
+              )}
 
               {/* Blanks */}
               <div className="mt-6">
@@ -82,29 +86,32 @@ export default function CreateCampaignTabs({
                   <BlankSection
                     key={blank.id}
                     blank={blank}
-                    onTitleChange={onTitleChange}
-                    onContentChange={onContentChange}
+                    onTitleChange={isReadOnly ? undefined : onTitleChange}
+                    onContentChange={isReadOnly ? undefined : onContentChange}
                     onFocus={setActiveEditor}
+                    isReadOnly={isReadOnly}
                   />
                 ))}
               </div>
 
               {/* Add Blank Button at Bottom */}
-              <button
-                onClick={onAddBlank}
-                className="flex items-center justify-center w-full py-3 mb-8 border-1 border-dashed border-gray-400 dark:border-gray-600 rounded-lg bg-white dark:bg-darker hover:border-primary dark:hover:border-primary hover:bg-gray-50 dark:hover:bg-gray-900 cursor-pointer transition-colors group"
-              >
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-primary transition-colors">
-                  + Thêm blank
-                </span>
-              </button>
+              {!isReadOnly && (
+                <button
+                  onClick={onAddBlank}
+                  className="flex items-center justify-center w-full py-3 mb-8 border-1 border-dashed border-gray-400 dark:border-gray-600 rounded-lg bg-white dark:bg-darker hover:border-primary dark:hover:border-primary hover:bg-gray-50 dark:hover:bg-gray-900 cursor-pointer transition-colors group"
+                >
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-primary transition-colors">
+                    + Thêm blank
+                  </span>
+                </button>
+              )}
             </main>
           </div>
         )}
 
         {/* Rewards Tab */}
         {activeTab === 'rewards' && (
-          <RewardCreateTab campaignId={campaignId} />
+          <RewardCreateTab campaignId={campaignId} isReadOnly={isReadOnly} />
         )}
       </div>
     </div>

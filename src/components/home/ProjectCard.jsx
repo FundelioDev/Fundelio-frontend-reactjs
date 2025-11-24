@@ -108,28 +108,10 @@ export const ProjectCard = ({
         {/* Stats Overlay - Bottom Left */}
         <div className="absolute bottom-4 left-4 flex items-center gap-4 text-white z-10">
           <div className="flex items-center gap-1.5 bg-darker-2-light/40 backdrop-blur-sm px-3 py-1.5 rounded-full">
-            <Heart className="w-4 h-4 fill-white" />
-            <span className="text-sm font-semibold">{formatNumber(likeCount)}</span>
-          </div>
-          <div className="flex items-center gap-1.5 bg-darker-2-light/40 backdrop-blur-sm px-3 py-1.5 rounded-full">
             <Users className="w-4 h-4" />
             <span className="text-sm font-semibold">{formatNumber(backersCount)}</span>
           </div>
         </div>
-
-        {/* Bookmark Button - Top Right */}
-        <button
-          onClick={handleBookmarkClick}
-          className="absolute top-4 right-4 p-2 bg-white/90 rounded-full
-                    hover:bg-white hover:scale-110 transition-all duration-200
-                    focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 z-10"
-          aria-pressed={bookmarked}
-          aria-label={bookmarked ? 'Remove bookmark' : 'Add bookmark'}
-        >
-          <Bookmark
-            className={`w-4 h-4 transition-colors ${bookmarked ? 'fill-primary text-primary' : 'text-gray-600'}`}
-          />
-        </button>
       </div>
 
       {/* Content Section */}

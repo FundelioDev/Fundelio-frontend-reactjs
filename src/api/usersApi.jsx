@@ -33,6 +33,7 @@ export const usersApi = {
    * Cập nhật thông tin của một user
    */
   updateUser: async (userId, data) => {
+    console.log("sao ko có token", data)
     return httpService.patch(`/users/${userId}`, data, {
       requireToken: true,
     });

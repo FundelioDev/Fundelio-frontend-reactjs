@@ -1,18 +1,38 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Button from '@/components/common/Button';
 
 /**
  * PledgeNoRewardCard Component
  * Allows users to pledge without selecting a reward
  */
-const PledgeNoRewardCard = ({ currency = 'USD', onPledge }) => {
+const PledgeNoRewardCard = ({ currency = 'VND', onPledge, isPreview = false, isOwnerViewing = false, campaignId }) => {
+  const navigate = useNavigate();
   const [amount, setAmount] = useState('');
+  const isInteractionDisabled = isPreview || isOwnerViewing;
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const value = parseFloat(amount);
-    if (value && value > 0) {
-      onPledge({ amount: value, currency });
+    if (value && value > 0 && !isInteractionDisabled && campaignId) {
+      // Navigate to pledge page with data
+      const pledgeData = {
+        campaignId: campaignId,
+        // rewardId: null, // No reward selected
+        amount: value, // Required field
+        bonusAmount: 0,
+        totalAmount: value,
+        addOns: [], // No add-ons
+        hasNoReward: true, // Flag to hide bonus amount input
+      };
+
+      navigate(`/campaigns/${campaignId}/pledge`, {
+        state: { pledgeData }
+      });
+
+      // Call onPledge callback if provided (for backward compatibility)
+      onPledge?.({ amount: value, currency });
+      setAmount('');
     }
   };
 
@@ -45,6 +65,7 @@ const PledgeNoRewardCard = ({ currency = 'USD', onPledge }) => {
               placeholder="1"
               className="w-full pl-10 pr-4 py-2 border border-border rounded-lg bg-white dark:bg-darker text-text-secondary dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               required
+              disabled={isInteractionDisabled}
             />
           </div>
         </div>
@@ -62,9 +83,13 @@ const PledgeNoRewardCard = ({ currency = 'USD', onPledge }) => {
           variant="primary"
           size="lg"
           className="w-full"
-          disabled={!amount || parseFloat(amount) <= 0}
+          disabled={isInteractionDisabled || !amount || parseFloat(amount) <= 0}
         >
-          Ủng hộ
+          {isPreview
+            ? 'Không khả dụng'
+            : isOwnerViewing
+              ? 'Tác giả không thể tự ủng hộ'
+              : 'Ủng hộ'}
         </Button>
       </form>
     </div>

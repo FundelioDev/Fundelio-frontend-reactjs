@@ -4,7 +4,7 @@ import Input from "@/components/common/Input"
 import RewardCard from "./RewardCard"
 import { Search } from "lucide-react"
 
-export default function ItemList({ items, onEdit, onDelete, onCreate, isLoading, itemRewards = {} }) {
+export default function ItemList({ items, onEdit, onDelete, onCreate, isLoading, itemRewards = {}, isReadOnly = false }) {
   const [searchTerm, setSearchTerm] = useState("")
 
   const filteredItems = useMemo(() => {
@@ -21,7 +21,12 @@ export default function ItemList({ items, onEdit, onDelete, onCreate, isLoading,
         <p className="text-muted-foreground mb-6 text-center max-w-sm">
           Tạo thành phần đầu tiên để bắt đầu xây dựng các phần thưởng của bạn
         </p>
-        <Button onClick={onCreate} variant="primary">
+        <Button
+          onClick={onCreate}
+          variant="primary"
+          disabled={isReadOnly}
+          className={isReadOnly ? "opacity-60 cursor-not-allowed" : ""}
+        >
           + Tạo thành phần
         </Button>
       </div>
@@ -32,7 +37,13 @@ export default function ItemList({ items, onEdit, onDelete, onCreate, isLoading,
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold text-muted-foreground">Thành phần ({items.length})</h2>
-        <Button onClick={onCreate} variant="primary" size="md">
+        <Button
+          onClick={onCreate}
+          variant="primary"
+          size="md"
+          disabled={isReadOnly}
+          className={isReadOnly ? "opacity-60 cursor-not-allowed" : ""}
+        >
           + Tạo mới
         </Button>
       </div>
@@ -64,6 +75,7 @@ export default function ItemList({ items, onEdit, onDelete, onCreate, isLoading,
             onEdit={onEdit}
             onDelete={onDelete}
             linkedRewards={itemRewards[item.catalogItemId] || []}
+            isReadOnly={isReadOnly}
           />
         ))}
       </div>

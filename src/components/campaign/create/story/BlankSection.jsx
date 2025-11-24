@@ -1,7 +1,36 @@
 import { useRef, useEffect, memo } from 'react';
 import toast from 'react-hot-toast';
+import DOMPurify from 'dompurify';
 import { buildVideoEmbed } from '../../../../utils/embed';
 import { storageApi } from '@/api/storageApi';
+
+const SANITIZE_CONFIG = {
+  ALLOWED_TAGS: [
+    'p',
+    'br',
+    'strong',
+    'em',
+    'u',
+    'ol',
+    'ul',
+    'li',
+    'blockquote',
+    'code',
+    'pre',
+    'a',
+    'h1',
+    'h2',
+    'h3',
+    'h4',
+    'h5',
+    'h6',
+    'span',
+    'div',
+  ],
+  ALLOWED_ATTR: ['href', 'target', 'rel'],
+  FORBID_ATTR: ['style', 'class', 'id'],
+  KEEP_CONTENT: true,
+};
 
 /**
  * BlankSection component - A single editable section with title and content
@@ -10,8 +39,9 @@ import { storageApi } from '@/api/storageApi';
  * @param {Function} props.onTitleChange - Callback when title changes
  * @param {Function} props.onContentChange - Callback when content changes
  * @param {Function} props.onFocus - Callback when editor is focused
+ * @param {boolean} props.isReadOnly - Whether the section is read-only
  */
-function BlankSection({ blank, onTitleChange, onContentChange, onFocus }) {
+function BlankSection({ blank, onTitleChange, onContentChange, onFocus, isReadOnly = false }) {
   const titleRef = useRef(null);
   const editorRef = useRef(null);
 
@@ -104,16 +134,54 @@ function BlankSection({ blank, onTitleChange, onContentChange, onFocus }) {
     }
   };
 
+  const insertHtml = (html) => {
+    const selection = window.getSelection();
+    if (!selection?.rangeCount) return;
+
+    const range = selection.getRangeAt(0);
+    range.deleteContents();
+
+    const tempContainer = document.createElement('div');
+    tempContainer.innerHTML = html;
+
+    const fragment = document.createDocumentFragment();
+    while (tempContainer.firstChild) {
+      fragment.appendChild(tempContainer.firstChild);
+    }
+
+    range.insertNode(fragment);
+    range.collapse(false);
+
+    selection.removeAllRanges();
+    selection.addRange(range);
+  };
+
   const handlePaste = (e) => {
-    const text = e.clipboardData.getData('text/plain');
+    const html = e.clipboardData.getData('text/html');
+    const text = e.clipboardData.getData('text/plain') || '';
+
     if (text && /^https?:\/\//i.test(text)) {
       const iframe = buildVideoEmbed(text);
       if (iframe) {
         e.preventDefault();
         placeBlock(editorRef.current, iframe);
-        // Trigger content change callback immediately
         handleContentInput();
+        return;
       }
+    }
+
+    if (html) {
+      e.preventDefault();
+      const cleanHtml = DOMPurify.sanitize(html, SANITIZE_CONFIG).trim();
+      insertHtml(cleanHtml || text);
+      handleContentInput();
+      return;
+    }
+
+    if (text) {
+      e.preventDefault();
+      insertHtml(text.replace(/\n/g, '<br />'));
+      handleContentInput();
     }
   };
 
@@ -150,31 +218,31 @@ function BlankSection({ blank, onTitleChange, onContentChange, onFocus }) {
       {/* Title */}
       <div
         ref={titleRef}
-        contentEditable
+        contentEditable={!isReadOnly}
         suppressContentEditableWarning
-        className="w-full px-4 py-3 text-xl font-semibold border border-border rounded-sm mb-4 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-darker dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-600"
+        className={`w-full px-4 py-3 text-xl font-semibold border border-border rounded-sm mb-4 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-darker dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-600 ${isReadOnly ? 'opacity-60 cursor-not-allowed bg-gray-50 dark:bg-gray-800' : ''}`}
         placeholder="Tiêu đề blank..."
         spellCheck={false}
-        onInput={handleTitleInput}
-        onFocus={() => handleFocus('title')}
+        onInput={isReadOnly ? undefined : handleTitleInput}
+        onFocus={isReadOnly ? undefined : () => handleFocus('title')}
       />
 
       {/* Editor */}
       <div
         ref={editorRef}
-        contentEditable
+        contentEditable={!isReadOnly}
         suppressContentEditableWarning
         spellCheck={false}
-        className="min-h-[40vh] p-4 border border-border rounded-sm 
+        className={`min-h-[40vh] p-4 border border-border rounded-sm 
         focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent 
         dark:bg-darker dark:text-white prose prose-sm dark:prose-invert max-w-none
-        [&_i]:italic [&_em]:italic"
+        [&_i]:italic [&_em]:italic ${isReadOnly ? 'opacity-60 cursor-not-allowed bg-gray-50 dark:bg-gray-800' : ''}`}
         data-blank-id={blank.id}
-        onInput={handleContentInput}
-        onFocus={() => handleFocus('editor')}
-        onDrop={handleDrop}
-        onDragOver={(e) => e.preventDefault()}
-        onPaste={handlePaste}
+        onInput={isReadOnly ? undefined : handleContentInput}
+        onFocus={isReadOnly ? undefined : () => handleFocus('editor')}
+        onDrop={isReadOnly ? undefined : handleDrop}
+        onDragOver={isReadOnly ? undefined : (e) => e.preventDefault()}
+        onPaste={isReadOnly ? undefined : handlePaste}
       />
     </section>
   );

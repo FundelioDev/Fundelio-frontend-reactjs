@@ -93,13 +93,35 @@ export const formatCategory = (category) => {
   if (!category) return null;
   
   // Nếu category là string (VD: 'ART', 'GAMES')
-  const key = typeof category === 'string' ? category : (category.name || category.key || category);
-  const categoryId = typeof category === 'object' ? (category.categoryId || category.id) : null;
+  if (typeof category === 'string') {
+    return {
+      id: category,
+      key: category,
+      name: getCategoryLabel(category),
+      icon: getCategoryIcon(category),
+      color: getCategoryColor(category),
+      href: `/category/${category.toLowerCase()}`,
+    };
+  }
+  
+  // Nếu category là object, xử lý các format khác nhau
+  // Format từ API: { categoryId, categoryName, categoryValue }
+  // Format đã format: { id, key, name, icon, color }
+  const categoryValue = category.categoryValue || category.key;
+  const categoryName = category.categoryName || category.name;
+  const categoryId = category.categoryId || category.id;
+  
+  // Lấy key để map với CATEGORY_LABELS, CATEGORY_ICONS, etc.
+  // categoryValue là enum value như 'FILM', 'ART', etc.
+  const key = categoryValue || category.key || categoryId || categoryName;
+  
+  // Nếu không có key hợp lệ, skip category này
+  if (!key) return null;
   
   return {
     id: categoryId || key,
     key: key,
-    name: getCategoryLabel(key),
+    name: categoryName || getCategoryLabel(key),
     icon: getCategoryIcon(key),
     color: getCategoryColor(key),
     href: categoryId ? `/search?category=${categoryId}` : `/category/${key.toLowerCase()}`,

@@ -25,6 +25,7 @@ export default function RewardCard({
   onEdit,
   onDelete,
   onDuplicate,
+  isReadOnly = false,
 }) {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
@@ -41,10 +42,12 @@ export default function RewardCard({
   const displayImage = data.imageUrl || data.image;
 
   const handleEdit = () => {
+    if (isReadOnly || !onEdit) return
     onEdit(data)
   }
 
   const handleDelete = () => {
+    if (isReadOnly) return
     setIsDeleteModalOpen(true)
   }
 
@@ -54,6 +57,10 @@ export default function RewardCard({
       itemId = data.catalogItemId
     } else {
       itemId = data.rewardId || data.id
+    }
+    if (isReadOnly || !onDelete) {
+      setIsDeleteModalOpen(false)
+      return
     }
     onDelete(itemId)
     setIsDeleteModalOpen(false)
@@ -85,8 +92,8 @@ export default function RewardCard({
               {/* Reward Status Badge */}
               {data.rewardStatus && (
                 <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${data.rewardStatus === 'AVAILABLE'
-                    ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                    : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+                  ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                  : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
                   }`}>
                   {data.rewardStatus === 'AVAILABLE' ? 'Đang mở bán' : 'Đã hết hàng'}
                 </span>
@@ -221,7 +228,8 @@ export default function RewardCard({
         <div className="flex items-center gap-3 md:gap-4 flex-wrap">
           <button
             onClick={handleEdit}
-            className="flex items-center gap-1.5 text-sm text-foreground hover:text-primary transition-colors"
+            className={`flex items-center gap-1.5 text-sm text-foreground transition-colors ${isReadOnly ? 'opacity-60 cursor-not-allowed' : 'hover:text-primary'}`}
+            disabled={isReadOnly}
             title="Sửa"
           >
             <Edit2 className="w-4 h-4" />
@@ -231,7 +239,8 @@ export default function RewardCard({
           {type !== 'item' && onDuplicate && (
             <button
               onClick={() => onDuplicate(data)}
-              className="flex items-center gap-1.5 text-sm text-foreground hover:text-primary transition-colors"
+              className={`flex items-center gap-1.5 text-sm text-foreground transition-colors ${isReadOnly ? 'opacity-60 cursor-not-allowed' : 'hover:text-primary'}`}
+              disabled={isReadOnly}
               title="Nhân bản"
             >
               <Copy className="w-4 h-4" />
@@ -241,7 +250,8 @@ export default function RewardCard({
 
           <button
             onClick={handleDelete}
-            className="flex items-center gap-1.5 text-sm text-destructive hover:text-destructive/80 transition-colors"
+            className={`flex items-center gap-1.5 text-sm text-destructive transition-colors ${isReadOnly ? 'opacity-60 cursor-not-allowed' : 'hover:text-destructive/80'}`}
+            disabled={isReadOnly}
             title="Xóa"
           >
             <Trash2 className="w-4 h-4" />

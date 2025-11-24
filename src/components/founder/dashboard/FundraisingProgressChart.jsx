@@ -27,37 +27,37 @@ ChartJS.register(
  * Fundraising Progress Line Chart for Founder Dashboard
  * Shows pledgedAmount over time (weekly)
  */
-export const FundraisingProgressChart = ({ campaigns = [] }) => {
-    // Get last 7 weeks of data
-    const getWeeklyData = () => {
-        const weeks = [];
-        const data = [];
-        const now = new Date();
+export const FundraisingProgressChart = ({ campaigns = [], weeklyProgress }) => {
+    // Use weeklyProgress from API if provided, otherwise calculate from campaigns
+    const { weeks, data: weeklyData } = weeklyProgress?.labels && weeklyProgress?.data
+        ? { weeks: weeklyProgress.labels, data: weeklyProgress.data }
+        : (() => {
+            const weeks = [];
+            const data = [];
+            const now = new Date();
 
-        // Generate last 7 weeks
-        for (let i = 6; i >= 0; i--) {
-            const weekStart = new Date(now);
-            weekStart.setDate(now.getDate() - (i * 7));
+            // Generate last 7 weeks
+            for (let i = 6; i >= 0; i--) {
+                const weekStart = new Date(now);
+                weekStart.setDate(now.getDate() - (i * 7));
 
-            const weekLabel = `T${7 - i}`;
-            weeks.push(weekLabel);
+                const weekLabel = `T${7 - i}`;
+                weeks.push(weekLabel);
 
-            // Calculate total pledgedAmount for this week
-            const weekTotal = campaigns.reduce((sum, campaign) => {
-                const campaignDate = new Date(campaign.createdAt);
-                if (campaignDate <= weekStart) {
-                    return sum + (campaign.pledgedAmount || 0);
-                }
-                return sum;
-            }, 0);
+                // Calculate total pledgedAmount for this week
+                const weekTotal = campaigns.reduce((sum, campaign) => {
+                    const campaignDate = new Date(campaign.createdAt);
+                    if (campaignDate <= weekStart) {
+                        return sum + (campaign.pledgedAmount || 0);
+                    }
+                    return sum;
+                }, 0);
 
-            data.push(weekTotal);
-        }
+                data.push(weekTotal);
+            }
 
-        return { weeks, data };
-    };
-
-    const { weeks, data: weeklyData } = getWeeklyData();
+            return { weeks, data };
+        })();
 
     const chartData = {
         labels: weeks,

@@ -7,9 +7,9 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 /**
  * Campaign Status Distribution Doughnut Chart for Founder
  */
-export const CampaignStatusDistribution = ({ campaigns = [] }) => {
-    // Count campaigns by status
-    const statusCounts = campaigns.reduce((acc, campaign) => {
+export const CampaignStatusDistribution = ({ campaigns = [], campaignsByStatus }) => {
+    // Use campaignsByStatus from API if provided, otherwise calculate from campaigns array
+    const statusCounts = campaignsByStatus || campaigns.reduce((acc, campaign) => {
         const status = campaign.campaignStatus || 'UNKNOWN';
         acc[status] = (acc[status] || 0) + 1;
         return acc;
@@ -88,7 +88,7 @@ export const CampaignStatusDistribution = ({ campaigns = [] }) => {
         },
     };
 
-    if (campaigns.length === 0) {
+    if (Object.keys(statusCounts).length === 0) {
         return (
             <div className="bg-white dark:bg-darker-2 p-3 sm:p-4 rounded-sm shadow-card">
                 <h3 className="text-base sm:text-lg font-bold text-text-primary dark:text-white mb-4">

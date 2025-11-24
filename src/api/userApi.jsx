@@ -13,7 +13,9 @@ export const userApi = {
   },
 
   updateProfile: (payload) =>
-    httpService.patch("/users/update-profile", payload),
+    httpService.patch("/users/update-profile", payload, {
+      requireToken: true,
+    }),
 
   uploadAvatar: (formData) =>
     httpService.post("/files/upload", formData, {

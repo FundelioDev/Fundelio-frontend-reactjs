@@ -5,45 +5,14 @@ import { Trophy, Medal, Award } from 'lucide-react';
  * Performance Indicators Component
  * Shows key metrics: Avg Pledge, Daily Avg, Projected Amount, Success Probability
  */
-export const PerformanceIndicators = ({ campaign, pledges = [] }) => {
+export const PerformanceIndicators = ({ campaign, pledges = [], performanceIndicators: indicatorsFromApi }) => {
     if (!campaign) return null;
 
-    // Calculate metrics
-    const totalPledged = campaign.currentAmount || campaign.pledgedAmount || 0;
-    const goalAmount = campaign.goalAmount || 1;
-    const backersCount = campaign.backersCount || pledges.length || 1;
-
-    // Average Pledge Amount
-    const avgPledge = Math.round(totalPledged / backersCount);
-
-    // Daily Average
-    const startDate = campaign.startDate ? new Date(campaign.startDate) : new Date();
-    const now = new Date();
-    const daysElapsed = Math.max(1, Math.ceil((now - startDate) / (1000 * 60 * 60 * 24)));
-    const dailyAvg = Math.round(totalPledged / daysElapsed);
-
-    // Projected Final Amount
-    const endDate = campaign.endDate ? new Date(campaign.endDate) : now;
-    const totalDays = Math.max(1, Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)));
-    const projected = Math.round(dailyAvg * totalDays);
-
-    // Success Probability (based on progress, days left, and velocity)
-    const progressPercent = (totalPledged / goalAmount) * 100;
-    const daysLeft = Math.max(0, Math.ceil((endDate - now) / (1000 * 60 * 60 * 24)));
-    const currentVelocity = dailyAvg;
-    const requiredVelocity = daysLeft > 0 ? (goalAmount - totalPledged) / daysLeft : 0;
-
-    let successProbability = 0;
-    if (progressPercent >= 100) {
-        successProbability = 100;
-    } else if (daysLeft === 0) {
-        successProbability = progressPercent >= 80 ? 60 : 30;
-    } else {
-        // Calculate based on velocity and progress
-        const velocityScore = currentVelocity >= requiredVelocity ? 50 : (currentVelocity / requiredVelocity) * 50;
-        const progressScore = progressPercent * 0.5;
-        successProbability = Math.min(95, Math.round(velocityScore + progressScore));
-    }
+    // Use performanceIndicators from API if provided, otherwise calculate
+    const avgPledge = indicatorsFromApi?.avgPledge || 0;
+    const dailyAvg = indicatorsFromApi?.dailyAvg || 0;
+    const projected = indicatorsFromApi?.projected || 0;
+    const successProbability = indicatorsFromApi?.successProbability || 0;
 
     const indicators = [
         {

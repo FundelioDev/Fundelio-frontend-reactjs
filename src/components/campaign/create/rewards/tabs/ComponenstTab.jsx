@@ -7,7 +7,7 @@ import ItemList from "../components/ComponentList"
 import ItemForm from "../components/ComponentForm"
 import toast from 'react-hot-toast'
 
-export default function ComponentsTab({ campaignId }) {
+export default function ComponentsTab({ campaignId, isReadOnly = false }) {
   const [items, setItems] = useState([])
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingItem, setEditingItem] = useState(null)
@@ -21,6 +21,14 @@ export default function ComponentsTab({ campaignId }) {
       fetchCatalogItems()
     }
   }, [campaignId])
+
+  useEffect(() => {
+    if (isReadOnly) {
+      setIsFormOpen(false)
+      setEditingItem(null)
+      setFieldErrors({})
+    }
+  }, [isReadOnly])
 
   const fetchCatalogItems = async () => {
     try {
@@ -67,11 +75,13 @@ export default function ComponentsTab({ campaignId }) {
   }
 
   const handleCreate = () => {
+    if (isReadOnly) return
     setEditingItem(null)
     setIsFormOpen(true)
   }
 
   const handleEdit = async (item) => {
+    if (isReadOnly) return
     try {
       toast.loading('Đang tải chi tiết thành phần...', { id: 'fetch-item-detail' })
 
@@ -103,6 +113,7 @@ export default function ComponentsTab({ campaignId }) {
   }
 
   const handleSave = async (item) => {
+    if (isReadOnly) return
     // Clear previous errors
     setFieldErrors({})
 
@@ -229,6 +240,7 @@ export default function ComponentsTab({ campaignId }) {
   }
 
   const handleDelete = async (catalogItemId) => {
+    if (isReadOnly) return
     try {
       setIsLoading(true)
 
@@ -261,6 +273,7 @@ export default function ComponentsTab({ campaignId }) {
           onCreate={handleCreate}
           isLoading={isLoading}
           itemRewards={itemRewards}
+          isReadOnly={isReadOnly}
         />
       ) : (
         <ItemForm

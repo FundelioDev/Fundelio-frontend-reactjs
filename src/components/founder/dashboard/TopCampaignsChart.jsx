@@ -15,9 +15,9 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 /**
  * Top Performing Campaigns - Horizontal Bar Chart
  */
-export const TopCampaignsChart = ({ campaigns = [] }) => {
-    // Sort by pledgedAmount and get top 5
-    const topCampaigns = [...campaigns]
+export const TopCampaignsChart = ({ campaigns = [], topCampaigns: topCampaignsFromApi }) => {
+    // Use topCampaigns from API if provided, otherwise calculate from campaigns
+    const topCampaigns = topCampaignsFromApi || [...campaigns]
         .sort((a, b) => (b.pledgedAmount || 0) - (a.pledgedAmount || 0))
         .slice(0, 5);
 
@@ -103,7 +103,7 @@ export const TopCampaignsChart = ({ campaigns = [] }) => {
         },
     };
 
-    if (campaigns.length === 0) {
+    if (topCampaigns.length === 0) {
         return (
             <div className="bg-white dark:bg-darker-2 p-3 sm:p-4 rounded-sm shadow-card">
                 <h3 className="text-base sm:text-lg font-bold text-text-primary dark:text-white mb-4">

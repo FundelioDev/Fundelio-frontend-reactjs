@@ -234,7 +234,10 @@ export default function PledgeSummaryPage() {
         );
     }
 
-    const { reward, addOns = [], quantity = 1 } = pledgeData;
+    const { reward, addOns = [], quantity = 1, hasNoReward = false } = pledgeData;
+
+    // If hasNoReward, use the amount directly from pledgeData
+    const isNoRewardPledge = hasNoReward || !reward;
 
     // Calculate amounts
     const rewardAmount = reward?.minPledgedAmount || 0;
@@ -242,8 +245,13 @@ export default function PledgeSummaryPage() {
         (sum, addon) => sum + (addon.price || 0) * (addon.quantity || 1),
         0
     );
-    const amount = rewardAmount + addOnsAmount;
-    const totalAmount = amount + (bonusAmount || 0);
+    // If no reward, use amount from pledgeData directly
+    const amount = isNoRewardPledge ? (pledgeData.amount || 0) : (rewardAmount + addOnsAmount);
+    // For no reward pledge, use totalAmount from pledgeData (bonusAmount is always 0)
+    // For reward pledge, add bonusAmount to amount
+    const totalAmount = isNoRewardPledge
+        ? (pledgeData.totalAmount || amount)
+        : (amount + (bonusAmount || 0));
 
     // Get included items
     const includedItems = (reward?.items?.included || []).map((item) => ({
@@ -280,24 +288,25 @@ export default function PledgeSummaryPage() {
         try {
             const pledgePayload = {
                 campaignId: campaignId,
-                rewardId: reward.rewardId,
-                amount: amount,
-                bonusAmount: bonusAmount || 0,
+                rewardId: isNoRewardPledge ? null : reward.rewardId,
+                amount: amount, // Required field
+                bonusAmount: isNoRewardPledge ? 0 : (bonusAmount || 0),
                 totalAmount: totalAmount,
-                addOns: reward.items.addOn?.map(addon => ({
+                addOns: isNoRewardPledge ? [] : (reward.items?.addOn?.map(addon => ({
                     rewardItemId: addon.rewardItemId,
                     quantity: addon.quantity || 1
-                })) || []
+                })) || [])
             };
 
             console.log('📤 Sending pledge:', pledgePayload);
             console.log('📊 Breakdown:', {
                 'Campaign ID': campaignId,
-                'Reward ID': reward.rewardId,
-                'Reward Amount': amount,
-                'Bonus Amount': bonusAmount,
+                'Reward ID': pledgePayload.rewardId,
+                'Amount': amount,
+                'Bonus Amount': pledgePayload.bonusAmount,
                 'Total Amount': totalAmount,
-                'Add-ons Count': addOns.length
+                // 'Add-ons Count': pledgePayload.addOns.length,
+                'Has No Reward': isNoRewardPledge
             });
 
             // Gửi pledge qua WebSocket
@@ -320,76 +329,88 @@ export default function PledgeSummaryPage() {
 
                 <div className="space-y-6">
                     {/* Section 1: Reward and Add-ons Display */}
-                    <Card className="p-6">
-                        <h2 className="text-xl font-bold text-foreground mb-4">Sản phẩm ủng hộ</h2>
+                    {!isNoRewardPledge && (
+                        <Card className="p-6">
+                            <h2 className="text-xl font-bold text-foreground mb-4">Sản phẩm ủng hộ</h2>
 
-                        {/* Reward */}
-                        <div className="space-y-4">
-                            <div className="flex items-start gap-4">
-                                {reward.imageUrl && (
-                                    <div className="w-24 h-24 rounded-sm overflow-hidden flex-shrink-0">
-                                        <img
-                                            src={reward.imageUrl}
-                                            alt={reward.title}
-                                            className="w-full h-full object-cover"
-                                        />
+                            {/* Reward */}
+                            <div className="space-y-4">
+                                <div className="flex items-start gap-4">
+                                    {reward?.imageUrl && (
+                                        <div className="w-24 h-24 rounded-sm overflow-hidden flex-shrink-0">
+                                            <img
+                                                src={reward.imageUrl}
+                                                alt={reward.title}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        </div>
+                                    )}
+                                    <div className="flex-1">
+                                        <h3 className="font-bold text-lg text-foreground">{reward?.title}</h3>
+                                        <p className="text-sm text-muted-foreground mt-2 line-clamp-3">
+                                            {reward?.description}
+                                        </p>
+                                        <p className="text-lg font-bold text-primary mt-2">
+                                            {formatPrice(reward?.minPledgedAmount || 0)} VND
+                                        </p>
                                     </div>
-                                )}
-                                <div className="flex-1">
-                                    <h3 className="font-bold text-lg text-foreground">{reward.title}</h3>
-                                    <p className="text-sm text-muted-foreground mt-2 line-clamp-3">
-                                        {reward.description}
-                                    </p>
-                                    <p className="text-lg font-bold text-primary mt-2">
-                                        {formatPrice(reward.minPledgedAmount || 0)} VND
-                                    </p>
                                 </div>
-                            </div>
 
-                            {/* Add-ons */}
-                            {addOns.length > 0 && (
-                                <>
-                                    <hr className="border-border/50" />
-                                    <div className="space-y-4">
-                                        <h3 className="font-semibold text-foreground">Tiện ích bổ sung</h3>
-                                        {addOns.map((addon) => (
-                                            <div key={addon.id}>
-                                                <hr className="border-border/50 mb-4" />
-                                                <div className="flex items-start gap-4">
-                                                    {addon.image && (
-                                                        <div className="w-20 h-20 rounded-sm overflow-hidden flex-shrink-0">
-                                                            <img
-                                                                src={addon.image}
-                                                                alt={addon.title}
-                                                                className="w-full h-full object-cover"
-                                                            />
-                                                        </div>
-                                                    )}
-                                                    <div className="flex-1">
-                                                        <h4 className="font-semibold text-foreground">{addon.title}</h4>
-                                                        {addon.description && (
-                                                            <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-                                                                {addon.description}
-                                                            </p>
+                                {/* Add-ons */}
+                                {addOns.length > 0 && (
+                                    <>
+                                        <hr className="border-border/50" />
+                                        <div className="space-y-4">
+                                            <h3 className="font-semibold text-foreground">Tiện ích bổ sung</h3>
+                                            {addOns.map((addon) => (
+                                                <div key={addon.id}>
+                                                    <hr className="border-border/50 mb-4" />
+                                                    <div className="flex items-start gap-4">
+                                                        {addon.image && (
+                                                            <div className="w-20 h-20 rounded-sm overflow-hidden flex-shrink-0">
+                                                                <img
+                                                                    src={addon.image}
+                                                                    alt={addon.title}
+                                                                    className="w-full h-full object-cover"
+                                                                />
+                                                            </div>
                                                         )}
-                                                        <div className="flex items-center gap-4 mt-2">
-                                                            <p className="text-sm text-muted-foreground">Số lượng: {addon.quantity}</p>
-                                                            <p className="font-semibold text-primary">
-                                                                {formatPrice((addon.price || 0) * addon.quantity)} VND
-                                                            </p>
+                                                        <div className="flex-1">
+                                                            <h4 className="font-semibold text-foreground">{addon.title}</h4>
+                                                            {addon.description && (
+                                                                <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                                                                    {addon.description}
+                                                                </p>
+                                                            )}
+                                                            <div className="flex items-center gap-4 mt-2">
+                                                                <p className="text-sm text-muted-foreground">Số lượng: {addon.quantity}</p>
+                                                                <p className="font-semibold text-primary">
+                                                                    {formatPrice((addon.price || 0) * addon.quantity)} VND
+                                                                </p>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </>
-                            )}
-                        </div>
-                    </Card>
+                                            ))}
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        </Card>
+                    )}
+
+                    {/* No Reward Message */}
+                    {isNoRewardPledge && (
+                        <Card className="p-6">
+                            <h2 className="text-xl font-bold text-foreground mb-4">Ủng hộ không có phần thưởng</h2>
+                            <p className="text-muted-foreground">
+                                Bạn đang ủng hộ chiến dịch này mà không chọn phần thưởng. Cảm ơn sự đóng góp của bạn!
+                            </p>
+                        </Card>
+                    )}
 
                     {/* Section 2: Included Products Toggle */}
-                    {includedItems.length > 0 && (
+                    {!isNoRewardPledge && includedItems.length > 0 && (
                         <Card className="p-6">
                             <button
                                 onClick={() => setShowProducts(!showProducts)}
@@ -431,28 +452,30 @@ export default function PledgeSummaryPage() {
                                 <span className="font-semibold text-foreground">{formatPrice(amount)} VND</span>
                             </div>
 
-                            {/* Bonus Amount Input */}
-                            <div className="space-y-2">
-                                <label className="block text-sm font-medium text-foreground">
-                                    Số tiền thưởng thêm (tùy chọn)
-                                </label>
-                                <div className="flex items-center gap-2">
-                                    <Input
-                                        type="number"
-                                        value={bonusAmount || ''}
-                                        onChange={(e) => {
-                                            const value = e.target.value;
-                                            setBonusAmount(value === '' ? 0 : Math.max(0, parseInt(value) || 0));
-                                        }}
-                                        placeholder="0"
-                                        className="flex-1"
-                                    />
-                                    <span className="text-muted-foreground">VND</span>
+                            {/* Bonus Amount Input - Only show when there's a reward */}
+                            {!isNoRewardPledge && (
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-medium text-foreground">
+                                        Số tiền thưởng thêm (tùy chọn)
+                                    </label>
+                                    <div className="flex items-center gap-2">
+                                        <Input
+                                            type="number"
+                                            value={bonusAmount || ''}
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                setBonusAmount(value === '' ? 0 : Math.max(0, parseInt(value) || 0));
+                                            }}
+                                            placeholder="0"
+                                            className="flex-1"
+                                        />
+                                        <span className="text-muted-foreground">VND</span>
+                                    </div>
+                                    <p className="text-xs text-muted-foreground">
+                                        Thêm số tiền để hỗ trợ thêm cho chiến dịch
+                                    </p>
                                 </div>
-                                <p className="text-xs text-muted-foreground">
-                                    Thêm số tiền để hỗ trợ thêm cho chiến dịch
-                                </p>
-                            </div>
+                            )}
 
                             <hr className="border-border" />
 
@@ -533,14 +556,16 @@ export default function PledgeSummaryPage() {
 
                         <div className="space-y-4 mb-6">
                             <div className="bg-background-light-2 dark:bg-darker-2 rounded-lg p-4 space-y-3">
-                                <div className="flex justify-between items-center">
-                                    <span className="text-sm text-muted-foreground">Phần thưởng</span>
-                                    <span className="text-sm font-semibold text-foreground">
-                                        {formatPrice(rewardAmount)} VND
-                                    </span>
-                                </div>
+                                {!isNoRewardPledge && (
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-sm text-muted-foreground">Phần thưởng</span>
+                                        <span className="text-sm font-semibold text-foreground">
+                                            {formatPrice(rewardAmount)} VND
+                                        </span>
+                                    </div>
+                                )}
 
-                                {addOns.length > 0 && (
+                                {!isNoRewardPledge && addOns.length > 0 && (
                                     <div className="flex justify-between items-center">
                                         <span className="text-sm text-muted-foreground">
                                             Add-ons ({addOns.length})
@@ -551,7 +576,16 @@ export default function PledgeSummaryPage() {
                                     </div>
                                 )}
 
-                                {bonusAmount > 0 && (
+                                {isNoRewardPledge && (
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-sm text-muted-foreground">Số tiền ủng hộ</span>
+                                        <span className="text-sm font-semibold text-foreground">
+                                            {formatPrice(amount)} VND
+                                        </span>
+                                    </div>
+                                )}
+
+                                {!isNoRewardPledge && bonusAmount > 0 && (
                                     <div className="flex justify-between items-center">
                                         <span className="text-sm text-muted-foreground">Thêm ủng hộ</span>
                                         <span className="text-sm font-semibold text-foreground">

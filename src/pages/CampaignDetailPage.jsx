@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { Eye, Edit, X } from 'lucide-react';
 import CampaignHeader from '@/components/campaign/CampaignHeader';
@@ -9,6 +9,7 @@ import { campaignApi } from '@/api/campaignApi';
 import { rewardApi } from '@/api/rewardApi';
 import { getBlanksFromSections } from '@/data/mockCampaignStory';
 import { useCampaignProgress } from '@/websocket/hooks';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function CampaignDetailPage() {
   const { previewId, campaignId } = useParams();
@@ -18,6 +19,7 @@ export default function CampaignDetailPage() {
   const [rewards, setRewards] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('campaign');
+  const { user } = useAuth();
 
   // Check if we're in preview mode based on route path
   const isPreview = location.pathname.includes('/preview/');
@@ -38,9 +40,7 @@ export default function CampaignDetailPage() {
 
   // Subscribe to campaign progress updates (real-time)
   const handleCampaignProgress = useCallback((progressData) => {
-    console.log('📊 Campaign progress updated via WebSocket:', progressData);
 
-    // Update campaign data with new progress
     setCampaignData(prev => {
       if (!prev) return prev;
 
@@ -198,6 +198,13 @@ export default function CampaignDetailPage() {
     loadCampaignData();
   }, [previewId, campaignId, isPreview, location.state, navigate]);
 
+  const avatarUrl = useMemo(() => {
+    const owner = campaignData?.owner;
+    if (!owner) return null;
+    // Return avatarUrl from owner, or null if not available
+    return owner.avatarUrl || null;
+  }, [campaignData?.owner]);
+
   const handlePickPerk = () => console.log('Pick Your Perk clicked');
   const handleSave = () => console.log('Save For Later clicked');
   const handleShare = () => console.log('Share clicked');
@@ -242,23 +249,52 @@ export default function CampaignDetailPage() {
     );
   }
 
-  // Prepare creator data from campaign owner
+  const normalizeBackendDate = (dateString) => {
+    if (!dateString) return null;
+    try {
+      const trimmed = dateString.trim();
+      const withoutMeridiem = trimmed.replace(/\s(AM|PM)$/i, '');
+      const isoLike = withoutMeridiem.replace(' ', 'T');
+      const parsed = new Date(isoLike);
+      if (!Number.isNaN(parsed.getTime())) {
+        return parsed;
+      }
+      const fallback = new Date(dateString);
+      return Number.isNaN(fallback.getTime()) ? null : fallback;
+    } catch {
+      return null;
+    }
+  };
+
+  const formatDateForDisplay = (date) => {
+    if (!date) return new Date().toLocaleDateString('vi-VN');
+    return date.toLocaleDateString('vi-VN');
+  };
+
+  console.log("campaignData", campaignData)
+
   const creatorData = campaignData.owner ? {
+    userId: campaignData.owner.userId,
     name: `${campaignData.owner.firstName || ''} ${campaignData.owner.lastName || ''}`.trim() || 'Creator',
     username: campaignData.owner.email || 'creator',
-    avatar: campaignData.owner.profileImage || 'https://i.pravatar.cc/150?img=12',
+    avatar: avatarUrl,
+    avatarUrl: avatarUrl, // Also include avatarUrl for compatibility
     bio: campaignData.owner.bio || 'Campaign creator',
     badges: [],
     stats: {
       createdProjects: 0,
       backedProjects: 0,
-      lastLogin: new Date().toLocaleDateString(),
-      accountCreated: campaignData.owner.createdAt ? new Date(campaignData.owner.createdAt).toLocaleDateString() : new Date().toLocaleDateString()
+      lastLogin: new Date().toLocaleDateString('vi-VN'),
+      accountCreated: formatDateForDisplay(normalizeBackendDate(campaignData.owner.createdAt))
     },
     socials: {},
     isVerified: false,
     moreHref: '#creator-profile',
   } : null;
+
+  const campaignOwnerId = campaignData?.owner?.userId || campaignData?.owner?.id;
+  const currentUserId = user?.userId || user?.id;
+  const isOwnerViewing = Boolean(currentUserId && campaignOwnerId && currentUserId === campaignOwnerId);
 
   return (
     <div className="min-h-screen bg-background-light-2 dark:bg-darker">
@@ -316,6 +352,8 @@ export default function CampaignDetailPage() {
           onSave={handleSave}
           onShare={handleShare}
           onTabChange={handleTabChange}
+          isPreview={isPreview}
+          isOwnerViewing={isOwnerViewing}
         />
 
         {isPreview ?
@@ -330,7 +368,8 @@ export default function CampaignDetailPage() {
               currency: campaignData.currency || 'VND',
               onPledge: handlePledge,
               campaignId: campaignData.campaignId,
-              isPreview: true
+              isPreview: true,
+              isOwnerViewing,
             }}
           /> : <CampaignTabs
             initialTab={activeTab}
@@ -343,6 +382,7 @@ export default function CampaignDetailPage() {
               currency: campaignData.currency || 'VND',
               onPledge: handlePledge,
               campaignId: campaignData.campaignId,
+              isOwnerViewing,
             }}
           />
         }

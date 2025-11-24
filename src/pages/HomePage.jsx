@@ -5,8 +5,8 @@ import WhyChooseUs from '@/components/home/WhyChooseUs';
 import CrowdfundingTips from '@/components/home/CrowdfundingTips';
 import PrimaryCTA from '@/components/home/PrimaryCTA';
 import React, { useState, useEffect, useMemo } from 'react';
-import TrendingNewestCampaigns from '@/components/home/RecentSavedCampaigns';
-import PopularCampaigns from '@/components/home/PopularCampaigns';
+// import TrendingNewestCampaigns from '@/components/home/RecentSavedCampaigns';
+// import PopularCampaigns from '@/components/home/PopularCampaigns';
 import FeaturedSpotlight from '@/components/home/FeaturedSpotlight';
 import AlmostThereSection from '@/components/home/AlmostThereSection';
 import EndingSoonSection from '@/components/home/EndingSoonSection';
@@ -81,8 +81,7 @@ export default function HomePage() {
           const progressA = (a.pledgedAmount / a.goalAmount) * 100;
           const progressB = (b.pledgedAmount / b.goalAmount) * 100;
           return progressB - progressA;
-        })
-        .slice(0, 12),
+        }),
 
       // Popular (Most Backed)
       popular: allCampaigns
@@ -93,8 +92,7 @@ export default function HomePage() {
       // Success Stories
       successStories: allCampaigns
         .filter(c => c.campaignStatus === 'SUCCESSFUL')
-        .sort((a, b) => (b.pledgedAmount || 0) - (a.pledgedAmount || 0))
-        .slice(0, 12),
+        .sort((a, b) => (b.pledgedAmount || 0) - (a.pledgedAmount || 0)),
 
       // Quick Wins (goals <= 10M)
       quickWins: allCampaigns
@@ -106,10 +104,31 @@ export default function HomePage() {
         })
         .slice(0, 12),
 
-      // Most Backed
-      mostBacked: allCampaigns
-        .filter(c => ['ACTIVE', 'SUCCESSFUL'].includes(c.campaignStatus))
-        .sort((a, b) => (b.backersCount || 0) - (a.backersCount || 0))
+      // Overachievers (>100% Funded)
+      overachievers: allCampaigns
+        .filter(c => {
+          if (!['ACTIVE', 'SUCCESSFUL'].includes(c.campaignStatus)) return false;
+          if (!c.goalAmount || c.goalAmount === 0) return false;
+          return (c.pledgedAmount || 0) >= c.goalAmount;
+        })
+        .sort((a, b) => {
+          const ratioA = (a.pledgedAmount || 0) / a.goalAmount;
+          const ratioB = (b.pledgedAmount || 0) / b.goalAmount;
+          return ratioB - ratioA; // DESC - higher ratio first
+        })
+        .slice(0, 12),
+
+      // Hidden Gems (goalAmount < 50M VND)
+      hiddenGems: allCampaigns
+        .filter(c => {
+          if (!['ACTIVE', 'SUCCESSFUL'].includes(c.campaignStatus)) return false;
+          return (c.goalAmount || 0) < 50000000; // < 50 million VND
+        })
+        .sort((a, b) => {
+          const progressA = (a.pledgedAmount || 0) / (a.goalAmount || 1);
+          const progressB = (b.pledgedAmount || 0) / (b.goalAmount || 1);
+          return progressB - progressA; // DESC - higher progress first
+        })
         .slice(0, 12),
 
       // Ending Soon (<= 7 days)
@@ -119,8 +138,7 @@ export default function HomePage() {
           const daysLeft = Math.ceil((new Date(c.endDate) - now) / (1000 * 60 * 60 * 24));
           return daysLeft > 0 && daysLeft <= 7;
         })
-        .sort((a, b) => new Date(a.endDate) - new Date(b.endDate))
-        .slice(0, 12),
+        .sort((a, b) => new Date(a.endDate) - new Date(b.endDate)),
     };
   }, [allCampaigns]);
 
@@ -135,11 +153,14 @@ export default function HomePage() {
         loading={loading}
       />
 
+      {/* Rankings - Top 10 by Funding & Audience */}
+      <Rankings />
+
       {/* Trending & Newest Campaigns - Tabs */}
-      <TrendingNewestCampaigns
+      {/* <TrendingNewestCampaigns
         campaigns={{ trending: filteredData.trending, newest: filteredData.newest }}
         loading={loading}
-      />
+      /> */}
 
       {/* Almost There - Gần đạt mục tiêu (80-99%) */}
       <AlmostThereSection
@@ -156,8 +177,7 @@ export default function HomePage() {
         loading={loading}
       /> */}
 
-      {/* Rankings - Top 10 by Funding & Audience */}
-      <Rankings />
+
 
       {/* Success Stories - SUCCESSFUL campaigns */}
       <SuccessStoriesSection
@@ -165,9 +185,9 @@ export default function HomePage() {
         loading={loading}
       />
 
-      {/* Quick Wins & Most Backed - Tabs */}
+      {/* Hidden Gems - Tiềm năng */}
       <QuickWinsMostBackedSection
-        campaigns={{ quickWins: filteredData.quickWins, mostBacked: filteredData.mostBacked }}
+        campaigns={filteredData.hiddenGems}
         loading={loading}
       />
 

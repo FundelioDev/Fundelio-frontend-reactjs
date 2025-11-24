@@ -272,7 +272,7 @@ export const Header = ({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onFocus={() => setIsSearchFocused(true)}
-                className={`w-full pl-10 pr-4 py-2 rounded-lg border bg-transparent ${isScrolled ? "border-gray-300 dark:border-gray-600" : "border-white/30 text-text-primary dark:text-white"
+                className={`w-full pl-10 pr-4 py-2 rounded-lg border text-text-primary dark:text-white bg-transparent ${isScrolled ? "border-gray-300 dark:border-gray-600" : "border-white/30 text-white"
                   } focus:outline-none focus:ring-2 focus:ring-primary/50`}
               />
               {/* Search Results Dropdown */}

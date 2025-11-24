@@ -27,7 +27,7 @@ const CATEGORY_LABELS = {
   OTHER: 'Khác',
 };
 
-export default function BasicsContent({ campaignId, isEditMode = false }) {
+export default function BasicsContent({ campaignId, isEditMode = false, isReadOnly = false }) {
   const dispatch = useDispatch();
   const basicsData = useSelector((state) => state.campaign.basics);
   const navigate = useNavigate();
@@ -363,7 +363,8 @@ export default function BasicsContent({ campaignId, isEditMode = false }) {
                 onChange={handleChange}
                 placeholder="Papercuts: A Party Game for the Rude and Well-Read"
                 maxLength={60}
-                className={fieldErrors.title ? 'border-red-500 focus:ring-red-500' : ''}
+                disabled={isReadOnly}
+                className={`${fieldErrors.title ? 'border-red-500 focus:ring-red-500' : ''} ${isReadOnly ? 'opacity-60 cursor-not-allowed bg-gray-50 dark:bg-gray-800' : ''}`}
               />
               <div className="flex justify-between items-center mt-1">
                 {fieldErrors.title && (
@@ -386,7 +387,8 @@ export default function BasicsContent({ campaignId, isEditMode = false }) {
                 placeholder="Papercuts is a rowdy card game about books and writing brought to you by Electric Literature."
                 rows={3}
                 maxLength={135}
-                className={fieldErrors.description ? 'border-red-500 focus:ring-red-500' : ''}
+                disabled={isReadOnly}
+                className={`${fieldErrors.description ? 'border-red-500 focus:ring-red-500' : ''} ${isReadOnly ? 'opacity-60 cursor-not-allowed bg-gray-50 dark:bg-gray-800' : ''}`}
               />
               <div className="flex justify-between items-center mt-1">
                 {fieldErrors.description && (
@@ -410,7 +412,8 @@ export default function BasicsContent({ campaignId, isEditMode = false }) {
                 onWheel={(e) => e.target.blur()}
                 placeholder="10000"
                 min="1"
-                className={fieldErrors.goalAmount ? 'border-red-500 focus:ring-red-500' : ''}
+                disabled={isReadOnly}
+                className={`${fieldErrors.goalAmount ? 'border-red-500 focus:ring-red-500' : ''} ${isReadOnly ? 'opacity-60 cursor-not-allowed bg-gray-50 dark:bg-gray-800' : ''}`}
               />
               {fieldErrors.goalAmount ? (
                 <p className="text-xs text-red-500 mt-1">{fieldErrors.goalAmount}</p>
@@ -450,11 +453,11 @@ export default function BasicsContent({ campaignId, isEditMode = false }) {
             name="campaignCategory"
             value={formData.campaignCategory}
             onChange={handleChange}
-            disabled={loadingCategories}
+            disabled={loadingCategories || isReadOnly}
             className={`w-full px-4 py-2 border rounded-sm bg-background text-text-primary dark:text-white focus:ring-2 focus:border-transparent transition-all ${fieldErrors.campaignCategory
               ? 'border-red-500 focus:ring-red-500'
               : 'border-border focus:ring-primary'
-              }`}
+              } ${isReadOnly ? 'opacity-60 cursor-not-allowed bg-gray-50 dark:bg-gray-800' : ''}`}
           >
             <option value="">
               {loadingCategories ? 'Đang tải...' : categoriesError ? 'Lỗi khi tải danh mục' : 'Chọn danh mục'}
@@ -514,7 +517,7 @@ export default function BasicsContent({ campaignId, isEditMode = false }) {
                       type="button"
                       variant="gradient"
                       onClick={() => imageInputRef.current?.click()}
-                      disabled={isUploadingImage}
+                      disabled={isUploadingImage || isReadOnly}
                       className="px-6 py-3 border border-border rounded-sm text-text-primary dark:text-white bg-background hover:bg-muted transition-colors font-medium"
                     >
                       {isUploadingImage ? 'Đang tải lên...' : 'Tải ảnh lên'}
@@ -554,14 +557,16 @@ export default function BasicsContent({ campaignId, isEditMode = false }) {
                   <button
                     type="button"
                     onClick={() => imageInputRef.current?.click()}
-                    className="px-4 py-2 border border-border rounded-sm text-text-primary dark:text-white bg-background hover:bg-muted transition-colors text-sm font-medium"
+                    disabled={isReadOnly}
+                    className={`px-4 py-2 border border-border rounded-sm text-text-primary dark:text-white bg-background hover:bg-muted transition-colors text-sm font-medium ${isReadOnly ? 'opacity-60 cursor-not-allowed' : ''}`}
                   >
                     Thay đổi
                   </button>
                   <button
                     type="button"
                     onClick={() => setFormData(prev => ({ ...prev, introImageUrl: null }))}
-                    className="px-4 py-2 border border-destructive text-destructive rounded-sm hover:bg-destructive/10 transition-colors text-sm font-medium"
+                    disabled={isReadOnly}
+                    className={`px-4 py-2 border border-destructive text-destructive rounded-sm hover:bg-destructive/10 transition-colors text-sm font-medium ${isReadOnly ? 'opacity-60 cursor-not-allowed' : ''}`}
                   >
                     Xóa ảnh
                   </button>
@@ -621,13 +626,13 @@ export default function BasicsContent({ campaignId, isEditMode = false }) {
                   value={videoUrlInput}
                   onChange={(e) => setVideoUrlInput(e.target.value)}
                   placeholder="https://www.youtube.com/watch?v=..."
-                  className="flex-1"
-                  disabled={isLoadingVideoUrl}
+                  className={`flex-1 ${isReadOnly ? 'opacity-60 cursor-not-allowed bg-gray-50 dark:bg-gray-800' : ''}`}
+                  disabled={isLoadingVideoUrl || isReadOnly}
                 />
                 <Button
                   type="button"
                   onClick={handleVideoUrlSubmit}
-                  disabled={isLoadingVideoUrl || !videoUrlInput.trim()}
+                  disabled={isLoadingVideoUrl || !videoUrlInput.trim() || isReadOnly}
                   className="px-6"
                 >
                   {isLoadingVideoUrl ? 'Đang tải...' : 'Thêm'}
@@ -649,7 +654,7 @@ export default function BasicsContent({ campaignId, isEditMode = false }) {
                       type="button"
                       variant="gradient"
                       onClick={() => videoInputRef.current?.click()}
-                      disabled={isUploadingVideo}
+                      disabled={isUploadingVideo || isReadOnly}
                       className="px-6 py-3 border border-border rounded-sm text-text-primary dark:text-white bg-background hover:bg-muted transition-colors font-medium"
                     >
                       {isUploadingVideo ? 'Đang tải lên...' : 'Tải lên video'}
@@ -699,7 +704,8 @@ export default function BasicsContent({ campaignId, isEditMode = false }) {
                   <button
                     type="button"
                     onClick={() => videoInputRef.current?.click()}
-                    className="px-4 py-2 border border-border rounded-sm text-text-primary dark:text-white bg-background hover:bg-muted transition-colors text-sm font-medium"
+                    disabled={isReadOnly}
+                    className={`px-4 py-2 border border-border rounded-sm text-text-primary dark:text-white bg-background hover:bg-muted transition-colors text-sm font-medium ${isReadOnly ? 'opacity-60 cursor-not-allowed' : ''}`}
                   >
                     Thay đổi
                   </button>
@@ -709,7 +715,8 @@ export default function BasicsContent({ campaignId, isEditMode = false }) {
                       setFormData(prev => ({ ...prev, introVideoUrl: null }));
                       setVideoUrlInput(''); // Clear URL input when removing video
                     }}
-                    className="px-4 py-2 border border-destructive text-destructive rounded-sm hover:bg-destructive/10 transition-colors text-sm font-medium"
+                    disabled={isReadOnly}
+                    className={`px-4 py-2 border border-destructive text-destructive rounded-sm hover:bg-destructive/10 transition-colors text-sm font-medium ${isReadOnly ? 'opacity-60 cursor-not-allowed' : ''}`}
                   >
                     Xóa video
                   </button>
@@ -756,7 +763,8 @@ export default function BasicsContent({ campaignId, isEditMode = false }) {
                 name="startDate"
                 value={formData.startDate}
                 onChange={handleChange}
-                className={fieldErrors.startDate ? 'border-red-500 focus:ring-red-500' : ''}
+                disabled={isReadOnly}
+                className={`${fieldErrors.startDate ? 'border-red-500 focus:ring-red-500' : ''} ${isReadOnly ? 'opacity-60 cursor-not-allowed bg-gray-50 dark:bg-gray-800' : ''}`}
               />
               {fieldErrors.startDate && (
                 <p className="text-xs text-red-500 mt-1">{fieldErrors.startDate}</p>
@@ -773,7 +781,8 @@ export default function BasicsContent({ campaignId, isEditMode = false }) {
                 value={formData.endDate}
                 onChange={handleChange}
                 min={formData.startDate}
-                className={fieldErrors.endDate ? 'border-red-500 focus:ring-red-500' : ''}
+                disabled={isReadOnly}
+                className={`${fieldErrors.endDate ? 'border-red-500 focus:ring-red-500' : ''} ${isReadOnly ? 'opacity-60 cursor-not-allowed bg-gray-50 dark:bg-gray-800' : ''}`}
               />
               {fieldErrors.endDate && (
                 <p className="text-xs text-red-500 mt-1">{fieldErrors.endDate}</p>
@@ -846,17 +855,19 @@ export default function BasicsContent({ campaignId, isEditMode = false }) {
       />
 
       {/* Save Button */}
-      <div className="flex justify-end pt-6 border-t border-border">
-        <Button
-          variant="gradient"
-          size="lg"
-          onClick={handleSave}
-          className="px-8"
-          disabled={!formData.acceptedTerms}
-        >
-          {isEditMode ? 'Lưu thay đổi' : 'Tạo chiến dịch'}
-        </Button>
-      </div>
+      {!isReadOnly && (
+        <div className="flex justify-end pt-6 border-t border-border">
+          <Button
+            variant="gradient"
+            size="lg"
+            onClick={handleSave}
+            className="px-8"
+            disabled={!formData.acceptedTerms}
+          >
+            {isEditMode ? 'Lưu thay đổi' : 'Tạo chiến dịch'}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

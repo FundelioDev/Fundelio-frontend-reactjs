@@ -10,8 +10,9 @@ import { GripVertical, Trash2 } from 'lucide-react';
  * @param {Function} props.onNavigate - Callback when clicking the item
  * @param {Function} props.onDelete - Callback when deleting the item
  * @param {boolean} props.canDelete - Whether the item can be deleted
+ * @param {boolean} props.isReadOnly - Whether the item is in read-only mode
  */
-export default function SortableTOCItem({ blank, index, onNavigate, onDelete, canDelete }) {
+export default function SortableTOCItem({ blank, index, onNavigate, onDelete, canDelete, isReadOnly = false }) {
     const {
         attributes,
         listeners,
@@ -41,14 +42,16 @@ export default function SortableTOCItem({ blank, index, onNavigate, onDelete, ca
             className="w-full min-w-0 flex items-start gap-2 px-3 py-2.5 border border-border rounded-sm hover:bg-gray-100 dark:bg-darker dark:hover:bg-[#1e232a] transition-colors group"
         >
             {/* Drag Handle */}
-            <button
-                {...attributes}
-                {...listeners}
-                className="flex-shrink-0 cursor-grab active:cursor-grabbing text-gray-400 dark:text-gray-600 hover:text-gray-600 dark:hover:text-gray-400 transition-colors p-0.5 -ml-1"
-                aria-label="Drag to reorder"
-            >
-                <GripVertical className="w-4 h-4" />
-            </button>
+            {!isReadOnly && (
+                <button
+                    {...attributes}
+                    {...listeners}
+                    className="flex-shrink-0 cursor-grab active:cursor-grabbing text-gray-400 dark:text-gray-600 hover:text-gray-600 dark:hover:text-gray-400 transition-colors p-0.5 -ml-1"
+                    aria-label="Drag to reorder"
+                >
+                    <GripVertical className="w-4 h-4" />
+                </button>
+            )}
 
             {/* Item Content (clickable for navigation) */}
             <button

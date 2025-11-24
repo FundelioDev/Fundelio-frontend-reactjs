@@ -135,12 +135,15 @@ const Hero = () => {
 
   // Tự động chuyển slide mỗi 3 giây
   useEffect(() => {
-    if (isPaused) return;
+    if (isPaused || totalSlides === 0) return;
 
     const interval = setInterval(() => {
       setIsAnimating(true);
       setTimeout(() => {
-        setCurrentSlide((prev) => (prev + 1) % totalSlides);
+        setCurrentSlide((prev) => {
+          const next = (prev + 1) % totalSlides;
+          return Math.max(0, Math.min(next, totalSlides - 1));
+        });
         setIsAnimating(false);
         setProgress(0);
       }, 300);
@@ -184,7 +187,10 @@ const Hero = () => {
   const handleSeeCampaign = () => {
     if (campaigns.length === 0) return;
 
-    const campaign = campaigns[currentSlide];
+    const safeCurrentSlide = Math.max(0, Math.min(currentSlide, campaigns.length - 1));
+    const campaign = campaigns[safeCurrentSlide];
+    if (!campaign || !campaign.campaignId) return;
+
     // Navigate to campaign detail page
     navigate(`/campaigns/${campaign.campaignId}`);
 
@@ -235,6 +241,21 @@ const Hero = () => {
     );
   }
 
+  // Ensure currentSlide is within bounds
+  const safeCurrentSlide = Math.max(0, Math.min(currentSlide, campaigns.length - 1));
+  const currentCampaign = campaigns[safeCurrentSlide];
+
+  // Safety check: if current campaign doesn't exist, show empty state
+  if (!currentCampaign) {
+    return (
+      <section className="relative min-h-[100vh] overflow-hidden w-full flex items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800">
+        <div className="text-center">
+          <p className="text-white text-xl">Đang tải chiến dịch...</p>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section
       className="relative min-h-[100vh] overflow-hidden w-full"
@@ -245,17 +266,19 @@ const Hero = () => {
     >
       {/* Background Images */}
       {campaigns.map((campaign, index) => (
-        <div
-          key={campaign.campaignId}
-          className={`absolute inset-0 h-full w-full transition-opacity duration-500 ${index === currentSlide ? 'opacity-100' : 'opacity-0'
-            }`}
-        >
-          <img
-            src={campaign.introImageUrl || 'https://via.placeholder.com/1920x1080?text=Campaign'}
-            alt={campaign.title}
-            className="h-full w-full object-cover object-center"
-          />
-        </div>
+        campaign && (
+          <div
+            key={campaign.campaignId || index}
+            className={`absolute inset-0 h-full w-full transition-opacity duration-500 ${index === safeCurrentSlide ? 'opacity-100' : 'opacity-0'
+              }`}
+          >
+            <img
+              src={campaign.introImageUrl || 'https://via.placeholder.com/1920x1080?text=Campaign'}
+              alt={campaign.title || 'Campaign'}
+              className="h-full w-full object-cover object-center"
+            />
+          </div>
+        )
       ))}
 
       {/* Overlay - Stronger gradient for mobile readability */}
@@ -293,7 +316,7 @@ const Hero = () => {
               }}
               aria-live="polite"
             >
-              {campaigns[currentSlide].title}
+              {currentCampaign.title || 'Untitled Campaign'}
             </h1>
           </div>
 
@@ -306,7 +329,7 @@ const Hero = () => {
                 textShadow: '0 2px 10px rgba(0, 0, 0, 0.7)',
               }}
             >
-              {campaigns[currentSlide].description ||
+              {currentCampaign.description ||
                 'Discover and support amazing campaigns that make a difference'}
             </p>
           </div>
@@ -377,32 +400,33 @@ const Hero = () => {
           const visibleSlides = campaigns.slice(startIndex, endIndex);
 
           return visibleSlides.map((campaign, idx) => {
+            if (!campaign) return null;
             const actualIndex = startIndex + idx;
             return (
               <button
-                key={campaign.campaignId}
+                key={campaign.campaignId || actualIndex}
                 onClick={() => handleSlideChange(actualIndex)}
-                className={`group relative overflow-hidden rounded-sm transition-all duration-300 border-2 flex-shrink-0 ${actualIndex === currentSlide
+                className={`group relative overflow-hidden rounded-sm transition-all duration-300 border-2 flex-shrink-0 ${actualIndex === safeCurrentSlide
                   ? "border-primary shadow-lg shadow-primary/50 scale-103 sm:scale-105"
                   : "border-white/20 opacity-60 hover:opacity-100 hover:scale-105 hover:border-white/40"
                   }`}
-                aria-label={`Go to slide ${actualIndex + 1}: ${campaign.title}`}
-                aria-current={actualIndex === currentSlide ? "true" : "false"}
+                aria-label={`Go to slide ${actualIndex + 1}: ${campaign.title || 'Campaign'}`}
+                aria-current={actualIndex === safeCurrentSlide ? "true" : "false"}
               >
                 <img
                   src={campaign.introImageUrl || "/placeholder.svg?height=96&width=128&query=campaign-thumbnail"}
-                  alt={campaign.title}
+                  alt={campaign.title || 'Campaign'}
                   className="h-11 w-16 object-cover sm:h-12 sm:w-20 transition-transform duration-300 group-hover:scale-110"
                 />
                 {/* Gradient overlay when active */}
-                {actualIndex === currentSlide && (
+                {actualIndex === safeCurrentSlide && (
                   <div className="absolute inset-0 bg-gradient-to-t from-cyan-500/50 via-blue-500/30 to-transparent" />
                 )}
                 {/* Hover overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/0 via-black/0 to-black/0 transition-all duration-200 group-hover:from-black/30 group-hover:via-black/10" />
 
                 {/* Active indicator dot */}
-                {actualIndex === currentSlide && (
+                {actualIndex === safeCurrentSlide && (
                   <div className="absolute top-1 right-1 w-2 h-2 rounded-full bg-cyan-400 animate-pulse shadow-lg shadow-cyan-400/50"></div>
                 )}
               </button>

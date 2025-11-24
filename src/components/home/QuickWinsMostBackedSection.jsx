@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Zap, Users } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Gem, ArrowRight } from 'lucide-react';
 import ProjectCard from './ProjectCard';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
+import { Link } from 'react-router-dom';
 
 // Import Swiper styles
 import 'swiper/css';
@@ -10,46 +11,14 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 
 /**
- * Quick Wins & Most Backed Section - Tabbed
- * Quick Wins: Goal < 10M VND
- * Most Backed: Highest backers count
- * @param {Object} campaigns - Object with quickWins and mostBacked arrays
+ * Hidden Gems Section
+ * Hidden Gems: Goal < 50M VND, sorted by progress
+ * @param {Array} campaigns - Array of hiddenGems campaigns
  * @param {boolean} loading - Loading state from parent
  */
-export const QuickWinsMostBackedSection = ({ campaigns = { quickWins: [], mostBacked: [] }, loading = false }) => {
-    const [activeTab, setActiveTab] = useState('quick-wins');
+export const QuickWinsMostBackedSection = ({ campaigns = [], loading = false }) => {
     const [swiperRef, setSwiperRef] = useState(null);
     const [isReady, setIsReady] = useState(false);
-
-    const { quickWins: quickWinsCampaigns = [], mostBacked: mostBackedCampaigns = [] } = campaigns;
-
-    const tabs = [
-        {
-            id: 'quick-wins',
-            label: 'Dễ Đạt Mục Tiêu',
-            count: quickWinsCampaigns.length,
-            icon: Zap,
-        },
-        {
-            id: 'most-backed',
-            label: 'Nhiều Người Ủng Hộ',
-            count: mostBackedCampaigns.length,
-            icon: Users,
-        },
-    ];
-
-    const getCurrentCampaigns = () => {
-        return activeTab === 'quick-wins' ? quickWinsCampaigns : mostBackedCampaigns;
-    };
-
-    const currentCampaigns = getCurrentCampaigns();
-
-    const handleTabChange = (tabId) => {
-        setActiveTab(tabId);
-        setIsReady(false);
-        swiperRef?.slideTo(0);
-        setTimeout(() => setIsReady(true), 100);
-    };
 
     // Enable transitions after mount
     useEffect(() => {
@@ -58,7 +27,7 @@ export const QuickWinsMostBackedSection = ({ campaigns = { quickWins: [], mostBa
             if (swiperRef) swiperRef.update();
         }, 100);
         return () => clearTimeout(timer);
-    }, [swiperRef, activeTab]);
+    }, [swiperRef]);
 
     if (loading) {
         return (
@@ -75,61 +44,37 @@ export const QuickWinsMostBackedSection = ({ campaigns = { quickWins: [], mostBa
         );
     }
 
-    const isEmpty = currentCampaigns.length === 0;
+    const isEmpty = campaigns.length === 0;
 
     return (
         <section className="py-8 sm:py-10 lg:py-12 bg-background-light-2 dark:bg-darker transition-colors duration-300">
             <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
-                {/* Header with Tabs and Navigation */}
-                <div className="flex items-center justify-between mb-2 border-b border-gray-200 dark:border-gray-600 transition-colors duration-300">
-                    {/* Tab Navigation */}
-                    <div className="flex items-center gap-4 sm:gap-6">
-                        {tabs.map((tab) => {
-                            const Icon = tab.icon;
-                            return (
-                                <button
-                                    key={tab.id}
-                                    onClick={() => handleTabChange(tab.id)}
-                                    className={`relative pb-3 font-medium transition-all duration-200 ${activeTab === tab.id
-                                        ? 'text-text-primary dark:text-white'
-                                        : 'text-text-secondary dark:text-text-white hover:text-text-primary dark:hover:text-text-white'
-                                        }`}
-                                >
-                                    <span className="flex items-center gap-2">
-                                        <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
-                                        <span className="text-lg sm:text-2xl">{tab.label}</span>
-                                        <span
-                                            className={`text-xs px-2 py-0.5 rounded-full transition-colors duration-300 ${activeTab === tab.id
-                                                ? 'bg-primary text-white'
-                                                : 'bg-gray-200 dark:bg-gray-600 text-text-secondary dark:text-gray-300'
-                                                }`}
-                                        >
-                                            {tab.count}
-                                        </span>
-                                    </span>
-
-                                    {/* Active Tab Indicator */}
-                                    {activeTab === tab.id && (
-                                        <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
-                                    )}
-                                </button>
-                            );
-                        })}
+                {/* Header with Title and Navigation */}
+                <div className="flex items-center justify-between mb-2">
+                    {/* Title */}
+                    <div className="flex items-center gap-2">
+                        <Gem className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+                        <h2 className="text-lg sm:text-2xl font-medium text-text-primary dark:text-white">
+                            Tiềm năng
+                        </h2>
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-primary text-white">
+                            {campaigns.length}
+                        </span>
                     </div>
 
                     {/* Navigation Controls */}
-                    {!isEmpty && currentCampaigns.length > 4 && (
+                    {!isEmpty && campaigns.length > 4 && (
                         <div className="flex items-center gap-2">
                             <button
                                 onClick={() => swiperRef?.slidePrev()}
-                                className={`quick-most-prev-${activeTab} p-2 rounded-sm transition-all duration-200 bg-primary text-white hover:bg-primary-600 hover:scale-105 disabled:bg-gray-200 dark:disabled:bg-gray-700 disabled:text-gray-400 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-card`}
+                                className="hidden-gems-prev p-2 rounded-sm transition-all duration-200 bg-primary text-white hover:bg-primary-600 hover:scale-105 disabled:bg-gray-200 dark:disabled:bg-gray-700 disabled:text-gray-400 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-card"
                                 aria-label="Previous"
                             >
                                 <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
                             </button>
                             <button
                                 onClick={() => swiperRef?.slideNext()}
-                                className={`quick-most-next-${activeTab} p-2 rounded-sm transition-all duration-200 bg-primary text-white hover:bg-primary-600 hover:scale-105 disabled:bg-gray-200 dark:disabled:bg-gray-700 disabled:text-gray-400 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-card`}
+                                className="hidden-gems-next p-2 rounded-sm transition-all duration-200 bg-primary text-white hover:bg-primary-600 hover:scale-105 disabled:bg-gray-200 dark:disabled:bg-gray-700 disabled:text-gray-400 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-card"
                                 aria-label="Next"
                             >
                                 <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -138,12 +83,10 @@ export const QuickWinsMostBackedSection = ({ campaigns = { quickWins: [], mostBa
                     )}
                 </div>
 
-                {/* Description */}
+                {/* Description
                 <p className="text-sm sm:text-base text-muted-foreground dark:text-gray-400 mt-4 mb-6">
-                    {activeTab === 'quick-wins'
-                        ? '🎯 Những dự án với mục tiêu nhỏ hơn 10 triệu VND, dễ dàng ủng hộ và nhanh chóng thành công!'
-                        : '👥 Những dự án có cộng đồng ủng hộ đông đảo nhất, được nhiều người tin tưởng!'}
-                </p>
+                    💎 Những dự án có mục tiêu gọi vốn thấp (dưới 50 triệu VND), dễ thành công, thường là các dự án cá nhân hoặc indie.
+                </p> */}
 
                 {/* Content */}
                 {isEmpty ? (
@@ -156,7 +99,6 @@ export const QuickWinsMostBackedSection = ({ campaigns = { quickWins: [], mostBa
                     <>
                         {/* Swiper Carousel */}
                         <Swiper
-                            key={activeTab}
                             modules={[Navigation, Pagination]}
                             spaceBetween={24}
                             slidesPerView={1}
@@ -167,12 +109,12 @@ export const QuickWinsMostBackedSection = ({ campaigns = { quickWins: [], mostBa
                             observeParents={true}
                             onSwiper={setSwiperRef}
                             navigation={{
-                                prevEl: `.quick-most-prev-${activeTab}`,
-                                nextEl: `.quick-most-next-${activeTab}`,
+                                prevEl: '.hidden-gems-prev',
+                                nextEl: '.hidden-gems-next',
                             }}
                             pagination={{
                                 clickable: true,
-                                el: `.quick-most-pagination-${activeTab}`,
+                                el: '.hidden-gems-pagination',
                                 bulletClass: 'inline-block w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600 transition-all duration-300 cursor-pointer hover:bg-gray-400 dark:hover:bg-gray-500',
                                 bulletActiveClass: '!w-8 !bg-primary',
                             }}
@@ -190,7 +132,7 @@ export const QuickWinsMostBackedSection = ({ campaigns = { quickWins: [], mostBa
                             }}
                             className={`!pb-2 transition-opacity duration-300 ${isReady ? 'opacity-100' : 'opacity-0'}`}
                         >
-                            {currentCampaigns.map((campaign) => (
+                            {campaigns.map((campaign) => (
                                 <SwiperSlide key={campaign.campaignId} className="pt-6">
                                     <ProjectCard
                                         project={campaign}
@@ -200,10 +142,19 @@ export const QuickWinsMostBackedSection = ({ campaigns = { quickWins: [], mostBa
                             ))}
                         </Swiper>
 
-                        {/* Page Indicators */}
-                        {currentCampaigns.length > 4 && (
-                            <div className={`quick-most-pagination-${activeTab} flex justify-center gap-2 mt-8`}></div>
+                        {/* Pagination Dots */}
+                        {campaigns.length > 4 && (
+                            <div className="hidden-gems-pagination flex justify-center gap-2 mt-8"></div>
                         )}
+                         <div className="flex justify-end mt-1">
+                    <Link
+                        to="/search"
+                        className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary hover:text-primary-600 dark:text-primary-400 dark:hover:text-primary-300 transition-colors duration-200"
+                    >
+                        <span>Xem thêm chiến dịch</span>
+                        <ArrowRight className="w-4 h-4" />
+                    </Link>
+                </div>
                     </>
                 )}
             </div>

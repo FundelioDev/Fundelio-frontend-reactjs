@@ -77,6 +77,7 @@ export default function AdminCampaignsPage() {
       const response = await campaignApi.getCampaignById(campaign.campaignId);
       if (response?.data?.data) {
         setSelectedCampaign(response.data.data);
+        console.log('Selected Campaign: ', response.data.data);
         setShowDetailDialog(true);
       }
     } catch (error) {

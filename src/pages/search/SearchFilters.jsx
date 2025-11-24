@@ -46,6 +46,8 @@ const SearchFilters = ({
         { value: 'most_funded', label: 'Nhiều hỗ trợ nhất' },
         { value: 'backersCount', label: 'Nhiều người ủng hộ nhất' },
         { value: 'ending_soon', label: 'Sắp kết thúc' },
+        { value: 'startDate_desc', label: 'Mới ra mắt' },
+        { value: 'needs_support', label: 'Cần tiếp sức' },
     ];
 
     return (

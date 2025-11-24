@@ -18,7 +18,7 @@ const PledgeNoRewardCard = ({ currency = 'VND', onPledge, isPreview = false, isO
       // Navigate to pledge page with data
       const pledgeData = {
         campaignId: campaignId,
-        rewardId: null, // No reward selected
+        // rewardId: null, // No reward selected
         amount: value, // Required field
         bonusAmount: 0,
         totalAmount: value,

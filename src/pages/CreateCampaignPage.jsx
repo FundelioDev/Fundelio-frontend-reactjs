@@ -11,6 +11,7 @@ import { generatePreviewId, savePreviewData } from '@/utils/previewStorage';
 import { setBasics, initializeStory, resetCampaign, addBlank as addBlankAction } from '@/store/campaignSlice';
 import { campaignApi } from '@/api/campaignApi';
 import { campaignSectionApi } from '@/api/campaignSectionApi';
+import { isReadOnly } from '@/utils/campaignStatusConfig';
 
 export default function CreateCampaignPage() {
   const navigate = useNavigate();
@@ -426,6 +427,7 @@ export default function CreateCampaignPage() {
               saveStatus={saveStatus}
               campaignId={campaignId}
               isEditMode={isEditMode}
+              isReadOnly={campaign ? isReadOnly(campaign.campaignStatus) : false}
             />
           </div>
         </main>

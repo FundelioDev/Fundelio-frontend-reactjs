@@ -305,7 +305,7 @@ export default function PledgeSummaryPage() {
                 'Amount': amount,
                 'Bonus Amount': pledgePayload.bonusAmount,
                 'Total Amount': totalAmount,
-                'Add-ons Count': pledgePayload.addOns.length,
+                // 'Add-ons Count': pledgePayload.addOns.length,
                 'Has No Reward': isNoRewardPledge
             });
 

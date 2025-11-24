@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import ComponentsTab from "./tabs/ComponenstTab"
 import RewardsTab from "./tabs/RewardsTab"
 
-export default function RewardCreateTab({ campaignId }) {
+export default function RewardCreateTab({ campaignId, isReadOnly = false }) {
   const [activeTab, setActiveTab] = useState("component");
 
   // Sync URL hash with active tab
@@ -53,11 +53,13 @@ export default function RewardCreateTab({ campaignId }) {
         {activeTab === "component" && (
           <ComponentsTab
             campaignId={campaignId}
+            isReadOnly={isReadOnly}
           />
         )}
         {activeTab === "rewards" && (
           <RewardsTab
             campaignId={campaignId}
+            isReadOnly={isReadOnly}
           />
         )}
       </div>

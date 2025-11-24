@@ -199,14 +199,23 @@ const SearchPage = () => {
             };
 
             // Map sort to backend fields
+            let sortParam = null;
             if (sort === 'newest') {
-                params.sort = 'createdAt,desc';
+                sortParam = 'createdAt,desc';
             } else if (sort === 'most_funded') {
-                params.sort = 'pledgedAmount,desc';
+                sortParam = 'pledgedAmount,desc';
             } else if (sort === 'backersCount') {
-                params.sort = 'backersCount,desc';
+                sortParam = ['backersCount,desc', 'pledgedAmount,desc'];
             } else if (sort === 'ending_soon') {
-                params.sort = 'endDate,asc';
+                sortParam = 'endDate,asc';
+            } else if (sort === 'startDate_desc') {
+                sortParam = 'startDate,desc';
+            } else if (sort === 'needs_support' || sort === 'startDate_asc') {
+                sortParam = ['backersCount,asc', 'startDate,asc'];
+            }
+
+            if (sortParam) {
+                params.sort = sortParam;
             }
 
             console.log('[SearchPage] API params:', params);

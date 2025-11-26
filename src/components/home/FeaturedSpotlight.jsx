@@ -145,18 +145,18 @@ export const FeaturedSpotlight = ({ campaigns = { featured: [], spotlight: [] },
                 >
                   {chunkedFeatured.map((campaignGroup, index) => (
                     <SwiperSlide key={`featured-slide-${index}`}>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         {campaignGroup.map((campaign) => (
-                  <ProjectCard
-                    key={campaign.campaignId}
-                    project={campaign}
-                    asLink={`/campaigns/${campaign.campaignId}`}
-                    onBookmarkToggle={(id, bookmarked) => {
-                      console.log('Bookmark toggled:', id, bookmarked);
-                    }}
-                  />
-                ))}
-              </div>
+                          <ProjectCard
+                            key={campaign.campaignId}
+                            project={campaign}
+                            asLink={`/campaigns/${campaign.campaignId}`}
+                            onBookmarkToggle={(id, bookmarked) => {
+                              console.log('Bookmark toggled:', id, bookmarked);
+                            }}
+                          />
+                        ))}
+                      </div>
                     </SwiperSlide>
                   ))}
                 </Swiper>
@@ -229,6 +229,8 @@ export const FeaturedSpotlight = ({ campaigns = { featured: [], spotlight: [] },
                           <img
                             src={campaign.introImageUrl || '/placeholder.svg'}
                             alt={campaign.title}
+                            loading="lazy"
+                            decoding="async"
                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                           />
                         </div>

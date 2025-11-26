@@ -60,7 +60,6 @@ const Leaderboard = ({ campaignId }) => {
       try {
         setIsLoading(true);
         const response = await pledgeApi.getTopBackersOfCampaign(campaignId);
-        console.log('📊 Initial top backers:', response);
 
         if (response.data.data && Array.isArray(response.data.data)) {
           const initialBackers = response.data.data.map(backer => {
@@ -94,8 +93,6 @@ const Leaderboard = ({ campaignId }) => {
 
   // Subscribe to campaign progress updates
   const handleCampaignProgress = useCallback((progressData) => {
-    console.log('📊 Campaign progress update:', progressData);
-
     const data = progressData.data || progressData;
 
     // Update backers from topBackers
@@ -230,8 +227,6 @@ const Leaderboard = ({ campaignId }) => {
     return null;
   };
 
-  console.log("BBBB", backers);
-
   return (
     <div className="max-w-4xl mx-auto">
       <Toaster
@@ -309,11 +304,21 @@ const Leaderboard = ({ campaignId }) => {
                   </div>
 
                   {/* Avatar */}
-                  <div
-                    className="flex items-center justify-center w-12 h-12 rounded-full text-white font-bold text-sm"
-                    style={{ backgroundColor: backer.color }}
-                  >
-                    {backer.avatar}
+                  <div className="flex items-center justify-center w-12 h-12 rounded-full text-white font-bold text-sm overflow-hidden">
+                    {backer.avatarUrl ? (
+                      <img
+                        src={backer.avatarUrl}
+                        alt={backer.backerName}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div
+                        className="w-full h-full flex items-center justify-center"
+                        style={{ backgroundColor: backer.color }}
+                      >
+                        {backer.avatar}
+                      </div>
+                    )}
                   </div>
 
                   {/* Name */}

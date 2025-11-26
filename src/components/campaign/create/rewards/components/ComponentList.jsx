@@ -80,17 +80,17 @@ export default function ItemList({
         {filteredItems.map((item) => {
           const deleteDisabled = preventDeletingOldItems && item?.isOld
           return (
-            <RewardCard
-              key={item.catalogItemId}
-              data={item}
-              type="item"
-              onEdit={onEdit}
-              onDelete={onDelete}
-              linkedRewards={itemRewards[item.catalogItemId] || []}
-              isReadOnly={isReadOnly}
+          <RewardCard
+            key={item.catalogItemId}
+            data={item}
+            type="item"
+            onEdit={onEdit}
+            onDelete={onDelete}
+            linkedRewards={itemRewards[item.catalogItemId] || []}
+            isReadOnly={isReadOnly}
               disableDelete={deleteDisabled}
               deleteTooltip={deleteDisabled ? 'Không thể xóa thành phần đã tồn tại trong trạng thái này.' : undefined}
-            />
+          />
           )
         })}
       </div>

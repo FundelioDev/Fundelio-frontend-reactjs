@@ -1,18 +1,25 @@
 import Hero from '@/components/common/Hero';
-import HowItWorks from '@/components/home/HowItWorks';
-import Rankings from '@/components/home/Rankings';
-import WhyChooseUs from '@/components/home/WhyChooseUs';
-import CrowdfundingTips from '@/components/home/CrowdfundingTips';
-import PrimaryCTA from '@/components/home/PrimaryCTA';
-import React, { useState, useEffect, useMemo } from 'react';
-// import TrendingNewestCampaigns from '@/components/home/RecentSavedCampaigns';
-// import PopularCampaigns from '@/components/home/PopularCampaigns';
-import FeaturedSpotlight from '@/components/home/FeaturedSpotlight';
-import AlmostThereSection from '@/components/home/AlmostThereSection';
-import EndingSoonSection from '@/components/home/EndingSoonSection';
-import SuccessStoriesSection from '@/components/home/SuccessStoriesSection';
-import QuickWinsMostBackedSection from '@/components/home/QuickWinsMostBackedSection';
+import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import { campaignApi } from '@/api/campaignApi';
+
+// Lazy load below-the-fold components
+const HowItWorks = React.lazy(() => import('@/components/home/HowItWorks'));
+const Rankings = React.lazy(() => import('@/components/home/Rankings'));
+const WhyChooseUs = React.lazy(() => import('@/components/home/WhyChooseUs'));
+const CrowdfundingTips = React.lazy(() => import('@/components/home/CrowdfundingTips'));
+const PrimaryCTA = React.lazy(() => import('@/components/home/PrimaryCTA'));
+const FeaturedSpotlight = React.lazy(() => import('@/components/home/FeaturedSpotlight'));
+const AlmostThereSection = React.lazy(() => import('@/components/home/AlmostThereSection'));
+const EndingSoonSection = React.lazy(() => import('@/components/home/EndingSoonSection'));
+const SuccessStoriesSection = React.lazy(() => import('@/components/home/SuccessStoriesSection'));
+const QuickWinsMostBackedSection = React.lazy(() => import('@/components/home/QuickWinsMostBackedSection'));
+
+// Loading fallback
+const SectionLoader = () => (
+  <div className="py-12 flex justify-center">
+    <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+  </div>
+);
 
 export default function HomePage() {
   const [allCampaigns, setAllCampaigns] = useState([]);
@@ -150,64 +157,52 @@ export default function HomePage() {
       {/* Hero Section */}
       <Hero />
 
-      {/* Featured & Spotlight Section - Layout giống ảnh tham khảo */}
-      <FeaturedSpotlight
-        campaigns={{ featured: filteredData.featured, spotlight: filteredData.spotlight }}
-        loading={loading}
-      />
+      <Suspense fallback={<SectionLoader />}>
+        {/* Featured & Spotlight Section - Layout giống ảnh tham khảo */}
+        <FeaturedSpotlight
+          campaigns={{ featured: filteredData.featured, spotlight: filteredData.spotlight }}
+          loading={loading}
+        />
 
-      {/* Rankings - Top 10 by Funding & Audience */}
-      <Rankings />
+        {/* Rankings - Top 10 by Funding & Audience */}
+        <Rankings />
 
-      {/* Trending & Newest Campaigns - Tabs */}
-      {/* <TrendingNewestCampaigns
-        campaigns={{ trending: filteredData.trending, newest: filteredData.newest }}
-        loading={loading}
-      /> */}
+        {/* Almost There - Gần đạt mục tiêu (80-99%) */}
+        <AlmostThereSection
+          campaigns={filteredData.almostThere}
+          loading={loading}
+        />
 
-      {/* Almost There - Gần đạt mục tiêu (80-99%) */}
-      <AlmostThereSection
-        campaigns={filteredData.almostThere}
-        loading={loading}
-      />
+        {/* How It Works */}
+        <HowItWorks />
 
-      {/* How It Works */}
-      <HowItWorks />
+        {/* Success Stories - SUCCESSFUL campaigns */}
+        <SuccessStoriesSection
+          campaigns={filteredData.successStories}
+          loading={loading}
+        />
 
-      {/* Popular Campaigns - Most Backed */}
-      {/* <PopularCampaigns 
-        campaigns={filteredData.popular}
-        loading={loading}
-      /> */}
+        {/* Hidden Gems - Tiềm năng */}
+        <QuickWinsMostBackedSection
+          campaigns={filteredData.hiddenGems}
+          loading={loading}
+        />
 
+        {/* Ending Soon - < 7 days */}
+        <EndingSoonSection
+          campaigns={filteredData.endingSoon}
+          loading={loading}
+        />
 
+        {/* Why Choose Us */}
+        <WhyChooseUs />
 
-      {/* Success Stories - SUCCESSFUL campaigns */}
-      <SuccessStoriesSection
-        campaigns={filteredData.successStories}
-        loading={loading}
-      />
+        {/* Crowdfunding Tips */}
+        <CrowdfundingTips />
 
-      {/* Hidden Gems - Tiềm năng */}
-      <QuickWinsMostBackedSection
-        campaigns={filteredData.hiddenGems}
-        loading={loading}
-      />
-
-      {/* Ending Soon - < 7 days */}
-      <EndingSoonSection
-        campaigns={filteredData.endingSoon}
-        loading={loading}
-      />
-
-      {/* Why Choose Us */}
-      <WhyChooseUs />
-
-      {/* Crowdfunding Tips */}
-      <CrowdfundingTips />
-
-      {/* Primary CTA */}
-      <PrimaryCTA />
+        {/* Primary CTA */}
+        <PrimaryCTA />
+      </Suspense>
     </div>
   );
 }

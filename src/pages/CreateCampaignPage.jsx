@@ -11,7 +11,7 @@ import { generatePreviewId, savePreviewData } from '@/utils/previewStorage';
 import { setBasics, initializeStory, resetCampaign, addBlank as addBlankAction } from '@/store/campaignSlice';
 import { campaignApi } from '@/api/campaignApi';
 import { campaignSectionApi } from '@/api/campaignSectionApi';
-import { isReadOnly } from '@/utils/campaignStatusConfig';
+import { getItemRules, getRewardRules, isReadOnly } from '@/utils/campaignStatusConfig';
 
 export default function CreateCampaignPage() {
   const navigate = useNavigate();
@@ -393,6 +393,11 @@ export default function CreateCampaignPage() {
     });
   };
 
+  const campaignStatus = campaign?.campaignStatus;
+  const readOnlyMode = campaign ? isReadOnly(campaignStatus) : false;
+  const rewardRules = getRewardRules(campaignStatus);
+  const itemRules = getItemRules(campaignStatus);
+
   return (
     <>
       <div className="min-h-screen flex flex-col bg-[#f6f8ff] dark:bg-darker transition-colors duration-300">
@@ -427,7 +432,10 @@ export default function CreateCampaignPage() {
               saveStatus={saveStatus}
               campaignId={campaignId}
               isEditMode={isEditMode}
-              isReadOnly={campaign ? isReadOnly(campaign.campaignStatus) : false}
+              isReadOnly={readOnlyMode}
+              campaignStatus={campaignStatus}
+              rewardRules={rewardRules}
+              itemRules={itemRules}
             />
           </div>
         </main>

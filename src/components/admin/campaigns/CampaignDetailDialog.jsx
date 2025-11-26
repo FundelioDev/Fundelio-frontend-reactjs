@@ -10,27 +10,20 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Check, X, Clock, Eye, Loader, TrendingUp, TrendingDown, Ban, FileText } from 'lucide-react';
+import { Check, X, Eye, TrendingUp, Trash2 } from 'lucide-react';
 import { formatCurrency } from '@/utils/formatters';
 import { useNavigate } from 'react-router-dom';
+import { getCampaignStatusConfig } from '@/constants/campaignStatus';
 
 const getStatusBadge = (status) => {
-  const statusConfig = {
-    DRAFT: { variant: 'secondary', label: 'Bản nháp', icon: FileText },
-    PENDING: { variant: 'warning', label: 'Chờ duyệt', icon: Clock },
-    APPROVED: { variant: 'success', label: 'Đã duyệt', icon: Check },
-    REJECTED: { variant: 'destructive', label: 'Từ chối', icon: X },
-    ACTIVE: { variant: 'default', label: 'Đang gây quỹ', icon: Loader },
-    SUCCESSFUL: { variant: 'success', label: 'Thành công', icon: TrendingUp },
-    FAILED: { variant: 'destructive', label: 'Thất bại', icon: TrendingDown },
-    ENDED: { variant: 'secondary', label: 'Kết thúc', icon: Ban },
-  };
-
-  const config = statusConfig[status] || statusConfig.PENDING;
+  const config = getCampaignStatusConfig(status);
   const Icon = config.icon;
 
   return (
-    <Badge variant={config.variant} className='flex items-center gap-1'>
+    <Badge
+      variant='outline'
+      className={`flex items-center gap-1 border-0 px-3 py-1 text-xs font-semibold ${config.className}`}
+    >
       <Icon className='w-3 h-3' />
       {config.label}
     </Badge>
@@ -113,6 +106,7 @@ export const CampaignDetailDialog = ({
   onOpenChange,
   onApprove,
   onReject,
+  onDelete,
 }) => {
   const navigate = useNavigate();
 
@@ -345,6 +339,14 @@ export const CampaignDetailDialog = ({
           <Button variant='secondary' onClick={handlePreview}>
             <Eye className='w-4 h-4 mr-2' />
             Xem Preview
+          </Button>
+          <Button
+            variant='outline'
+            className='border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-300 dark:hover:bg-red-900/30'
+            onClick={() => onDelete?.(campaign)}
+          >
+            <Trash2 className='w-4 h-4 mr-2' />
+            Xóa chiến dịch
           </Button>
           {campaign.campaignStatus === 'PENDING' && (
             <>

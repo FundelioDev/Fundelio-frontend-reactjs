@@ -1,9 +1,42 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import ComponentsTab from "./tabs/ComponenstTab"
 import RewardsTab from "./tabs/RewardsTab"
 
-export default function RewardCreateTab({ campaignId, isReadOnly = false }) {
+export default function RewardCreateTab({
+  campaignId,
+  isReadOnly = false,
+  rewardRules = {},
+  itemRules = {},
+  initialOldItemIdsRef,
+  initialOldRewardIdsRef,
+}) {
   const [activeTab, setActiveTab] = useState("component");
+  const fallbackInitialItemIdsRef = useRef(new Set())
+  const fallbackInitialRewardIdsRef = useRef(new Set())
+  const itemIdsRef = initialOldItemIdsRef || fallbackInitialItemIdsRef
+  const rewardIdsRef = initialOldRewardIdsRef || fallbackInitialRewardIdsRef
+
+  useEffect(() => {
+    console.log('[RewardCreateTab] mount', {
+      campaignId,
+      providedItemRef: Boolean(initialOldItemIdsRef),
+      providedRewardRef: Boolean(initialOldRewardIdsRef),
+    })
+    return () => {
+      console.log('[RewardCreateTab] unmount', {
+        finalItemOldCount: itemIdsRef.current.size,
+        finalRewardOldCount: rewardIdsRef.current.size,
+      })
+    }
+  }, [campaignId, initialOldItemIdsRef, initialOldRewardIdsRef, itemIdsRef, rewardIdsRef])
+
+  useEffect(() => {
+    console.log('[RewardCreateTab] sub-tab changed', {
+      activeTab,
+      snapshotItemOldCount: itemIdsRef.current.size,
+      snapshotRewardOldCount: rewardIdsRef.current.size,
+    })
+  }, [activeTab, itemIdsRef, rewardIdsRef])
 
   // Sync URL hash with active tab
   useEffect(() => {
@@ -54,12 +87,16 @@ export default function RewardCreateTab({ campaignId, isReadOnly = false }) {
           <ComponentsTab
             campaignId={campaignId}
             isReadOnly={isReadOnly}
+            itemRules={itemRules}
+            initialOldItemIdsRef={itemIdsRef}
           />
         )}
         {activeTab === "rewards" && (
           <RewardsTab
             campaignId={campaignId}
             isReadOnly={isReadOnly}
+            rewardRules={rewardRules}
+            initialOldRewardIdsRef={rewardIdsRef}
           />
         )}
       </div>

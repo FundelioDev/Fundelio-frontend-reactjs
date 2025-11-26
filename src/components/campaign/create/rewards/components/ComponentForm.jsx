@@ -5,7 +5,16 @@ import Checkbox from "@/components/common/Checkbox"
 import { storageApi } from "@/api/storageApi"
 import toast from 'react-hot-toast'
 
-export default function ItemForm({ item, rewards, onSave, onCancel, campaignId, isLoading, fieldErrors = {} }) {
+export default function ItemForm({
+  item,
+  rewards,
+  onSave,
+  onCancel,
+  campaignId,
+  isLoading,
+  fieldErrors = {},
+  disablePriceField = false,
+}) {
   const [formData, setFormData] = useState(
     item || {
       name: "",
@@ -134,9 +143,15 @@ export default function ItemForm({ item, rewards, onSave, onCancel, campaignId, 
               min="1"
               step="1"
               onWheel={(e) => e.target.blur()}
-              className={fieldErrors.price ? 'border-red-500 focus:ring-red-500' : ''}
+              disabled={disablePriceField}
+              className={`${fieldErrors.price ? 'border-red-500 focus:ring-red-500' : ''} ${disablePriceField ? 'opacity-60 cursor-not-allowed bg-gray-50 dark:bg-gray-800' : ''}`}
             />
             {fieldErrors.price && <p className="mt-1 text-sm text-destructive">{fieldErrors.price}</p>}
+            {disablePriceField && (
+              <p className="mt-1 text-xs text-muted-foreground">
+                Không thể thay đổi giá của thành phần đã tồn tại khi chiến dịch đang tạm dừng/hoạt động/thành công.
+              </p>
+            )}
           </div>
 
           {/* Image Section */}

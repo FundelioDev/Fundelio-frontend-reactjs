@@ -401,6 +401,14 @@ export default function CampaignOverviewPage() {
                 });
                 setShowSuccessModal(true);
 
+                if (typeof window !== 'undefined') {
+                    window.dispatchEvent(
+                        new CustomEvent('campaign:submitted-for-review', {
+                            detail: { campaignId },
+                        })
+                    );
+                }
+
                 setTimeout(() => {
                     setShowSuccessModal(false);
                     navigate('/dashboard');

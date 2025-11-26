@@ -42,6 +42,16 @@ export const CAMPAIGN_STATUS_CONFIG = {
       editButtonType: 'edit',
       isReadOnly: false,
     },
+    rewardRules: {
+      markExistingAsOld: true,
+      preventDeletingOldRewards: true,
+      preventOldRewardItemUpserts: true,
+    },
+    itemRules: {
+      markExistingAsOld: true,
+      preventDeletingOldItems: true,
+      lockOldItemPrice: true,
+    },
   },
   APPROVED: {
     label: 'Đã duyệt',
@@ -50,7 +60,7 @@ export const CAMPAIGN_STATUS_CONFIG = {
       canEdit: false,
       canViewStats: false,
       canDelete: false,
-      canEnd: true,
+      canEnd: false,
       canSubmit: false,
       editButtonType: 'view', // Eye icon, read-only
       isReadOnly: true,
@@ -81,6 +91,16 @@ export const CAMPAIGN_STATUS_CONFIG = {
       editButtonType: 'edit',
       isReadOnly: false,
     },
+    rewardRules: {
+      markExistingAsOld: true,
+      preventDeletingOldRewards: true,
+      preventOldRewardItemUpserts: true,
+    },
+    itemRules: {
+      markExistingAsOld: true,
+      preventDeletingOldItems: true,
+      lockOldItemPrice: true,
+    },
   },
   SUCCESSFUL: {
     label: 'Thành công',
@@ -93,6 +113,16 @@ export const CAMPAIGN_STATUS_CONFIG = {
       canSubmit: false, // Disabled submit button
       editButtonType: 'edit',
       isReadOnly: false,
+    },
+    rewardRules: {
+      markExistingAsOld: true,
+      preventDeletingOldRewards: true,
+      preventOldRewardItemUpserts: true,
+    },
+    itemRules: {
+      markExistingAsOld: true,
+      preventDeletingOldItems: true,
+      lockOldItemPrice: true,
     },
   },
   FAILED: {
@@ -114,7 +144,7 @@ export const CAMPAIGN_STATUS_CONFIG = {
     actions: {
       canEdit: false,
       canViewStats: true,
-      canDelete: true,
+      canDelete: false,
       canEnd: false,
       canSubmit: false,
       editButtonType: 'view', // Eye icon, read-only
@@ -122,6 +152,18 @@ export const CAMPAIGN_STATUS_CONFIG = {
     },
   },
 };
+
+const DEFAULT_REWARD_RULES = Object.freeze({
+  markExistingAsOld: false,
+  preventDeletingOldRewards: false,
+  preventOldRewardItemUpserts: false,
+});
+
+const DEFAULT_ITEM_RULES = Object.freeze({
+  markExistingAsOld: false,
+  preventDeletingOldItems: false,
+  lockOldItemPrice: false,
+});
 
 /**
  * Get status configuration
@@ -177,5 +219,31 @@ export const isReadOnly = (status) => {
  */
 export const getEditButtonType = (status) => {
   return getStatusConfig(status).actions.editButtonType;
+};
+
+/**
+ * Get reward-level restrictions for a status
+ * @param {string} status
+ * @returns {{markExistingAsOld: boolean, preventDeletingOldRewards: boolean, preventOldRewardItemUpserts: boolean}}
+ */
+export const getRewardRules = (status) => {
+  const config = getStatusConfig(status);
+  return {
+    ...DEFAULT_REWARD_RULES,
+    ...(config.rewardRules || {}),
+  };
+};
+
+/**
+ * Get item-level restrictions for a status
+ * @param {string} status
+ * @returns {{markExistingAsOld: boolean, preventDeletingOldItems: boolean, lockOldItemPrice: boolean}}
+ */
+export const getItemRules = (status) => {
+  const config = getStatusConfig(status);
+  return {
+    ...DEFAULT_ITEM_RULES,
+    ...(config.itemRules || {}),
+  };
 };
 

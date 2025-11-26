@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Plus, ChevronLeft, ChevronRight, Search } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ChevronLeft, ChevronRight, Search, X } from 'lucide-react';
 import Header from '@/components/common/Header';
 import Button from '@/components/common/Button';
 import Input from '@/components/common/Input';
@@ -16,11 +16,12 @@ const getStatusColor = (status) => {
     const colors = {
         DRAFT: 'bg-gray-100 text-gray-800 border-gray-300 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600',
         PENDING: 'bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-900/30 dark:text-yellow-200 dark:border-yellow-700',
+        PAUSED: 'bg-orange-100 text-orange-800 border-orange-300 dark:bg-orange-900/30 dark:text-orange-200 dark:border-orange-700',
         APPROVED: 'bg-green-100 text-green-800 border-green-300 dark:bg-green-900/30 dark:text-green-200 dark:border-green-700',
         REJECTED: 'bg-red-100 text-red-800 border-red-300 dark:bg-red-900/30 dark:text-red-200 dark:border-red-700',
         ACTIVE: 'bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900/30 dark:text-blue-200 dark:border-blue-700',
         SUCCESSFUL: 'bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-900/30 dark:text-emerald-200 dark:border-emerald-700',
-        FAILED: 'bg-orange-100 text-orange-800 border-orange-300 dark:bg-orange-900/30 dark:text-orange-200 dark:border-orange-700',
+        FAILED: 'bg-rose-100 text-rose-800 border-rose-300 dark:bg-rose-900/30 dark:text-rose-200 dark:border-rose-700',
         ENDED: 'bg-purple-100 text-purple-800 border-purple-300 dark:bg-purple-900/30 dark:text-purple-200 dark:border-purple-700',
     };
     return colors[status] || colors.DRAFT;
@@ -36,8 +37,10 @@ export default function DashboardPage() {
     const [campaigns, setCampaigns] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [searchInput, setSearchInput] = useState('');
     const [selectedStatus, setSelectedStatus] = useState('ALL');
     const [campaignStatuses, setCampaignStatuses] = useState({});
+    const [statusCounts, setStatusCounts] = useState({});
     const [pagination, setPagination] = useState({
         currentPage: 1,
         pageSize: 9,
@@ -63,8 +66,28 @@ export default function DashboardPage() {
         fetchStatuses();
     }, []);
 
-    // Fetch campaigns
-    const fetchCampaigns = async () => {
+    // Build filter string for API
+    const buildFilterString = useCallback((userId, status, search) => {
+        const filters = [];
+
+        // Always filter by owner
+        filters.push(`owner.userId:'${userId}'`);
+
+        // Add status filter if not ALL
+        if (status && status !== 'ALL') {
+            filters.push(`campaignStatus:'${status}'`);
+        }
+
+        // Add search filter if provided
+        if (search && search.trim()) {
+            filters.push(`title~'${search.trim()}'`);
+        }
+
+        return filters.join(' and ');
+    }, []);
+
+    // Fetch campaigns with filters
+    const fetchCampaigns = useCallback(async (page = 1) => {
         if (!user?.userId) {
             setLoading(false);
             return;
@@ -72,16 +95,24 @@ export default function DashboardPage() {
 
         try {
             setLoading(true);
-            const response = await campaignApi.getUserCampaigns(user.userId, {
-                page: pagination.currentPage,
+
+            const filterString = buildFilterString(user.userId, selectedStatus, searchTerm);
+
+            const response = await campaignApi.getAllCampaigns({
+                filter: filterString,
+                page,
                 size: pagination.pageSize,
                 sort: 'createdAt,desc',
             });
 
             if (response?.data?.data) {
                 const { content, meta } = response.data.data;
-                setCampaigns(content);
-                setPagination(meta);
+                setCampaigns(content || []);
+                setPagination(prev => ({
+                    ...prev,
+                    ...meta,
+                    currentPage: page,
+                }));
             }
         } catch (error) {
             console.error('Error fetching campaigns:', error);
@@ -89,26 +120,83 @@ export default function DashboardPage() {
         } finally {
             setLoading(false);
         }
+    }, [user?.userId, selectedStatus, searchTerm, pagination.pageSize, buildFilterString]);
+
+    // Fetch status counts (for showing count on each filter button)
+    const fetchStatusCounts = useCallback(async () => {
+        if (!user?.userId) return;
+
+        try {
+            // Fetch all campaigns to get counts
+            const response = await campaignApi.getAllCampaigns({
+                filter: `owner.userId:'${user.userId}'`,
+                page: 1,
+                size: 1000, // Get all to count
+            });
+
+            if (response?.data?.data?.content) {
+                const counts = { ALL: response.data.data.content.length };
+                response.data.data.content.forEach(campaign => {
+                    const status = campaign.campaignStatus;
+                    counts[status] = (counts[status] || 0) + 1;
+                });
+                setStatusCounts(counts);
+            }
+        } catch (error) {
+            console.error('Error fetching status counts:', error);
+        }
+    }, [user?.userId]);
+
+    // Initial load and when filters change
+    useEffect(() => {
+        fetchCampaigns(1);
+    }, [selectedStatus, searchTerm]);
+
+    // Fetch status counts on mount
+    useEffect(() => {
+        fetchStatusCounts();
+    }, [fetchStatusCounts]);
+
+    // Handle status filter click
+    const handleStatusFilter = (status) => {
+        if (status === selectedStatus) return;
+        setSelectedStatus(status);
+        setPagination(prev => ({ ...prev, currentPage: 1 }));
     };
 
-    useEffect(() => {
-        fetchCampaigns();
-    }, [user?.userId, pagination.currentPage, pagination.pageSize]);
+    // Handle search submit
+    const handleSearch = (e) => {
+        e?.preventDefault();
+        setSearchTerm(searchInput.trim());
+        setPagination(prev => ({ ...prev, currentPage: 1 }));
+    };
 
-    // Filter campaigns based on search and status
-    const filteredCampaigns = campaigns.filter(campaign => {
-        const matchesSearch = campaign.title?.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesStatus = selectedStatus === 'ALL' || campaign.campaignStatus === selectedStatus;
-        return matchesSearch && matchesStatus;
-    });
+    // Handle search input keydown
+    const handleSearchKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            handleSearch(e);
+        }
+    };
+
+    // Clear search
+    const handleClearSearch = () => {
+        setSearchInput('');
+        setSearchTerm('');
+        setPagination(prev => ({ ...prev, currentPage: 1 }));
+    };
 
     const handleCreateCampaign = () => {
         navigate('/campaigns/create');
     };
 
     const handlePageChange = (newPage) => {
-        setPagination(prev => ({ ...prev, currentPage: newPage }));
+        fetchCampaigns(newPage);
         window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const handleActionComplete = () => {
+        fetchCampaigns(pagination.currentPage);
+        fetchStatusCounts();
     };
 
     return (
@@ -129,7 +217,7 @@ export default function DashboardPage() {
                         </div>
 
                         {/* Founder Dashboard Link */}
-                        {campaigns.length > 0 && (
+                        {statusCounts.ALL > 0 && (
                             <Button
                                 variant="outline"
                                 size="md"
@@ -154,7 +242,7 @@ export default function DashboardPage() {
                         )}
                     </div>
 
-                    {loading ? (
+                    {loading && campaigns.length === 0 ? (
                         /* Loading State */
                         <div className="flex items-center justify-center py-20">
                             <div className="text-center">
@@ -162,8 +250,8 @@ export default function DashboardPage() {
                                 <p className="mt-4 text-muted-foreground">Đang tải chiến dịch...</p>
                             </div>
                         </div>
-                    ) : campaigns.length === 0 ? (
-                        /* Empty State */
+                    ) : statusCounts.ALL === 0 && !searchTerm && selectedStatus === 'ALL' ? (
+                        /* Empty State - No campaigns at all */
                         <div className="flex flex-col items-center justify-center py-20">
                             <div className="w-full max-w-md text-center">
                                 {/* Illustration/Icon */}
@@ -216,34 +304,66 @@ export default function DashboardPage() {
                             {/* Filters and Search */}
                             <div className="mb-6 space-y-4">
                                 {/* Search Bar */}
-                                <div className="relative max-w-md">
+                                <form onSubmit={handleSearch} className="relative max-w-md">
                                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
                                     <Input
                                         type="text"
                                         placeholder="Tìm kiếm chiến dịch..."
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                        className="pl-10"
+                                        value={searchInput}
+                                        onChange={(e) => setSearchInput(e.target.value)}
+                                        onKeyDown={handleSearchKeyDown}
+                                        className="pl-10 pr-20"
                                     />
-                                </div>
+                                    {searchInput && (
+                                        <button
+                                            type="button"
+                                            onClick={handleClearSearch}
+                                            className="absolute right-14 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-text-primary"
+                                        >
+                                            <X className="w-4 h-4" />
+                                        </button>
+                                    )}
+                                    <button
+                                        type="submit"
+                                        className="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1.5 text-sm font-medium text-white bg-primary hover:bg-primary/90 rounded-md transition-colors"
+                                    >
+                                        Tìm
+                                    </button>
+                                </form>
+
+                                {/* Active search indicator */}
+                                {searchTerm && (
+                                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                        <span>Đang tìm kiếm:</span>
+                                        <span className="px-2 py-1 bg-primary/10 text-primary rounded-md font-medium">
+                                            "{searchTerm}"
+                                        </span>
+                                        <button
+                                            onClick={handleClearSearch}
+                                            className="text-primary hover:text-primary/80 underline"
+                                        >
+                                            Xóa
+                                        </button>
+                                    </div>
+                                )}
 
                                 {/* Status Filter */}
                                 <div className="flex flex-wrap gap-2">
                                     <button
-                                        onClick={() => setSelectedStatus('ALL')}
+                                        onClick={() => handleStatusFilter('ALL')}
                                         className={`px-4 py-2 rounded-full text-sm font-medium transition-all border ${selectedStatus === 'ALL'
                                             ? 'bg-primary text-white border-primary'
                                             : 'bg-white dark:bg-darker-2 text-text-primary dark:text-white border-border hover:border-primary/50'
                                             }`}
                                     >
-                                        Tất cả ({campaigns.length})
+                                        Tất cả ({statusCounts.ALL || 0})
                                     </button>
                                     {Object.entries(campaignStatuses).map(([status, label]) => {
-                                        const count = campaigns.filter(c => c.campaignStatus === status).length;
+                                        const count = statusCounts[status] || 0;
                                         return (
                                             <button
                                                 key={status}
-                                                onClick={() => setSelectedStatus(status)}
+                                                onClick={() => handleStatusFilter(status)}
                                                 className={`px-4 py-2 rounded-full text-sm font-medium transition-all border ${selectedStatus === status
                                                     ? getStatusColor(status)
                                                     : 'bg-white dark:bg-darker-2 text-text-primary dark:text-white border-border hover:border-primary/50'
@@ -261,16 +381,8 @@ export default function DashboardPage() {
                                 <h2 className="text-xl font-semibold text-text-primary dark:text-white">
                                     Chiến dịch của bạn ({pagination.totalElements})
                                 </h2>
-                                {/* <Button
-                                    variant="gradient"
-                                    onClick={handleCreateCampaign}
-                                    className="flex items-center gap-2"
-                                >
-                                    <Plus className="w-5 h-5" />
-                                    Tạo chiến dịch mới
-                                </Button> */}
                                 <button onClick={handleCreateCampaign} className="border-2 border-blue-400 bg-blue-400 rounded-lg cursor-pointer py-2.5 px-4 transition-all duration-200 ease-in-out text-base hover:bg-blue-600 hover:border-blue-600">
-                                    <span class="flex justify-center items-center text-white font-semibold">
+                                    <span className="flex justify-center items-center text-white font-semibold">
                                         <svg
                                             height="24"
                                             width="24"
@@ -287,7 +399,11 @@ export default function DashboardPage() {
 
                             {/* Campaigns List (horizontal items) */}
                             <div className="space-y-6 mb-8">
-                                {filteredCampaigns.length === 0 ? (
+                                {loading ? (
+                                    <div className="flex items-center justify-center py-12">
+                                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                                    </div>
+                                ) : campaigns.length === 0 ? (
                                     <div className="text-center py-12">
                                         <p className="text-muted-foreground">
                                             {searchTerm || selectedStatus !== 'ALL'
@@ -296,11 +412,11 @@ export default function DashboardPage() {
                                         </p>
                                     </div>
                                 ) : (
-                                    filteredCampaigns.map((campaign) => (
+                                    campaigns.map((campaign) => (
                                         <CampaignDashboardItem
                                             key={campaign.campaignId}
                                             campaign={campaign}
-                                            onActionComplete={fetchCampaigns}
+                                            onActionComplete={handleActionComplete}
                                         />
                                     ))
                                 )}
@@ -312,7 +428,7 @@ export default function DashboardPage() {
                                     <Button
                                         variant="outline"
                                         onClick={() => handlePageChange(pagination.currentPage - 1)}
-                                        disabled={!pagination.hasPrevious}
+                                        disabled={!pagination.hasPrevious || loading}
                                         className="flex items-center gap-2"
                                     >
                                         <ChevronLeft className="w-4 h-4" />
@@ -332,6 +448,7 @@ export default function DashboardPage() {
                                                     <button
                                                         key={page}
                                                         onClick={() => handlePageChange(page)}
+                                                        disabled={loading}
                                                         className={`w-10 h-10 rounded-lg font-medium transition-colors ${page === pagination.currentPage
                                                             ? 'bg-primary text-white'
                                                             : 'bg-white dark:bg-darker-2 text-text-primary dark:text-white hover:bg-primary/10'
@@ -353,7 +470,7 @@ export default function DashboardPage() {
                                     <Button
                                         variant="outline"
                                         onClick={() => handlePageChange(pagination.currentPage + 1)}
-                                        disabled={!pagination.hasNext}
+                                        disabled={!pagination.hasNext || loading}
                                         className="flex items-center gap-2"
                                     >
                                         Sau

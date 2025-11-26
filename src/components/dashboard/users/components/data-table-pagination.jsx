@@ -17,7 +17,7 @@ export function DataTablePagination({
   table,
 }) {
   return (
-    <div className="flex items-center justify-between overflow-auto px-2">
+    <div className="flex items-center justify-between overflow-auto px-2 mt-2">
       <div className="hidden flex-1 text-sm text-muted-foreground sm:block">
         Đã chọn {table.getFilteredSelectedRowModel().rows.length} trong{' '}
         {table.getFilteredRowModel().rows.length} dòng

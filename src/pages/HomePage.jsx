@@ -50,14 +50,17 @@ export default function HomePage() {
     return {
       // Featured & Spotlight
       featured: allCampaigns
-        .filter(c => c.campaignStatus === 'ACTIVE')
-        .sort((a, b) => (b.pledgedAmount || 0) - (a.pledgedAmount || 0))
-        .slice(0, 6),
+        .filter(c => ['ACTIVE', 'SUCCESSFUL'].includes(c.campaignStatus))
+        .sort((a, b) => {
+          const pledgedDiff = (b.pledgedAmount || 0) - (a.pledgedAmount || 0);
+          if (pledgedDiff !== 0) return pledgedDiff;
+          return (b.backersCount || 0) - (a.backersCount || 0);
+        })
+        .slice(0, 12),
 
       spotlight: allCampaigns
         .filter(c => c.campaignStatus === 'ACTIVE')
-        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-        .slice(0, 6),
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)),
 
       // Trending & Newest
       trending: allCampaigns

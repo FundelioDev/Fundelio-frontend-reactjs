@@ -1,7 +1,17 @@
 import Button from "@/components/common/Button"
 import RewardCard from "../components/RewardCard"
 
-export default function RewardList({ rewards, items, onEdit, onDelete, onDuplicate, onCreate, isReadOnly = false }) {
+export default function RewardList({
+  rewards,
+  items,
+  onEdit,
+  onDelete,
+  onDuplicate,
+  onCreate,
+  isReadOnly = false,
+  rewardRules = {},
+}) {
+  const preventDeletingOldRewards = Boolean(rewardRules?.preventDeletingOldRewards)
   if (rewards.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-border bg-muted/30 py-16 px-4">
@@ -46,7 +56,9 @@ export default function RewardList({ rewards, items, onEdit, onDelete, onDuplica
       </div>
 
       <div className="space-y-4">
-        {rewards.map((reward) => (
+        {rewards.map((reward) => {
+          const deleteDisabled = preventDeletingOldRewards && reward?.isOld
+          return (
           <RewardCard
             key={reward.rewardId}
             data={reward}
@@ -56,8 +68,11 @@ export default function RewardList({ rewards, items, onEdit, onDelete, onDuplica
             onDelete={onDelete}
             onDuplicate={onDuplicate}
             isReadOnly={isReadOnly}
+              disableDelete={deleteDisabled}
+              deleteTooltip={deleteDisabled ? 'Không thể xóa phần thưởng đã tồn tại trong trạng thái này.' : undefined}
           />
-        ))}
+          )
+        })}
       </div>
     </div>
   )

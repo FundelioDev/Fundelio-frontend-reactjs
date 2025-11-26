@@ -1,9 +1,48 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import StoryToolbar from './story/StoryToolbar';
 import SidebarTOC from './story/SidebarTOC';
 import BlankSection from './story/BlankSection';
 import RewardCreateTab from './rewards/RewardCreateTab';
 import BasicsContent from './basics/BasicsContent';
+
+const OLD_IDS_STORAGE_KEY = 'fundelio-old-reward-item-ids';
+
+const loadOldIdsFromStorage = (campaignId) => {
+  if (!campaignId || typeof window === 'undefined') {
+    return { oldItems: [], oldRewards: [] };
+  }
+
+  try {
+    const cacheRaw = window.sessionStorage.getItem(OLD_IDS_STORAGE_KEY);
+    if (!cacheRaw) return { oldItems: [], oldRewards: [] };
+
+    const cache = JSON.parse(cacheRaw);
+    const entry = cache[String(campaignId)];
+    if (!entry) return { oldItems: [], oldRewards: [] };
+
+    return {
+      oldItems: entry.oldItems || [],
+      oldRewards: entry.oldRewards || [],
+    };
+  } catch {
+    return { oldItems: [], oldRewards: [] };
+  }
+};
+
+const saveOldIdsToStorage = (campaignId, oldItemsSet, oldRewardsSet) => {
+  if (!campaignId || typeof window === 'undefined') return;
+  try {
+    const cacheRaw = window.sessionStorage.getItem(OLD_IDS_STORAGE_KEY);
+    const cache = cacheRaw ? JSON.parse(cacheRaw) : {};
+    cache[String(campaignId)] = {
+      oldItems: Array.from(oldItemsSet || []),
+      oldRewards: Array.from(oldRewardsSet || []),
+    };
+    window.sessionStorage.setItem(OLD_IDS_STORAGE_KEY, JSON.stringify(cache));
+  } catch {
+    // no-op
+  }
+};
 
 /**
  * CreateCampaignTabs component - Content for Story and Reward sections
@@ -39,11 +78,82 @@ export default function CreateCampaignTabs({
   campaignId,
   isEditMode,
   isReadOnly = false,
+  campaignStatus,
+  rewardRules,
+  itemRules,
 }) {
   // Use external activeTab if provided, otherwise use internal state
   const [internalActiveTab, setInternalActiveTab] = useState('story');
   const activeTab = externalActiveTab || internalActiveTab;
   const handleTabChange = onTabChange || setInternalActiveTab;
+  const cachedOldIds = useMemo(
+    () => loadOldIdsFromStorage(campaignId),
+    [campaignId]
+  );
+  const initialItemIdsRef = useRef(new Set(cachedOldIds.oldItems));
+  const initialRewardIdsRef = useRef(new Set(cachedOldIds.oldRewards));
+  const previousCampaignIdRef = useRef(campaignId);
+
+  useEffect(() => {
+    const prevId = previousCampaignIdRef.current;
+    if (prevId && prevId !== campaignId) {
+      saveOldIdsToStorage(
+        prevId,
+        initialItemIdsRef.current,
+        initialRewardIdsRef.current
+      );
+      initialItemIdsRef.current = new Set();
+      initialRewardIdsRef.current = new Set();
+    }
+
+    if (campaignId) {
+      initialItemIdsRef.current = new Set(cachedOldIds.oldItems);
+      initialRewardIdsRef.current = new Set(cachedOldIds.oldRewards);
+    } else {
+      initialItemIdsRef.current = new Set();
+      initialRewardIdsRef.current = new Set();
+    }
+
+    previousCampaignIdRef.current = campaignId;
+  }, [campaignId, cachedOldIds]);
+
+  useEffect(() => {
+    return () => {
+      saveOldIdsToStorage(
+        campaignId,
+        initialItemIdsRef.current,
+        initialRewardIdsRef.current
+      );
+    };
+  }, [campaignId]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const persistOldIds = () => {
+      saveOldIdsToStorage(
+        campaignId,
+        initialItemIdsRef.current,
+        initialRewardIdsRef.current
+      );
+    };
+    window.addEventListener('beforeunload', persistOldIds);
+    return () => window.removeEventListener('beforeunload', persistOldIds);
+  }, [campaignId]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const handleSubmitted = (event) => {
+      if (String(event.detail?.campaignId) !== String(campaignId)) return;
+      saveOldIdsToStorage(
+        campaignId,
+        initialItemIdsRef.current,
+        initialRewardIdsRef.current
+      );
+    };
+    window.addEventListener('campaign:submitted-for-review', handleSubmitted);
+    return () =>
+      window.removeEventListener('campaign:submitted-for-review', handleSubmitted);
+  }, [campaignId]);
 
   return (
     <div className="w-full">
@@ -111,7 +221,15 @@ export default function CreateCampaignTabs({
 
         {/* Rewards Tab */}
         {activeTab === 'rewards' && (
-          <RewardCreateTab campaignId={campaignId} isReadOnly={isReadOnly} />
+          <RewardCreateTab
+            campaignId={campaignId}
+            isReadOnly={isReadOnly}
+            campaignStatus={campaignStatus}
+            rewardRules={rewardRules}
+            itemRules={itemRules}
+            initialOldItemIdsRef={initialItemIdsRef}
+            initialOldRewardIdsRef={initialRewardIdsRef}
+          />
         )}
       </div>
     </div>

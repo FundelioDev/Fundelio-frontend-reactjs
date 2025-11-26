@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import toast from 'react-hot-toast';
 import { campaignApi } from '@/api/campaignApi';
 import {
@@ -9,6 +9,7 @@ import {
   CampaignDetailDialog,
   RejectCampaignDialog,
 } from '@/components/admin/campaigns';
+import { ConfirmDialog } from '@/components/dashboard/confirm-dialog';
 
 export default function AdminCampaignsPage() {
   const [campaigns, setCampaigns] = useState([]);
@@ -19,6 +20,9 @@ export default function AdminCampaignsPage() {
   const [showDetailDialog, setShowDetailDialog] = useState(false);
   const [showRejectDialog, setShowRejectDialog] = useState(false);
   const [rejectionReason, setRejectionReason] = useState('');
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [campaignToDelete, setCampaignToDelete] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const [pagination, setPagination] = useState({
     currentPage: 1,
     pageSize: 20,
@@ -129,6 +133,31 @@ export default function AdminCampaignsPage() {
     }
   };
 
+  const handleDeleteCampaign = useCallback((campaign) => {
+    if (!campaign) return;
+    setCampaignToDelete(campaign);
+    setShowDeleteDialog(true);
+  }, []);
+
+  const handleConfirmDeleteCampaign = async () => {
+    if (!campaignToDelete) return;
+    try {
+      setDeleteLoading(true);
+      await campaignApi.deleteCampaign(campaignToDelete.campaignId);
+      toast.success('Đã xóa chiến dịch');
+      setShowDetailDialog(false);
+      setSelectedCampaign(null);
+      loadCampaigns();
+    } catch (error) {
+      console.error('Error deleting campaign:', error);
+      toast.error('Không thể xóa chiến dịch');
+    } finally {
+      setDeleteLoading(false);
+      setShowDeleteDialog(false);
+      setCampaignToDelete(null);
+    }
+  };
+
   const getStatusCounts = () => {
     // Count from all campaigns regardless of current filter
     return {
@@ -141,6 +170,7 @@ export default function AdminCampaignsPage() {
       successful: campaigns.filter((c) => c.campaignStatus === 'SUCCESSFUL').length,
       failed: campaigns.filter((c) => c.campaignStatus === 'FAILED').length,
       ended: campaigns.filter((c) => c.campaignStatus === 'ENDED').length,
+      paused: campaigns.filter((c) => c.campaignStatus === 'PAUSED').length,
     };
   };
 
@@ -192,17 +222,17 @@ export default function AdminCampaignsPage() {
               <button
                 onClick={() => setPagination({ ...pagination, currentPage: pagination.currentPage - 1 })}
                 disabled={pagination.currentPage === 1}
-                className='px-4 py-2 border rounded disabled:opacity-50'
+                className='px-4 py-2 border rounded disabled:opacity-50 text-text-primary dark:text-white'
               >
                 Trước
               </button>
-              <span className='px-4 py-2'>
+              <span className='px-4 py-2 text-text-primary dark:text-white'>
                 Trang {pagination.currentPage} / {pagination.totalPages}
               </span>
               <button
                 onClick={() => setPagination({ ...pagination, currentPage: pagination.currentPage + 1 })}
                 disabled={pagination.currentPage === pagination.totalPages}
-                className='px-4 py-2 border rounded disabled:opacity-50'
+                className='px-4 py-2 border rounded disabled:opacity-50 text-text-primary dark:text-white'
               >
                 Sau
               </button>
@@ -217,6 +247,7 @@ export default function AdminCampaignsPage() {
         onOpenChange={setShowDetailDialog}
         onApprove={handleApprove}
         onReject={handleOpenRejectDialog}
+        onDelete={handleDeleteCampaign}
       />
 
       <RejectCampaignDialog
@@ -226,6 +257,24 @@ export default function AdminCampaignsPage() {
         rejectionReason={rejectionReason}
         onReasonChange={setRejectionReason}
         onConfirm={handleReject}
+      />
+
+      <ConfirmDialog
+        open={showDeleteDialog}
+        onOpenChange={(open) => {
+          setShowDeleteDialog(open);
+          if (!open && !deleteLoading) {
+            setCampaignToDelete(null);
+          }
+        }}
+        title='Xóa chiến dịch'
+        desc={
+          campaignToDelete
+            ? `Bạn chắc chắn muốn xóa chiến dịch "${campaignToDelete.title}"?`
+            : 'Bạn chắc chắn muốn xóa chiến dịch này?'
+        }
+        handleConfirm={handleConfirmDeleteCampaign}
+        disabled={deleteLoading}
       />
     </div>
   );

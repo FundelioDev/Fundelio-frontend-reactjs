@@ -7,6 +7,7 @@ import FundingProgressTimeline from './FundingProgressTimeline';
 import PledgesDistributionChart from './PledgesDistributionChart';
 import RecentPledgesTable from './RecentPledgesTable';
 import PerformanceIndicators from './PerformanceIndicators';
+import BackerPledgesSection from './BackerPledgesSection';
 import {
     Users,
     TrendingUp,
@@ -1018,6 +1019,9 @@ export default function CampaignStatisticsPage() {
                             <CommunityInsightsPanel data={founderOpsData.communityMetrics} />
                         </div>
                     )}
+
+                    {/* Backer Pledges Section - for shipping rewards */}
+                    <BackerPledgesSection campaignId={campaignId} />
 
                     {/* {founderOpsData && (
                         <div className="grid grid-cols-1 gap-6">

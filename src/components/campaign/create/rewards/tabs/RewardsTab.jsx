@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useCallback } from "react"
 import { rewardApi } from "@/api/rewardApi"
 import { catalogItemApi } from "@/api/catalogItemApi"
 import RewardList from "../rewards/RewardList"
@@ -6,7 +6,12 @@ import RewardForm from "../rewards/RewardForm"
 import RewardPreview from "../rewards/RewardPreview"
 import toast from 'react-hot-toast'
 
-export default function RewardTiersTab({ campaignId, isReadOnly = false }) {
+export default function RewardTiersTab({
+  campaignId,
+  isReadOnly = false,
+  rewardRules = {},
+  initialOldRewardIdsRef,
+}) {
   const [rewards, setRewards] = useState([])
   const [items, setItems] = useState([])
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -15,6 +20,162 @@ export default function RewardTiersTab({ campaignId, isReadOnly = false }) {
   const [isLoading, setIsLoading] = useState(false)
   const [fieldErrors, setFieldErrors] = useState({})
   const formRef = useRef(null)
+  const fallbackInitialRewardIdsRef = useRef(new Set())
+  const initialRewardIdsRef = initialOldRewardIdsRef || fallbackInitialRewardIdsRef
+  const rewardsRef = useRef([])
+
+  const markExistingAsOld = Boolean(rewardRules?.markExistingAsOld)
+  const protectOldRewards = Boolean(rewardRules?.preventDeletingOldRewards)
+  const lockOldRewardItems = Boolean(rewardRules?.preventOldRewardItemUpserts)
+
+  const prevMarkExistingRef = useRef(markExistingAsOld)
+
+  useEffect(() => {
+    console.log('[RewardsTab] state snapshot', {
+      campaignId,
+      markExistingAsOld,
+      protectOldRewards,
+      lockOldRewardItems,
+      trackedOldRewardCount: initialRewardIdsRef.current.size,
+    })
+    return () => {
+      console.log('[RewardsTab] cleanup snapshot', {
+        campaignId,
+        markExistingAsOld,
+        finalOldRewardCount: initialRewardIdsRef.current.size,
+      })
+    }
+  }, [campaignId, markExistingAsOld, protectOldRewards, lockOldRewardItems, initialRewardIdsRef])
+
+  const decorateRewards = useCallback((rawRewards = []) => {
+    if (!Array.isArray(rawRewards)) return []
+
+    if (!markExistingAsOld) {
+      console.log('[RewardsTab] decorateRewards skip old tagging', {
+        incomingCount: rawRewards.length,
+        markExistingAsOld,
+      })
+      return rawRewards.map(reward => ({ ...reward, isOld: false }))
+    }
+
+    if (initialRewardIdsRef.current.size === 0) {
+      const seededIds = rawRewards
+        .map(reward => reward.rewardId)
+        .filter(Boolean)
+      initialRewardIdsRef.current = new Set(seededIds)
+      console.log('[RewardsTab] decorateRewards seeded initial ids from fetch', {
+        seededCount: seededIds.length,
+      })
+    }
+
+    const decorated = rawRewards.map(reward => ({
+      ...reward,
+      isOld: initialRewardIdsRef.current.has(reward.rewardId),
+    }))
+    const oldCount = decorated.filter(reward => reward.isOld).length
+    console.log('[RewardsTab] decorateRewards applied tags', {
+      incomingCount: rawRewards.length,
+      trackedOldCount: initialRewardIdsRef.current.size,
+      appliedOldCount: oldCount,
+    })
+    return decorated
+  }, [markExistingAsOld])
+
+  useEffect(() => {
+    rewardsRef.current = rewards
+  }, [rewards])
+
+  useEffect(() => {
+    if (!Array.isArray(rewards)) return
+    const oldCount = rewards.filter(reward => reward.isOld).length
+    console.log('[RewardsTab] rewards state updated', {
+      totalRewards: rewards.length,
+      oldCount,
+      markExistingAsOld,
+    })
+  }, [rewards, markExistingAsOld])
+
+  useEffect(() => {
+    if (!markExistingAsOld) return
+    const latestRewards = rewardsRef.current || []
+    if (latestRewards.length === 0) return
+    const alreadyDecorated = latestRewards.some(reward => reward.isOld)
+
+    if (initialRewardIdsRef.current.size === 0) {
+      const seededIds = latestRewards
+        .map(reward => reward.rewardId)
+        .filter(Boolean)
+
+      if (seededIds.length > 0) {
+        console.log('[RewardsTab] lazy seeding old reward ids from local rewards', {
+          seededCount: seededIds.length,
+        })
+        initialRewardIdsRef.current = new Set(seededIds)
+      }
+    }
+
+    if (!alreadyDecorated && initialRewardIdsRef.current.size > 0) {
+      setRewards(prevRewards =>
+        prevRewards.map(reward => ({
+          ...reward,
+          isOld: initialRewardIdsRef.current.has(reward.rewardId),
+        }))
+      )
+    }
+  }, [rewards, markExistingAsOld])
+
+  useEffect(() => {
+    const wasMarking = prevMarkExistingRef.current
+    if (!wasMarking && markExistingAsOld) {
+      const latestRewards = rewardsRef.current || []
+      if (latestRewards.length > 0) {
+        if (initialRewardIdsRef.current.size === 0) {
+          const seededIds = latestRewards
+            .map(reward => reward.rewardId)
+            .filter(Boolean)
+          console.log('[RewardsTab] toggled markExistingAsOld ON, seeding ids', {
+            seededCount: seededIds.length,
+          })
+          initialRewardIdsRef.current = new Set(seededIds)
+        }
+        console.log('[RewardsTab] toggled markExistingAsOld ON, reapplying old flags', {
+          trackedOldCount: initialRewardIdsRef.current.size,
+          latestRewardCount: latestRewards.length,
+        })
+        setRewards(prevRewards =>
+          prevRewards.map(reward => ({
+            ...reward,
+            isOld: initialRewardIdsRef.current.has(reward.rewardId),
+          }))
+        )
+      }
+    } else if (wasMarking && !markExistingAsOld) {
+      console.log('[RewardsTab] toggled markExistingAsOld OFF, clearing tracked ids')
+      initialRewardIdsRef.current = new Set()
+      setRewards(prevRewards => prevRewards.map(reward => ({ ...reward, isOld: false })))
+    }
+
+    prevMarkExistingRef.current = markExistingAsOld
+  }, [markExistingAsOld])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const handleCampaignSubmitted = (event) => {
+      if (!campaignId) return
+      if (String(event.detail?.campaignId) !== String(campaignId)) return
+
+      const latestRewards = rewardsRef.current || []
+      console.log('[RewardsTab] campaign submitted, locking current rewards as old', {
+        campaignId,
+        latestRewardCount: latestRewards.length,
+      })
+      initialRewardIdsRef.current = new Set(latestRewards.map(reward => reward.rewardId))
+      setRewards(prevRewards => prevRewards.map(reward => ({ ...reward, isOld: true })))
+    }
+
+    window.addEventListener('campaign:submitted-for-review', handleCampaignSubmitted)
+    return () => window.removeEventListener('campaign:submitted-for-review', handleCampaignSubmitted)
+  }, [campaignId])
 
   useEffect(() => {
     if (campaignId) {
@@ -38,7 +199,13 @@ export default function RewardTiersTab({ campaignId, isReadOnly = false }) {
       const response = await rewardApi.getRewardsWithItems(campaignId)
 
       if (response?.data?.data?.content) {
-        setRewards(response.data.data.content)
+        const decorated = decorateRewards(response.data.data.content)
+        setRewards(decorated)
+        console.log('[RewardsTab] fetched rewards', {
+          totalFetched: decorated.length,
+          oldCount: decorated.filter(reward => reward.isOld).length,
+          trackedOldCount: initialRewardIdsRef.current.size,
+        })
       }
     } catch (err) {
       console.error("Error fetching rewards:", err)
@@ -79,6 +246,7 @@ export default function RewardTiersTab({ campaignId, isReadOnly = false }) {
         const detailData = {
           ...response.data.data,
           shipping: response.data.data.shipsTo?.includes("Trên toàn cầu") ? "anywhere" : "custom",
+          isOld: reward?.isOld || false,
         }
 
         setEditingReward(detailData)
@@ -101,6 +269,7 @@ export default function RewardTiersTab({ campaignId, isReadOnly = false }) {
 
     try {
       setIsLoading(true)
+      const isEditingOldReward = Boolean(lockOldRewardItems && editingReward?.isOld)
 
       const payload = {
         title: reward.title,
@@ -143,7 +312,9 @@ export default function RewardTiersTab({ campaignId, isReadOnly = false }) {
       }
 
       if (response?.data?.data?.rewardId) {
+        if (!isEditingOldReward) {
         await handleUpsertItems(response.data.data.rewardId, reward)
+        }
 
         await fetchRewards()
 
@@ -234,6 +405,15 @@ export default function RewardTiersTab({ campaignId, isReadOnly = false }) {
 
   const handleDelete = async (rewardId) => {
     if (isReadOnly) return
+
+    if (protectOldRewards) {
+      const targetReward = rewards.find(reward => reward.rewardId === rewardId)
+      if (targetReward?.isOld) {
+        toast.error('Không thể xóa phần thưởng đã tồn tại trong trạng thái này.')
+        return
+      }
+    }
+
     try {
       setIsLoading(true)
 
@@ -261,6 +441,7 @@ export default function RewardTiersTab({ campaignId, isReadOnly = false }) {
       ...reward,
       rewardId: null,
       title: `${reward.title} (Bản sao)`,
+      isOld: false,
     }
     setEditingReward(duplicated)
     setPreviewReward(duplicated)
@@ -284,6 +465,7 @@ export default function RewardTiersTab({ campaignId, isReadOnly = false }) {
           onCreate={handleCreate}
           isLoading={isLoading}
           isReadOnly={isReadOnly}
+          rewardRules={rewardRules}
         />
       ) : (
         <div className="flex flex-col lg:flex-row gap-6">
@@ -298,6 +480,7 @@ export default function RewardTiersTab({ campaignId, isReadOnly = false }) {
               onCancel={handleCancel}
               onChange={handleFormChange}
               fieldErrors={fieldErrors}
+              rewardRules={rewardRules}
             />
           </div>
           <div className="lg:w-96">

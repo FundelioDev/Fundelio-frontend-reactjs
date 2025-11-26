@@ -139,7 +139,7 @@ export function UsersTable({ data }) {
                       <TableRow
                         key={row.id}
                         data-state={row.getIsSelected() && 'selected'}
-                        className="border-b border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-default"
+                        className="border-b border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-default "
                       >
                         {row.getVisibleCells().map((cell) => (
                           <TableCell

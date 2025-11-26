@@ -85,7 +85,7 @@ export function AuthProvider({ children }) {
       } catch (_) { }
     }
     fetchUserData();
-  };
+    };
 
   useEffect(() => {
     setLogoutCallback(() => {

@@ -1,26 +1,19 @@
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Eye, Check, X, Clock, Users, Target, Calendar, CheckCircle, XCircle, Loader, TrendingUp, TrendingDown, Ban, FileText } from 'lucide-react';
+import { Eye, Users, Target, Calendar } from 'lucide-react';
 import { formatCurrency } from '@/utils/formatters';
+import { getCampaignStatusConfig } from '@/constants/campaignStatus';
 
 const getStatusBadge = (status) => {
-  const statusConfig = {
-    DRAFT: { variant: 'secondary', label: 'Bản nháp', icon: FileText },
-    PENDING: { variant: 'warning', label: 'Chờ duyệt', icon: Clock },
-    APPROVED: { variant: 'success', label: 'Đã duyệt', icon: Check },
-    REJECTED: { variant: 'destructive', label: 'Từ chối', icon: X },
-    ACTIVE: { variant: 'default', label: 'Đang gây quỹ', icon: Loader },
-    SUCCESSFUL: { variant: 'success', label: 'Thành công', icon: TrendingUp },
-    FAILED: { variant: 'destructive', label: 'Thất bại', icon: TrendingDown },
-    ENDED: { variant: 'destructive', label: 'Kết thúc', icon: Ban },
-  };
-
-  const config = statusConfig[status] || statusConfig.PENDING;
+  const config = getCampaignStatusConfig(status);
   const Icon = config.icon;
 
   return (
-    <Badge variant={config.variant} className='flex items-center gap-1'>
+    <Badge
+      variant='outline'
+      className={`flex items-center gap-1 border-0 px-3 py-0.5 text-xs font-semibold ${config.className}`}
+    >
       <Icon className='w-3 h-3' />
       {config.label}
     </Badge>
@@ -84,7 +77,6 @@ const formatDate = (dateString) => {
 export const CampaignCard = ({ campaign, onViewDetail }) => {
   const thumbnail = campaign.introImageUrl || 'https://images.unsplash.com/photo-1593305841991-05c297ba4575?q=80&w=1200&auto=format&fit=crop';
   const creatorName = campaign.owner ? `${campaign.owner.firstName} ${campaign.owner.lastName}` : 'N/A';
-console.log("campaign.campaignStatus", campaign.campaignStatus);
   return (
     <Card className='overflow-hidden hover:shadow-lg transition-shadow'>
       <img

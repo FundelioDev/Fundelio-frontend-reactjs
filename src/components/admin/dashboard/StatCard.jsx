@@ -3,29 +3,24 @@ import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
 
 const ACCENTS = {
   primary: {
-    gradient: 'from-primary/15 via-primary/5 to-transparent',
-    iconBg: 'bg-primary/15 text-primary',
-    badgeText: 'text-primary',
+    iconBg: 'bg-white/10 text-white dark:bg-white/10 dark:text-white',
+    badgeText: 'text-sky-300',
   },
   emerald: {
-    gradient: 'from-emerald-200/40 via-emerald-50 to-transparent',
-    iconBg: 'bg-emerald-100 text-emerald-600',
-    badgeText: 'text-emerald-600',
+    iconBg: 'bg-emerald-500/10 text-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-200',
+    badgeText: 'text-emerald-300',
   },
   amber: {
-    gradient: 'from-amber-200/50 via-amber-50 to-transparent',
-    iconBg: 'bg-amber-100 text-amber-600',
-    badgeText: 'text-amber-600',
+    iconBg: 'bg-amber-500/10 text-amber-200 dark:bg-amber-500/10 dark:text-amber-200',
+    badgeText: 'text-amber-300',
   },
   violet: {
-    gradient: 'from-violet-200/50 via-violet-50 to-transparent',
-    iconBg: 'bg-violet-100 text-violet-600',
-    badgeText: 'text-violet-600',
+    iconBg: 'bg-violet-500/10 text-violet-200 dark:bg-violet-500/10 dark:text-violet-200',
+    badgeText: 'text-fuchsia-300',
   },
   slate: {
-    gradient: 'from-slate-200/50 via-slate-50 to-transparent',
-    iconBg: 'bg-slate-100 text-slate-600',
-    badgeText: 'text-slate-600',
+    iconBg: 'bg-slate-500/10 text-slate-200 dark:bg-slate-500/10 dark:text-slate-200',
+    badgeText: 'text-slate-300',
   },
 };
 
@@ -33,40 +28,44 @@ export const StatCard = ({ title, value, icon: Icon, trend, trendValue = 0, help
   const accentTheme = ACCENTS[accent] || ACCENTS.primary;
 
   return (
-    <Card className="relative overflow-hidden border border-border/60 shadow-card p-3">
-      <div className={`absolute inset-0 opacity-70 bg-gradient-to-br ${accentTheme.gradient}`} />
-      <div className="relative flex items-start justify-between gap-3">
-        <div>
-          <p className="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 tracking-wide">
+    <Card className='border border-gray-200/40 dark:border-white/5 bg-white/60 dark:bg-gray-950/50 backdrop-blur-md shadow-lg p-4'>
+      <div className='flex items-start justify-between gap-4'>
+        <div className='flex flex-col gap-2 text-left'>
+          <p className='text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-300'>
             {title}
           </p>
-          <p className="text-3xl font-extrabold text-gray-900 dark:text-gray-100 mt-2">
+          <p className='text-3xl font-semibold text-gray-900 dark:text-white'>
             {value}
           </p>
           {helper && (
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            <p className='text-xs text-gray-500 dark:text-gray-400'>
               {helper}
             </p>
           )}
           {trend && (
-            <div className="flex items-center gap-2 mt-3">
-              <span className={`inline-flex items-center gap-1 text-xs font-semibold ${accentTheme.badgeText}`}>
+            <div className='flex items-center gap-2 pt-1'>
+              <span
+                className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-semibold ${trend === 'up'
+                  ? 'text-emerald-300'
+                  : 'text-rose-300'
+                  } bg-white/5`}
+              >
                 {trend === 'up' ? (
-                  <ArrowUpRight className="w-4 h-4" />
+                  <ArrowUpRight className='w-4 h-4' />
                 ) : (
-                  <ArrowDownRight className="w-4 h-4" />
+                  <ArrowDownRight className='w-4 h-4' />
                 )}
                 {trendValue}%
               </span>
-              <span className="text-xs text-gray-500 dark:text-gray-400">
+              <span className='text-xs text-gray-500 dark:text-gray-400'>
                 so với tháng trước
               </span>
             </div>
           )}
         </div>
         {Icon && (
-          <div className={`p-3 rounded-2xl ${accentTheme.iconBg}`}>
-            <Icon className="w-6 h-6" />
+          <div className={`rounded-xl p-3 ${accentTheme.iconBg}`}>
+            <Icon className='w-6 h-6' />
           </div>
         )}
       </div>

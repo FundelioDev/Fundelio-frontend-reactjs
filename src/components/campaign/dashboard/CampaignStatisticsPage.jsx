@@ -965,7 +965,7 @@ export default function CampaignStatisticsPage() {
                                             return (
                                                 <div
                                                     key={backer.userId || idx}
-                                                    className="flex items-center gap-3 py-3 border-b border-border last:border-0"
+                                                    className="flex items-center gap-1.5 py-3 border-b border-border last:border-0"
                                                 >
                                                     {/* Rank Badge */}
                                                     <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${idx === 0 ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300' :

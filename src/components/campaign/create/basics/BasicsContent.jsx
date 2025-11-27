@@ -404,7 +404,7 @@ export default function BasicsContent({ campaignId, isEditMode = false, isReadOn
               <label className="block text-md font-medium text-text-primary dark:text-white mb-2">
                 Mục tiêu gây quỹ (VND) <span className="text-primary">*</span>
               </label>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1.5">
                 <Input
                   type="number"
                   name="goalAmount"

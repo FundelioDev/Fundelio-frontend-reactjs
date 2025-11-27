@@ -134,7 +134,7 @@ export default function ItemForm({
             <label className="block text-sm font-medium text-foreground mb-2">
               Giá (VND)<span className="text-lg font-bold text-primary">*</span>
             </label>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5">
               <Input
                 type="number"
                 name="price"

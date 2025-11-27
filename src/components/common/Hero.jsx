@@ -169,7 +169,7 @@ const Hero = () => {
 
     setProgress(0);
     const startTime = Date.now();
-    const duration = 3000;
+    const duration = 2900;
 
     const updateProgress = () => {
       const elapsed = Date.now() - startTime;
@@ -185,15 +185,6 @@ const Hero = () => {
     return () => cancelAnimationFrame(animationFrame);
   }, [currentSlide, isPaused]);
 
-  // const handleMouseEnter = () => {
-  //   setIsPaused(true);
-
-  //   console.log("Ệt")
-  // };
-
-  // const handleMouseLeave = () => {
-  //   setIsPaused(false);
-  // };
 
   const handleSeeCampaign = () => {
     if (campaigns.length === 0) return;
@@ -312,7 +303,7 @@ const Hero = () => {
         <div className="mx-auto w-full max-w-container px-4 py-6 sm:px-6 sm:py-8 md:px-8 lg:px-12 lg:py-16">
 
           {/* Decorative line above title */}
-          <div className="mb-4 flex items-center gap-3">
+          <div className="mb-4 flex items-center gap-1.5">
             <div className="h-[2px] w-12 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full"></div>
             <span className="text-sm font-medium text-cyan-400 uppercase tracking-wider">
               Featured Campaign
@@ -323,7 +314,7 @@ const Hero = () => {
           <div className="perspective-1000 mb-6">
             <h1
               ref={titleRef}
-              className="text-3xl font-black leading-tight text-white transition-all duration-300 sm:text-4xl md:text-5xl max-w-5xl drop-shadow-2xl"
+              className="text-xl font-black leading-tight text-white transition-all duration-300 sm:text-3xl max-w-5xl drop-shadow-2xl"
               style={{
                 textShadow: '0 4px 20px rgba(0, 0, 0, 0.5), 0 0 40px rgba(6, 182, 212, 0.3)',
                 letterSpacing: '-0.02em',
@@ -338,7 +329,7 @@ const Hero = () => {
           <div className="perspective-1000">
             <p
               ref={descriptionRef}
-              className="hidden md:block text-base lg:text-xl line-clamp-3 text-white/95 max-w-2xl leading-relaxed font-light"
+              className="hidden md:block text-base lg:text-lg line-clamp-3 text-white/95 max-w-2xl leading-relaxed font-light"
               style={{
                 textShadow: '0 2px 10px rgba(0, 0, 0, 0.7)',
               }}

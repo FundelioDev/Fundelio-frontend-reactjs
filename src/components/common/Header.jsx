@@ -394,7 +394,7 @@ export const Header = ({
                           <Link
                             to="/admin"
                             onClick={() => setIsUserMenuOpen(false)}
-                            className="flex items-center gap-3 px-3 py-2 text-sm text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors"
+                            className="flex items-center gap-1.5 px-3 py-2 text-sm text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors"
                           >
                             <ShieldCheck className="w-4 h-4" />
                             <span>Quản trị hệ thống</span>
@@ -406,7 +406,7 @@ export const Header = ({
                           <Link
                             to="/dashboard"
                             onClick={() => setIsUserMenuOpen(false)}
-                            className="flex items-center gap-3 px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 text-text-primary dark:text-white border-b border-amber-600 dark:border-amber-700"
+                            className="flex items-center gap-1.5 px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 text-text-primary dark:text-white border-b border-amber-600 dark:border-amber-700"
                           >
                             <LayoutDashboard className="w-4 h-4 text-gray-500" />
                             <span>Bảng điều khiển</span>
@@ -415,7 +415,7 @@ export const Header = ({
                       <Link
                         to="/profile"
                         onClick={() => setIsUserMenuOpen(false)}
-                        className="flex items-center gap-3 px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-text-primary dark:text-white"
+                        className="flex items-center gap-1.5 px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-text-primary dark:text-white"
                       >
                         <User className="w-4 h-4 text-gray-500" />
                         <span>Hồ sơ cá nhân</span>
@@ -424,7 +424,7 @@ export const Header = ({
                       <Link
                         to="/my-pledges"
                         onClick={() => setIsUserMenuOpen(false)}
-                        className="flex items-center gap-3 px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-text-primary dark:text-white"
+                        className="flex items-center gap-1.5 px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-text-primary dark:text-white"
                       >
                         <FolderOpen className="w-4 h-4 text-gray-500" />
                         <span>Dự án của tôi</span>
@@ -433,7 +433,7 @@ export const Header = ({
                       <Link
                         to="/campaigns/create"
                         onClick={() => setIsUserMenuOpen(false)}
-                        className="flex items-center gap-3 px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-primary font-medium"
+                        className="flex items-center gap-1.5 px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-primary font-medium"
                       >
                         <Plus className="w-4 h-4" />
                         <span>Tạo chiến dịch</span>
@@ -444,7 +444,7 @@ export const Header = ({
                       <Link
                         to="/wallet"
                         onClick={() => setIsUserMenuOpen(false)}
-                        className="flex items-center gap-3 px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-text-primary dark:text-white"
+                        className="flex items-center gap-1.5 px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-text-primary dark:text-white"
                       >
                         <Wallet className="w-4 h-4 text-gray-500" />
                         <div className="flex justify-between w-full items-center">
@@ -460,7 +460,7 @@ export const Header = ({
                           logout();
                           navigate("/auth");
                         }}
-                        className="flex items-center gap-3 px-3 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg w-full text-left transition-colors"
+                        className="flex items-center gap-1.5 px-3 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg w-full text-left transition-colors"
                       >
                         <LogOut className="w-4 h-4" />
                         <span>Đăng xuất</span>
@@ -511,7 +511,7 @@ export const Header = ({
               <Link
                 to="/dashboard"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="flex items-center gap-3 px-3 py-2 text-sm text-text-primary dark:text-white hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-colors"
+                className="flex items-center gap-1.5 px-3 py-2 text-sm text-text-primary dark:text-white hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-colors"
               >
                 <LayoutDashboard className="w-4 h-4" />
                 <span>Bảng điều khiển</span>
@@ -522,7 +522,7 @@ export const Header = ({
               <Link
                 to="/admin"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="flex items-center gap-3 px-3 py-2 text-sm text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-lg transition-colors"
+                className="flex items-center gap-1.5 px-3 py-2 text-sm text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-lg transition-colors"
               >
                 <ShieldCheck className="w-4 h-4" />
                 <span>Quản trị hệ thống</span>

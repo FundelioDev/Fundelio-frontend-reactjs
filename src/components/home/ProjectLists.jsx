@@ -64,9 +64,9 @@ const ProjectLists = ({ className = '' }) => {
       <div className="sticky top-24 space-y-9">
         {/* Project Lists Section */}
         <div className="">
-          <div className="flex items-center gap-3 mb-5">
+          <div className="flex items-center gap-1.5 mb-5">
             <LayoutGrid className="w-6 h-6 text-text-primary dark:text-white" />
-            <h2 className="text-2xl font-bold text-text-primary dark:text-white">
+            <h2 className="text-xl font-bold text-text-primary dark:text-white">
               Danh sách dự án
             </h2>
           </div>
@@ -94,7 +94,7 @@ const ProjectLists = ({ className = '' }) => {
 
         {/* Categories Section */}
         <div className="">
-          <div className="flex items-center gap-3 mb-5">
+          <div className="flex items-center gap-1.5 mb-5">
             <FaDice className="w-6 h-6 text-text-primary dark:text-white" />
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">
               Danh mục

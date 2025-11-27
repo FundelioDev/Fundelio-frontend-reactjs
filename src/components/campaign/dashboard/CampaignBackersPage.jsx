@@ -116,7 +116,7 @@ export default function CampaignBackersPage() {
                                     <ArrowLeft className="w-4 h-4" />
                                 </Button>
                                 <div>
-                                    <div className="flex items-center gap-3">
+                                    <div className="flex items-center gap-1.5">
                                         <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
                                             <Package className="w-6 h-6 text-primary" />
                                         </div>
@@ -150,7 +150,7 @@ export default function CampaignBackersPage() {
                     {!loading && pledges.length > 0 && (
                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
                             <div className="rounded-lg bg-white dark:bg-darker-2 border border-border/50 p-4 shadow-card">
-                                <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-1.5">
                                     <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
                                         <Users className="w-5 h-5 text-primary" />
                                     </div>
@@ -163,7 +163,7 @@ export default function CampaignBackersPage() {
                                 </div>
                             </div>
                             <div className="rounded-lg bg-white dark:bg-darker-2 border border-border/50 p-4 shadow-card">
-                                <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-1.5">
                                     <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center">
                                         <TrendingUp className="w-5 h-5 text-emerald-500" />
                                     </div>
@@ -176,7 +176,7 @@ export default function CampaignBackersPage() {
                                 </div>
                             </div>
                             <div className="rounded-lg bg-white dark:bg-darker-2 border border-border/50 p-4 shadow-card">
-                                <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-1.5">
                                     <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
                                         <DollarSign className="w-5 h-5 text-blue-500" />
                                     </div>
@@ -189,7 +189,7 @@ export default function CampaignBackersPage() {
                                 </div>
                             </div>
                             <div className="rounded-lg bg-white dark:bg-darker-2 border border-border/50 p-4 shadow-card">
-                                <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-1.5">
                                     <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center">
                                         <Package className="w-5 h-5 text-amber-500" />
                                     </div>
@@ -298,16 +298,16 @@ export default function CampaignBackersPage() {
                                                 {/* Rank */}
                                                 <div className="col-span-1">
                                                     <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${index === 0 ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400' :
-                                                            index === 1 ? 'bg-slate-100 text-slate-600 dark:bg-slate-500/20 dark:text-slate-400' :
-                                                                index === 2 ? 'bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-400' :
-                                                                    'bg-muted text-muted-foreground'
+                                                        index === 1 ? 'bg-slate-100 text-slate-600 dark:bg-slate-500/20 dark:text-slate-400' :
+                                                            index === 2 ? 'bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-400' :
+                                                                'bg-muted text-muted-foreground'
                                                         }`}>
                                                         {index + 1}
                                                     </div>
                                                 </div>
 
                                                 {/* Backer Info */}
-                                                <div className="col-span-4 flex items-center gap-3">
+                                                <div className="col-span-4 flex items-center gap-1.5">
                                                     <div className="w-12 h-12 rounded-lg overflow-hidden bg-muted flex items-center justify-center flex-shrink-0 ring-2 ring-border/30">
                                                         {backer.avatarUrl ? (
                                                             <img
@@ -324,7 +324,7 @@ export default function CampaignBackersPage() {
                                                     <div className="min-w-0">
                                                         <p className="text-sm font-semibold text-text-primary dark:text-white truncate">
                                                             {backer.firstName} {backer.lastName}
-                                                        </p>                                                  
+                                                        </p>
                                                     </div>
                                                 </div>
 
@@ -371,9 +371,9 @@ export default function CampaignBackersPage() {
                                             <div className="lg:hidden p-4">
                                                 <div className="flex items-start gap-3">
                                                     <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${index === 0 ? 'bg-amber-100 text-amber-700' :
-                                                            index === 1 ? 'bg-slate-100 text-slate-600' :
-                                                                index === 2 ? 'bg-orange-100 text-orange-700' :
-                                                                    'bg-muted text-muted-foreground'
+                                                        index === 1 ? 'bg-slate-100 text-slate-600' :
+                                                            index === 2 ? 'bg-orange-100 text-orange-700' :
+                                                                'bg-muted text-muted-foreground'
                                                         }`}>
                                                         {index + 1}
                                                     </div>
@@ -406,7 +406,7 @@ export default function CampaignBackersPage() {
                                                                     {backer.email}
                                                                 </p>
                                                             )}
-                                                            <div className="flex items-center gap-3">
+                                                            <div className="flex items-center gap-1.5">
                                                                 {(backer.city || backer.nationality) && (
                                                                     <span className="flex items-center gap-1">
                                                                         <MapPin className="w-3 h-3" />

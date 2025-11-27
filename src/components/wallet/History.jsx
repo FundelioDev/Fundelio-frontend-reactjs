@@ -283,7 +283,7 @@ export default function History() {
                       onClick={() => handleRowClick(item)}
                     >
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-200">
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-1.5">
                           <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-blue-600 dark:text-blue-400 text-lg">
                             {item.transactionType === 'DEPOSIT' ? <FaWallet /> : item.transactionType === 'REFUND' ? <FaExchangeAlt /> : <FaShoppingBag />}
                           </div>

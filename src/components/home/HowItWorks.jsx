@@ -56,7 +56,7 @@ export const HowItWorks = ({ steps = defaultSteps }) => {
               </div>
 
               {/* Content */}
-              <h3 className="text-xl sm:text-2xl font-bold text-text-primary dark:text-white mb-3 transition-colors duration-300">
+              <h3 className="text-xl sm:text-xl font-bold text-text-primary dark:text-white mb-3 transition-colors duration-300">
                 {step.title}
               </h3>
               <p className="text-text-secondary dark:text-text-white leading-relaxed mb-4 transition-colors duration-300">

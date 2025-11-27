@@ -72,8 +72,8 @@ export default function RewardCard({
   return (
     <div
       className={`relative rounded-sm border bg-white dark:bg-darker-2 overflow-hidden hover:shadow-md transition-shadow ${isLockedEntity
-          ? 'border-amber-200/80 dark:border-amber-500/40 ring-1 ring-amber-200/60 dark:ring-amber-400/30'
-          : 'border-border'
+        ? 'border-amber-200/80 dark:border-amber-500/40 ring-1 ring-amber-200/60 dark:ring-amber-400/30'
+        : 'border-border'
         }`}
     >
       {isLockedEntity && (
@@ -239,7 +239,7 @@ export default function RewardCard({
           0 backers
         </div>
 
-        <div className="flex items-center gap-3 md:gap-4 flex-wrap">
+        <div className="flex items-center gap-1.5 md:gap-4 flex-wrap">
           <button
             onClick={handleEdit}
             className={`flex items-center gap-1.5 text-sm text-foreground transition-colors ${isReadOnly ? 'opacity-60 cursor-not-allowed' : 'hover:text-primary'}`}

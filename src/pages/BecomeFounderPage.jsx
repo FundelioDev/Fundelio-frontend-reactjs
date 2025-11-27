@@ -130,7 +130,7 @@ export default function BecomeFounderPage() {
                                 </div>
                             </div>
                             <div className="flex-1">
-                                <h2 className="text-2xl font-bold text-text-primary dark:text-white mb-2 flex items-center gap-3">
+                                <h2 className="text-xl font-bold text-text-primary dark:text-white mb-2 flex items-center gap-1.5">
                                     1. Đăng nhập / Đăng ký
                                     <Check className="w-6 h-6 text-[#00D9A6]" strokeWidth={3} />
                                 </h2>
@@ -147,7 +147,7 @@ export default function BecomeFounderPage() {
 
                     {/* Step 2 - Terms and Conditions */}
                     <div>
-                        <h2 className="text-2xl font-bold text-text-primary dark:text-white mb-4">
+                        <h2 className="text-xl font-bold text-text-primary dark:text-white mb-4">
                             2. Đồng ý với điều khoản và điều kiện
                         </h2>
                         <p className="text-muted-foreground mb-6">

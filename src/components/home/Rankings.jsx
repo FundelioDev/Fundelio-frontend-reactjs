@@ -51,15 +51,15 @@ export const Rankings = ({
       <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-3">
-            <HiTrophy className="w-8 h-8 text-text-primary dark:text-gray-100" />
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
+          <div className="flex items-center gap-1.5">
+            <HiTrophy className="w-6 h-6 text-text-primary dark:text-gray-100" />
+            <h2 className="text-xl sm:text-xl font-bold text-gray-900 dark:text-white">
               {title}
             </h2>
           </div>
 
           {/* Category Filter */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5">
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}

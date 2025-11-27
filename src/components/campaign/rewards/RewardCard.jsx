@@ -142,7 +142,7 @@ const RewardCard = ({ reward, layoutMode, onPledge, campaignId, isPreview = fals
           // }}
           >
             <motion.div
-              className="flex items-center gap-3 text-sm text-foreground"
+              className="flex items-center gap-1.5 text-sm text-foreground"
               whileHover={{ x: 4 }}
               transition={{ type: 'spring', stiffness: 300 }}
             >
@@ -155,7 +155,7 @@ const RewardCard = ({ reward, layoutMode, onPledge, campaignId, isPreview = fals
             </motion.div>
 
             <motion.div
-              className="flex items-center gap-3 text-sm text-foreground"
+              className="flex items-center gap-1.5 text-sm text-foreground"
               whileHover={{ x: 4 }}
               transition={{ type: 'spring', stiffness: 300 }}
             >
@@ -166,7 +166,7 @@ const RewardCard = ({ reward, layoutMode, onPledge, campaignId, isPreview = fals
             </motion.div>
 
             <motion.div
-              className="flex items-center gap-3 text-sm text-foreground"
+              className="flex items-center gap-1.5 text-sm text-foreground"
               whileHover={{ x: 4 }}
               transition={{ type: 'spring', stiffness: 300 }}
             >

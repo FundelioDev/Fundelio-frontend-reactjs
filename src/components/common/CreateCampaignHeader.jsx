@@ -203,7 +203,7 @@ export const CreateCampaignHeader = ({
                         <Link
                           to="/dashboard"
                           onClick={() => setIsUserMenuOpen(false)}
-                          className="flex items-center gap-3 px-3 py-2 text-sm text-text-primary dark:text-white hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-colors"
+                          className="flex items-center gap-1.5 px-3 py-2 text-sm text-text-primary dark:text-white hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-colors"
                         >
                           <LayoutDashboard className="w-4 h-4" />
                           <span>Bảng điều khiển</span>
@@ -214,7 +214,7 @@ export const CreateCampaignHeader = ({
                           <Link
                             to="/admin"
                             onClick={() => setIsUserMenuOpen(false)}
-                            className="flex items-center gap-3 px-3 py-2 text-sm text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-lg transition-colors"
+                            className="flex items-center gap-1.5 px-3 py-2 text-sm text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-lg transition-colors"
                           >
                             <ShieldCheck className="w-4 h-4" />
                             <span>Quản trị hệ thống</span>
@@ -224,14 +224,14 @@ export const CreateCampaignHeader = ({
                         <div className="border-t-2 border-border my-3"></div>
                         <a
                           href="#"
-                          className="flex items-center gap-3 px-3 py-2 text-sm text-text-primary dark:text-white hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-colors"
+                          className="flex items-center gap-1.5 px-3 py-2 text-sm text-text-primary dark:text-white hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-colors"
                         >
                           <User className="w-4 h-4" />
                           <span>Hồ sơ</span>
                         </a>
                         <a
                           href="#"
-                          className="flex items-center gap-3 px-3 py-2 text-sm text-text-primary dark:text-white hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-colors"
+                          className="flex items-center gap-1.5 px-3 py-2 text-sm text-text-primary dark:text-white hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-colors"
                         >
                           <Settings className="w-4 h-4" />
                           <span>Cài đặt</span>
@@ -239,7 +239,7 @@ export const CreateCampaignHeader = ({
                         <Link
                           to="/my-pledges"
                           onClick={() => setIsUserMenuOpen(false)}
-                          className="flex items-center gap-3 px-3 py-2 text-sm text-text-primary dark:text-white hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-colors"
+                          className="flex items-center gap-1.5 px-3 py-2 text-sm text-text-primary dark:text-white hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-colors"
                         >
                           <FolderOpen className="w-4 h-4" />
                           <span>Dự án của bạn</span>
@@ -247,7 +247,7 @@ export const CreateCampaignHeader = ({
                         <Link
                           to="/wallet"
                           onClick={() => setIsUserMenuOpen(false)}
-                          className="flex items-center gap-3 px-3 py-2 text-sm text-text-primary dark:text-white hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-colors"
+                          className="flex items-center gap-1.5 px-3 py-2 text-sm text-text-primary dark:text-white hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-colors"
                         >
                           <Wallet className="w-4 h-4" />
                           <span>Ví</span>
@@ -261,7 +261,7 @@ export const CreateCampaignHeader = ({
                       <Link
                         to="/campaigns/create"
                         onClick={() => setIsUserMenuOpen(false)}
-                        className="flex items-center gap-3 px-3 py-2 text-primary hover:bg-primary/10 rounded-lg transition-colors"
+                        className="flex items-center gap-1.5 px-3 py-2 text-primary hover:bg-primary/10 rounded-lg transition-colors"
                       >
                         <div className="w-10 h-10 flex-shrink-0 bg-primary/10 rounded flex items-center justify-center border-2 border-dashed border-primary">
                           <Plus className="w-5 h-5" />
@@ -277,7 +277,7 @@ export const CreateCampaignHeader = ({
                             setIsUserMenuOpen(false);
                             navigate('/auth', { state: { mode: 'login' } });
                           }}
-                          className="flex items-center gap-3 px-3 py-2 text-sm text-destructive hover:bg-destructive/10 rounded-lg transition-colors w-full"
+                          className="flex items-center gap-1.5 px-3 py-2 text-sm text-destructive hover:bg-destructive/10 rounded-lg transition-colors w-full"
                         >
                           <LogOut className="w-4 h-4" />
                           <span>Đăng xuất</span>

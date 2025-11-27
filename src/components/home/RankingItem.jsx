@@ -21,8 +21,8 @@ const RankingItem = ({ rank, project, type = 'funding', isFirst = false, isLast 
   };
 
   const formatNumber = (num) => {
-    if (num >= 1000) return `+${(num / 1000).toFixed(1)}k`;
-    return `+${num}`;
+    if (num >= 1000) return `${(num / 1000).toFixed(1)}k`;
+    return `${num}`;
   };
 
   const WreathLaurel = ({ rank, className = "" }) => {
@@ -52,16 +52,16 @@ const RankingItem = ({ rank, project, type = 'funding', isFirst = false, isLast 
   return (
     <a href={`/campaigns/${campaignId}`} className={getItemClasses()}>
       {/* Rank Badge - Wreath for top 3, plain number otherwise */}
-      <div className="flex items-center justify-center w-14 h-14 relative flex-shrink-0">
+      <div className="flex items-center justify-center w-11 h-11 relative flex-shrink-0">
         {isTopThree ? (
           <div className="relative w-full h-full flex items-center justify-center">
             <WreathLaurel rank={rank} className="absolute inset-0 w-full h-full opacity-60 -mt-0.5" />
-            <span className="relative z-10 text-xl font-bold text-text-primary dark:text-white drop-shadow-lg">
+            <span className="relative z-10 text-md font-bold text-text-primary dark:text-white drop-shadow-lg">
               #{rank}
             </span>
           </div>
         ) : (
-          <span className="text-xl font-bold tabular-nums text-text-secondary dark:text-white/60">
+          <span className="text-MD font-bold tabular-nums text-text-secondary dark:text-white/60">
             #{rank}
           </span>
         )}
@@ -94,7 +94,7 @@ const RankingItem = ({ rank, project, type = 'funding', isFirst = false, isLast 
         <div className="text-xs text-gray-500 dark:text-text-white mb-1">
           {type === 'funding' ? 'GÂY QUỸ' : 'NGƯỜI ỦNG HỘ'}
         </div>
-        <div className="text-sm font-bold text-gray-900 dark:text-white">
+        <div className="text-md font-bold text-gray-900 dark:text-white">
           {type === 'funding'
             ? formatCurrency(pledgedAmount)
             : formatNumber(backersCount)

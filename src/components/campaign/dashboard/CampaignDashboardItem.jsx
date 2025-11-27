@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { ChevronRight, Trash2, XCircle, BarChart3, Eye } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FaEdit, FaTrash, FaChartBar, FaBan, FaEllipsisV, FaEye } from 'react-icons/fa';
 import Button from '@/components/common/Button';
 import ConfirmModal from '@/components/common/ConfirmModal';
 import SimpleConfirmModal from '@/components/common/SimpleConfirmModal';
@@ -12,6 +12,12 @@ import {
     canPerformAction,
     getEditButtonType,
 } from '@/utils/campaignStatusConfig';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export default function CampaignDashboardItem({ campaign, onActionComplete }) {
     const navigate = useNavigate();
@@ -20,6 +26,18 @@ export default function CampaignDashboardItem({ campaign, onActionComplete }) {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [successMessage, setSuccessMessage] = useState({ title: '', description: '' });
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const dropdownRef = useRef(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsDropdownOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     const handleEdit = () => {
         navigate(`/campaigns/${campaign.campaignId}/dashboard`);
@@ -166,63 +184,104 @@ export default function CampaignDashboardItem({ campaign, onActionComplete }) {
                         </p>
                     </div>
 
-                    {/* Action Buttons */}
-                    <div className="flex items-center justify-end gap-2 flex-wrap">
-                        {/* End Campaign Button */}
-                        {canPerformAction(status, 'canEnd') && (
+                    {/* Action Dropdown */}
+                    <div className="flex items-center justify-end" ref={dropdownRef}>
+                        <div className="relative">
                             <button
-                                onClick={() => setShowCancelModal(true)}
-                                disabled={isProcessing}
-                                className="flex items-center gap-1 px-3 py-2 border rounded-xs border-orange-500 text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                                className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 transition-colors"
                             >
-                                <XCircle className="w-4 h-4" />
-                                <span>Kết thúc chiến dịch</span>
+                                <FaEllipsisV />
                             </button>
-                        )}
 
-                        {/* Delete Button */}
-                        {canPerformAction(status, 'canDelete') && (
-                            <button
-                                onClick={() => setShowDeleteModal(true)}
-                                disabled={isProcessing}
-                                className="gap-1 px-4 py-3 bg-red-50 dark:bg-darker-2 rounded-xs border border-red-500 text-red-600 hover:cursor-pointer hover:bg-red-200 dark:hover:bg-red-900/20 disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                <Trash2 className="w-4 h-4 text-red-600" />
-                            </button>
-                        )}
+                            {isDropdownOpen && (
+                                <div className="absolute bottom-full right-0 mb-2 flex flex-col gap-1 bg-white dark:bg-darker-2 rounded-lg shadow-xl border border-gray-100 dark:border-gray-700 p-1 z-10 min-w-[40px] items-center animate-in fade-in zoom-in-95 duration-200">
+                                    <TooltipProvider delayDuration={0}>
+                                        {/* Edit/View Action */}
+                                        {(canPerformAction(status, 'canEdit') || isViewMode) && (
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <button
+                                                        onClick={() => {
+                                                            handleEdit();
+                                                            setIsDropdownOpen(false);
+                                                        }}
+                                                        className="p-2 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-600 dark:text-blue-400 transition-colors"
+                                                    >
+                                                        {isViewMode ? <FaEye size={16} /> : <FaEdit size={16} />}
+                                                    </button>
+                                                </TooltipTrigger>
+                                                <TooltipContent side="left">
+                                                    <p>{isViewMode ? 'Xem chi tiết' : 'Chỉnh sửa'}</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        )}
 
-                        {/* Statistics Button */}
-                        {canPerformAction(status, 'canViewStats') && (
-                            <button
-                                onClick={handleViewStats}
-                                className="flex items-center gap-1 px-3 py-2 border rounded-xs bg-[#3eca88] border-green-500 hover:bg-emerald-500 hover:border-emerald-600 text-white"
-                            >
-                                <BarChart3 className="w-4 h-4" />
-                                <span>Thống kê</span>
-                            </button>
-                        )}
+                                        {/* Statistics Action */}
+                                        {canPerformAction(status, 'canViewStats') && (
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <button
+                                                        onClick={() => {
+                                                            handleViewStats();
+                                                            setIsDropdownOpen(false);
+                                                        }}
+                                                        className="p-2 rounded-md hover:bg-emerald-50 dark:hover:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 transition-colors"
+                                                    >
+                                                        <FaChartBar size={16} />
+                                                    </button>
+                                                </TooltipTrigger>
+                                                <TooltipContent side="left">
+                                                    <p>Thống kê</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        )}
 
-                        {/* Edit/View Button */}
-                        {canPerformAction(status, 'canEdit') || isViewMode ? (
-                            isViewMode ? (
-                                <Button
-                                    onClick={handleEdit}
-                                    variant="primary"
-                                    className="rounded-xs"
-                                >
-                                    <Eye className="w-5 h-5" />
-                                </Button>
-                            ) : (
-                                <Button
-                                    onClick={handleEdit}
-                                    variant="primary"
-                                    className="rounded-xs"
-                                >
-                                    <span>Chỉnh sửa chiến dịch</span>
-                                    <ChevronRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
-                                </Button>
-                            )
-                        ) : null}
+                                        {/* End Campaign Action */}
+                                        {canPerformAction(status, 'canEnd') && (
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <button
+                                                        onClick={() => {
+                                                            setShowCancelModal(true);
+                                                            setIsDropdownOpen(false);
+                                                        }}
+                                                        disabled={isProcessing}
+                                                        className="p-2 rounded-md hover:bg-orange-50 dark:hover:bg-orange-900/20 text-orange-600 dark:text-orange-400 transition-colors disabled:opacity-50"
+                                                    >
+                                                        <FaBan size={16} />
+                                                    </button>
+                                                </TooltipTrigger>
+                                                <TooltipContent side="left">
+                                                    <p>Kết thúc chiến dịch</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        )}
+
+                                        {/* Delete Action */}
+                                        {canPerformAction(status, 'canDelete') && (
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <button
+                                                        onClick={() => {
+                                                            setShowDeleteModal(true);
+                                                            setIsDropdownOpen(false);
+                                                        }}
+                                                        disabled={isProcessing}
+                                                        className="p-2 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 transition-colors disabled:opacity-50"
+                                                    >
+                                                        <FaTrash size={16} />
+                                                    </button>
+                                                </TooltipTrigger>
+                                                <TooltipContent side="left">
+                                                    <p>Xóa dự án</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        )}
+                                    </TooltipProvider>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>

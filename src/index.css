@@ -1,7 +1,7 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
-@custom-variant dark (&:is(.dark *));
+@custom-variant dark (&:is(.dark, .dark *));
 
 @theme {
   /* Primary colors with shades - Blue #0894E2 */
@@ -38,7 +38,8 @@
   --color-text-orange: #ffc63f;
 
   /* Font sizes */
-  --text-hero: 2.5rem; /* 40px */
+  --text-hero: 2.5rem;
+  /* 40px */
 
   /* Border colors */
   /* --color-border is defined in @theme inline via var(--border) */
@@ -46,12 +47,14 @@
 
   /* Background colors */
   --color-white: #ffffff;
-  --color-black: #1f1f22; 
-  --color-darker: #1f1f22; /* #1f1c2d */
-  --color-darker-2: #323236  ;  /* #2f2b41 */ 
+  --color-black: #1f1f22;
+  --color-darker: #1f1f22;
+  /* #1f1c2d */
+  --color-darker-2: #323236;
+  /* #2f2b41 */
   /* --color-darker-light: #1c2237; */
   --color-background-light: #f5f5f5;
-  --color-background-light-2: #f6f8ff; 
+  --color-background-light-2: #f6f8ff;
   --color-background-lighter: #fafafa;
   --color-background-header-dark: #1b1b1d;
 
@@ -245,11 +248,13 @@ body {
   --secondary: oklch(0.82 0.14 80);
   --secondary-foreground: oklch(0.12 0 0);
   --muted: oklch(0.25 0 0);
-  --muted-foreground: #e0dfe9;  /* oklch(0.708 0 0);   #cbc6e7*/ 
+  --muted-foreground: #e0dfe9;
+  /* oklch(0.708 0 0);   #cbc6e7*/
   --accent: oklch(0.25 0 0);
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);
-  --border: #4d4d4d;   /* #48455f; */
+  --border: #4d4d4d;
+  /* #48455f; */
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.7 0.15 230);
   --chart-1: oklch(0.488 0.243 264.376);
@@ -271,12 +276,14 @@ body {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
 }
 
 @layer utilities {
+
   /* Global Card Shadow */
   .shadow-card {
     box-shadow: 0px 1px 11px rgba(0, 0, 0, 0.15);
@@ -306,6 +313,7 @@ body {
       opacity: 0;
       transform: translateY(20px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
@@ -317,6 +325,7 @@ body {
       opacity: 1;
       transform: translateY(0);
     }
+
     to {
       opacity: 0;
       transform: translateY(-20px);
@@ -332,9 +341,11 @@ body {
     0% {
       background: linear-gradient(45deg, #0894e2 0%, #ffc63f 100%);
     }
+
     50% {
       background: linear-gradient(45deg, #ffc63f 0%, #0894e2 100%);
     }
+
     100% {
       background: linear-gradient(45deg, #0894e2 0%, #ffc63f 100%);
     }
@@ -348,9 +359,11 @@ body {
     0% {
       transform: translate(0, 0);
     }
+
     50% {
       transform: translate(5px, 5px);
     }
+
     100% {
       transform: translate(0, 0);
     }
@@ -364,6 +377,7 @@ body {
     0% {
       transform: translateX(-100%);
     }
+
     100% {
       transform: translateX(100%);
     }
@@ -376,10 +390,12 @@ body {
 
   /* Float Animation for Auth Pages */
   @keyframes float {
+
     0%,
     100% {
       transform: translateY(0px);
     }
+
     50% {
       transform: translateY(-20px);
     }
@@ -388,90 +404,90 @@ body {
   .animate-float {
     animation: float 6s ease-in-out infinite;
 
-  .gradient-1 {
-    background: linear-gradient(90deg, hsl(228, 99%, 55%) 0.39%, hsl(232, 77%, 58%) 28.56%, hsl(323, 53%, 53%) 65.51%, hsl(27, 100%, 51%) 87.47%, hsl(36, 100%, 51%) 99.69%);
+    .gradient-1 {
+      background: linear-gradient(90deg, hsl(228, 99%, 55%) 0.39%, hsl(232, 77%, 58%) 28.56%, hsl(323, 53%, 53%) 65.51%, hsl(27, 100%, 51%) 87.47%, hsl(36, 100%, 51%) 99.69%);
+    }
+
+    .gradient-2 {
+      background: linear-gradient(265deg, hsl(228, 99%, 55%) 12.19%, hsl(161, 73%, 45%) 53.51%);
+    }
+
+    .gradient-3 {
+      background: linear-gradient(267deg, hsl(228, 99%, 55%) 4.28%, hsl(161, 73%, 45%) 121.65%);
+    }
+
+    .button-border-gradient {
+      background: linear-gradient(267deg, hsla(228, 99%, 55%, 0.9) 4.28%, hsla(161, 73%, 45%, 0.9) 121.65%);
+    }
   }
-  
-  .gradient-2 {
-    background: linear-gradient(265deg, hsl(228, 99%, 55%) 12.19%, hsl(161, 73%, 45%) 53.51%);
+
+  /* ContentEditable Formatting Support */
+  [contenteditable] b,
+  [contenteditable] strong {
+    font-weight: bold !important;
   }
-  
-  .gradient-3 {
-    background: linear-gradient(267deg, hsl(228, 99%, 55%) 4.28%, hsl(161, 73%, 45%) 121.65%);
+
+  [contenteditable] i,
+  [contenteditable] em {
+    font-style: italic !important;
   }
-  
-  .button-border-gradient {
-    background: linear-gradient(267deg, hsla(228, 99%, 55%, 0.9) 4.28%, hsla(161, 73%, 45%, 0.9) 121.65%);
+
+  [contenteditable] u {
+    text-decoration: underline !important;
   }
-}
 
-/* ContentEditable Formatting Support */
-[contenteditable] b,
-[contenteditable] strong {
-  font-weight: bold !important;
-}
+  [contenteditable] a {
+    color: var(--color-primary) !important;
+    text-decoration: underline !important;
+  }
 
-[contenteditable] i,
-[contenteditable] em {
-  font-style: italic !important;
-}
+  [contenteditable] h2 {
+    font-size: 1.5rem !important;
+    font-weight: bold !important;
+    margin-top: 1rem !important;
+    margin-bottom: 0.5rem !important;
+  }
 
-[contenteditable] u {
-  text-decoration: underline !important;
-}
+  /* Custom Date Input Calendar Icon Styles */
+  /* Webkit/Chrome/Safari/Edge */
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    padding: 4px;
+    opacity: 1;
+    transition: all 0.2s ease;
+    /* Change icon color to primary blue #0894E2 */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%230894E2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='16' y1='2' x2='16' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='2' x2='8' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='10' x2='21' y2='10'%3E%3C/line%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 20px;
+    height: 20px;
+  }
 
-[contenteditable] a {
-  color: var(--color-primary) !important;
-  text-decoration: underline !important;
-}
+  input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
 
-[contenteditable] h2 {
-  font-size: 1.5rem !important;
-  font-weight: bold !important;
-  margin-top: 1rem !important;
-  margin-bottom: 0.5rem !important;
-}
+  /* Dark mode support for calendar icon */
+  .dark input[type="date"]::-webkit-calendar-picker-indicator {
+    /* Lighter blue for dark mode #26B0EA */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%2326B0EA' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='16' y1='2' x2='16' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='2' x2='8' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='10' x2='21' y2='10'%3E%3C/line%3E%3C/svg%3E");
+  }
 
-/* Custom Date Input Calendar Icon Styles */
-/* Webkit/Chrome/Safari/Edge */
-input[type="date"]::-webkit-calendar-picker-indicator {
-  cursor: pointer;
-  padding: 4px;
-  opacity: 1;
-  transition: all 0.2s ease;
-  /* Change icon color to primary blue #0894E2 */
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%230894E2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='16' y1='2' x2='16' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='2' x2='8' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='10' x2='21' y2='10'%3E%3C/line%3E%3C/svg%3E");
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-  width: 20px;
-  height: 20px;
-}
+  .dark input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 0.8;
+  }
 
-input[type="date"]::-webkit-calendar-picker-indicator:hover {
-  opacity: 0.7;
-  transform: scale(1.1);
-}
+  /* Firefox */
+  input[type="date"]::-moz-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 1;
+    transition: all 0.2s ease;
+  }
 
-/* Dark mode support for calendar icon */
-.dark input[type="date"]::-webkit-calendar-picker-indicator {
-  /* Lighter blue for dark mode #26B0EA */
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%2326B0EA' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='16' y1='2' x2='16' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='2' x2='8' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='10' x2='21' y2='10'%3E%3C/line%3E%3C/svg%3E");
-}
-
-.dark input[type="date"]::-webkit-calendar-picker-indicator:hover {
-  opacity: 0.8;
-}
-
-/* Firefox */
-input[type="date"]::-moz-calendar-picker-indicator {
-  cursor: pointer;
-  opacity: 1;
-  transition: all 0.2s ease;
-}
-
-input[type="date"]::-moz-calendar-picker-indicator:hover {
-  opacity: 0.7;
-  transform: scale(1.1);
-}
+  input[type="date"]::-moz-calendar-picker-indicator:hover {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
 }

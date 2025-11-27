@@ -47,7 +47,7 @@ const sidebarItems = [
 ];
 
 export default function AdminLayout() {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
   const { toggleTheme, isDark } = useTheme();
   const { user, logout } = useAuth();
@@ -117,7 +117,7 @@ export default function AdminLayout() {
             className='ml-auto'
           >
             {sidebarOpen ? (
-              <X size={20} />
+              <X size={20} className='text-gray-700 dark:text-gray-300' />
             ) : (
               <Menu size={20} className='text-gray-700 dark:text-gray-300' />
             )}

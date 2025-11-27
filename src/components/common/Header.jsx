@@ -135,7 +135,7 @@ export const Header = ({
     setIsSearching(true);
     searchTimeoutRef.current = setTimeout(async () => {
       try {
-        const filter = `title ~~ '*${searchQuery.trim()}*'`;
+        const filter = `title ~~ '*${searchQuery.trim()}*' and (campaignStatus:'ACTIVE' or campaignStatus:'SUCCESSFUL')`;
         const response = await campaignApi.getAllCampaigns({
           filter,
           page: 0,
@@ -374,6 +374,39 @@ export const Header = ({
             )}
           </button>
 
+          {/* Wallet Balance - Mobile */}
+          {isLoggedIn && user && (
+            <button
+              onClick={handleCoinClick}
+              className={`md:hidden flex items-center gap-1.5 px-2 py-1.5 rounded-lg ${Number(headerBalance) === 0
+                ? "hover:bg-red-100 dark:hover:bg-red-900/30"
+                : "bg-primary/10 hover:bg-primary/20"
+                } transition-all`}
+            >
+              <Wallet className="w-4 h-4 text-primary dark:text-primary-400" />
+              <span
+                className={`text-xs font-bold ${Number(headerBalance) === 0
+                  ? "text-red-500 dark:text-red-400"
+                  : "text-primary dark:text-primary-400"
+                  }`}
+              >
+                {formatPrice(headerBalance)}
+              </span>
+            </button>
+          )}
+
+          {/* Theme Toggle - Mobile */}
+          <button
+            onClick={toggleTheme}
+            className={`md:hidden p-2 rounded-lg ${currentVariant.navLink}`}
+          >
+            {isDark ? (
+              <Sun className="w-5 h-5" />
+            ) : (
+              <Moon className="w-5 h-5" />
+            )}
+          </button>
+
           {isLoggedIn && user ? (
             <div className="relative user-menu-container">
               <button onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}>
@@ -493,160 +526,9 @@ export const Header = ({
               </Button>
             </>
           )}
-
-          <button
-            className={`lg:hidden p-2 rounded-lg ${currentVariant.button}`}
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          >
-            <Menu className="w-6 h-6" />
-          </button>
         </div>
       </div>
 
-      {/* Mobile Menu */}
-      {isMobileMenuOpen && (
-        <div className="lg:hidden mt-4 py-4 border-t border-white/20 dark:border-gray-700 transition-colors duration-300">
-          <nav className="space-y-2">
-            {user?.rolesSecured?.some((role) => role.name === "FOUNDER" || role.name === "ADMIN") && (
-              <Link
-                to="/dashboard"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="flex items-center gap-1.5 px-3 py-2 text-sm text-text-primary dark:text-white hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-colors"
-              >
-                <LayoutDashboard className="w-4 h-4" />
-                <span>Bảng điều khiển</span>
-              </Link>
-            )}
-            {/* Admin link - only show if user has ADMIN role */}
-            {user?.rolesSecured?.some((role) => role.name === "ADMIN") && (
-              <Link
-                to="/admin"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="flex items-center gap-1.5 px-3 py-2 text-sm text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-lg transition-colors"
-              >
-                <ShieldCheck className="w-4 h-4" />
-                <span>Quản trị hệ thống</span>
-              </Link>
-            )}
-
-            <div className="border-t-2 border-border my-3"></div>
-            <Link
-              to="/home"
-              className={`block px-4 py-2 rounded-lg ${currentVariant.navLink
-                } hover:bg-white/10 dark:hover:bg-darker-2-light/40 transition-colors font-medium ${location.pathname === "/home"
-                  ? "text-primary dark:text-primary-400"
-                  : ""
-                }`}
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Trang chủ
-            </Link>
-            <Link
-              to="/campaigns/create"
-              className={`block px-4 py-2 rounded-lg ${currentVariant.navLink
-                } hover:bg-white/10 dark:hover:bg-darker-2-light/40 transition-colors font-medium ${location.pathname === "/campaigns/create"
-                  ? "text-primary dark:text-primary-400"
-                  : ""
-                }`}
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Tạo chiến dịch
-            </Link>
-            <a
-              href="#about"
-              className={`block px-4 py-2 rounded-lg ${currentVariant.navLink} hover:bg-white/10 dark:hover:bg-darker-2 transition-colors font-medium`}
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Về chúng tôi
-            </a>
-            <a
-              href="#contact"
-              className={`block px-4 py-2 rounded-lg ${currentVariant.navLink} hover:bg-white/10 dark:hover:bg-darker-2 transition-colors font-medium`}
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Liên hệ
-            </a>
-
-            {/* Categories in mobile */}
-            {/* <div className="pt-2 border-t border-white/20 dark:border-gray-700 mt-2 transition-colors duration-300">
-              <p
-                className={`px-4 py-2 text-sm font-semibold ${currentVariant.title}`}
-              >
-                Khám phá
-              </p>
-              {loadingCategories ? (
-                <div className="px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                  Đang tải danh mục...
-                </div>
-              ) : categories.length > 0 ? (
-                categories.map((category) => {
-                  const IconComponent = category.icon;
-                  return (
-                    <Link
-                      key={category.id}
-                      to={category.href}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className={`flex items-center space-x-3 px-4 py-2 rounded-lg ${currentVariant.navLink} hover:bg-white/10 dark:hover:bg-darker-2-light/40 transition-colors`}
-                    >
-                      <IconComponent className={`w-4 h-4 ${category.color}`} />
-                      <span className="text-sm">{category.name}</span>
-                    </Link>
-                  );
-                })
-              ) : (
-                <div className="px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                  Không có danh mục
-                </div>
-              )}
-            </div> */}
-
-            {/* Mobile Theme Toggle */}
-            <div className="px-4 py-2 border-t border-white/20 dark:border-gray-700 mt-2 transition-colors duration-300">
-              <button
-                onClick={toggleTheme}
-                className={`flex items-center space-x-3 w-full px-4 py-2 rounded-lg ${currentVariant.navLink} hover:bg-white/10 dark:hover:bg-darker-2-light/40 transition-colors`}
-              >
-                {isDark ? (
-                  <>
-                    <Sun className="w-4 h-4" />
-                    <span className="text-sm">Chế độ sáng</span>
-                  </>
-                ) : (
-                  <>
-                    <Moon className="w-4 h-4" />
-                    <span className="text-sm">Chế độ tối</span>
-                  </>
-                )}
-              </button>
-            </div>
-
-            {/* Mobile Auth Buttons */}
-            <div className="flex gap-2 px-4 pt-4 pb-2 sm:hidden">
-              <Button
-                size="sm"
-                className="flex-1 min-w-0 !px-2 !py-1.5 !text-xs"
-                onClick={() => {
-                  navigate("/auth", { state: { mode: "register" } });
-                  setIsMobileMenuOpen(false);
-                }}
-              >
-                Đăng ký
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex-1 min-w-0 !px-2 !py-1.5 !text-xs border-current dark:border-gray-600"
-                onClick={() => {
-                  navigate("/auth", { state: { mode: "login" } });
-                  setIsMobileMenuOpen(false);
-                }}
-              >
-                Đăng nhập
-              </Button>
-            </div>
-          </nav>
-        </div>
-      )}
     </header>
   );
 };

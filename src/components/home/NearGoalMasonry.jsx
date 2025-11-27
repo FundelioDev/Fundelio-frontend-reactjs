@@ -10,7 +10,7 @@ export const NearGoalMasonry = ({
   const nearGoalProjects = useMemo(() => {
     const filtered = projects.filter(
       (project) =>
-        project.progressPercent >= 70 && project.progressPercent <= 95
+        project.progressPercent >= 70 && project.progressPercent < 100
     );
     // Sắp xếp theo progressPercent giảm dần để card đầu là cao nhất
     return filtered.sort((a, b) => b.progressPercent - a.progressPercent);

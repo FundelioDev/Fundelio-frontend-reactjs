@@ -36,7 +36,6 @@ export default function UpdateProfile() {
 
   useEffect(() => {
     if (user) {
-      console.log("Populating form from AuthContext user:", user);
       setFirstName(user.firstName ?? "");
       setLastName(user.lastName ?? "");
       setNickname(user.nickname ?? "");
@@ -56,6 +55,11 @@ export default function UpdateProfile() {
       else setCity(null);
     }
   }, [user]);
+  const extractCampaignName = (description) => {
+    if (!description) return '';
+    const match = description.match(/:\s*(.*?)\s*\| Tổng pledge/);
+    return match ? match[1] : '';
+  };
 
   const handleAvatarChange = (e) => {
     const file = e.target.files?.[0];
@@ -78,21 +82,17 @@ export default function UpdateProfile() {
       let avatarLink = undefined;
       if (avatarFile) {
         try {
-          console.log("Uploading avatar file...");
           const uploadRes = await storageApi.uploadSingleFile(avatarFile, "users/avatars");
-          
-          console.log("Upload response:", uploadRes?.data);
           avatarLink =
             uploadRes?.data?.url ||
             uploadRes?.data?.data?.url ||
             uploadRes?.data?.fileUrl ||
             uploadRes?.data?.data?.fileUrl;
-            
+
           if (!avatarLink || !/^https?:\/\//.test(avatarLink)) {
-            console.warn("Upload did not return http URL, ignoring avatarUrl.");
             avatarLink = undefined;
           }
-        } catch (uploadErr) {
+        } catch {
           toast.error("Tải ảnh lên thất bại. Vui lòng thử lại.");
           setLoading(false);
           return;
@@ -110,40 +110,54 @@ export default function UpdateProfile() {
       };
       if (avatarLink) payload.avatarUrl = avatarLink;
 
-      console.log("Sending update-profile payload:", JSON.stringify(payload, null, 2));
       const res = await userApi.updateProfile(payload);
-      console.log("Update response:", res?.status, res?.data);
-      
       toast.success(res?.data?.message || "Cập nhật thành công!");
       setAvatarFile(null);
-
-      try {
-        await fetchUserData();
-        console.log("AuthContext user re-fetched!");
-      } catch (err) {
-        console.warn("Could not reload user after update:", err);
-      }
+      await fetchUserData();
     } catch (err) {
-      console.error("Update error:", err?.response?.status, err?.response?.data || err);
-      
       const backendErrors = err?.response?.data?.errors;
       const singleMessage = err?.response?.data?.message;
 
       if (Array.isArray(backendErrors) && backendErrors.length > 0) {
         backendErrors.forEach((err) => {
-          if (err.message) {
-            toast.error(err.message, { icon: "⚠️" });
-          }
+          if (err.message) toast.error(err.message, { icon: "⚠️" });
         });
       } else if (singleMessage) {
         toast.error(singleMessage);
       } else {
         toast.error("Cập nhật thất bại!");
       }
-
     } finally {
       setLoading(false);
     }
+  };
+
+  // Custom styles cho react-select dark mode
+  const customSelectStyles = {
+    control: (provided, state) => ({
+      ...provided,
+      backgroundColor: document.documentElement.classList.contains("dark") ? "#1f2937" : "#fff",
+      color: document.documentElement.classList.contains("dark") ? "#d1d5db" : "#000",
+      borderColor: state.isFocused
+        ? "#6366f1"
+        : document.documentElement.classList.contains("dark")
+          ? "#374151"
+          : "#d1d5db",
+    }),
+    menu: (provided) => ({
+      ...provided,
+      backgroundColor: document.documentElement.classList.contains("dark") ? "#1f2937" : "#fff",
+      color: document.documentElement.classList.contains("dark") ? "#d1d5db" : "#000",
+      zIndex: 50,
+    }),
+    singleValue: (provided) => ({
+      ...provided,
+      color: document.documentElement.classList.contains("dark") ? "#d1d5db" : "#000",
+    }),
+    placeholder: (provided) => ({
+      ...provided,
+      color: document.documentElement.classList.contains("dark") ? "#9ca3af" : "#6b7280",
+    }),
   };
 
   return (
@@ -160,16 +174,27 @@ export default function UpdateProfile() {
               className="h-28 w-28 rounded-full border border-gray-200 shadow-sm object-cover"
             />
           ) : (
-            <div className="h-28 w-28 rounded-full border border-gray-200 shadow-sm bg-gray-100 flex items-center justify-center text-gray-400">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 12c2.5 0 4-1.5 4-4s-1.5-4-4-4-4 1.5-4 4 1.5 4 4 4zM6 20c0-3 3-5 6-5s6 2 6 5" />
+            <div className="h-28 w-28 rounded-full border border-gray-200 shadow-sm bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-400">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-10 w-10"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="1.5"
+                  d="M12 12c2.5 0 4-1.5 4-4s-1.5-4-4-4-4 1.5-4 4 1.5 4 4 4zM6 20c0-3 3-5 6-5s6 2 6 5"
+                />
               </svg>
             </div>
           )}
           <label
             title="Change"
-            className="absolute left-1/2 -translate-x-1/2 -bottom-10 inline-flex items-center justify-center px-3 py-1 text-sm rounded-md bg-white text-primary border border-transparent shadow-sm opacity-95 cursor-pointer
-                      transform transition-all duration-150 hover:-translate-y-1 hover:shadow-md hover:border-gray-200"
+            className="absolute left-1/2 -translate-x-1/2 -bottom-10 inline-flex items-center justify-center px-3 py-1 text-sm rounded-md bg-white dark:bg-gray-800 text-primary border border-transparent shadow-sm opacity-95 cursor-pointer
+                      transform transition-all duration-150 hover:-translate-y-1 hover:shadow-md hover:border-gray-200 dark:hover:border-gray-600"
           >
             Change
             <input type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
@@ -183,7 +208,7 @@ export default function UpdateProfile() {
           rows={3}
           value={biography}
           onChange={(e) => setBiography(e.target.value)}
-          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-700 dark:bg-darker"
+          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-700 dark:bg-darker dark:text-gray-200"
         />
       </div>
 
@@ -193,7 +218,7 @@ export default function UpdateProfile() {
           <input
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-700 dark:bg-darker"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-700 dark:bg-darker dark:text-gray-200"
             placeholder="Họ"
           />
         </div>
@@ -202,7 +227,7 @@ export default function UpdateProfile() {
           <input
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-700 dark:bg-darker"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-700 dark:bg-darker dark:text-gray-200"
             placeholder="Tên"
           />
         </div>
@@ -214,7 +239,7 @@ export default function UpdateProfile() {
           <input
             value={nickname}
             onChange={(e) => setNickname(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-700 dark:bg-darker"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-700 dark:bg-darker dark:text-gray-200"
             placeholder="Nickname"
           />
         </div>
@@ -223,7 +248,7 @@ export default function UpdateProfile() {
           <input
             value={phoneNumber}
             disabled
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm bg-gray-100 text-gray-500"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm bg-gray-100 dark:bg-darker text-gray-500 dark:text-gray-200"
             placeholder="Số điện thoại"
           />
         </div>
@@ -241,7 +266,7 @@ export default function UpdateProfile() {
               setCity(null);
             }}
             placeholder="Chọn quốc gia"
-            styles={{ menu: (p) => ({ ...p, zIndex: 50 }) }}
+            styles={customSelectStyles}
           />
         </div>
         <div>
@@ -253,7 +278,7 @@ export default function UpdateProfile() {
             onChange={setCity}
             isDisabled={!country}
             placeholder={country ? "Chọn thành phố" : "Chọn quốc gia trước"}
-            styles={{ menu: (p) => ({ ...p, zIndex: 50 }) }}
+            styles={customSelectStyles}
           />
         </div>
       </div>

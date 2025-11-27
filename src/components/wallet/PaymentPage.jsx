@@ -21,11 +21,32 @@ const PaymentPage = () => {
     const [isSuccess, setIsSuccess] = useState(false);
     const pollInterval = useRef(null);
 
+    const [depositLimits, setDepositLimits] = useState({ min: 10000, max: 50000000 });
+
     useEffect(() => {
         if (!isLoggedIn) {
             navigate('/auth');
         }
     }, [isLoggedIn, navigate]);
+
+    useEffect(() => {
+        if (isLoggedIn) {
+            const fetchDepositLimits = async () => {
+                try {
+                    const res = await walletApi.getDepositLimits(); // API từ BE trả về { minAmount, maxAmount }
+                    if (res?.data?.success && res.data.data) {
+                        setDepositLimits({
+                            min: res.data.data.minAmount || 10000,
+                            max: res.data.data.maxAmount || 50000000,
+                        });
+                    }
+                } catch (error) {
+                    console.error('Lấy giới hạn nạp tiền thất bại', error);
+                }
+            };
+            fetchDepositLimits();
+        }
+    }, [isLoggedIn]);
 
     const formatPrice = (value) => {
         const numberVal = Number(value);
@@ -65,11 +86,23 @@ const PaymentPage = () => {
 
     const handleAmountChange = (e) => {
         const value = e.target.value.replace(/\D/g, '');
-        setAmount(value ? parseInt(value) : 0);
+        const numValue = value ? parseInt(value) : 0;
+        setAmount(numValue);
+
+        if (numValue > depositLimits.max) {
+            toast.error(`Số tiền nạp tối đa là ${formatPrice(depositLimits.max)} VND`);
+        } else if (numValue < depositLimits.min && numValue !== 0) {
+            toast.error(`Số tiền nạp tối thiểu là ${formatPrice(depositLimits.min)} VND`);
+        }
     };
 
     const handleQuickAmount = (quickAmount) => {
         setAmount(quickAmount);
+        if (quickAmount > depositLimits.max) {
+            toast.error(`Số tiền nạp tối đa là ${formatPrice(depositLimits.max)} VND`);
+        } else if (quickAmount < depositLimits.min) {
+            toast.error(`Số tiền nạp tối thiểu là ${formatPrice(depositLimits.min)} VND`);
+        }
     };
 
     const startPolling = () => {
@@ -84,13 +117,9 @@ const PaymentPage = () => {
                     
                     if (newBalance > initialBalance) {
                         clearInterval(pollInterval.current);
-                        
                         setIsProcessing(false);
                         setIsSuccess(true); 
-                        
                         toast.success(`Đã nhận được tiền!`);
-                        
-                        // ĐÃ XÓA LỆNH SETTIMEOUT CHUYỂN HƯỚNG TẠI ĐÂY
                     }
                 }
             } catch (err) {
@@ -106,8 +135,12 @@ const PaymentPage = () => {
             toast.error("Vui lòng đồng ý với Điều khoản và điều kiện.");
             return;
         }
-        if (!amount || amount < 10000) {
-            toast.error("Số tiền nạp tối thiểu là 10.000 VND.");
+        if (!amount || amount < depositLimits.min) {
+            toast.error(`Số tiền nạp tối thiểu là ${formatPrice(depositLimits.min)} VND.`);
+            return;
+        }
+        if (amount > depositLimits.max) {
+            toast.error(`Số tiền nạp tối đa là ${formatPrice(depositLimits.max)} VND.`);
             return;
         }
 
@@ -139,10 +172,8 @@ const PaymentPage = () => {
 
     return (
         <div className="bg-background-light-2 dark:bg-darker py-16 px-4 pb-20 relative">
-            
             {(isProcessing || isSuccess) && (
                 <div className="fixed inset-0 z-[9999] bg-white/95 dark:bg-black/95 backdrop-blur-md flex flex-col items-center justify-center text-center p-6 transition-all duration-500">
-                    
                     {isSuccess ? (
                         <div className="animate-in fade-in zoom-in duration-300 flex flex-col items-center">
                             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-6 shadow-lg shadow-green-200">
@@ -155,10 +186,7 @@ const PaymentPage = () => {
                                 Số tiền <span className="font-bold text-green-600">{formatPrice(amount)} VND</span> đã được cộng vào ví.
                             </p>
                             <button
-                                onClick={() => {
-                                    // Chuyển hướng khi người dùng nhấn nút
-                                    navigate('/wallet'); 
-                                }}
+                                onClick={() => navigate('/wallet')}
                                 className="mt-8 px-8 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl shadow-lg transition-all active:scale-95"
                             >
                                 Hoàn tất & Xem lịch sử
@@ -201,7 +229,6 @@ const PaymentPage = () => {
                             Số dư khả dụng: <span className="font-bold text-primary text-lg">{formatPrice(balance)} VND</span>
                         </p>
                     </div>
-                    
                     <button 
                         onClick={() => navigate('/wallet')} 
                         className="text-sm sm:text-base md:text-lg text-primary hover:text-primary/80 font-medium transition-colors whitespace-nowrap"
@@ -259,7 +286,7 @@ const PaymentPage = () => {
                             </div>
 
                             <button
-                                type="submit" formTarget="_self"
+                                type="submit"
                                 disabled={!amount || amount <= 0 || !acceptedTerms || isProcessing || isSuccess}
                                 className={`w-full sm:w-[14rem] px-4 sm:px-5 py-2 sm:py-3 rounded-md font-bold text-base transition-all ${amount > 0 && acceptedTerms
                                     ? 'bg-primary hover:bg-primary/90 text-white shadow-lg hover:shadow-xl hover:scale-105 active:scale-95'

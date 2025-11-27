@@ -7,9 +7,9 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 /**
  * Category Distribution Doughnut Chart for Admin Dashboard
  */
-export const CategoryDistributionChart = ({ campaigns = [] }) => {
-    // Count campaigns by category
-    const categoryCounts = campaigns.reduce((acc, campaign) => {
+export const CategoryDistributionChart = ({ campaigns = [], campaignsByCategory }) => {
+    // Use campaignsByCategory from API if provided, otherwise calculate from campaigns array
+    const categoryCounts = campaignsByCategory || campaigns.reduce((acc, campaign) => {
         const category = campaign.campaignCategory || 'OTHER';
         acc[category] = (acc[category] || 0) + 1;
         return acc;
@@ -91,7 +91,7 @@ export const CategoryDistributionChart = ({ campaigns = [] }) => {
         },
     };
 
-    if (campaigns.length === 0) {
+    if (Object.keys(categoryCounts).length === 0) {
         return (
             <div className="bg-white dark:bg-darker-2 p-3 sm:p-4 rounded-sm shadow-card">
                 <h3 className="text-base sm:text-lg font-bold text-text-primary dark:text-white mb-4">

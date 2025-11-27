@@ -1,15 +1,17 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { Eye, Edit, X } from 'lucide-react';
 import CampaignHeader from '@/components/campaign/CampaignHeader';
-import CampaignTabs from '@/components/campaign/CampaignTabs';
-import RelatedCampaigns from '@/components/campaign/RelatedCampaigns';
 import { getPreviewData, isPreviewId } from '@/utils/previewStorage';
 import { campaignApi } from '@/api/campaignApi';
 import { rewardApi } from '@/api/rewardApi';
 import { getBlanksFromSections } from '@/data/mockCampaignStory';
 import { useCampaignProgress } from '@/websocket/hooks';
 import { useAuth } from '@/contexts/AuthContext';
+
+// Lazy load heavy components to reduce initial bundle size
+const CampaignTabs = React.lazy(() => import('@/components/campaign/CampaignTabs'));
+const RelatedCampaigns = React.lazy(() => import('@/components/campaign/RelatedCampaigns'));
 
 export default function CampaignDetailPage() {
   const { previewId, campaignId } = useParams();
@@ -40,9 +42,7 @@ export default function CampaignDetailPage() {
 
   // Subscribe to campaign progress updates (real-time)
   const handleCampaignProgress = useCallback((progressData) => {
-    console.log('📊 Campaign progress updated via WebSocket:', progressData);
 
-    // Update campaign data with new progress
     setCampaignData(prev => {
       if (!prev) return prev;
 
@@ -203,6 +203,8 @@ export default function CampaignDetailPage() {
   const avatarUrl = useMemo(() => {
     const owner = campaignData?.owner;
     if (!owner) return null;
+    // Return avatarUrl from owner, or null if not available
+    return owner.avatarUrl || null;
   }, [campaignData?.owner]);
 
   const handlePickPerk = () => console.log('Pick Your Perk clicked');
@@ -214,17 +216,17 @@ export default function CampaignDetailPage() {
     console.log("Tab changed to:", tabId);
     setActiveTab(tabId);
 
-    // Scroll to tabs section smoothly
-    setTimeout(() => {
+    // Scroll to tabs section smoothly using requestAnimationFrame for better performance
+    requestAnimationFrame(() => {
       const tabsElement = document.querySelector('[role="tablist"]');
       if (tabsElement) {
-        const offsetTop = tabsElement.getBoundingClientRect().top + window.pageYOffset;
-        window.scrollTo({
-          top: offsetTop - 20, // 20px offset for better visibility
-          behavior: 'smooth'
+        tabsElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+          inline: 'nearest'
         });
       }
-    }, 100);
+    });
   };
 
   if (loading) {
@@ -249,6 +251,7 @@ export default function CampaignDetailPage() {
     );
   }
 
+  // Helper functions for date formatting
   const normalizeBackendDate = (dateString) => {
     if (!dateString) return null;
     try {
@@ -271,13 +274,13 @@ export default function CampaignDetailPage() {
     return date.toLocaleDateString('vi-VN');
   };
 
-  console.log("campaignData", campaignData)
-
+  // Calculate creator data (after conditional returns, so it's safe)
   const creatorData = campaignData.owner ? {
     userId: campaignData.owner.userId,
     name: `${campaignData.owner.firstName || ''} ${campaignData.owner.lastName || ''}`.trim() || 'Creator',
     username: campaignData.owner.email || 'creator',
     avatar: avatarUrl,
+    avatarUrl: avatarUrl,
     bio: campaignData.owner.bio || 'Campaign creator',
     badges: [],
     stats: {
@@ -351,44 +354,53 @@ export default function CampaignDetailPage() {
           onSave={handleSave}
           onShare={handleShare}
           onTabChange={handleTabChange}
+          isPreview={isPreview}
+          isOwnerViewing={isOwnerViewing}
         />
 
-        {isPreview ?
-          <CampaignTabs
-            initialTab={activeTab}
-            onTabChange={handleTabChange}
-            campaignProps={{
-              rewards: rewards,
-              creator: creatorData,
-              otherProjects: [], // TODO: Add related projects
-              blanks: campaignData.blanks || [],
-              currency: campaignData.currency || 'VND',
-              onPledge: handlePledge,
-              campaignId: campaignData.campaignId,
-              isPreview: true,
-              isOwnerViewing,
-            }}
-          /> : <CampaignTabs
-            initialTab={activeTab}
-            onTabChange={handleTabChange}
-            campaignProps={{
-              rewards: rewards,
-              creator: creatorData,
-              otherProjects: [], // TODO: Add related projects
-              blanks: campaignData.blanks || [],
-              currency: campaignData.currency || 'VND',
-              onPledge: handlePledge,
-              campaignId: campaignData.campaignId,
-              isOwnerViewing,
-            }}
+        {/* Lazy loaded components with Suspense fallback */}
+        <Suspense fallback={
+          <div className="py-12 flex justify-center">
+            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        }>
+          {isPreview ?
+            <CampaignTabs
+              initialTab={activeTab}
+              onTabChange={handleTabChange}
+              campaignProps={{
+                rewards: rewards,
+                creator: creatorData,
+                otherProjects: [],
+                blanks: campaignData.blanks || [],
+                currency: campaignData.currency || 'VND',
+                onPledge: handlePledge,
+                campaignId: campaignData.campaignId,
+                isPreview: true,
+                isOwnerViewing,
+              }}
+            /> : <CampaignTabs
+              initialTab={activeTab}
+              onTabChange={handleTabChange}
+              campaignProps={{
+                rewards: rewards,
+                creator: creatorData,
+                otherProjects: [],
+                blanks: campaignData.blanks || [],
+                currency: campaignData.currency || 'VND',
+                onPledge: handlePledge,
+                campaignId: campaignData.campaignId,
+                isOwnerViewing,
+              }}
+            />
+          }
+
+          {/* Related Campaigns Section */}
+          <RelatedCampaigns
+            category={campaignData.campaignCategory}
+            currentCampaignId={campaignData.campaignId}
           />
-        }
-
-        {/* Related Campaigns Section */}
-        <RelatedCampaigns
-          category={campaignData.campaignCategory}
-          currentCampaignId={campaignData.campaignId}
-        />
+        </Suspense>
       </div>
     </div>
   );

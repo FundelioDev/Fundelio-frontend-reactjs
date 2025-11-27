@@ -37,7 +37,7 @@ export function PledgeSummaryCard({ selectedRewards = [], selectedAddOns = [], o
 
     if (!hasItems) {
         return (
-            <Card className="sticky top-8 p-4 bg-white dark:bg-darker-2 border border-border/50">
+            <Card className="sticky top-[56px] max-h-[calc(100vh-56px)] overflow-y-auto p-4 bg-white dark:bg-darker-2 border border-border/50">
                 <h3 className="text-xs font-semibold text-muted-foreground mb-3">SẢN PHẨM CỦA BẠN</h3>
                 <p className="text-sm text-muted-foreground text-center py-8">
                     Chưa có sản phẩm nào được chọn
@@ -47,7 +47,7 @@ export function PledgeSummaryCard({ selectedRewards = [], selectedAddOns = [], o
     }
 
     return (
-        <Card className="sticky top-8 p-4 bg-white dark:bg-darker-2 border border-border/50">
+        <Card className="sticky top-[56px] max-h-[calc(100vh-56px)] overflow-y-auto p-4 bg-white dark:bg-darker-2 border border-border/50">
             <h3 className="text-xs font-semibold text-muted-foreground mb-3">SẢN PHẨM CỦA BẠN</h3>
 
             {/* Selected Rewards */}

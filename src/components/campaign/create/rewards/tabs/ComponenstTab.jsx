@@ -1,19 +1,180 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { catalogItemApi } from "@/api/catalogItemApi"
 import { rewardApi } from "@/api/rewardApi"
 import ItemList from "../components/ComponentList"
 import ItemForm from "../components/ComponentForm"
 import toast from 'react-hot-toast'
 
-export default function ComponentsTab({ campaignId }) {
+export default function ComponentsTab({
+  campaignId,
+  isReadOnly = false,
+  itemRules = {},
+  initialOldItemIdsRef,
+}) {
   const [items, setItems] = useState([])
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingItem, setEditingItem] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
   const [fieldErrors, setFieldErrors] = useState({})
   const [itemRewards, setItemRewards] = useState({})
+  const fallbackInitialItemIdsRef = useRef(new Set())
+  const initialItemIdsRef = initialOldItemIdsRef || fallbackInitialItemIdsRef
+  const itemsRef = useRef([])
+
+  const markExistingAsOld = Boolean(itemRules?.markExistingAsOld)
+  const protectOldItems = Boolean(itemRules?.preventDeletingOldItems)
+  const lockOldItemPrice = Boolean(itemRules?.lockOldItemPrice)
+
+  const prevMarkExistingRef = useRef(markExistingAsOld)
+
+  useEffect(() => {
+    console.log('[ComponentsTab] state snapshot', {
+      campaignId,
+      markExistingAsOld,
+      protectOldItems,
+      lockOldItemPrice,
+      initialItemCount: initialItemIdsRef.current.size,
+    })
+    return () => {
+      console.log('[ComponentsTab] cleanup snapshot', {
+        campaignId,
+        markExistingAsOld,
+        finalTrackedItemCount: initialItemIdsRef.current.size,
+      })
+    }
+  }, [campaignId, markExistingAsOld, protectOldItems, lockOldItemPrice, initialItemIdsRef])
+
+  const decorateItems = useCallback((rawItems = []) => {
+    if (!Array.isArray(rawItems)) return []
+
+    if (!markExistingAsOld) {
+      console.log('[ComponentsTab] decorateItems skip old tagging', {
+        incomingCount: rawItems.length,
+        markExistingAsOld,
+      })
+      return rawItems.map(item => ({ ...item, isOld: false }))
+    }
+
+    if (initialItemIdsRef.current.size === 0) {
+      const seededIds = rawItems
+        .map(item => item.catalogItemId)
+        .filter(Boolean)
+      initialItemIdsRef.current = new Set(seededIds)
+      console.log('[ComponentsTab] decorateItems seeded initial ids from fetch', {
+        seededCount: seededIds.length,
+      })
+    }
+
+    const decorated = rawItems.map(item => ({
+      ...item,
+      isOld: initialItemIdsRef.current.has(item.catalogItemId),
+    }))
+    const oldCount = decorated.filter(item => item.isOld).length
+    console.log('[ComponentsTab] decorateItems applied tags', {
+      incomingCount: rawItems.length,
+      trackedOldCount: initialItemIdsRef.current.size,
+      appliedOldCount: oldCount,
+    })
+    return decorated
+  }, [markExistingAsOld])
+
+  useEffect(() => {
+    itemsRef.current = items
+  }, [items])
+
+  useEffect(() => {
+    if (!Array.isArray(items)) return
+    const oldCount = items.filter(item => item.isOld).length
+    console.log('[ComponentsTab] items state updated', {
+      totalItems: items.length,
+      oldCount,
+      markExistingAsOld,
+    })
+  }, [items, markExistingAsOld])
+
+  useEffect(() => {
+    if (!markExistingAsOld) return
+    const latestItems = itemsRef.current || []
+    if (latestItems.length === 0) return
+    const alreadyDecorated = latestItems.some(item => item.isOld)
+
+    if (initialItemIdsRef.current.size === 0) {
+      const seededIds = latestItems
+        .map(item => item.catalogItemId)
+        .filter(Boolean)
+
+      if (seededIds.length > 0) {
+        console.log('[ComponentsTab] lazy seeding old item ids from local items', {
+          seededCount: seededIds.length,
+        })
+        initialItemIdsRef.current = new Set(seededIds)
+      }
+    }
+
+    if (!alreadyDecorated && initialItemIdsRef.current.size > 0) {
+      setItems(prevItems =>
+        prevItems.map(item => ({
+          ...item,
+          isOld: initialItemIdsRef.current.has(item.catalogItemId),
+        }))
+      )
+    }
+  }, [items, markExistingAsOld])
+
+  useEffect(() => {
+    const wasMarking = prevMarkExistingRef.current
+    if (!wasMarking && markExistingAsOld) {
+      const latestItems = itemsRef.current || []
+      if (latestItems.length > 0) {
+        if (initialItemIdsRef.current.size === 0) {
+          const seededIds = latestItems
+            .map(item => item.catalogItemId)
+            .filter(Boolean)
+          console.log('[ComponentsTab] toggled markExistingAsOld ON, seeding ids', {
+            seededCount: seededIds.length,
+          })
+          initialItemIdsRef.current = new Set(seededIds)
+        }
+        console.log('[ComponentsTab] toggled markExistingAsOld ON, reapplying old flags', {
+          trackedOldCount: initialItemIdsRef.current.size,
+          latestItemCount: latestItems.length,
+        })
+        setItems(prevItems =>
+          prevItems.map(item => ({
+            ...item,
+            isOld: initialItemIdsRef.current.has(item.catalogItemId),
+          }))
+        )
+      }
+    } else if (wasMarking && !markExistingAsOld) {
+      console.log('[ComponentsTab] toggled markExistingAsOld OFF, clearing tracked ids')
+      initialItemIdsRef.current = new Set()
+      setItems(prevItems => prevItems.map(item => ({ ...item, isOld: false })))
+    }
+
+    prevMarkExistingRef.current = markExistingAsOld
+  }, [markExistingAsOld])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const handleCampaignSubmitted = (event) => {
+      if (!campaignId) return
+      if (String(event.detail?.campaignId) !== String(campaignId)) return
+
+      const latestItems = itemsRef.current || []
+      console.log('[ComponentsTab] campaign submitted, locking current items as old', {
+        campaignId,
+        latestItemCount: latestItems.length,
+      })
+      initialItemIdsRef.current = new Set(latestItems.map(item => item.catalogItemId))
+      setItems(prevItems => prevItems.map(item => ({ ...item, isOld: true })))
+    }
+
+    window.addEventListener('campaign:submitted-for-review', handleCampaignSubmitted)
+    return () => window.removeEventListener('campaign:submitted-for-review', handleCampaignSubmitted)
+  }, [campaignId])
 
   // Fetch all catalog items on mount
   useEffect(() => {
@@ -21,6 +182,14 @@ export default function ComponentsTab({ campaignId }) {
       fetchCatalogItems()
     }
   }, [campaignId])
+
+  useEffect(() => {
+    if (isReadOnly) {
+      setIsFormOpen(false)
+      setEditingItem(null)
+      setFieldErrors({})
+    }
+  }, [isReadOnly])
 
   const fetchCatalogItems = async () => {
     try {
@@ -37,10 +206,16 @@ export default function ComponentsTab({ campaignId }) {
         // }))
 
         // Update local state
-        setItems(response.data?.data?.content)
+        const decoratedItems = decorateItems(response.data?.data?.content || [])
+        setItems(decoratedItems)
+        console.log('[ComponentsTab] fetched catalog items', {
+          totalFetched: decoratedItems.length,
+          oldCount: decoratedItems.filter(item => item.isOld).length,
+          trackedOldCount: initialItemIdsRef.current.size,
+        })
 
         // Fetch rewards for each catalog item
-        await fetchRewardsForItems(response.data?.data?.content)
+        await fetchRewardsForItems(decoratedItems)
       }
     } catch (err) {
       console.error("Error fetching catalog items:", err)
@@ -67,11 +242,13 @@ export default function ComponentsTab({ campaignId }) {
   }
 
   const handleCreate = () => {
+    if (isReadOnly) return
     setEditingItem(null)
     setIsFormOpen(true)
   }
 
   const handleEdit = async (item) => {
+    if (isReadOnly) return
     try {
       toast.loading('Đang tải chi tiết thành phần...', { id: 'fetch-item-detail' })
 
@@ -86,6 +263,7 @@ export default function ComponentsTab({ campaignId }) {
           description: responseData.description,
           price: responseData.price,
           imageUrl: responseData.imageUrl,
+          isOld: item?.isOld || false,
         }
 
         console.log('Setting editing item:', detailData)
@@ -103,6 +281,7 @@ export default function ComponentsTab({ campaignId }) {
   }
 
   const handleSave = async (item) => {
+    if (isReadOnly) return
     // Clear previous errors
     setFieldErrors({})
 
@@ -144,6 +323,7 @@ export default function ComponentsTab({ campaignId }) {
             description: responseData.description,
             price: responseData.price,
             imageUrl: responseData.imageUrl,
+            isOld: editingItem?.isOld || false,
           }
 
           // Update local state
@@ -168,10 +348,15 @@ export default function ComponentsTab({ campaignId }) {
             description: responseData.description,
             price: responseData.price,
             imageUrl: responseData.imageUrl,
+            isOld: false,
           }
 
           // Add to local state
           setItems(prevItems => [...prevItems, newItem])
+          console.log('[ComponentsTab] created new item', {
+            catalogItemId: newItem.catalogItemId,
+            trackedOldCount: initialItemIdsRef.current.size,
+          })
           toast.success(successMsg, { id: toastId })
         } else {
           toast.error('Không nhận được phản hồi từ server', { id: toastId })
@@ -229,6 +414,16 @@ export default function ComponentsTab({ campaignId }) {
   }
 
   const handleDelete = async (catalogItemId) => {
+    if (isReadOnly) return
+
+    if (protectOldItems) {
+      const targetItem = items.find(item => item.catalogItemId === catalogItemId)
+      if (targetItem?.isOld) {
+        toast.error('Không thể xóa thành phần đã tồn tại trong trạng thái này.')
+        return
+      }
+    }
+
     try {
       setIsLoading(true)
 
@@ -261,6 +456,8 @@ export default function ComponentsTab({ campaignId }) {
           onCreate={handleCreate}
           isLoading={isLoading}
           itemRewards={itemRewards}
+          isReadOnly={isReadOnly}
+          itemRules={itemRules}
         />
       ) : (
         <ItemForm
@@ -270,6 +467,7 @@ export default function ComponentsTab({ campaignId }) {
           campaignId={campaignId}
           isLoading={isLoading}
           fieldErrors={fieldErrors}
+          disablePriceField={lockOldItemPrice && editingItem?.isOld}
         />
       )}
     </div>

@@ -31,9 +31,19 @@ const formatMillion = (value = 0) => {
     return +(value / 1_000_000).toFixed(1);
 };
 
-export const CampaignsPerformanceChart = ({ campaigns = [] }) => {
+export const CampaignsPerformanceChart = ({ campaigns = [], campaignsPerformance }) => {
     const palette = getChartPalette();
     const chartData = useMemo(() => {
+        // Use campaignsPerformance from API if provided
+        if (campaignsPerformance?.labels && campaignsPerformance?.newCampaigns && campaignsPerformance?.totalPledged) {
+            return {
+                labels: campaignsPerformance.labels,
+                campaigns: campaignsPerformance.newCampaigns,
+                pledged: campaignsPerformance.totalPledged.map(v => formatMillion(v)),
+            };
+        }
+        
+        // Fallback: calculate from campaigns
         const sourceCampaigns = campaigns?.length ? campaigns : ADMIN_CHARTS_MOCK_CAMPAIGNS;
         const months = [];
         const today = new Date();
@@ -66,7 +76,7 @@ export const CampaignsPerformanceChart = ({ campaigns = [] }) => {
             campaigns: months.map((m) => m.campaigns),
             pledged: months.map((m) => formatMillion(m.pledged)),
         };
-    }, [campaigns]);
+    }, [campaigns, campaignsPerformance]);
 
     const data = {
         labels: chartData.labels,

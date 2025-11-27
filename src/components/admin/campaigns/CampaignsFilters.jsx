@@ -39,7 +39,8 @@ export const CampaignsFilters = ({
             <SelectItem value='active'>Đang gây quỹ</SelectItem>
             <SelectItem value='successful'>Thành công</SelectItem>
             <SelectItem value='failed'>Thất bại</SelectItem>
-            <SelectItem value='cancelled'>Đã hủy</SelectItem>
+            <SelectItem value='paused'>Tạm dừng</SelectItem>
+            <SelectItem value='ended'>Kết thúc</SelectItem>
           </SelectContent>
         </Select>
       </div>

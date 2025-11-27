@@ -14,10 +14,29 @@ const getStatusBadge = (status) => {
   return <Badge variant={config.variant}>{config.label}</Badge>;
 };
 
-export const RecentCampaignsList = ({ campaigns }) => {
+export const RecentCampaignsList = ({ campaigns = [] }) => {
+  if (!campaigns || campaigns.length === 0) {
+    return (
+      <Card className='p-6'>
+        <h3 className='text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4'>
+          Chiến dịch gần đây
+        </h3>
+        <div className='text-center py-8 text-muted-foreground'>
+          Chưa có dữ liệu
+        </div>
+      </Card>
+    );
+  }
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  };
+
   return (
-    <Card className='p-6'>
-      <div className='flex items-center justify-between mb-4'>
+    <Card className='px-4 py-3'>
+      <div className='flex items-center justify-between mb-2'>
         <h3 className='text-lg font-semibold text-gray-900 dark:text-gray-100'>
           Chiến dịch gần đây
         </h3>
@@ -28,10 +47,10 @@ export const RecentCampaignsList = ({ campaigns }) => {
           Xem tất cả →
         </Link>
       </div>
-      <div className='space-y-4'>
+      <div className='max-h-[400px] overflow-y-scroll pr-2 space-y-4 scrollbar-primary'>
         {campaigns.map((campaign) => (
           <div
-            key={campaign.id}
+            key={campaign.campaignId}
             className='flex items-start space-x-3 pb-4 border-b border-gray-100 dark:border-gray-700 last:border-0 last:pb-0'
           >
             <img
@@ -41,18 +60,18 @@ export const RecentCampaignsList = ({ campaigns }) => {
             />
             <div className='flex-1 min-w-0'>
               <Link
-                to={`/admin/campaigns/${campaign.id}`}
+                to={`/admin/campaigns/${campaign.campaignId}`}
                 className='text-sm font-medium text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 line-clamp-1'
               >
                 {campaign.title}
               </Link>
               <p className='text-xs text-gray-500 dark:text-text-white mt-1'>
-                {campaign.creator}
+                {campaign.creatorName}
               </p>
               <div className='flex items-center justify-between mt-2'>
-                {getStatusBadge(campaign.status)}
+                {getStatusBadge(campaign.status?.toLowerCase())}
                 <span className='text-xs text-gray-500 dark:text-text-white'>
-                  {campaign.submittedAt}
+                  {formatDate(campaign.submittedAt)}
                 </span>
               </div>
             </div>

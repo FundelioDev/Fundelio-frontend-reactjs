@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Bell, Share2, ChevronLeft, ChevronRight, Play } from 'lucide-react';
 import Button from '@/components/common/Button';
-import { buildVideoEmbed } from '@/utils/embed';
 
 // Helper function to check if URL is YouTube
 const isYouTubeUrl = (url) => {
@@ -119,11 +118,12 @@ const CampaignHeader = ({
   onSave = () => { },
   onShare = () => { },
   onTabChange = () => { },
+  isPreview = false,
+  isOwnerViewing = false,
 }) => {
   const {
     title = 'Campaign Title',
     description = '',
-    // highlights = [], // API không có field này
     owner = null,
     introImageUrl = '/images/campaign-hero.jpg',
     introVideoUrl = null,
@@ -134,21 +134,20 @@ const CampaignHeader = ({
     daysLeft = 0,
   } = campaign;
 
-  // Prepare creator info from owner
-  const creator = owner ? {
-    name: `${owner.firstName || ''} ${owner.lastName || ''}`.trim() || 'Creator',
-    location: 'Vietnam', // API không có field này
-    link: '#creator-profile',
-  } : { name: 'Creator', location: 'Vietnam', link: '#creator-profile' };
-
   // State cho carousel
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
 
   // Tạo array media từ image và video
   const mediaItems = [];
+
+  // Luôn đảm bảo có ít nhất một image (placeholder nếu không có introImageUrl)
   if (introImageUrl) {
-    mediaItems.push({ type: 'image', url: introImageUrl });
+    mediaItems.push({ type: 'image', url: introImageUrl, isPlaceholder: false });
+  } else {
+    // Thêm placeholder image khi không có introImageUrl
+    mediaItems.push({ type: 'placeholder', isPlaceholder: true });
   }
+
   if (introVideoUrl) {
     // Check if it's YouTube URL
     if (isYouTubeUrl(introVideoUrl)) {
@@ -253,10 +252,10 @@ const CampaignHeader = ({
       </div>
 
       {/* Content */}
-      <div className="relative z-10 max-w-[1200px] mx-auto px-4 lg:px-6 py-12 lg:py-14">
+      <div className="relative z-10 max-w-[1200px] mx-auto px-4 lg:px-6 py-12 lg:pt-16 lg:pb-20">
         {/* Title & Description Section */}
         <div className="flex justify-center">
-          <div className="max-w-2xl">
+          <div className="max-w-4xl">
             <motion.h1
               className="text-2xl lg:text-3xl xl:text-4xl font-bold text-primary mb-4 leading-tight"
               style={{ fontFamily: "'Roboto Slab', serif" }}
@@ -266,16 +265,18 @@ const CampaignHeader = ({
             >
               {title}
             </motion.h1>
+
+            <motion.p
+              className="text-base mb-12 lg:mb-8 lg:text-md text-gray-300 leading-relaxed"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
+              {description}
+            </motion.p>
           </div>
         </div>
-        <motion.p
-          className="text-base mb-12 lg:mb-8 lg:text-lg text-gray-300 leading-relaxed"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-        >
-          {description}
-        </motion.p>
+
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
@@ -296,7 +297,36 @@ const CampaignHeader = ({
                       alt={`Hình ảnh chiến dịch cho ${title}`}
                       className="w-full h-full object-cover"
                       loading="eager"
+                      fetchpriority="high"
+                      decoding="async"
+                      onError={(e) => {
+                        // Fallback to gradient placeholder if image fails to load
+                        e.target.style.display = 'none';
+                        const parent = e.target.parentElement;
+                        if (parent && !parent.querySelector('.placeholder-gradient')) {
+                          const placeholder = document.createElement('div');
+                          placeholder.className = 'placeholder-gradient absolute inset-0 bg-gradient-to-br from-[#0894e2]/20 via-[#0a1628] to-[#fce65a]/10 flex items-center justify-center';
+                          placeholder.innerHTML = `
+                            <div class="text-center text-white/50">
+                              <svg class="w-16 h-16 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                              </svg>
+                              <p class="text-sm">Không có hình ảnh</p>
+                            </div>
+                          `;
+                          parent.appendChild(placeholder);
+                        }
+                      }}
                     />
+                  ) : mediaItems[currentMediaIndex].type === 'placeholder' ? (
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#0894e2]/20 via-[#0a1628] to-[#fce65a]/10 flex items-center justify-center">
+                      <div className="text-center text-white/50">
+                        <svg className="w-16 h-16 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <p className="text-sm">Không có hình ảnh</p>
+                      </div>
+                    </div>
                   ) : mediaItems[currentMediaIndex].type === 'youtube' ? (
                     <YouTubeEmbed videoId={mediaItems[currentMediaIndex].videoId} />
                   ) : (
@@ -439,6 +469,7 @@ const CampaignHeader = ({
                     onTabChange('rewards');
                     onPickPerk();
                   }}
+                  disabled={isPreview || isOwnerViewing}
                 >
                   ỦNG HỘ DỰ ÁN NÀY
                 </Button>

@@ -11,7 +11,7 @@ import { storageApi } from "@/api/storageApi"
 import { rewardApi } from "@/api/rewardApi"
 import toast from 'react-hot-toast'
 
-const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onChange, campaignId, type = 'reward', fieldErrors = {} }, ref) => {
+const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onChange, campaignId, type = 'reward', fieldErrors = {}, rewardRules = {} }, ref) => {
   const isAddon = type === 'addon'
   const formRef = useRef(null)
 
@@ -30,6 +30,7 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
     limitTotal: null,
     rewardStatus: "AVAILABLE", // Default status
     ...reward, // Merge with existing reward data if editing
+    isOld: reward?.isOld || false,
   })
   const [isUploadingImage, setIsUploadingImage] = useState(false)
   const [showItemSelector, setShowItemSelector] = useState(false)
@@ -42,9 +43,15 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
 
   useEffect(() => {
     if (reward) {
-      setFormData(reward)
+      setFormData(prev => ({
+        ...prev,
+        ...reward,
+        isOld: reward?.isOld || false,
+      }))
     }
   }, [reward])
+
+  const lockItemAssociations = Boolean(rewardRules?.preventOldRewardItemUpserts && formData?.isOld)
 
   // Convert shipsTo string array to country objects after countries are loaded
   useEffect(() => {
@@ -194,6 +201,11 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
   }
 
   const handleItemsChange = (selectedItems) => {
+    if (lockItemAssociations) {
+      toast.error('Không thể thay đổi thành phần cho phần thưởng đã tồn tại trong trạng thái này.')
+      setShowItemSelector(false)
+      return
+    }
     // selectedItems is array like: [{ catalogItemId: "xxx", quantity: 2 }]
     // Map to full item objects with quantity
     const itemsWithDetails = selectedItems.map(selectedItem => {
@@ -217,6 +229,11 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
   }
 
   const handleAdditionalItemsChange = (selectedItems) => {
+    if (lockItemAssociations) {
+      toast.error('Không thể thay đổi thành phần thêm cho phần thưởng đã tồn tại.')
+      setShowAdditionalItemSelector(false)
+      return
+    }
     // For add-on items, quantity is 0 (backer will choose)
     const itemsWithDetails = selectedItems.map(selectedItem => {
       const fullItem = items.find(i => i.catalogItemId === selectedItem.catalogItemId)
@@ -278,6 +295,10 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
   }
 
   const handleRemoveItem = async (catalogItemId, itemType) => {
+    if (lockItemAssociations) {
+      toast.error('Không thể xóa thành phần khỏi phần thưởng đã tồn tại trong trạng thái này.')
+      return
+    }
     // Find the rewardItemId for this catalog item
     const itemsArray = itemType === 'included' ? formData.items?.included : formData.items?.addOn
     const itemToRemove = itemsArray?.find(i => i.catalogItemId === catalogItemId)
@@ -480,14 +501,21 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">Giá (VND)</label>
-            <Input
-              type="number"
-              name="minPledgeAmount"
-              value={minPledgeAmount}
-              placeholder="0"
-              disabled
-              className="bg-black/30 cursor-not-allowed"
-            />
+            <div className="flex items-center gap-3">
+              <Input
+                type="number"
+                name="minPledgeAmount"
+                value={minPledgeAmount}
+                placeholder="0"
+                disabled
+                className="flex-1 bg-black/30 cursor-not-allowed"
+              />
+              <div className="flex-shrink-0 min-w-[180px] px-4 py-2 bg-primary/10 border border-primary/30 rounded-sm">
+                <p className="text-sm font-semibold text-primary text-right">
+                  {new Intl.NumberFormat('vi-VN').format(minPledgeAmount || 0)} VND
+                </p>
+              </div>
+            </div>
             <p className="mt-2 text-sm text-muted-foreground">
               Giá tự động tính dựa trên tổng giá × số lượng của các thành phần bao gồm
             </p>
@@ -499,7 +527,13 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
       {!isAddon && (<div className="rounded-sm border border-border bg-white dark:bg-darker-2 p-6">
         <h3 className="text-lg font-semibold text-foreground mb-4">Thành phần bao gồm<span className="text-lg font-bold text-primary">*</span></h3>
         <div className="space-y-4">
-          <Button type="button" onClick={() => setShowItemSelector(true)} variant="secondary" className="w-full">
+          <Button
+            type="button"
+            onClick={() => setShowItemSelector(true)}
+            variant="secondary"
+            className={`w-full ${lockItemAssociations ? 'opacity-60 cursor-not-allowed' : ''}`}
+            disabled={lockItemAssociations}
+          >
             Chọn thành phần
           </Button>
 
@@ -515,14 +549,20 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
                   <button
                     type="button"
                     onClick={() => handleRemoveItem(item.catalogItemId, 'included')}
-                    className="text-destructive hover:text-destructive/80 p-1 rounded hover:bg-destructive/10 transition-colors"
-                    title="Xóa"
+                    className={`text-destructive hover:text-destructive/80 p-1 rounded hover:bg-destructive/10 transition-colors ${lockItemAssociations ? 'opacity-60 cursor-not-allowed hover:bg-transparent hover:text-destructive' : ''}`}
+                    title={lockItemAssociations ? 'Không thể xóa thành phần khỏi phần thưởng đã khóa' : 'Xóa'}
+                    disabled={lockItemAssociations}
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
               ))}
             </div>
+          )}
+          {lockItemAssociations && (
+            <p className="text-xs text-muted-foreground">
+              Các thành phần được khóa khi chiến dịch đang tạm dừng/hoạt động/thành công.
+            </p>
           )}
           <Tip className="mt-2">Ít nhất 1 component. Mỗi component tương ứng 1 món sẽ giao cho backer.</Tip>
         </div>
@@ -533,7 +573,13 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
       {!isAddon && (<div className="rounded-sm border border-border bg-white dark:bg-darker-2 p-6">
         <h3 className="text-lg font-semibold text-foreground mb-4">Thành phần thêm vào (Add-on)</h3>
         <div className="space-y-4">
-          <Button type="button" onClick={() => setShowAdditionalItemSelector(true)} variant="secondary" className="w-full">
+          <Button
+            type="button"
+            onClick={() => setShowAdditionalItemSelector(true)}
+            variant="secondary"
+            className={`w-full ${lockItemAssociations ? 'opacity-60 cursor-not-allowed' : ''}`}
+            disabled={lockItemAssociations}
+          >
             Chọn thành phần thêm
           </Button>
 
@@ -547,14 +593,20 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
                   <button
                     type="button"
                     onClick={() => handleRemoveItem(item.catalogItemId, 'addOn')}
-                    className="text-destructive hover:text-destructive/80 p-1 rounded hover:bg-destructive/10 transition-colors"
-                    title="Xóa"
+                    className={`text-destructive hover:text-destructive/80 p-1 rounded hover:bg-destructive/10 transition-colors ${lockItemAssociations ? 'opacity-60 cursor-not-allowed hover:bg-transparent hover:text-destructive' : ''}`}
+                    title={lockItemAssociations ? 'Không thể xóa thành phần khỏi phần thưởng đã khóa' : 'Xóa'}
+                    disabled={lockItemAssociations}
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
               ))}
             </div>
+          )}
+          {lockItemAssociations && (
+            <p className="text-xs text-muted-foreground">
+              Không thể thay đổi thành phần thêm của phần thưởng đã khóa.
+            </p>
           )}
           <Tip className="mt-2">Thành phần tùy chọn có thể được backer thêm vào phần thưởng này. Số lượng do backer tự chọn.</Tip>
         </div>

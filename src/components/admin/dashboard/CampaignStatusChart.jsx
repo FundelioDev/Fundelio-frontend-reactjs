@@ -20,9 +20,9 @@ ChartJS.register(
     Legend
 );
 
-export const CampaignStatusChart = ({ campaigns = [] }) => {
-    // Count campaigns by status
-    const statusCounts = campaigns.reduce((acc, campaign) => {
+export const CampaignStatusChart = ({ campaigns = [], campaignsByStatus }) => {
+    // Use campaignsByStatus from API if provided, otherwise calculate from campaigns array
+    const statusCounts = campaignsByStatus || campaigns.reduce((acc, campaign) => {
         const status = campaign.campaignStatus || campaign.status || 'UNKNOWN';
         acc[status] = (acc[status] || 0) + 1;
         return acc;
@@ -126,7 +126,7 @@ export const CampaignStatusChart = ({ campaigns = [] }) => {
                 Phân bố chiến dịch theo trạng thái
             </h3>
             <div style={{ height: '320px' }}>
-                {campaigns.length > 0 ? (
+                {Object.keys(statusCounts).length > 0 ? (
                     <Bar data={data} options={options} />
                 ) : (
                     <div className='flex items-center justify-center h-full text-gray-500 dark:text-gray-400'>

@@ -21,8 +21,9 @@ import SortableTOCItem from './SortableTOCItem';
  * @param {Function} props.onNavigate - Callback when clicking on a TOC item
  * @param {Function} props.onReorder - Callback when reordering blanks
  * @param {Function} props.onDelete - Callback when deleting a blank
+ * @param {boolean} props.isReadOnly - Whether the sidebar is in read-only mode
  */
-export default function SidebarTOC({ blanks, onAddBlank, onNavigate, onReorder, onDelete }) {
+export default function SidebarTOC({ blanks, onAddBlank, onNavigate, onReorder, onDelete, isReadOnly = false }) {
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -72,42 +73,60 @@ export default function SidebarTOC({ blanks, onAddBlank, onNavigate, onReorder, 
       </div>
 
       {/* TOC List with Drag & Drop */}
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
-        modifiers={[restrictToVerticalAxis]}
-        autoScroll={false}
-      >
-        <SortableContext
-          items={blanks.map((b) => b.id)}
-          strategy={verticalListSortingStrategy}
+      {isReadOnly ? (
+        <div className="flex-1 space-y-1 overflow-y-auto overflow-x-hidden pr-1 scrollbar-hide">
+          {blanks.map((blank, index) => (
+            <SortableTOCItem
+              key={blank.id}
+              blank={blank}
+              index={index}
+              onNavigate={onNavigate}
+              onDelete={undefined}
+              canDelete={false}
+              isReadOnly={true}
+            />
+          ))}
+        </div>
+      ) : (
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+          modifiers={[restrictToVerticalAxis]}
+          autoScroll={false}
         >
-          <div className="flex-1 space-y-1 overflow-y-auto overflow-x-hidden pr-1 scrollbar-hide">
-            {blanks.map((blank, index) => (
-              <SortableTOCItem
-                key={blank.id}
-                blank={blank}
-                index={index}
-                onNavigate={onNavigate}
-                onDelete={onDelete}
-                canDelete={blanks.length > 1}
-              />
-            ))}
-          </div>
-        </SortableContext>
-      </DndContext>
+          <SortableContext
+            items={blanks.map((b) => b.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className="flex-1 space-y-1 overflow-y-auto overflow-x-hidden pr-1 scrollbar-hide">
+              {blanks.map((blank, index) => (
+                <SortableTOCItem
+                  key={blank.id}
+                  blank={blank}
+                  index={index}
+                  onNavigate={onNavigate}
+                  onDelete={onDelete}
+                  canDelete={blanks.length > 1}
+                />
+              ))}
+            </div>
+          </SortableContext>
+        </DndContext>
+      )}
 
       {/* Add Button */}
-      <button
-        onClick={onAddBlank}
-        className="w-full flex items-center justify-center gap-2 py-2.5 mt-4 border-1 border-dashed border-border rounded-sm hover:border-primary dark:hover:border-primary hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors group"
-      >
-        <Plus className="w-4 h-4 text-gray-500 dark:text-text-white group-hover:text-primary transition-colors" />
-        <span className="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-primary transition-colors">
-          Thêm blank
-        </span>
-      </button>
+      {!isReadOnly && onAddBlank && (
+        <button
+          onClick={onAddBlank}
+          className="w-full flex items-center justify-center gap-2 py-2.5 mt-4 border-1 border-dashed border-border rounded-sm hover:border-primary dark:hover:border-primary hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors group"
+        >
+          <Plus className="w-4 h-4 text-gray-500 dark:text-text-white group-hover:text-primary transition-colors" />
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-primary transition-colors">
+            Thêm blank
+          </span>
+        </button>
+      )}
     </div>
   );
 }

@@ -1,18 +1,36 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Button from '@/components/common/Button';
 
 /**
  * PledgeNoRewardCard Component
  * Allows users to pledge without selecting a reward
  */
-const PledgeNoRewardCard = ({ currency = 'VND', onPledge, isPreview = false, isOwnerViewing = false }) => {
+const PledgeNoRewardCard = ({ currency = 'VND', onPledge, isPreview = false, isOwnerViewing = false, campaignId }) => {
+  const navigate = useNavigate();
   const [amount, setAmount] = useState('');
   const isInteractionDisabled = isPreview || isOwnerViewing;
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const value = parseFloat(amount);
-    if (value && value > 0 && !isInteractionDisabled) {
+    if (value && value > 0 && !isInteractionDisabled && campaignId) {
+      // Navigate to pledge page with data
+      const pledgeData = {
+        campaignId: campaignId,
+        // rewardId: null, // No reward selected
+        amount: value, // Required field
+        bonusAmount: 0,
+        totalAmount: value,
+        addOns: [], // No add-ons
+        hasNoReward: true, // Flag to hide bonus amount input
+      };
+
+      navigate(`/campaigns/${campaignId}/pledge`, {
+        state: { pledgeData }
+      });
+
+      // Call onPledge callback if provided (for backward compatibility)
       onPledge?.({ amount: value, currency });
       setAmount('');
     }

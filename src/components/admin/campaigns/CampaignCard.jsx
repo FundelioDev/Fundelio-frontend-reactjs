@@ -1,25 +1,19 @@
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Eye, Check, X, Clock, Users, Target, Calendar, CheckCircle, XCircle, Loader, TrendingUp, TrendingDown, Ban } from 'lucide-react';
+import { Eye, Users, Target, Calendar } from 'lucide-react';
 import { formatCurrency } from '@/utils/formatters';
+import { getCampaignStatusConfig } from '@/constants/campaignStatus';
 
 const getStatusBadge = (status) => {
-  const statusConfig = {
-    PENDING: { variant: 'warning', label: 'Chờ duyệt', icon: Clock },
-    APPROVED: { variant: 'success', label: 'Đã duyệt', icon: Check },
-    REJECTED: { variant: 'destructive', label: 'Từ chối', icon: X },
-    ACTIVE: { variant: 'default', label: 'Đang gây quỹ', icon: Loader },
-    SUCCESSFUL: { variant: 'success', label: 'Thành công', icon: TrendingUp },
-    FAILED: { variant: 'destructive', label: 'Thất bại', icon: TrendingDown },
-    CANCELLED: { variant: 'secondary', label: 'Đã hủy', icon: Ban },
-  };
-
-  const config = statusConfig[status] || statusConfig.PENDING;
+  const config = getCampaignStatusConfig(status);
   const Icon = config.icon;
 
   return (
-    <Badge variant={config.variant} className='flex items-center gap-1'>
+    <Badge
+      variant='outline'
+      className={`flex items-center gap-1 border-0 px-3 py-0.5 text-xs font-semibold ${config.className}`}
+    >
       <Icon className='w-3 h-3' />
       {config.label}
     </Badge>
@@ -29,21 +23,60 @@ const getStatusBadge = (status) => {
 const formatDate = (dateString) => {
   if (!dateString) return 'N/A';
   try {
-    const date = new Date(dateString);
+    let date;
+
+    // Handle format: "2025-11-22 10:22:19 AM"
+    if (typeof dateString === 'string' && (dateString.includes(' AM') || dateString.includes(' PM'))) {
+      // Parse format: "YYYY-MM-DD HH:MM:SS AM/PM"
+      const parts = dateString.split(' ');
+      if (parts.length >= 3) {
+        const datePart = parts[0]; // "2025-11-22"
+        const timePart = parts[1]; // "10:22:19"
+        const ampm = parts[2]; // "AM" or "PM"
+
+        const [year, month, day] = datePart.split('-');
+        const [hours, minutes, seconds] = timePart.split(':');
+
+        let hour24 = parseInt(hours, 10);
+        if (ampm === 'PM' && hour24 !== 12) {
+          hour24 += 12;
+        } else if (ampm === 'AM' && hour24 === 12) {
+          hour24 = 0;
+        }
+
+        date = new Date(
+          parseInt(year, 10),
+          parseInt(month, 10) - 1,
+          parseInt(day, 10),
+          hour24,
+          parseInt(minutes, 10),
+          parseInt(seconds, 10)
+        );
+      } else {
+        date = new Date(dateString);
+      }
+    } else {
+      date = new Date(dateString);
+    }
+
+    // Check if date is valid
+    if (isNaN(date.getTime())) {
+      return 'N/A';
+    }
+
     return date.toLocaleDateString('vi-VN', {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
     });
   } catch {
-    return dateString;
+    return 'N/A';
   }
 };
 
 export const CampaignCard = ({ campaign, onViewDetail }) => {
   const thumbnail = campaign.introImageUrl || 'https://images.unsplash.com/photo-1593305841991-05c297ba4575?q=80&w=1200&auto=format&fit=crop';
   const creatorName = campaign.owner ? `${campaign.owner.firstName} ${campaign.owner.lastName}` : 'N/A';
-
   return (
     <Card className='overflow-hidden hover:shadow-lg transition-shadow'>
       <img

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   ChevronDown,
@@ -20,6 +20,7 @@ import { useTheme } from "../../contexts/ThemeContext";
 import { useAuth } from "../../contexts/AuthContext";
 import { useCategories } from "../../hooks/useCategories";
 import { walletApi } from "@/api/walletApi";
+import { campaignApi } from "@/api/campaignApi";
 
 export const Header = ({
   variant = "transparent",
@@ -32,6 +33,11 @@ export const Header = ({
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [headerBalance, setHeaderBalance] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [searchTotal, setSearchTotal] = useState(0);
+  const [isSearching, setIsSearching] = useState(false);
+  const searchTimeoutRef = useRef(null);
 
   const { toggleTheme, isDark } = useTheme();
   const { isLoggedIn, user, logout } = useAuth();
@@ -39,6 +45,21 @@ export const Header = ({
   const navigate = useNavigate();
 
   const { categories, loading: loadingCategories } = useCategories();
+
+  const buildSearchUrl = (params = {}) => {
+    const searchParams = new URLSearchParams();
+    if (params.status) {
+      searchParams.set('status', params.status);
+    }
+    if (params.sort) {
+      searchParams.set('sort', params.sort);
+    }
+    if (params.category) {
+      searchParams.set('category', params.category);
+    }
+    const query = searchParams.toString();
+    return `/search${query ? `?${query}` : ''}`;
+  };
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
@@ -90,17 +111,61 @@ export const Header = ({
     const handleClickOutside = (event) => {
       if (!event.target.closest(".user-menu-container"))
         setIsUserMenuOpen(false);
-      if (!event.target.closest(".search-container")) setIsSearchFocused(false);
+      if (!event.target.closest(".search-container")) {
+        setIsSearchFocused(false);
+        setSearchResults([]);
+      }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Debounced search
+  useEffect(() => {
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      setIsSearching(false);
+      return;
+    }
+
+    setIsSearching(true);
+    searchTimeoutRef.current = setTimeout(async () => {
+      try {
+        const filter = `title ~~ '*${searchQuery.trim()}*'`;
+        const response = await campaignApi.getAllCampaigns({
+          filter,
+          page: 0,
+          size: 5,
+        });
+        const campaigns = response.data?.data?.content || [];
+        const total = response.data?.data?.meta?.totalElements || 0;
+        setSearchResults(campaigns);
+        setSearchTotal(total);
+      } catch (error) {
+        console.error("Header: Lỗi tìm kiếm", error);
+        setSearchResults([]);
+        setSearchTotal(0);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 500);
+
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, [searchQuery]);
+
   const headerVariants = {
     transparent: {
       container: isScrolled
         ? "bg-white/95 dark:bg-background-header-dark backdrop-blur-md text-text-primary dark:text-white shadow-md transition-colors duration-300"
-        : "bg-transparent text-text-white",
+        : "bg-transparent",
       title: isScrolled
         ? "text-text-primary dark:text-white"
         : "text-text-white",
@@ -140,20 +205,20 @@ export const Header = ({
 
   return (
     <header
-      className={`${
-        isFixed ? "fixed" : "relative"
-      } top-0 left-0 right-0 z-50 py-3 px-4 sm:py-4 sm:px-6 transition-all duration-300 ${
-        currentVariant.container
-      }`}
+      className={`${isFixed ? "fixed" : "relative"
+        } top-0 left-0 right-0 z-50 py-3 px-4 sm:py-4 sm:px-6 transition-all duration-300 ${currentVariant.container
+        }`}
     >
       <div className="mx-auto max-w-container flex items-center justify-between gap-4">
         {/* Left */}
         <div className="flex items-center gap-2 sm:gap-4">
           <Link to="/home">
             <img
-              src="/logo.png"
+              src="https://i.postimg.cc/HLJPXtZ4/logo-(3)-(1)-(1).png"
               alt="Fundelio"
               className="w-10 h-10 md:w-12 md:h-12"
+              width="48"
+              height="48"
             />
           </Link>
           <div
@@ -168,27 +233,31 @@ export const Header = ({
               <ChevronDown className="w-4 h-4" />
             </button>
             {isDropdownOpen && (
-              <div
-                className={`absolute top-full left-0 mt-4 w-48 rounded-lg shadow-lg z-50 ${currentVariant.dropdown}`}
-              >
-                {loadingCategories ? (
-                  <div className="px-4 py-3 text-sm">Đang tải...</div>
-                ) : (
-                  categories.map((cat, i) => {
-                    const Icon = cat.icon;
-                    return (
-                      <Link
-                        key={cat.id}
-                        to={cat.href}
-                        className={`flex items-center space-x-3 px-4 py-3 ${currentVariant.dropdownItem}`}
-                      >
-                        <Icon className={`w-4 h-4 ${cat.color}`} />
-                        <span className="text-sm font-medium">{cat.name}</span>
-                      </Link>
-                    );
-                  })
-                )}
-              </div>
+              <>
+                {/* Bridge element để lấp khoảng trống giữa button và dropdown */}
+                <div className="absolute top-full left-0 w-48 h-4" />
+                <div
+                  className={`absolute top-full left-0 mt-4 w-48 rounded-lg shadow-lg z-50 ${currentVariant.dropdown}`}
+                >
+                  {loadingCategories ? (
+                    <div className="px-4 py-3 text-sm">Đang tải...</div>
+                  ) : (
+                    categories.map((cat, i) => {
+                      const Icon = cat.icon;
+                      return (
+                        <Link
+                          key={cat.id}
+                          to={buildSearchUrl({ category: cat.id })}
+                          className={`flex items-center space-x-3 px-4 py-3 ${currentVariant.dropdownItem}`}
+                        >
+                          <Icon className={`w-4 h-4 ${cat.color}`} />
+                          <span className="text-sm font-medium">{cat.name}</span>
+                        </Link>
+                      );
+                    })
+                  )}
+                </div>
+              </>
             )}
           </div>
         </div>
@@ -202,10 +271,73 @@ export const Header = ({
               <input
                 type="text"
                 placeholder="Tìm kiếm..."
-                className={`w-full pl-10 pr-4 py-2 rounded-lg border bg-transparent ${
-                  isScrolled ? "border-gray-300" : "border-white/30 text-white"
-                }`}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => setIsSearchFocused(true)}
+                className={`w-full pl-10 pr-4 py-2 rounded-lg border bg-transparent ${isScrolled
+                  ? "text-text-primary dark:text-white border-gray-300 dark:border-gray-600 placeholder:text-gray-500 dark:placeholder:text-gray-400"
+                  : "text-text-primary dark:text-white border-border placeholder:text-gray-600 dark:placeholder:text-gray-300"
+                  } focus:outline-none focus:ring-2 focus:ring-primary/50`}
               />
+              {/* Search Results Dropdown */}
+              {isSearchFocused && (searchQuery.trim() || searchResults.length > 0) && (
+                <div className="absolute w-[600px] left-1/2 -translate-x-1/2 top-full mt-2 bg-white dark:bg-darker rounded-xs shadow-xl shadow-card z-50 max-h-96 overflow-y-auto scrollbar-hide">
+                  {isSearching ? (
+                    <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                      Đang tìm kiếm...
+                    </div>
+                  ) : searchResults.length > 0 ? (
+                    <>
+                      <div className="px-4 py-3 border-b text-center border-gray-200 dark:border-gray-700">
+                        <h3 className="text-sm font-semibold text-text-primary dark:text-white">
+                          PROJECTS: <span className="text-green-600 dark:text-green-400">{searchTotal}</span>
+                        </h3>
+                      </div>
+                      <div className="py-2">
+                        {searchResults.map((campaign) => {
+                          const displayName = campaign.owner
+                            ? `${campaign.owner.firstName || ""} ${campaign.owner.lastName || ""}`.trim() || "Unknown"
+                            : "Unknown";
+                          const thumbnail = campaign.introImageUrl || campaign.thumbnailUrl || "/placeholder.png";
+                          return (
+                            <Link
+                              key={campaign.campaignId || campaign.id}
+                              to={`/campaigns/${campaign.campaignId || campaign.id}`}
+                              onClick={() => {
+                                setSearchQuery("");
+                                setSearchResults([]);
+                                setIsSearchFocused(false);
+                              }}
+                              className="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                            >
+                              <img
+                                src={thumbnail}
+                                alt={campaign.title}
+                                className="w-12 h-12 rounded object-cover flex-shrink-0"
+                                onError={(e) => {
+                                  e.target.src = "/placeholder.png";
+                                }}
+                              />
+                              <div className="flex-1 min-w-0">
+                                <h4 className="text-sm font-bold text-gray-900 dark:text-white mb-1 line-clamp-2">
+                                  {campaign.title}
+                                </h4>
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                  {displayName}
+                                </p>
+                              </div>
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    </>
+                  ) : searchQuery.trim() ? (
+                    <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                      Không tìm thấy kết quả
+                    </div>
+                  ) : null}
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -214,18 +346,17 @@ export const Header = ({
           {isLoggedIn && user && (
             <button
               onClick={handleCoinClick}
-              className={`hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg ${
-                Number(headerBalance) === 0
-                  ? "hover:bg-red-100 dark:hover:bg-red-900/30"
-                  : "bg-primary/10 hover:bg-primary/20"
-              } transition-all duration-200 hover:scale-105 coin-button relative`}
+              className={`hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg ${Number(headerBalance) === 0
+                ? "hover:bg-red-100 dark:hover:bg-red-900/30"
+                : "bg-primary/10 hover:bg-primary/20"
+                } transition-all duration-200 hover:scale-105 coin-button relative`}
             >
+              <Wallet className="w-4 h-4 text-primary dark:text-primary-400" />
               <span
-                className={`text-md font-bold ${
-                  Number(headerBalance) === 0
-                    ? "text-red-500 dark:text-red-400"
-                    : "text-primary dark:text-primary-400"
-                }`}
+                className={`text-md font-bold ${Number(headerBalance) === 0
+                  ? "text-red-500 dark:text-red-400"
+                  : "text-primary dark:text-primary-400"
+                  }`}
               >
                 {formatPrice(headerBalance)} VND
               </span>
@@ -260,27 +391,27 @@ export const Header = ({
                       {user?.rolesSecured?.some(
                         (role) => role.name === "ADMIN"
                       ) && (
-                        <Link
-                          to="/admin"
-                          onClick={() => setIsUserMenuOpen(false)}
-                          className="flex items-center gap-3 px-3 py-2 text-sm text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors"
-                        >
-                          <ShieldCheck className="w-4 h-4" />
-                          <span>Quản trị hệ thống</span>
-                        </Link>
-                      )}
+                          <Link
+                            to="/admin"
+                            onClick={() => setIsUserMenuOpen(false)}
+                            className="flex items-center gap-3 px-3 py-2 text-sm text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors"
+                          >
+                            <ShieldCheck className="w-4 h-4" />
+                            <span>Quản trị hệ thống</span>
+                          </Link>
+                        )}
                       {user?.rolesSecured?.some(
                         (role) => role.name === "FOUNDER" || role.name === "ADMIN"
                       ) && (
-                      <Link
-                        to="/dashboard"
-                        onClick={() => setIsUserMenuOpen(false)}
-                        className="flex items-center gap-3 px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 text-text-primary dark:text-white border-b border-amber-600 dark:border-amber-700"
-                      >
-                        <LayoutDashboard className="w-4 h-4 text-gray-500" />
-                        <span>Bảng điều khiển</span>
-                      </Link>
-                      )}
+                          <Link
+                            to="/dashboard"
+                            onClick={() => setIsUserMenuOpen(false)}
+                            className="flex items-center gap-3 px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 text-text-primary dark:text-white border-b border-amber-600 dark:border-amber-700"
+                          >
+                            <LayoutDashboard className="w-4 h-4 text-gray-500" />
+                            <span>Bảng điều khiển</span>
+                          </Link>
+                        )}
                       <Link
                         to="/profile"
                         onClick={() => setIsUserMenuOpen(false)}
@@ -291,7 +422,7 @@ export const Header = ({
                       </Link>
 
                       <Link
-                        to="/your-projects"
+                        to="/my-pledges"
                         onClick={() => setIsUserMenuOpen(false)}
                         className="flex items-center gap-3 px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-text-primary dark:text-white"
                       >
@@ -377,14 +508,14 @@ export const Header = ({
         <div className="lg:hidden mt-4 py-4 border-t border-white/20 dark:border-gray-700 transition-colors duration-300">
           <nav className="space-y-2">
             {user?.rolesSecured?.some((role) => role.name === "FOUNDER" || role.name === "ADMIN") && (
-            <Link
-              to="/dashboard"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="flex items-center gap-3 px-3 py-2 text-sm text-text-primary dark:text-white hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-colors"
-            >
-              <LayoutDashboard className="w-4 h-4" />
-              <span>Bảng điều khiển</span>
-            </Link>
+              <Link
+                to="/dashboard"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex items-center gap-3 px-3 py-2 text-sm text-text-primary dark:text-white hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-colors"
+              >
+                <LayoutDashboard className="w-4 h-4" />
+                <span>Bảng điều khiển</span>
+              </Link>
             )}
             {/* Admin link - only show if user has ADMIN role */}
             {user?.rolesSecured?.some((role) => role.name === "ADMIN") && (
@@ -401,26 +532,22 @@ export const Header = ({
             <div className="border-t-2 border-border my-3"></div>
             <Link
               to="/home"
-              className={`block px-4 py-2 rounded-lg ${
-                currentVariant.navLink
-              } hover:bg-white/10 dark:hover:bg-darker-2-light/40 transition-colors font-medium ${
-                location.pathname === "/home"
+              className={`block px-4 py-2 rounded-lg ${currentVariant.navLink
+                } hover:bg-white/10 dark:hover:bg-darker-2-light/40 transition-colors font-medium ${location.pathname === "/home"
                   ? "text-primary dark:text-primary-400"
                   : ""
-              }`}
+                }`}
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Trang chủ
             </Link>
             <Link
               to="/campaigns/create"
-              className={`block px-4 py-2 rounded-lg ${
-                currentVariant.navLink
-              } hover:bg-white/10 dark:hover:bg-darker-2-light/40 transition-colors font-medium ${
-                location.pathname === "/campaigns/create"
+              className={`block px-4 py-2 rounded-lg ${currentVariant.navLink
+                } hover:bg-white/10 dark:hover:bg-darker-2-light/40 transition-colors font-medium ${location.pathname === "/campaigns/create"
                   ? "text-primary dark:text-primary-400"
                   : ""
-              }`}
+                }`}
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Tạo chiến dịch

@@ -1,4 +1,4 @@
-import { Edit2, Trash2, Copy, Image } from 'lucide-react';
+import { Edit2, Trash2, Copy, Image, Lock } from 'lucide-react';
 import { useState } from 'react';
 import Button from '@/components/common/Button';
 import ConfirmModal from '@/components/common/ConfirmModal';
@@ -25,6 +25,9 @@ export default function RewardCard({
   onEdit,
   onDelete,
   onDuplicate,
+  isReadOnly = false,
+  disableDelete = false,
+  deleteTooltip,
 }) {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
@@ -39,12 +42,15 @@ export default function RewardCard({
   // Get display values based on type
   const displayTitle = type === 'item' ? (data.name || data.title) : data.title;
   const displayImage = data.imageUrl || data.image;
+  const isLockedEntity = Boolean(data?.isOld);
 
   const handleEdit = () => {
+    if (isReadOnly || !onEdit) return
     onEdit(data)
   }
 
   const handleDelete = () => {
+    if (isReadOnly) return
     setIsDeleteModalOpen(true)
   }
 
@@ -55,15 +61,30 @@ export default function RewardCard({
     } else {
       itemId = data.rewardId || data.id
     }
+    if (isReadOnly || !onDelete) {
+      setIsDeleteModalOpen(false)
+      return
+    }
     onDelete(itemId)
     setIsDeleteModalOpen(false)
   }
 
-  console.log("All props in RewardCard:", { data, items, rewards, linkedRewards, type, onEdit, onDelete, onDuplicate });
-
-
   return (
-    <div className="rounded-sm border border-border bg-white dark:bg-darker-2 overflow-hidden hover:shadow-md transition-shadow">
+    <div
+      className={`relative rounded-sm border bg-white dark:bg-darker-2 overflow-hidden hover:shadow-md transition-shadow ${isLockedEntity
+          ? 'border-amber-200/80 dark:border-amber-500/40 ring-1 ring-amber-200/60 dark:ring-amber-400/30'
+          : 'border-border'
+        }`}
+    >
+      {isLockedEntity && (
+        <div
+          className="absolute top-3 right-3 inline-flex items-center gap-1 rounded-full bg-amber-50/90 dark:bg-amber-500/20 text-amber-700 dark:text-amber-100 px-2 py-0.5 text-xs font-semibold"
+          title="Mục này đã khóa vì thuộc chiến dịch trước khi chỉnh sửa"
+        >
+          <Lock className="w-3 h-3" />
+          <span>Đã khóa</span>
+        </div>
+      )}
       {/* Content Grid - 3-4 columns on desktop, stack on mobile */}
       <div className={`grid grid-cols-1 ${gridCols} gap-4 md:gap-6 p-4 md:p-6`}>
         {/* Column 1: Pledge Amount / Component Name */}
@@ -80,13 +101,13 @@ export default function RewardCard({
           ) : (
             <div>
               <div className="text-2xl font-bold text-foreground mb-2">
-                {data.minPledgedAmount || 0} VND
+                {new Intl.NumberFormat('vi-VN').format(data.minPledgedAmount || 0)} VND
               </div>
               {/* Reward Status Badge */}
               {data.rewardStatus && (
                 <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${data.rewardStatus === 'AVAILABLE'
-                    ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                    : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+                  ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                  : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
                   }`}>
                   {data.rewardStatus === 'AVAILABLE' ? 'Đang mở bán' : 'Đã hết hàng'}
                 </span>
@@ -113,7 +134,7 @@ export default function RewardCard({
           {/* Show price for items */}
           {type === 'item' && (
             <p className="text-sm text-foreground font-semibold mt-2">
-              Giá: {data.price || 0} VND
+              Giá: {new Intl.NumberFormat('vi-VN').format(data.price || 0)} VND
             </p>
           )}
 
@@ -221,7 +242,8 @@ export default function RewardCard({
         <div className="flex items-center gap-3 md:gap-4 flex-wrap">
           <button
             onClick={handleEdit}
-            className="flex items-center gap-1.5 text-sm text-foreground hover:text-primary transition-colors"
+            className={`flex items-center gap-1.5 text-sm text-foreground transition-colors ${isReadOnly ? 'opacity-60 cursor-not-allowed' : 'hover:text-primary'}`}
+            disabled={isReadOnly}
             title="Sửa"
           >
             <Edit2 className="w-4 h-4" />
@@ -231,7 +253,8 @@ export default function RewardCard({
           {type !== 'item' && onDuplicate && (
             <button
               onClick={() => onDuplicate(data)}
-              className="flex items-center gap-1.5 text-sm text-foreground hover:text-primary transition-colors"
+              className={`flex items-center gap-1.5 text-sm text-foreground transition-colors ${isReadOnly ? 'opacity-60 cursor-not-allowed' : 'hover:text-primary'}`}
+              disabled={isReadOnly}
               title="Nhân bản"
             >
               <Copy className="w-4 h-4" />
@@ -241,8 +264,9 @@ export default function RewardCard({
 
           <button
             onClick={handleDelete}
-            className="flex items-center gap-1.5 text-sm text-destructive hover:text-destructive/80 transition-colors"
-            title="Xóa"
+            className={`flex items-center gap-1.5 text-sm text-destructive transition-colors ${(isReadOnly || disableDelete) ? 'opacity-60 cursor-not-allowed' : 'hover:text-destructive/80'}`}
+            disabled={isReadOnly || disableDelete}
+            title={deleteTooltip || 'Xóa'}
           >
             <Trash2 className="w-4 h-4" />
             <span className="hidden sm:inline">Xóa</span>

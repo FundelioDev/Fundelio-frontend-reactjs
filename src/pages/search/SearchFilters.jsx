@@ -44,7 +44,10 @@ const SearchFilters = ({
     const sortOptions = [
         { value: 'newest', label: 'Mới nhất' },
         { value: 'most_funded', label: 'Nhiều hỗ trợ nhất' },
+        { value: 'backersCount', label: 'Nhiều người ủng hộ nhất' },
         { value: 'ending_soon', label: 'Sắp kết thúc' },
+        { value: 'startDate_desc', label: 'Mới ra mắt' },
+        { value: 'needs_support', label: 'Cần tiếp sức' },
     ];
 
     return (
@@ -104,32 +107,39 @@ const SearchFilters = ({
                     )}
                 </div>
                 <div className="space-y-2 max-h-60 overflow-y-auto scrollbar-primary">
-                    {categories.map(category => {
-                        // Use categoryValue (e.g., 'FILM', 'ART') for filtering
-                        const categoryValue = category.categoryValue || category.categoryId;
-                        const isSelected = selectedCategories.includes(String(categoryValue));
-                        return (
-                            <label
-                                key={category.categoryId}
-                                className="flex items-center gap-3 cursor-pointer group"
-                            >
-                                <input
-                                    type="checkbox"
-                                    checked={isSelected}
-                                    onChange={() => handleCategoryToggle(categoryValue)}
-                                    className="w-4 h-4 text-primary rounded focus:ring-primary focus:ring-offset-0"
-                                />
-                                <span className="text-sm group-hover:text-primary transition-colors flex-1">
-                                    {category.categoryName}
-                                </span>
-                                {isSelected && (
-                                    <span className="text-xs font-medium text-primary">
-                                        ✓
+                    {!categories || categories.length === 0 ? (
+                        <div className="text-sm text-muted-foreground px-2 py-4 text-center">
+                            Đang tải danh mục...
+                        </div>
+                    ) : (
+                        categories.map(category => {
+                            // Use category key (e.g., 'FILM', 'ART') for filtering - this is what backend expects
+                            // category.key is the enum value like 'FILM', 'ART', etc.
+                            // category.id might be the database ID, but we use key for filtering
+                            const categoryValue = category.key || category.id;
+                            const isSelected = selectedCategories.includes(String(categoryValue));
+                            return (
+                                <label
+                                    key={category.id || category.key}
+                                    className="flex items-center gap-3 cursor-pointer group"
+                                >
+                                    <input
+                                        type="checkbox"
+                                        checked={isSelected}
+                                        onChange={() => handleCategoryToggle(categoryValue)}
+                                        className="w-4 h-4 text-primary rounded focus:ring-primary focus:ring-offset-0"
+                                    />
+                                    <span className="text-sm group-hover:text-primary transition-colors flex-1">
+                                        {category.name}
                                     </span>
-                                )}
-                            </label>
-                        );
-                    })}
+                                    {isSelected && (
+                                        <span className="text-xs font-medium text-primary">
+                                            ✓
+                                        </span>
+                                    )}
+                                </label>
+                            );
+                        }))}
                 </div>
             </div>
 

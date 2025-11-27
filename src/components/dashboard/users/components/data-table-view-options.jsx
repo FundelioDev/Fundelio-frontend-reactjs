@@ -18,7 +18,7 @@ export function DataTableViewOptions({
         <Button
           variant="outline"
           size="sm"
-          className="ml-auto hidden h-8 lg:flex"
+          className=" hidden h-8 lg:flex ml-2"
         >
           <MixerHorizontalIcon className="mr-2 h-4 w-4" />
           Hiển thị

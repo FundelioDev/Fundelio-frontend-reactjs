@@ -1,37 +1,17 @@
 import React, { useState } from 'react';
-import { ChevronRight, Trash2, XCircle, BarChart3 } from 'lucide-react';
+import { ChevronRight, Trash2, XCircle, BarChart3, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Button from '@/components/common/Button';
 import ConfirmModal from '@/components/common/ConfirmModal';
 import SimpleConfirmModal from '@/components/common/SimpleConfirmModal';
 import { campaignApi } from '@/api/campaignApi';
 import toast from 'react-hot-toast';
-
-const getCampaignStatusLabel = (status) => {
-    const labels = {
-        DRAFT: 'Bản nháp',
-        ACTIVE: 'Đang hoạt động',
-        PENDING: 'Chờ duyệt',
-        PAUSED: 'Tạm dừng',
-        ENDED: 'Đã kết thúc',
-        SUCCESSFUL: 'Thành công',
-        FAILED: 'Thất bại',
-    };
-    return labels[status] || status;
-};
-
-const getCampaignStatusColor = (status) => {
-    const colors = {
-        DRAFT: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
-        ACTIVE: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
-        PENDING: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
-        APPROVED: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
-        ENDED: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
-        SUCCESSFUL: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
-        FAILED: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
-    };
-    return colors[status] || colors.DRAFT;
-};
+import {
+    getStatusLabel,
+    getStatusBadgeColor,
+    canPerformAction,
+    getEditButtonType,
+} from '@/utils/campaignStatusConfig';
 
 export default function CampaignDashboardItem({ campaign, onActionComplete }) {
     const navigate = useNavigate();
@@ -132,6 +112,11 @@ export default function CampaignDashboardItem({ campaign, onActionComplete }) {
 
     // Mock image URL (since API doesn't have imageUrl yet)
     const imageUrl = campaign.introImageUrl;
+    const hasImage = imageUrl && imageUrl.trim() !== '';
+
+    const status = campaign.campaignStatus;
+    const editButtonType = getEditButtonType(status);
+    const isViewMode = editButtonType === 'view';
 
     return (
         <div
@@ -139,12 +124,21 @@ export default function CampaignDashboardItem({ campaign, onActionComplete }) {
         >
             <div className="flex flex-col sm:flex-row gap-0 sm:gap-6">
                 {/* Image Container */}
-                <div className="w-full sm:w-64 h-48 rounded-md flex-shrink-0 overflow-hidden bg-gray-100 dark:bg-gray-800">
-                    <img
-                        src={imageUrl}
-                        alt={campaign.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
+                <div className="w-full sm:w-64 h-48 rounded-md flex-shrink-0 overflow-hidden bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                    {hasImage ? (
+                        <img
+                            src={imageUrl}
+                            alt=""
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            onError={(e) => {
+                                e.target.style.display = 'none';
+                            }}
+                        />
+                    ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-gray-200 dark:bg-gray-700">
+                            <div className="text-gray-400 dark:text-gray-500 text-sm">Không có ảnh</div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Content */}
@@ -152,9 +146,9 @@ export default function CampaignDashboardItem({ campaign, onActionComplete }) {
                     {/* Status Badge */}
                     <div className="top-4 left-4">
                         <span
-                            className={`inline-flex items-center px-3 py-1.5 mt-2 sm:mt-0 rounded-full text-xs font-semibold backdrop-blur-sm ${getCampaignStatusColor(campaign.campaignStatus)}`}
+                            className={`inline-flex items-center px-3 py-1.5 mt-2 sm:mt-0 rounded-full text-xs font-semibold backdrop-blur-sm ${getStatusBadgeColor(status)}`}
                         >
-                            {getCampaignStatusLabel(campaign.campaignStatus)}
+                            {getStatusLabel(status)}
                         </span>
                     </div>
                     <div>
@@ -172,51 +166,63 @@ export default function CampaignDashboardItem({ campaign, onActionComplete }) {
                         </p>
                     </div>
 
-                    {/* Edit Button */}
+                    {/* Action Buttons */}
                     <div className="flex items-center justify-end gap-2 flex-wrap">
-                        {/* Cancel Request Button - Only show when status is PENDING */}
-                        {campaign.campaignStatus === 'PENDING' && (
+                        {/* End Campaign Button */}
+                        {canPerformAction(status, 'canEnd') && (
                             <button
                                 onClick={() => setShowCancelModal(true)}
                                 disabled={isProcessing}
-                                variant="outline"
-                                className="flex items-center gap-1 px-3 py-2 border rounded-xs border-orange-500 text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20"
+                                className="flex items-center gap-1 px-3 py-2 border rounded-xs border-orange-500 text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 <XCircle className="w-4 h-4" />
-                                <span>Kết thúc dự án</span>
+                                <span>Kết thúc chiến dịch</span>
                             </button>
                         )}
 
-                        {/* Delete Button - Only show when status is DRAFT */}
-                        {(campaign.campaignStatus === 'DRAFT' || campaign.campaignStatus === 'CANCELLED') && (
+                        {/* Delete Button */}
+                        {canPerformAction(status, 'canDelete') && (
                             <button
                                 onClick={() => setShowDeleteModal(true)}
                                 disabled={isProcessing}
-                                className="gap-1 px-4 py-3 bg-red-50 dark:bg-darker-2 rounded-xs border border-red-500 text-red-600 hover:cursor-pointer hover:bg-red-200 dark:hover:bg-red-900/20"
+                                className="gap-1 px-4 py-3 bg-red-50 dark:bg-darker-2 rounded-xs border border-red-500 text-red-600 hover:cursor-pointer hover:bg-red-200 dark:hover:bg-red-900/20 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 <Trash2 className="w-4 h-4 text-red-600" />
-                                {/* <span>Xóa</span> */}
                             </button>
                         )}
 
                         {/* Statistics Button */}
-                        <button
-                            onClick={handleViewStats}
-                            className="flex items-center gap-1 px-3 py-2 border rounded-xs bg-[#3eca88] border-green-500 hover:bg-emerald-500 hover:border-emerald-600 text-white "
-                        >
-                            <BarChart3 className="w-4 h-4" />
-                            <span>Thống kê</span>
-                        </button>
+                        {canPerformAction(status, 'canViewStats') && (
+                            <button
+                                onClick={handleViewStats}
+                                className="flex items-center gap-1 px-3 py-2 border rounded-xs bg-[#3eca88] border-green-500 hover:bg-emerald-500 hover:border-emerald-600 text-white"
+                            >
+                                <BarChart3 className="w-4 h-4" />
+                                <span>Thống kê</span>
+                            </button>
+                        )}
 
-                        {/* Edit Button */}
-                        <Button
-                            onClick={handleEdit}
-                            variant="primary"
-                            className="rounded-xs"
-                        >
-                            <span>Chỉnh sửa chiến dịch</span>
-                            <ChevronRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
-                        </Button>
+                        {/* Edit/View Button */}
+                        {canPerformAction(status, 'canEdit') || isViewMode ? (
+                            isViewMode ? (
+                                <Button
+                                    onClick={handleEdit}
+                                    variant="primary"
+                                    className="rounded-xs"
+                                >
+                                    <Eye className="w-5 h-5" />
+                                </Button>
+                            ) : (
+                                <Button
+                                    onClick={handleEdit}
+                                    variant="primary"
+                                    className="rounded-xs"
+                                >
+                                    <span>Chỉnh sửa chiến dịch</span>
+                                    <ChevronRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
+                                </Button>
+                            )
+                        ) : null}
                     </div>
                 </div>
             </div>

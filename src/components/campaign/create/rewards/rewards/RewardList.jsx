@@ -1,7 +1,17 @@
 import Button from "@/components/common/Button"
 import RewardCard from "../components/RewardCard"
 
-export default function RewardList({ rewards, items, onEdit, onDelete, onDuplicate, onCreate }) {
+export default function RewardList({
+  rewards,
+  items,
+  onEdit,
+  onDelete,
+  onDuplicate,
+  onCreate,
+  isReadOnly = false,
+  rewardRules = {},
+}) {
+  const preventDeletingOldRewards = Boolean(rewardRules?.preventDeletingOldRewards)
   if (rewards.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-border bg-muted/30 py-16 px-4">
@@ -10,7 +20,12 @@ export default function RewardList({ rewards, items, onEdit, onDelete, onDuplica
         <p className="text-muted-foreground mb-6 text-center max-w-sm">
           Tạo phần thưởng đầu tiên để backer có thể ủng hộ dự án của bạn
         </p>
-        <Button onClick={onCreate} variant="primary">
+        <Button
+          onClick={onCreate}
+          variant="primary"
+          disabled={isReadOnly}
+          className={isReadOnly ? "opacity-60 cursor-not-allowed" : ""}
+        >
           + Tạo phần thưởng
         </Button>
       </div>
@@ -21,7 +36,13 @@ export default function RewardList({ rewards, items, onEdit, onDelete, onDuplica
     <div className="space-y-4">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-semibold text-foreground">Phần thưởng ({rewards.length})</h2>
-        <Button onClick={onCreate} variant="primary" size="md">
+        <Button
+          onClick={onCreate}
+          variant="primary"
+          size="md"
+          disabled={isReadOnly}
+          className={isReadOnly ? "opacity-60 cursor-not-allowed" : ""}
+        >
           + Tạo mới
         </Button>
       </div>
@@ -35,7 +56,9 @@ export default function RewardList({ rewards, items, onEdit, onDelete, onDuplica
       </div>
 
       <div className="space-y-4">
-        {rewards.map((reward) => (
+        {rewards.map((reward) => {
+          const deleteDisabled = preventDeletingOldRewards && reward?.isOld
+          return (
           <RewardCard
             key={reward.rewardId}
             data={reward}
@@ -44,8 +67,12 @@ export default function RewardList({ rewards, items, onEdit, onDelete, onDuplica
             onEdit={onEdit}
             onDelete={onDelete}
             onDuplicate={onDuplicate}
+            isReadOnly={isReadOnly}
+              disableDelete={deleteDisabled}
+              deleteTooltip={deleteDisabled ? 'Không thể xóa phần thưởng đã tồn tại trong trạng thái này.' : undefined}
           />
-        ))}
+          )
+        })}
       </div>
     </div>
   )

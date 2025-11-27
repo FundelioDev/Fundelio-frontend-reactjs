@@ -2,6 +2,7 @@ import axios from 'axios';
 
 import { storageService } from '../services/storage';
 import { authApi } from './authApi';
+import { TOKEN_REFRESHED_EVENT } from '@/websocket/WebSocketClient';
 
 export const API_URL = 'https://fundelio.duckdns.org/api/v1';
 
@@ -21,72 +22,20 @@ export const setLogoutCallback = (callback) => {
   logoutCallback = callback;
 };
 
-let refreshTokenIntervalId = null;
-const REFRESH_TOKEN_INTERVAL = 50 * 60 * 1000; // 50 minutes
+/**
+ * Dispatch custom event khi token được refresh thành công
+ * WebSocket client sẽ listen event này để reconnect với token mới
+ */
+const dispatchTokenRefreshedEvent = (accessToken) => {
+  if (typeof window === 'undefined') return;
 
-const performTokenRefresh = async () => {
-  try {
-    console.log('Refreshing token...');
-    const response = await authApi.refreshToken();
-    const newAccessToken = response?.data?.data?.accessToken;
-
-    if (newAccessToken) {
-      console.log('Refresh token success');
-      storageService.setAccessToken(newAccessToken);
-      return newAccessToken;
-    } else {
-      throw new Error('Cannot get access token from refresh API');
-    }
-  } catch (error) {
-    console.error('Refresh token failed:', error);
-    storageService.removeAccessToken();
-
-    if (refreshTokenIntervalId) {
-      clearInterval(refreshTokenIntervalId);
-      refreshTokenIntervalId = null;
-    }
-
-    if (logoutCallback) {
-      logoutCallback();
-    }
-
-    throw error;
-  }
-};
-
-export const startTokenRefreshInterval = () => {
-  if (refreshTokenIntervalId) {
-    clearInterval(refreshTokenIntervalId);
-  }
-
-  console.log(
-    `Start automatic token refresh every ${
-      REFRESH_TOKEN_INTERVAL / 1000
-    } seconds`
-  );
-  refreshTokenIntervalId = window.setInterval(() => {
-    if (storageService.getAccessToken()) {
-      if (!refreshTokenPromise) {
-        refreshTokenPromise = performTokenRefresh().finally(() => {
-          refreshTokenPromise = null;
-        });
-      }
-    } else {
-      console.log('Stop automatic token refresh because no token');
-      if (refreshTokenIntervalId) {
-        clearInterval(refreshTokenIntervalId);
-        refreshTokenIntervalId = null;
-      }
-    }
-  }, REFRESH_TOKEN_INTERVAL);
-};
-
-export const stopTokenRefreshInterval = () => {
-  if (refreshTokenIntervalId) {
-    console.log('Stop automatic token refresh');
-    clearInterval(refreshTokenIntervalId);
-    refreshTokenIntervalId = null;
-  }
+  console.log('🔔 Dispatching token refreshed event...');
+  
+  const event = new CustomEvent(TOKEN_REFRESHED_EVENT, {
+    detail: { accessToken },
+  });
+  
+  window.dispatchEvent(event);
 };
 
 class Http {
@@ -140,7 +89,12 @@ class Http {
                 .then((response) => {
                   const newAccessToken = response?.data?.data?.accessToken;
                   if (newAccessToken) {
+                    console.log('✅ Token refresh successful');
                     storageService.setAccessToken(newAccessToken);
+                    
+                    // 🔔 Dispatch event để WebSocket reconnect với token mới
+                    dispatchTokenRefreshedEvent(newAccessToken);
+                    
                     return newAccessToken;
                   }
                   return Promise.reject(
@@ -148,6 +102,7 @@ class Http {
                   );
                 })
                 .catch((refreshError) => {
+                  console.error('❌ Token refresh failed:', refreshError);
                   storageService.removeAccessToken();
                   if (logoutCallback) {
                     logoutCallback();

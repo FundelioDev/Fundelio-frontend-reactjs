@@ -2,13 +2,12 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import Header from '@/components/common/Header';
 import Button from '@/components/common/Button';
-import { campaignApi } from '@/api/campaignApi';
-import { rewardApi } from '@/api/rewardApi';
-import { pledgeApi } from '@/api/pledgeApi';
+import { dashboardApi } from '@/api/dashboardApi';
 import FundingProgressTimeline from './FundingProgressTimeline';
 import PledgesDistributionChart from './PledgesDistributionChart';
 import RecentPledgesTable from './RecentPledgesTable';
 import PerformanceIndicators from './PerformanceIndicators';
+import BackerPledgesSection from './BackerPledgesSection';
 import {
     Users,
     TrendingUp,
@@ -285,6 +284,7 @@ const getPriorityStyles = (severity = 'neutral') => {
 
 const FounderManagementPanel = ({ data }) => {
     if (!data) return null;
+    if (!Array.isArray(data.summaryMetrics)) return null;
 
     return (
         <div className="bg-white dark:bg-darker-2 rounded-sm border border-border p-4 sm:p-5 shadow-card">
@@ -327,7 +327,7 @@ const FounderManagementPanel = ({ data }) => {
                     Ưu tiên tuần này
                 </p>
                 <div className="space-y-3">
-                    {data.priorities.map((priority, idx) => {
+                    {(Array.isArray(data.priorities) ? data.priorities : []).map((priority, idx) => {
                         const priorityStyles = getPriorityStyles(priority.severity);
                         return (
                             <div
@@ -511,10 +511,7 @@ export default function CampaignStatisticsPage() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const fromAdmin = searchParams.get('fromAdmin') === 'true';
-    const [campaign, setCampaign] = useState(null);
-    const [rewards, setRewards] = useState([]);
-    const [pledges, setPledges] = useState([]);
-    const [topBackers, setTopBackers] = useState([]);
+    const [dashboardData, setDashboardData] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -523,61 +520,13 @@ export default function CampaignStatisticsPage() {
                 setLoading(true);
                 if (!campaignId) return;
 
-                const [campaignRes, rewardsRes, pledgesRes, backersRes] = await Promise.all([
-                    campaignApi.getCampaignById(campaignId),
-                    rewardApi.getRewardsWithItems(campaignId),
-                    pledgeApi.getPledgeByCampaign(campaignId).catch(() => ({ data: { data: [] } })),
-                    pledgeApi.getTopBackersOfCampaign(campaignId).catch(() => ({ data: { data: [] } })),
-                ]);
+                const response = await dashboardApi.getCampaignDashboardData(campaignId);
 
-                if (campaignRes?.data?.data) {
-                    setCampaign(campaignRes.data.data);
-                }
-
-                // Rewards: sử dụng mock nếu API trả về rỗng
-                if (rewardsRes?.data?.data?.content && rewardsRes.data.data.content.length > 0) {
-                    setRewards(rewardsRes.data.data.content);
-                } else {
-                    console.log('📊 Using mock rewards data');
-                    setRewards(generateMockRewards());
-                }
-
-                // ALWAYS use mock rewards for demo purposes
-                console.log('📊 Force using mock rewards data for bar chart demo');
-                setRewards(generateMockRewards());
-
-                // Pledges: sử dụng mock nếu API trả về rỗng
-                if (pledgesRes?.data?.data) {
-                    const pledgeData = Array.isArray(pledgesRes.data.data)
-                        ? pledgesRes.data.data
-                        : pledgesRes.data.data.content || [];
-
-                    if (pledgeData.length > 0) {
-                        setPledges(pledgeData);
-                    } else {
-                        console.log('📊 Using mock pledges data');
-                        setPledges(generateMockPledges(25));
-                    }
-                } else {
-                    console.log('📊 Using mock pledges data (no API response)');
-                    setPledges(generateMockPledges(25));
-                }
-
-                // Top Backers: API response
-                if (backersRes?.data?.data) {
-                    const backersData = Array.isArray(backersRes.data.data)
-                        ? backersRes.data.data
-                        : backersRes.data.data.content || [];
-                    setTopBackers(backersData);
-                } else {
-                    setTopBackers([]);
+                if (response?.data?.data) {
+                    setDashboardData(response.data.data);
                 }
             } catch (error) {
                 console.error('Error loading campaign statistics:', error);
-                // Fallback to mock data on error
-                console.log('📊 Using all mock data due to error');
-                setRewards(generateMockRewards());
-                setPledges(generateMockPledges(25));
             } finally {
                 setLoading(false);
             }
@@ -586,22 +535,64 @@ export default function CampaignStatisticsPage() {
         loadData();
     }, [campaignId]);
 
-    // Chart data
-    const fundraisingProgressData = useMemo(() =>
-        buildFundraisingProgressData(campaign, pledges),
-        [campaign, pledges]
-    );
-
-    // Calculate stats
-    const totalPledges = pledges.length;
-    const totalPledgedAmount = pledges.reduce((sum, p) => sum + (p.pledgeAmount || p.amount || 0), 0);
-    const avgPledgeAmount = pledges.length > 0 ? totalPledgedAmount / pledges.length : 0;
-
-    // Calculate unique backers from pledges
-    const uniqueBackers = new Set(pledges.map(p => p.userId || p.user?.userId)).size;
-
+    // Use founderOps from API if provided, otherwise calculate
+    // This must be called before any early returns to maintain hook order
     const founderOpsData = useMemo(() => {
+        if (!dashboardData) return null;
+
+        const { campaign, metrics, fundingTimeline, pledgesDistribution, pledges, topBackers, performanceIndicators, founderOps } = dashboardData;
+        if (founderOps) {
+            // Map API data to component format
+            return {
+                summaryMetrics: [
+                    {
+                        key: 'weekly-cash',
+                        label: 'Dòng tiền 7 ngày',
+                        value: formatCurrency(founderOps.summaryMetrics?.weeklyCash || 0),
+                        caption: `${formatPercent(founderOps.summaryMetrics?.weeklyTrend || 0)} vs tuần trước`,
+                        tone: (founderOps.summaryMetrics?.weeklyTrend || 0) >= 0 ? 'positive' : 'warning',
+                        icon: Wallet
+                    },
+                    {
+                        key: 'projection',
+                        label: 'Dự báo cuối kỳ',
+                        value: formatCurrency(founderOps.summaryMetrics?.projectedAmount || 0),
+                        caption: campaign?.goalAmount > 0 ? `${Math.round(Math.min(200, Math.max(0, founderOps.summaryMetrics?.runwayCoverage || 0)))}% mục tiêu` : 'Chưa thiết lập mục tiêu',
+                        tone: (founderOps.summaryMetrics?.runwayCoverage || 0) >= 100 ? 'positive' : 'warning',
+                        icon: TrendingUp
+                    },
+                    {
+                        key: 'gap',
+                        label: 'Khoảng cách đến mục tiêu',
+                        value: (founderOps.summaryMetrics?.gapToGoal || 0) <= 0 ? 'Đã đạt' : formatCurrency(founderOps.summaryMetrics?.gapToGoal || 0),
+                        caption: (founderOps.summaryMetrics?.daysLeft || 0) > 0 ? `${founderOps.summaryMetrics.daysLeft} ngày còn lại` : 'Đang khóa sổ chiến dịch',
+                        tone: (founderOps.summaryMetrics?.gapToGoal || 0) <= 0 ? 'positive' : 'warning',
+                        icon: Target
+                    },
+                    {
+                        key: 'velocity',
+                        label: 'Tốc độ huy động',
+                        value: `${formatCurrency(founderOps.summaryMetrics?.avgDaily || 0)} /ngày`,
+                        caption: (founderOps.summaryMetrics?.requiredDaily || 0) > 0 ? `Cần ${formatCurrency(founderOps.summaryMetrics.requiredDaily)} /ngày để đạt mục tiêu` : 'Đã vượt ngưỡng cần thiết',
+                        tone: (founderOps.summaryMetrics?.requiredDaily || 0) === 0 || (founderOps.summaryMetrics?.avgDaily || 0) >= (founderOps.summaryMetrics?.requiredDaily || 0) ? 'positive' : 'warning',
+                        icon: Activity
+                    },
+                ],
+                priorities: founderOps.priorities || [],
+                runwayCoverage: founderOps.summaryMetrics?.runwayCoverage || 0,
+                communityMetrics: founderOps.communityMetrics || {}
+            };
+        }
+
+        // Fallback: calculate from data
+        const uniqueBackers = new Set((pledges || []).map(p => p.userId || p.user?.userId)).size;
         if (!campaign) return null;
+
+        // Calculate missing variables from pledges
+        const totalPledges = (pledges || []).length;
+        const totalPledgedAmount = (pledges || []).reduce((sum, p) => sum + (p.pledgeAmount || p.amount || 0), 0);
+        const avgPledgeAmount = totalPledges > 0 ? totalPledgedAmount / totalPledges : 0;
+        const rewards = campaign.rewards || [];
 
         const now = new Date();
         const msInDay = 1000 * 60 * 60 * 24;
@@ -650,7 +641,7 @@ export default function CampaignStatisticsPage() {
         }, 0);
         const highValueShare = totalPledgedAmount > 0 ? highValueAmount / totalPledgedAmount : 0;
 
-        const rewardStatuses = rewards.map(reward => {
+        const rewardStatuses = (rewards || []).map(reward => {
             const totalQuantity = reward.quantity ?? reward.maxQuantity ?? reward.availableQuantity ?? null;
             const claimed = reward.backersCount || 0;
             const minAmount = reward.minPledgedAmount ?? reward.price ?? reward.amount ?? 0;
@@ -769,7 +760,34 @@ export default function CampaignStatisticsPage() {
                 topRewardsByRevenue
             }
         };
-    }, [campaign, pledges, rewards, totalPledgedAmount, avgPledgeAmount, totalPledges, uniqueBackers]);
+    }, [dashboardData]);
+
+    if (loading) {
+        return (
+            <div className="min-h-screen flex flex-col bg-background-light-2 dark:bg-darker">
+                <Header variant="light" />
+                <main className="flex-1 pt-20 flex items-center justify-center">
+                    <div className="text-center">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+                        <p className="mt-4 text-muted-foreground">Đang tải...</p>
+                    </div>
+                </main>
+            </div>
+        );
+    }
+
+    if (!dashboardData) {
+        return (
+            <div className="min-h-screen flex flex-col bg-background-light-2 dark:bg-darker">
+                <Header variant="light" />
+                <main className="flex-1 pt-20 flex items-center justify-center">
+                    <p className="text-muted-foreground">Không có dữ liệu</p>
+                </main>
+            </div>
+        );
+    }
+
+    const { campaign, metrics, fundingTimeline, pledgesDistribution, pledges, topBackers, performanceIndicators, founderOps } = dashboardData;
 
     // Chart options
     const areaChartOptions = {
@@ -849,42 +867,12 @@ export default function CampaignStatisticsPage() {
         }
     };
 
-    if (loading) {
-        return (
-            <div className="min-h-screen flex flex-col bg-background-light-2 dark:bg-darker">
-                <Header variant="light" />
-                <main className="flex-1 pt-20 flex items-center justify-center">
-                    <div className="text-center">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-                        <p className="mt-4 text-muted-foreground">Đang tải thống kê chiến dịch...</p>
-                    </div>
-                </main>
-            </div>
-        );
-    }
-
-    if (!campaign) {
-        return (
-            <div className="min-h-screen flex flex-col bg-background-light-2 dark:bg-darker">
-                <Header variant="light" />
-                <main className="flex-1 pt-20 flex items-center justify-center">
-                    <div className="text-center">
-                        <p className="text-lg text-muted-foreground">Không tìm thấy chiến dịch</p>
-                        <Button onClick={() => navigate('/dashboard')} className="mt-4">
-                            Quay lại Dashboard
-                        </Button>
-                    </div>
-                </main>
-            </div>
-        );
-    }
-
-    // Calculate campaign stats (only after campaign is loaded)
-    const currency = campaign.currency || 'VND';
-    const pledged = campaign.currentAmount ?? campaign.pledged ?? 0;
-    const goal = campaign.goalAmount || campaign.goal || 1;
-    const backersCount = campaign.backerCount ?? campaign.backers ?? 0;
-    const progressPercent = Math.min(100, Math.round((pledged / goal) * 100));
+    // Calculate campaign stats from API data
+    const currency = campaign?.currency || 'VND';
+    const pledged = campaign?.pledgedAmount || campaign?.currentAmount || 0;
+    const goal = campaign?.goalAmount || 1;
+    const backersCount = campaign?.backersCount || 0;
+    const progressPercent = metrics?.progressPercent || 0;
 
     return (
         <div className="min-h-screen flex flex-col bg-background-light-2 dark:bg-darker">
@@ -955,7 +943,7 @@ export default function CampaignStatisticsPage() {
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         {/* Left: Fundraising Progress Area Chart (large) */}
                         <div className="lg:col-span-2">
-                            <FundingProgressTimeline pledges={pledges} campaign={campaign} />
+                            <FundingProgressTimeline fundingTimeline={fundingTimeline} campaign={campaign} />
                         </div>
 
                         {/* Right: Top Backers from API */}
@@ -1018,12 +1006,12 @@ export default function CampaignStatisticsPage() {
 
                     {/* Row 2: Pledges Distribution + Performance Indicators */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <PledgesDistributionChart pledges={pledges} />
-                        <PerformanceIndicators campaign={campaign} pledges={pledges} />
+                        <PledgesDistributionChart pledgesDistribution={pledgesDistribution} />
+                        <PerformanceIndicators performanceIndicators={performanceIndicators} campaign={campaign} />
                     </div>
 
                     {/* Row 3: Recent Pledges Table (full width) */}
-                    <RecentPledgesTable pledges={pledges} />
+                    <RecentPledgesTable pledges={pledges || []} />
 
                     {founderOpsData && (
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -1031,6 +1019,9 @@ export default function CampaignStatisticsPage() {
                             <CommunityInsightsPanel data={founderOpsData.communityMetrics} />
                         </div>
                     )}
+
+                    {/* Backer Pledges Section - for shipping rewards */}
+                    <BackerPledgesSection campaignId={campaignId} />
 
                     {/* {founderOpsData && (
                         <div className="grid grid-cols-1 gap-6">

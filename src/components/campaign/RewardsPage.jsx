@@ -151,47 +151,45 @@ const RewardsPage = ({ rewards = [], items = [], addOns = [], onPledge, campaign
 
 
   return (
-    <div className="w-full min-w-0 overflow-x-hidden">
-      <div className="grid grid-cols-1 lg:grid-cols-[minmax(180px,220px)_minmax(0,1fr)_minmax(180px,220px)] xl:grid-cols-[minmax(220px,260px)_minmax(0,1fr)_minmax(220px,260px)] 2xl:grid-cols-[minmax(240px,280px)_minmax(0,1fr)_minmax(240px,280px)] gap-4 md:gap-5 lg:gap-6 xl:gap-8 w-full min-w-0 items-start">
-        {pledgeLocked && (
-          <div className="lg:col-span-3 order-first w-full min-w-0">
-            <div className="flex items-start gap-3 rounded-sm border border-amber-300 bg-amber-50 text-amber-900 px-4 py-3 text-sm max-w-fit">
-              <Info className="w-5 h-5 mt-0.5 flex-shrink-0" />
-              <p>{lockedMessage}</p>
-            </div>
+    <div className="grid grid-cols-1 lg:grid-cols-[minmax(180px,220px)_minmax(0,1fr)_minmax(180px,220px)] xl:grid-cols-[minmax(220px,260px)_minmax(0,1fr)_minmax(220px,260px)] 2xl:grid-cols-[minmax(240px,280px)_minmax(0,1fr)_minmax(240px,280px)] gap-4 md:gap-5 lg:gap-6 xl:gap-8">
+      {pledgeLocked && (
+        <div className="lg:col-span-3 order-first">
+          <div className="flex items-start gap-3 rounded-sm border border-amber-300 bg-amber-50 text-amber-900 px-4 py-3 text-sm max-w-fit">
+            <Info className="w-5 h-5 mt-0.5 flex-shrink-0" />
+            <p>{lockedMessage}</p>
           </div>
-        )}
-        {/* Left Column - TOC Menu */}
-        <div className="order-2 lg:order-1 hidden lg:block min-w-0 w-full">
-          <TocMenu blanks={rewardMenuItems} activeId={activeId} />
         </div>
+      )}
+      {/* Left Column - TOC Menu */}
+      <div className="order-2 lg:order-1 hidden lg:block">
+        <TocMenu blanks={rewardMenuItems} activeId={activeId} />
+      </div>
 
-        {/* Center Column - Reward Cards */}
-        <div className="order-1 lg:order-2 min-w-0 w-full overflow-x-hidden" id="rewards-section">
-          <RewardDetailSection
-            rewards={rewards}
-            items={items}
-            addOns={addOns}
-            onSelectReward={handleSelectReward}
-            onSelectAddOn={handleSelectAddOn}
-            campaignId={campaignId}
-            isPreview={isPreview}
-            isOwnerViewing={isOwnerViewing}
-          />
-        </div>
+      {/* Center Column - Reward Cards */}
+      <div className="order-1 lg:order-2" id="rewards-section">
+        <RewardDetailSection
+          rewards={rewards}
+          items={items}
+          addOns={addOns}
+          onSelectReward={handleSelectReward}
+          onSelectAddOn={handleSelectAddOn}
+          campaignId={campaignId}
+          isPreview={isPreview}
+          isOwnerViewing={isOwnerViewing}
+        />
+      </div>
 
-        {/* Right Column - Pledge Summary */}
-        <div className="order-3 hidden lg:block min-w-0 w-full">
-          <PledgeSummaryCard
-            selectedRewards={selectedRewards}
-            selectedAddOns={selectedAddOns}
-            onRemoveItem={handleRemoveItem}
-            onPickAddOns={handlePickAddOns}
-            onSubmit={handleSubmit}
-            isPreview={isPreview}
-            isOwnerViewing={isOwnerViewing}
-          />
-        </div>
+      {/* Right Column - Pledge Summary */}
+      <div className="order-3 hidden lg:block">
+        <PledgeSummaryCard
+          selectedRewards={selectedRewards}
+          selectedAddOns={selectedAddOns}
+          onRemoveItem={handleRemoveItem}
+          onPickAddOns={handlePickAddOns}
+          onSubmit={handleSubmit}
+          isPreview={isPreview}
+          isOwnerViewing={isOwnerViewing}
+        />
       </div>
     </div>
   );

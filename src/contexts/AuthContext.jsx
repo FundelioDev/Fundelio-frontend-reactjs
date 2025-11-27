@@ -7,11 +7,7 @@ import {
 } from "react";
 import { authApi } from "@/api/authApi";
 import { storageService } from "@/services/storage";
-import {
-  startTokenRefreshInterval,
-  stopTokenRefreshInterval,
-  setLogoutCallback,
-} from "@/api/http";
+import { setLogoutCallback } from "@/api/http";
 import Loading from "@/components/common/Loading";
 
 const AuthContext = createContext(undefined);
@@ -33,7 +29,6 @@ export function AuthProvider({ children }) {
     } catch (_) { }
     setUser(null);
     setIsLoggedIn(false);
-    stopTokenRefreshInterval();
   }, []);
 
   const fetchUserData = useCallback(async () => {
@@ -90,20 +85,7 @@ export function AuthProvider({ children }) {
       } catch (_) { }
     }
     fetchUserData();
-    startTokenRefreshInterval();
-  };
-
-  useEffect(() => {
-    if (isLoggedIn) {
-      startTokenRefreshInterval();
-    } else {
-      stopTokenRefreshInterval();
-    }
-
-    return () => {
-      stopTokenRefreshInterval();
     };
-  }, [isLoggedIn]);
 
   useEffect(() => {
     setLogoutCallback(() => {

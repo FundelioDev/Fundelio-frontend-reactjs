@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { ChevronDown, ChevronUp, Check, AlertCircle } from 'lucide-react';
+import { ChevronDown, ChevronUp, Check, AlertCircle, MapPin } from 'lucide-react';
 import Button from '@/components/common/Button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -8,6 +8,8 @@ import { RewardItem } from '@/components/campaign/rewards/reward-detail/RewardIt
 import { Card } from '@/components/campaign/rewards/ui/Card';
 import { usePledgeEvents } from '@/websocket/hooks';
 import { createPledge, webSocketClient } from '@/websocket';
+import { useAuth } from '@/contexts/AuthContext';
+import LocationModal from '@/pages/pledges/components/LocationModal';
 import toast from 'react-hot-toast';
 import gsap from 'gsap';
 import {
@@ -19,6 +21,7 @@ export default function PledgeSummaryPage() {
     const location = useLocation();
     const navigate = useNavigate();
     const { campaignId } = useParams();
+    const { user } = useAuth();
     const [showProducts, setShowProducts] = useState(false);
     const [bonusAmount, setBonusAmount] = useState(0);
     const [agreeToTerms, setAgreeToTerms] = useState(false);
@@ -27,6 +30,8 @@ export default function PledgeSummaryPage() {
     const [pledgeError, setPledgeError] = useState(null);
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [showLocationModal, setShowLocationModal] = useState(false);
+    const [userLocation, setUserLocation] = useState({ city: '', nationality: '' });
     const timeoutRef = useRef(null);
     const successIconRef = useRef(null);
     const errorIconRef = useRef(null);
@@ -70,6 +75,26 @@ export default function PledgeSummaryPage() {
             console.log('➕ Add-ons:', pledgeData.addOns);
         }
     }, [pledgeData, campaignId, navigate]);
+
+    // Check user location and show modal if needed
+    useEffect(() => {
+        if (user) {
+            const hasCity = user.city && user.city.trim() !== '';
+            const hasNationality = user.nationality && user.nationality.trim() !== '';
+
+            setUserLocation({
+                city: user.city || '',
+                nationality: user.nationality || ''
+            });
+
+            // Show modal if user doesn't have both city and nationality
+            // Only for reward pledges (not for No Reward pledges)
+            const isNoRewardPledge = pledgeData?.hasNoReward || !pledgeData?.reward;
+            if (!isNoRewardPledge && (!hasCity || !hasNationality)) {
+                setShowLocationModal(true);
+            }
+        }
+    }, [user, pledgeData]);
 
     // Cleanup timeout khi unmount
     useEffect(() => {
@@ -234,7 +259,10 @@ export default function PledgeSummaryPage() {
         );
     }
 
-    const { reward, addOns = [], quantity = 1 } = pledgeData;
+    const { reward, addOns = [], quantity = 1, hasNoReward = false } = pledgeData;
+
+    // If hasNoReward, use the amount directly from pledgeData
+    const isNoRewardPledge = hasNoReward || !reward;
 
     // Calculate amounts
     const rewardAmount = reward?.minPledgedAmount || 0;
@@ -242,8 +270,13 @@ export default function PledgeSummaryPage() {
         (sum, addon) => sum + (addon.price || 0) * (addon.quantity || 1),
         0
     );
-    const amount = rewardAmount + addOnsAmount;
-    const totalAmount = amount + (bonusAmount || 0);
+    // If no reward, use amount from pledgeData directly
+    const amount = isNoRewardPledge ? (pledgeData.amount || 0) : (rewardAmount + addOnsAmount);
+    // For no reward pledge, use totalAmount from pledgeData (bonusAmount is always 0)
+    // For reward pledge, add bonusAmount to amount
+    const totalAmount = isNoRewardPledge
+        ? (pledgeData.totalAmount || amount)
+        : (amount + (bonusAmount || 0));
 
     // Get included items
     const includedItems = (reward?.items?.included || []).map((item) => ({
@@ -260,6 +293,14 @@ export default function PledgeSummaryPage() {
             return;
         }
 
+        // Check location for reward pledges
+        const isNoRewardPledge = pledgeData?.hasNoReward || !pledgeData?.reward;
+        if (!isNoRewardPledge && (!userLocation.city || !userLocation.nationality)) {
+            toast.error('Vui lòng cung cấp thông tin vị trí trước khi ủng hộ');
+            setShowLocationModal(true);
+            return;
+        }
+
         // Kiểm tra WebSocket connection
         if (!webSocketClient.isConnected()) {
             toast.error('WebSocket chưa kết nối. Vui lòng thử lại sau.');
@@ -271,6 +312,11 @@ export default function PledgeSummaryPage() {
         setShowConfirmModal(true);
     };
 
+    const handleLocationSuccess = (locationData) => {
+        setUserLocation(locationData);
+        toast.success('Đã cập nhật thông tin vị trí');
+    };
+
     const handleConfirmPledge = async () => {
         setShowConfirmModal(false);
         setIsSubmitting(true);
@@ -280,24 +326,25 @@ export default function PledgeSummaryPage() {
         try {
             const pledgePayload = {
                 campaignId: campaignId,
-                rewardId: reward.rewardId,
-                amount: amount,
-                bonusAmount: bonusAmount || 0,
+                rewardId: isNoRewardPledge ? null : reward.rewardId,
+                amount: amount, // Required field
+                bonusAmount: isNoRewardPledge ? 0 : (bonusAmount || 0),
                 totalAmount: totalAmount,
-                addOns: reward.items.addOn?.map(addon => ({
+                addOns: isNoRewardPledge ? [] : (reward.items?.addOn?.map(addon => ({
                     rewardItemId: addon.rewardItemId,
                     quantity: addon.quantity || 1
-                })) || []
+                })) || [])
             };
 
             console.log('📤 Sending pledge:', pledgePayload);
             console.log('📊 Breakdown:', {
                 'Campaign ID': campaignId,
-                'Reward ID': reward.rewardId,
-                'Reward Amount': amount,
-                'Bonus Amount': bonusAmount,
+                'Reward ID': pledgePayload.rewardId,
+                'Amount': amount,
+                'Bonus Amount': pledgePayload.bonusAmount,
                 'Total Amount': totalAmount,
-                'Add-ons Count': addOns.length
+                // 'Add-ons Count': pledgePayload.addOns.length,
+                'Has No Reward': isNoRewardPledge
             });
 
             // Gửi pledge qua WebSocket
@@ -320,76 +367,88 @@ export default function PledgeSummaryPage() {
 
                 <div className="space-y-6">
                     {/* Section 1: Reward and Add-ons Display */}
-                    <Card className="p-6">
-                        <h2 className="text-xl font-bold text-foreground mb-4">Sản phẩm ủng hộ</h2>
+                    {!isNoRewardPledge && (
+                        <Card className="p-6">
+                            <h2 className="text-xl font-bold text-foreground mb-4">Sản phẩm ủng hộ</h2>
 
-                        {/* Reward */}
-                        <div className="space-y-4">
-                            <div className="flex items-start gap-4">
-                                {reward.imageUrl && (
-                                    <div className="w-24 h-24 rounded-sm overflow-hidden flex-shrink-0">
-                                        <img
-                                            src={reward.imageUrl}
-                                            alt={reward.title}
-                                            className="w-full h-full object-cover"
-                                        />
+                            {/* Reward */}
+                            <div className="space-y-4">
+                                <div className="flex items-start gap-4">
+                                    {reward?.imageUrl && (
+                                        <div className="w-24 h-24 rounded-sm overflow-hidden flex-shrink-0">
+                                            <img
+                                                src={reward.imageUrl}
+                                                alt={reward.title}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        </div>
+                                    )}
+                                    <div className="flex-1">
+                                        <h3 className="font-bold text-lg text-foreground">{reward?.title}</h3>
+                                        <p className="text-sm text-muted-foreground mt-2 line-clamp-3">
+                                            {reward?.description}
+                                        </p>
+                                        <p className="text-lg font-bold text-primary mt-2">
+                                            {formatPrice(reward?.minPledgedAmount || 0)} VND
+                                        </p>
                                     </div>
-                                )}
-                                <div className="flex-1">
-                                    <h3 className="font-bold text-lg text-foreground">{reward.title}</h3>
-                                    <p className="text-sm text-muted-foreground mt-2 line-clamp-3">
-                                        {reward.description}
-                                    </p>
-                                    <p className="text-lg font-bold text-primary mt-2">
-                                        {formatPrice(reward.minPledgedAmount || 0)} VND
-                                    </p>
                                 </div>
-                            </div>
 
-                            {/* Add-ons */}
-                            {addOns.length > 0 && (
-                                <>
-                                    <hr className="border-border/50" />
-                                    <div className="space-y-4">
-                                        <h3 className="font-semibold text-foreground">Tiện ích bổ sung</h3>
-                                        {addOns.map((addon) => (
-                                            <div key={addon.id}>
-                                                <hr className="border-border/50 mb-4" />
-                                                <div className="flex items-start gap-4">
-                                                    {addon.image && (
-                                                        <div className="w-20 h-20 rounded-sm overflow-hidden flex-shrink-0">
-                                                            <img
-                                                                src={addon.image}
-                                                                alt={addon.title}
-                                                                className="w-full h-full object-cover"
-                                                            />
-                                                        </div>
-                                                    )}
-                                                    <div className="flex-1">
-                                                        <h4 className="font-semibold text-foreground">{addon.title}</h4>
-                                                        {addon.description && (
-                                                            <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-                                                                {addon.description}
-                                                            </p>
+                                {/* Add-ons */}
+                                {addOns.length > 0 && (
+                                    <>
+                                        <hr className="border-border/50" />
+                                        <div className="space-y-4">
+                                            <h3 className="font-semibold text-foreground">Tiện ích bổ sung</h3>
+                                            {addOns.map((addon) => (
+                                                <div key={addon.id}>
+                                                    <hr className="border-border/50 mb-4" />
+                                                    <div className="flex items-start gap-4">
+                                                        {addon.image && (
+                                                            <div className="w-20 h-20 rounded-sm overflow-hidden flex-shrink-0">
+                                                                <img
+                                                                    src={addon.image}
+                                                                    alt={addon.title}
+                                                                    className="w-full h-full object-cover"
+                                                                />
+                                                            </div>
                                                         )}
-                                                        <div className="flex items-center gap-4 mt-2">
-                                                            <p className="text-sm text-muted-foreground">Số lượng: {addon.quantity}</p>
-                                                            <p className="font-semibold text-primary">
-                                                                {formatPrice((addon.price || 0) * addon.quantity)} VND
-                                                            </p>
+                                                        <div className="flex-1">
+                                                            <h4 className="font-semibold text-foreground">{addon.title}</h4>
+                                                            {addon.description && (
+                                                                <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                                                                    {addon.description}
+                                                                </p>
+                                                            )}
+                                                            <div className="flex items-center gap-4 mt-2">
+                                                                <p className="text-sm text-muted-foreground">Số lượng: {addon.quantity}</p>
+                                                                <p className="font-semibold text-primary">
+                                                                    {formatPrice((addon.price || 0) * addon.quantity)} VND
+                                                                </p>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </>
-                            )}
-                        </div>
-                    </Card>
+                                            ))}
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        </Card>
+                    )}
+
+                    {/* No Reward Message */}
+                    {isNoRewardPledge && (
+                        <Card className="p-6">
+                            <h2 className="text-xl font-bold text-foreground mb-4">Ủng hộ không có phần thưởng</h2>
+                            <p className="text-muted-foreground">
+                                Bạn đang ủng hộ chiến dịch này mà không chọn phần thưởng. Cảm ơn sự đóng góp của bạn!
+                            </p>
+                        </Card>
+                    )}
 
                     {/* Section 2: Included Products Toggle */}
-                    {includedItems.length > 0 && (
+                    {!isNoRewardPledge && includedItems.length > 0 && (
                         <Card className="p-6">
                             <button
                                 onClick={() => setShowProducts(!showProducts)}
@@ -431,28 +490,30 @@ export default function PledgeSummaryPage() {
                                 <span className="font-semibold text-foreground">{formatPrice(amount)} VND</span>
                             </div>
 
-                            {/* Bonus Amount Input */}
-                            <div className="space-y-2">
-                                <label className="block text-sm font-medium text-foreground">
-                                    Số tiền thưởng thêm (tùy chọn)
-                                </label>
-                                <div className="flex items-center gap-2">
-                                    <Input
-                                        type="number"
-                                        value={bonusAmount || ''}
-                                        onChange={(e) => {
-                                            const value = e.target.value;
-                                            setBonusAmount(value === '' ? 0 : Math.max(0, parseInt(value) || 0));
-                                        }}
-                                        placeholder="0"
-                                        className="flex-1"
-                                    />
-                                    <span className="text-muted-foreground">VND</span>
+                            {/* Bonus Amount Input - Only show when there's a reward */}
+                            {!isNoRewardPledge && (
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-medium text-foreground">
+                                        Số tiền thưởng thêm (tùy chọn)
+                                    </label>
+                                    <div className="flex items-center gap-2">
+                                        <Input
+                                            type="number"
+                                            value={bonusAmount || ''}
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                setBonusAmount(value === '' ? 0 : Math.max(0, parseInt(value) || 0));
+                                            }}
+                                            placeholder="0"
+                                            className="flex-1"
+                                        />
+                                        <span className="text-muted-foreground">VND</span>
+                                    </div>
+                                    <p className="text-xs text-muted-foreground">
+                                        Thêm số tiền để hỗ trợ thêm cho chiến dịch
+                                    </p>
                                 </div>
-                                <p className="text-xs text-muted-foreground">
-                                    Thêm số tiền để hỗ trợ thêm cho chiến dịch
-                                </p>
-                            </div>
+                            )}
 
                             <hr className="border-border" />
 
@@ -465,6 +526,49 @@ export default function PledgeSummaryPage() {
                             </div>
                         </div>
                     </Card>
+
+                    {/* Section 3.5: Location Information - Only show for reward pledges */}
+                    {!isNoRewardPledge && (
+                        <Card className="p-6">
+                            <div className="flex items-start justify-between mb-4">
+                                <div className="flex items-center gap-2">
+                                    <MapPin className="w-5 h-5 text-primary" />
+                                    <h2 className="text-xl font-bold text-foreground">Thông tin vị trí</h2>
+                                </div>
+                                <button
+                                    onClick={() => setShowLocationModal(true)}
+                                    className="text-sm text-primary hover:text-primary-600 font-medium transition-colors"
+                                >
+                                    Chỉnh sửa
+                                </button>
+                            </div>
+
+                            {userLocation.city && userLocation.nationality ? (
+                                <div className="space-y-3">
+                                    <div className="flex items-center justify-between p-3 bg-muted/30 dark:bg-darker rounded-sm">
+                                        <span className="text-sm text-muted-foreground">Quốc tịch</span>
+                                        <span className="text-sm font-semibold text-foreground">{userLocation.nationality}</span>
+                                    </div>
+                                    <div className="flex items-center justify-between p-3 bg-muted/30 dark:bg-darker rounded-sm">
+                                        <span className="text-sm text-muted-foreground">Thành phố</span>
+                                        <span className="text-sm font-semibold text-foreground">{userLocation.city}</span>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-sm">
+                                    <p className="text-sm text-amber-800 dark:text-amber-200">
+                                        Vui lòng cung cấp thông tin vị trí để hoàn tất cam kết ủng hộ.
+                                    </p>
+                                    <button
+                                        onClick={() => setShowLocationModal(true)}
+                                        className="mt-2 text-sm text-primary hover:text-primary-600 font-semibold transition-colors"
+                                    >
+                                        Thêm thông tin vị trí →
+                                    </button>
+                                </div>
+                            )}
+                        </Card>
+                    )}
 
                     {/* Section 4: Terms */}
                     <Card className="p-6">
@@ -533,14 +637,16 @@ export default function PledgeSummaryPage() {
 
                         <div className="space-y-4 mb-6">
                             <div className="bg-background-light-2 dark:bg-darker-2 rounded-lg p-4 space-y-3">
-                                <div className="flex justify-between items-center">
-                                    <span className="text-sm text-muted-foreground">Phần thưởng</span>
-                                    <span className="text-sm font-semibold text-foreground">
-                                        {formatPrice(rewardAmount)} VND
-                                    </span>
-                                </div>
+                                {!isNoRewardPledge && (
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-sm text-muted-foreground">Phần thưởng</span>
+                                        <span className="text-sm font-semibold text-foreground">
+                                            {formatPrice(rewardAmount)} VND
+                                        </span>
+                                    </div>
+                                )}
 
-                                {addOns.length > 0 && (
+                                {!isNoRewardPledge && addOns.length > 0 && (
                                     <div className="flex justify-between items-center">
                                         <span className="text-sm text-muted-foreground">
                                             Add-ons ({addOns.length})
@@ -551,7 +657,16 @@ export default function PledgeSummaryPage() {
                                     </div>
                                 )}
 
-                                {bonusAmount > 0 && (
+                                {isNoRewardPledge && (
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-sm text-muted-foreground">Số tiền ủng hộ</span>
+                                        <span className="text-sm font-semibold text-foreground">
+                                            {formatPrice(amount)} VND
+                                        </span>
+                                    </div>
+                                )}
+
+                                {!isNoRewardPledge && bonusAmount > 0 && (
                                     <div className="flex justify-between items-center">
                                         <span className="text-sm text-muted-foreground">Thêm ủng hộ</span>
                                         <span className="text-sm font-semibold text-foreground">
@@ -621,6 +736,13 @@ export default function PledgeSummaryPage() {
                     </div>
                 </DialogContent>
             </Dialog>
+
+            {/* Location Modal */}
+            <LocationModal
+                isOpen={showLocationModal}
+                onClose={() => setShowLocationModal(false)}
+                onSuccess={handleLocationSuccess}
+            />
         </div>
     );
 }

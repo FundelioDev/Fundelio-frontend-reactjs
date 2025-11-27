@@ -60,21 +60,20 @@ export default function AdminLayout() {
   };
 
   // Tạo avatar URL từ tên nếu không có avatar
-  const avatarUrl = useMemo(() => {
-    if (user?.avatar) {
-      return user.avatar;
-    }
-
-    // Lấy tên từ user để tạo avatar
+  const defaultAvatar = useMemo(() => {
     const firstName = user?.firstName || user?.first_name || '';
     const lastName = user?.lastName || user?.last_name || '';
     const fullName =
       `${firstName} ${lastName}`.trim() || user?.email || user?.name || 'User';
-
-    // Encode tên để dùng trong URL
     const encodedName = encodeURIComponent(fullName);
     return `https://ui-avatars.com/api/?name=${encodedName}&size=150&background=random`;
   }, [user]);
+
+  const avatarUrl = useMemo(() => {
+    if (user?.avatarUrl) return user.avatarUrl;
+    if (user?.avatar) return user.avatar;
+    return defaultAvatar;
+  }, [defaultAvatar, user]);
 
   // Lấy tên hiển thị
   const displayName = useMemo(() => {
@@ -92,21 +91,22 @@ export default function AdminLayout() {
   const userEmail = user?.email || '';
 
   return (
-    <div className='flex max-h-[100vh] max-w-[100vw] overflow-y-hidden bg-gray-50 dark:bg-darker'>
+    <div className='flex min-h-screen min-w-full overflow-hidden bg-gray-50 dark:bg-darker'>
       {/* Sidebar */}
       <aside
-        className={`${
-          sidebarOpen ? 'w-64' : 'w-20'
-        } bg-white dark:bg-darker-2 border-r border-gray-200 dark:border-gray-800 transition-all duration-300 flex flex-col`}
+        className={`${sidebarOpen ? 'w-64' : 'w-20'
+          } bg-white dark:bg-darker-2 border-r border-gray-200 dark:border-gray-800 transition-all duration-300 flex flex-col`}
       >
         {/* Logo */}
         <div className='h-16 flex items-center justify-between px-4 border-b border-gray-200 dark:border-gray-800'>
           {sidebarOpen && (
             <Link to='/home' className='flex items-center space-x-2'>
               <img
-                src='/logo.png'
+                src='https://i.postimg.cc/HLJPXtZ4/logo-(3)-(1)-(1).png'
                 alt='Fundelio'
                 className='w-10 h-10 md:w-12 md:h-12'
+                width='48'
+                height='48'
               />
             </Link>
           )}
@@ -134,11 +134,10 @@ export default function AdminLayout() {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center space-x-3 px-3 py-2.5 rounded-lg transition-colors ${
-                  active
-                    ? 'bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400'
-                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
-                }`}
+                className={`flex items-center space-x-3 px-3 py-2.5 rounded-lg transition-colors ${active
+                  ? 'bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400'
+                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                  }`}
               >
                 <Icon size={20} className='flex-shrink-0' />
                 {sidebarOpen && (
@@ -185,36 +184,14 @@ export default function AdminLayout() {
             >
               {isDark ? <Sun size={20} /> : <Moon size={20} />}
             </Button>
-            <Button
-              variant='ghost'
-              size='icon'
-              className='text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
-            >
-              <Bell size={20} />
-            </Button>
-            <Button
-              variant='ghost'
-              size='icon'
-              className='text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
-            >
-              <Settings size={20} />
-            </Button>
             <div className='flex items-center space-x-3'>
               <img
                 src={avatarUrl}
                 alt={displayName}
-                className='w-9 h-9 rounded-full ring-2 ring-gray-200 dark:ring-gray-700'
+                className='w-9 h-9 rounded-full object-cover ring-2 ring-gray-200 dark:ring-gray-700'
                 onError={(e) => {
-                  // Fallback nếu avatar lỗi
-                  const firstName = user?.firstName || user?.first_name || '';
-                  const lastName = user?.lastName || user?.last_name || '';
-                  const fullName =
-                    `${firstName} ${lastName}`.trim() ||
-                    user?.email ||
-                    user?.name ||
-                    'User';
-                  const encodedName = encodeURIComponent(fullName);
-                  e.target.src = `https://ui-avatars.com/api/?name=${encodedName}&size=150&background=random`;
+                  e.target.onerror = null;
+                  e.target.src = defaultAvatar;
                 }}
               />
               <div className='hidden md:block'>

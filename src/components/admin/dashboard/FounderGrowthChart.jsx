@@ -29,11 +29,20 @@ ChartJS.register(
  * Founder Growth Line Chart for Admin Dashboard
  * Shows cumulative growth of unique founders over last 6 months
  */
-export const FounderGrowthChart = ({ campaigns = [] }) => {
+export const FounderGrowthChart = ({ campaigns = [], founderGrowth }) => {
     const palette = getChartPalette();
+    
+    // Use founderGrowth from API if provided, otherwise calculate from campaigns
+    const { months, founderCounts } = useMemo(() => {
+        if (founderGrowth?.labels && founderGrowth?.data) {
+            return {
+                months: founderGrowth.labels,
+                founderCounts: founderGrowth.data
+            };
+        }
+        
+        // Fallback: calculate from campaigns
     const sourceCampaigns = campaigns?.length ? campaigns : ADMIN_CHARTS_MOCK_CAMPAIGNS;
-    // Get last 6 months data
-    const getMonthlyFounderData = () => {
         const months = [];
         const founderCounts = [];
         const now = new Date();
@@ -57,9 +66,7 @@ export const FounderGrowthChart = ({ campaigns = [] }) => {
         }
 
         return { months, founderCounts };
-    };
-
-    const { months, founderCounts } = useMemo(() => getMonthlyFounderData(), [campaigns]);
+    }, [campaigns, founderGrowth]);
 
     const chartData = {
         labels: months,

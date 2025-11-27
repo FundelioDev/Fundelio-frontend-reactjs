@@ -27,6 +27,7 @@ import VerifyChangeEmail from '@/components/auth/VerifyChangeEmail';
 import CampaignOverviewPage from '@/components/campaign/dashboard/CampaignOverviewPage';
 import CampaignStatisticsPage from '@/components/campaign/dashboard/CampaignStatisticsPage';
 import FounderDashboardPage from '@/pages/FounderDashboardPage';
+import CampaignBackersPage from '@/components/campaign/dashboard/CampaignBackersPage';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { PublicRoute } from '@/components/auth/PublicRoute';
 import PaymentPage from '@/components/wallet/PaymentPage';
@@ -132,6 +133,14 @@ export const router = createBrowserRouter([
             element: (
               <PublicRoute requiresAuth>
                 <CampaignStatisticsPage />
+              </PublicRoute>
+            ),
+          },
+          {
+            path: ':campaignId/backers',
+            element: (
+              <PublicRoute requiresAuth>
+                <CampaignBackersPage />
               </PublicRoute>
             ),
           },

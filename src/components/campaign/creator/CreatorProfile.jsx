@@ -55,6 +55,10 @@ const CreatorProfile = ({ creator = {}, otherProjects = [] }) => {
   console.log("y creator:", campaigns)
 
   const avatarUrl = useMemo(() => {
+    // Priority: avatarUrl > avatar > generated avatar
+    if (creator?.avatarUrl) {
+      return creator.avatarUrl;
+    }
     if (creator?.avatar) {
       return creator.avatar;
     }
@@ -65,7 +69,7 @@ const CreatorProfile = ({ creator = {}, otherProjects = [] }) => {
 
     const encodedName = encodeURIComponent(fullName);
     return `https://ui-avatars.com/api/?name=${encodedName}&size=150&background=random`;
-    }, [creator]);
+  }, [creator]);
 
   return (
     <div className="max-w-4xl mx-auto py-8">
@@ -78,8 +82,21 @@ const CreatorProfile = ({ creator = {}, otherProjects = [] }) => {
         <div className="flex items-center gap-6 mb-6">
           {/* Avatar */}
           <div className="w-16 h-16 rounded-full border-2 border-border bg-muted flex-shrink-0 overflow-hidden">
-            {avatar ? (
-              <img src={avatarUrl} alt={name} className="w-full h-full object-cover" />
+            {avatarUrl ? (
+              <img
+                src={avatarUrl}
+                alt={name}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  // Hide image on error, show default
+                  e.target.style.display = 'none';
+                  e.target.parentElement.innerHTML = `
+                    <div class="w-full h-full flex items-center justify-center bg-primary/10">
+                      <span class="text-lg font-bold text-primary">${name.charAt(0).toUpperCase()}</span>
+                    </div>
+                  `;
+                }}
+              />
             ) : (
               <div className="w-full h-full flex items-center justify-center bg-primary/10">
                 <span className="text-lg font-bold text-primary">
@@ -93,7 +110,7 @@ const CreatorProfile = ({ creator = {}, otherProjects = [] }) => {
           <div className="flex-1">
             <h3 className="text-2xl font-bold text-foreground mb-2">
               {name}
-            </h3>  
+            </h3>
           </div>
         </div>
 

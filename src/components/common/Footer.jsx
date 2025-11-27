@@ -38,13 +38,22 @@ export const Footer = () => {
         { name: 'Sự kiện', href: '#events' },
       ],
     },
+    {
+      title: 'Tác giả',
+      links: [
+        { name: 'Quách Phú Thuận', href: 'https://thuanfhu.github.io/thuanphu-portfolio/' },
+        { name: 'Lê Thị Mỹ Hậu', href: 'https://annahwork.github.io/portfolio-anna/' },
+        { name: 'Đỗ Kim Đại', href: 'https://aybi248.github.io/portfolio-DoKimDai/' },
+        { name: 'Lê Phạm Thanh Duy', href: 'https://duypipi.github.io/thanhdui.github.io/' },
+      ],
+    },
   ];
 
   return (
     <footer className="sticky top-[100vh] bg-white dark:bg-darker border-t border-gray-200 dark:border-gray-700 text-text-primary dark:text-white py-8 sm:py-10 lg:py-12 transition-colors duration-300">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-container">
-        {/* Main Grid - 4 sections */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 mb-6 sm:mb-8">
+        {/* Main Grid - sections */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 sm:gap-8 mb-6 sm:mb-8">
           {/* Section 1 - Logo & Social */}
           <div className="col-span-1">
             <h2 className="text-xl sm:text-2xl font-bold text-text-primary dark:text-white mb-3 sm:mb-4 transition-colors duration-300">
@@ -70,7 +79,7 @@ export const Footer = () => {
             </div>
           </div>
 
-          {/* Sections 2, 3, 4 - Navigation Links */}
+          {/* Sections 2+ - Navigation Links */}
           {footerSections.map((section, sectionIndex) => (
             <div key={sectionIndex} className="col-span-1">
               <h3 className="text-base sm:text-lg font-semibold text-text-primary dark:text-white mb-3 sm:mb-4 transition-colors duration-300">
@@ -90,6 +99,8 @@ export const Footer = () => {
                       <a
                         href={link.href}
                         className="text-text-secondary dark:text-text-white hover:text-primary dark:hover:text-primary-400 transition-colors duration-200 text-sm"
+                        target={link.href.startsWith('http') ? '_blank' : undefined}
+                        rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
                       >
                         {link.name}
                       </a>

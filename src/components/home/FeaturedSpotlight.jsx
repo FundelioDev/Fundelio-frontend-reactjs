@@ -1,36 +1,68 @@
-import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight, Flame, Users, DollarSign } from 'lucide-react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { ChevronLeft, ChevronRight, Users } from 'lucide-react';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import 'swiper/css';
 import ProjectCard from './ProjectCard';
 import ProjectLists from './ProjectLists';
-
+import { FaFire } from "react-icons/fa6";
 /**
  * @param {Object} campaigns - Object with featured and spotlight arrays
  * @param {boolean} loading - Loading state from parent
  */
 export const FeaturedSpotlight = ({ campaigns = { featured: [], spotlight: [] }, loading = false }) => {
-  const [currentPage, setCurrentPage] = useState(0);
   const itemsPerPage = 4; // 2x2 grid
+  const [swiperRef, setSwiperRef] = useState(null);
+  const [canGoPrev, setCanGoPrev] = useState(false);
+  const [canGoNext, setCanGoNext] = useState(false);
 
   const { featured: featuredCampaigns = [], spotlight: spotlightCampaigns = [] } = campaigns;
 
-  const totalPages = Math.ceil(featuredCampaigns.length / itemsPerPage);
+  const chunkedFeatured = useMemo(() => {
+    const chunks = [];
+    for (let i = 0; i < featuredCampaigns.length; i += itemsPerPage) {
+      chunks.push(featuredCampaigns.slice(i, i + itemsPerPage));
+    }
+    return chunks;
+  }, [featuredCampaigns, itemsPerPage]);
 
-  const getCurrentPageItems = () => {
-    const startIndex = currentPage * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    return featuredCampaigns.slice(startIndex, endIndex);
-  };
+  const hasMultipleSlides = chunkedFeatured.length > 1;
+
+  const handleSlideChange = useCallback(
+    (swiperInstance) => {
+      if (!swiperInstance) {
+        setCanGoPrev(false);
+        setCanGoNext(chunkedFeatured.length > 1);
+        return;
+      }
+      setCanGoPrev(!swiperInstance.isBeginning);
+      setCanGoNext(!swiperInstance.isEnd);
+    },
+    [chunkedFeatured.length]
+  );
+
+  useEffect(() => {
+    if (!swiperRef) {
+      handleSlideChange(null);
+      return;
+    }
+
+    swiperRef.update();
+    if (chunkedFeatured.length > 0) {
+      const lastIndex = chunkedFeatured.length - 1;
+      if (swiperRef.activeIndex > lastIndex) {
+        swiperRef.slideTo(lastIndex);
+      }
+    }
+    handleSlideChange(swiperRef);
+  }, [swiperRef, chunkedFeatured.length, handleSlideChange]);
 
   const handlePrevPage = () => {
-    setCurrentPage((prev) => Math.max(0, prev - 1));
+    swiperRef?.slidePrev();
   };
 
   const handleNextPage = () => {
-    setCurrentPage((prev) => Math.min(totalPages - 1, prev + 1));
+    swiperRef?.slideNext();
   };
-
-  const canGoPrev = currentPage > 0;
-  const canGoNext = currentPage < totalPages - 1;
 
   // Show loading state
   if (loading) {
@@ -62,7 +94,7 @@ export const FeaturedSpotlight = ({ campaigns = { featured: [], spotlight: [] },
               {/* Header with Navigation */}
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
-                  <Flame className="w-6 h-6 text-text-primary dark:text-white" />
+                  <FaFire className="w-6 h-6 text-text-primary dark:text-white" />
                   <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
                     Nổi bật
                   </h2>
@@ -72,8 +104,8 @@ export const FeaturedSpotlight = ({ campaigns = { featured: [], spotlight: [] },
                 <div className="flex items-center gap-2">
                   <button
                     onClick={handlePrevPage}
-                    disabled={!canGoPrev}
-                    className={`p-2 rounded-lg transition-all duration-200 ${canGoPrev
+                    disabled={!hasMultipleSlides || !canGoPrev}
+                    className={`p-2 rounded-lg transition-all duration-200 ${hasMultipleSlides && canGoPrev
                       ? 'bg-primary text-white hover:bg-primary-600 hover:scale-105'
                       : 'bg-gray-200 dark:bg-gray-700 text-gray-400 cursor-not-allowed'
                       }`}
@@ -84,8 +116,8 @@ export const FeaturedSpotlight = ({ campaigns = { featured: [], spotlight: [] },
 
                   <button
                     onClick={handleNextPage}
-                    disabled={!canGoNext}
-                    className={`p-2 rounded-lg transition-all duration-200 ${canGoNext
+                    disabled={!hasMultipleSlides || !canGoNext}
+                    className={`p-2 rounded-lg transition-all duration-200 ${hasMultipleSlides && canGoNext
                       ? 'bg-primary text-white hover:bg-primary-600 hover:scale-105'
                       : 'bg-gray-200 dark:bg-gray-700 text-gray-400 cursor-not-allowed'
                       }`}
@@ -96,22 +128,42 @@ export const FeaturedSpotlight = ({ campaigns = { featured: [], spotlight: [] },
                 </div>
               </div>
 
-              {/* 2x2 Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                {getCurrentPageItems().map((campaign) => (
-                  <ProjectCard
-                    key={campaign.campaignId}
-                    project={campaign}
-                    asLink={`/campaigns/${campaign.campaignId}`}
-                    onBookmarkToggle={(id, bookmarked) => {
-                      console.log('Bookmark toggled:', id, bookmarked);
-                    }}
-                  />
-                ))}
-              </div>
+              {/* 2x2 Grid via Swiper */}
+              {chunkedFeatured.length === 0 ? (
+                <div className="py-12 text-center text-muted-foreground border border-dashed border-gray-200 dark:border-gray-700 rounded-lg">
+                  Chưa có chiến dịch nổi bật để hiển thị.
+                </div>
+              ) : (
+                <Swiper
+                  spaceBetween={24}
+                  allowTouchMove={hasMultipleSlides}
+                  onSwiper={(swiperInstance) => {
+                    setSwiperRef(swiperInstance);
+                    handleSlideChange(swiperInstance);
+                  }}
+                  onSlideChange={handleSlideChange}
+                >
+                  {chunkedFeatured.map((campaignGroup, index) => (
+                    <SwiperSlide key={`featured-slide-${index}`}>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        {campaignGroup.map((campaign) => (
+                          <ProjectCard
+                            key={campaign.campaignId}
+                            project={campaign}
+                            asLink={`/campaigns/${campaign.campaignId}`}
+                            onBookmarkToggle={(id, bookmarked) => {
+                              console.log('Bookmark toggled:', id, bookmarked);
+                            }}
+                          />
+                        ))}
+                      </div>
+                    </SwiperSlide>
+                  ))}
+                </Swiper>
+              )}
 
               {/* Page Indicators */}
-              <div className="flex justify-center gap-2 mt-6">
+              {/* <div className="flex justify-center gap-2 mt-6">
                 {Array.from({ length: totalPages }).map((_, index) => (
                   <button
                     key={index}
@@ -123,7 +175,7 @@ export const FeaturedSpotlight = ({ campaigns = { featured: [], spotlight: [] },
                     aria-label={`Go to page ${index + 1}`}
                   />
                 ))}
-              </div>
+              </div> */}
             </div>
 
             {/* Right Side: Spotlight */}
@@ -177,6 +229,8 @@ export const FeaturedSpotlight = ({ campaigns = { featured: [], spotlight: [] },
                           <img
                             src={campaign.introImageUrl || '/placeholder.svg'}
                             alt={campaign.title}
+                            loading="lazy"
+                            decoding="async"
                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                           />
                         </div>

@@ -41,7 +41,7 @@
   --text-hero: 2.5rem; /* 40px */
 
   /* Border colors */
-  --color-border: #48455f;
+  /* --color-border is defined in @theme inline via var(--border) */
   --color-border-light: #e5e5e5;
 
   /* Background colors */

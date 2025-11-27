@@ -5,11 +5,11 @@ import { useNavigate } from 'react-router-dom';
 /**
  * Recent Activities Component for Founder Dashboard
  */
-export const RecentActivities = ({ campaigns = [] }) => {
+export const RecentActivities = ({ campaigns = [], recentActivities: recentActivitiesFromApi }) => {
     const navigate = useNavigate();
 
-    // Get 5 most recent campaigns
-    const recentCampaigns = [...campaigns]
+    // Use recentActivities from API if provided, otherwise calculate from campaigns
+    const recentCampaigns = recentActivitiesFromApi || [...campaigns]
         .sort((a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt))
         .slice(0, 5);
 

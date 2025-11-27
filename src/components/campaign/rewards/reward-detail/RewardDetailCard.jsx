@@ -37,29 +37,29 @@ export function RewardDetailCard({ reward, items = [], addOns = [], onSelectRewa
         <div className="grid grid-cols-1 md:grid-cols-2 min-h-0 w-full">
           {/* Left - Image Section */}
           <div className="relative w-full overflow-hidden bg-gray-100 dark:bg-darker aspect-square md:aspect-square min-h-[300px] md:min-h-0">
-            <img
-              src={reward.imageUrl || reward.image}
-              alt={reward.imageAlt || reward.title}
-              className="w-full h-full object-cover"
-            />
+              <img
+                src={reward.imageUrl || reward.image}
+                alt={reward.imageAlt || reward.title}
+                className="w-full h-full object-cover"
+              />
 
-            {/* SOLD OUT Overlay */}
-            {isSoldOut && (
+              {/* SOLD OUT Overlay */}
+              {isSoldOut && (
               <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-10">
                 <div className="bg-red-600 text-white px-4 md:px-8 py-2 md:py-4 rounded-sm font-bold text-lg md:text-2xl shadow-lg transform -rotate-12 whitespace-nowrap">
-                  ĐÃ HẾT
+                    ĐÃ HẾT
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Featured Badge */}
-            {reward.featured && !isSoldOut && (
+              {/* Featured Badge */}
+              {reward.featured && !isSoldOut && (
               <div className="absolute top-2 md:top-3 left-2 md:left-3 z-10">
                 <span className="px-2 md:px-3 py-0.5 md:py-1 bg-primary text-white text-[10px] md:text-xs font-bold rounded-sm">
-                  NỔI BẬT
-                </span>
-              </div>
-            )}
+                    NỔI BẬT
+                  </span>
+                </div>
+              )}
           </div>
 
           {/* Right - Content Section */}

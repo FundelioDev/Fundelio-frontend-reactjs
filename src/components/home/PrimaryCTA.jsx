@@ -67,6 +67,9 @@ export const PrimaryCTA = ({
                 href="/explore"
                 variant="outline"
                 size="lg"
+                onClick={() => {
+                  navigate('/search');
+                }}
                 className="min-w-[220px] border-2 border-white text-white hover:bg-white/10 backdrop-blur-sm"
               >
                 Khám phá dự án

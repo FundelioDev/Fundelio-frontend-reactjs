@@ -39,7 +39,6 @@ function UsersContent() {
             Quản lý và quản trị người dùng trong hệ thống
           </p>
         </div>
-        <UsersPrimaryButtons />
       </div>
       <div className='-mx-4 flex-1 overflow-auto px-4 py-1'>
         <UsersTable data={users} />

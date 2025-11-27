@@ -1,7 +1,7 @@
 'use client';
 import { Clock, Bookmark, Heart, Users } from 'lucide-react';
 import expired from '/expired.svg';
-import placeholderImage from '/logo.png'
+const placeholderImage = 'https://i.postimg.cc/HLJPXtZ4/logo-(3)-(1)-(1).png';
 export const ProjectCard = ({
   project,
   onBookmarkToggle,
@@ -52,9 +52,9 @@ export const ProjectCard = ({
     onBookmarkToggle?.(campaignId, !bookmarked);
   };
 
-    const formatPrice = (price) => {
-        return new Intl.NumberFormat('vi-VN').format(price);
-    };
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat('vi-VN').format(price);
+  };
 
   const formatNumber = (num) => {
     if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
@@ -83,6 +83,7 @@ export const ProjectCard = ({
           className="w-full h-full object-cover transform-gpu transition-transform duration-500 group-hover:scale-105"
           style={{ willChange: 'transform' }}
           loading="lazy"
+          decoding="async"
           onError={(e) => {
             e.target.src = placeholderImage;
           }}

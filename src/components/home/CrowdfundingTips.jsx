@@ -143,16 +143,6 @@ export const CrowdfundingTips = ({
             </article>
           ))}
         </div>
-
-        {/* View All Button */}
-        <div className="text-center mt-10 sm:mt-12">
-          <a
-            href="/blog"
-            className="inline-flex items-center gap-2 px-8 py-3 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-text-primary dark:text-white font-semibold rounded-lg transition-all duration-300 hover:shadow-md"
-          >
-            Xem tất cả bài viết
-          </a>
-        </div>
       </div>
     </section>
   );

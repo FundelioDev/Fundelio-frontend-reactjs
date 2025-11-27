@@ -4,20 +4,22 @@ export const campaignApi = {
     getAllCampaigns(params = {}) {
         const { filter, page = 1, size = 10, sort } = params;
 
-        // Build params object
-        const requestParams = {
-            page,
-            size,
-        };
+        const requestParams = new URLSearchParams();
+        requestParams.set('page', page);
+        requestParams.set('size', size);
 
-        // Add filter if provided (will be URL encoded by httpService)
         if (filter) {
-            requestParams.filter = filter;
+            requestParams.set('filter', filter);
         }
 
-        // Add sort if provided
-        if (sort) {
-            requestParams.sort = sort;
+        if (Array.isArray(sort)) {
+            sort.forEach((sortValue) => {
+                if (sortValue) {
+                    requestParams.append('sort', sortValue);
+                }
+            });
+        } else if (sort) {
+            requestParams.set('sort', sort);
         }
 
         return httpService.get('/campaigns', {

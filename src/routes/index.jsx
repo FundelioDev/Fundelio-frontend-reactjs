@@ -40,20 +40,53 @@ import TermsOfServicePage from '@/pages/TermsOfServicePage';
 import PrivacyPolicyPage from '@/pages/PrivacyPolicyPage';
 import RefundPolicyPage from '@/pages/RefundPolicyPage';
 
+
+import BuildCommunity from '../components/home/build-community'; 
+import LaunchGuidePage from '../components/home/launch';
+import CreateProject from '../components/home/create-project';
+import SuccessStories from '../components/home/success-stories';
+import About from '../components/home/about';
+import MakertingStrategies from '../components/home/marketing-strategies';
+import PitchDeckGuide from '../components/home/pitch-deck-guide';
+import BuildCommunityContent from '../components/home/build-community-content';
+import VideoOptimization from '../components/home/video-optimization';
+import FinancialManagement from '../components/home/financial-management';
+import BackerPsychology from '../components/home/backer-psychology';
+
+const CommunityConnectPage = () => {
+  return (
+    <div>
+      <BuildCommunity />
+    </div>
+  );
+};
+
 export const router = createBrowserRouter([
   {
     path: '/',
     element: <RootLayout />,
     children: [
-      // Public routes - no login required
+
       { index: true, element: <LandingPage /> },
       { path: 'home', element: <HomePage /> },
       { path: 'search', element: <SearchPage /> },
       { path: 'terms-of-service', element: <TermsOfServicePage /> },
       { path: 'privacy-policy', element: <PrivacyPolicyPage /> },
       { path: 'refund-policy', element: <RefundPolicyPage /> },
+      
 
-      // Protected routes - require login
+      { path: 'build-community', element: <CommunityConnectPage /> },
+      { path: 'launch', element: <LaunchGuidePage /> }, 
+      { path: 'create-project', element: <CreateProject /> },
+      { path: 'success-stories', element: <SuccessStories /> },
+      { path: 'about', element: <About /> },
+      { path: 'marketing-strategies', element: <MakertingStrategies /> },
+      { path: 'pitch-deck-guide', element: <PitchDeckGuide /> },
+      { path: 'build-community-content', element: <BuildCommunityContent /> },
+      { path: 'video-optimization', element: <VideoOptimization /> },
+      { path: 'financial-management', element: <FinancialManagement /> },
+      { path: 'backer-psychology', element: <BackerPsychology /> },
+
       {
         path: 'dashboard',
         element: (
@@ -199,6 +232,7 @@ export const router = createBrowserRouter([
       </PublicRoute>
     ),
   },
+  // --- AUTH ROUTES (ĐÃ GỘP LẠI THÀNH 1 KHỐI DUY NHẤT) ---
   {
     path: '/auth',
     element: <AuthLayout />,
@@ -206,8 +240,10 @@ export const router = createBrowserRouter([
       { index: true, element: <AuthPage /> },
       { path: 'reset-password', element: <ResetPasswordPage /> },
       { path: 'verify-active-account', element: <VerifyAccountPage /> },
+      { path: 'verify-change-email', element: <VerifyChangeEmail /> },
     ],
   },
+  // --- ADMIN ROUTES ---
   {
     path: '/admin',
     element: (
@@ -221,16 +257,6 @@ export const router = createBrowserRouter([
       { path: 'roles', element: <RolesPage /> },
       { path: 'permissions', element: <PermissionsPage /> },
       { path: 'campaigns', element: <AdminCampaignsPage /> },
-    ],
-  },
-  {
-    path: '/auth',
-    element: <AuthLayout />,
-    children: [
-      { index: true, element: <AuthPage /> },
-      { path: 'reset-password', element: <ResetPasswordPage /> },
-      { path: 'verify-active-account', element: <VerifyAccountPage /> },
-      { path: 'verify-change-email', element: <VerifyChangeEmail /> },
     ],
   },
   {

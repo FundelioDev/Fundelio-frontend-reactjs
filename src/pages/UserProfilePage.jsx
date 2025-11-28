@@ -16,7 +16,7 @@ export default function UserProfilePage() {
 
       <div className="absolute inset-0 bg-black/20 dark:bg-black/50 z-10"></div>
 
-      <div className="relative z-20 pt-20 px-4 pb-20 mx-auto max-w-6xl">
+      <div className="relative z-20 pt-30 px-4 pb-20 mx-auto max-w-6xl">
         <div className="text-center mb-8">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-neutral-900 text-white dark:bg-neutral-700">
             <User className="h-8 w-8" />

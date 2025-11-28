@@ -1,24 +1,23 @@
 import React from 'react';
 import { Lightbulb, Users, Rocket, ArrowRight } from 'lucide-react';
-
 const defaultSteps = [
   {
     icon: <Lightbulb className="w-6 h-6" />,
     title: 'Tạo dự án',
     desc: 'Chia sẻ ý tưởng của bạn với cộng đồng. Thiết lập mục tiêu và thời gian gây quỹ phù hợp.',
-    href: '/guide/create-project',
+    href: '/create-project',
   },
   {
     icon: <Users className="w-6 h-6" />,
     title: 'Kết nối cộng đồng',
     desc: 'Tiếp cận hàng ngàn người ủng hộ tiềm năng. Xây dựng niềm tin qua câu chuyện chân thực.',
-    href: '/guide/build-community',
+    href: '/build-community'
   },
   {
     icon: <Rocket className="w-6 h-6" />,
     title: 'Khởi chạy mục tiêu',
     desc: 'Nhận được tài trợ và biến ý tưởng thành hiện thực. Cập nhật tiến độ thường xuyên với backers.',
-    href: '/guide/launch',
+    href: '/launch',
   },
 ];
 

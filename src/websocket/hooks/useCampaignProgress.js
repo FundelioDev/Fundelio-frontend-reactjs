@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
-import { 
+import {
   subscribeToCampaignProgress,
- 
+
 } from '@/websocket';
 // unsubscribeFromCampaignProgress
 /**

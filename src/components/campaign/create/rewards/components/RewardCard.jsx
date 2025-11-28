@@ -234,10 +234,7 @@ export default function RewardCard({
       </div>
 
       {/* Footer - Actions */}
-      <div className="px-4 md:px-6 py-3 md:py-4 border-t border-border bg-muted/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <div className="text-sm text-muted-foreground">
-          0 backers
-        </div>
+      <div className="px-4 md:px-6 py-3 md:py-4 border-t border-border bg-muted/20 flex flex-col sm:flex-row items-end sm:items-center justify-end gap-3">
 
         <div className="flex items-center gap-1.5 md:gap-4 flex-wrap">
           <button

@@ -44,10 +44,6 @@ export default function RewardPreview({ reward, items, rewards, type = 'reward' 
           </div>
           <div className="grid grid-cols-2 gap-3 pt-4 border-t border-border">
             <div>
-              <p className="text-xs text-muted-foreground">Người ủng hộ</p>
-              <p className="text-lg font-semibold text-foreground">0</p>
-            </div>
-            <div>
               <p className="text-xs text-muted-foreground">Giao dự kiến</p>
               <p className="text-lg font-semibold text-foreground">
                 {formatDeliveryDate(null)}
@@ -80,8 +76,7 @@ export default function RewardPreview({ reward, items, rewards, type = 'reward' 
       <div>
         <h4 className="font-semibold text-foreground line-clamp-2">{reward.title}</h4>
         <p className={`text-2xl font-bold mt-2 flex items-center gap-2 ${isAddon ? 'text-secondary' : 'text-primary'}`}>
-          {minPledgeAmount || 0}
-          <span className="text-sm">VND</span>
+          {new Intl.NumberFormat('vi-VN').format(minPledgeAmount || 0)} VND
         </p>
       </div>
 

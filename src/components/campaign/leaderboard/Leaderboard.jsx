@@ -127,24 +127,26 @@ const Leaderboard = ({ campaignId }) => {
     // Show toast for latest pledge
     if (data.latestPledge) {
       const pledge = data.latestPledge;
-      const toastKey = `${pledge.pledgeId || pledge.id || pledge.backerId}-${pledge.totalPledged || pledge.amount || 0}-${pledge.createdAt || ''}`;
-
-      if (lastToastKeyRef.current === toastKey) {
-        return;
-      }
-      lastToastKeyRef.current = toastKey;
-
+      console.log('Latest pledge:', pledge);
+      const toastKey = `${pledge.pledgeId}-${pledge.totalAmount || 0}-${pledge.createdAt}`;
+      // console.log('Toast key:', toastKey);
+      // console.log('Last toast key:', lastToastKeyRef.current);
+      // if (lastToastKeyRef.current === toastKey) {
+      //   return;
+      // }
+      // lastToastKeyRef.current = toastKey;
+      const displayName = pledge.backerInfo.firstName + ' ' + pledge.backerInfo.lastName;
       toast.custom((t) => (
         <div
           className={`${t.visible ? 'animate-enter' : 'animate-leave'
-            } max-w-xs w-full bg-white dark:bg-darker-2 shadow-lg rounded-sm pointer-events-auto flex items-center gap-1.5 p-2 border border-border-light dark:border-border`}
+            } max-w-xs w-full bg-white dark:bg-darker-2 shadow-lg rounded-sm pointer-events-auto flex items-center gap-1.5 p-2 mb-2 border border-border-light dark:border-border`}
         >
           <div className="flex-shrink-0 bg-indigo-200 p-2 rounded-full">
             <HeartHandshake className="w-6 h-6 text-indigo-700" />
           </div>
           <div className="flex-1 flex flex-col gap-1">
             <p className="text-sm font-semibold text-text-primary dark:text-white">
-              {pledge.backerName}
+              {displayName}
             </p>
             <div className="flex items-center gap-1.5">
               <span className="text-md font-bold text-[#27e28b]">
@@ -154,14 +156,15 @@ const Leaderboard = ({ campaignId }) => {
           </div>
         </div>
       ), {
+        id: toastKey,
         duration: 3000,
         position: 'top-right',
       });
 
       // Animate the amount for the backer who just pledged
-      if (pledge.backerId && amountRefs.current[pledge.backerId]) {
-        const amountElement = amountRefs.current[pledge.backerId];
-
+      if (pledge.backerInfo.userId && amountRefs.current[pledge.backerInfo.userId]) {
+        const amountElement = amountRefs.current[pledge.backerInfo.userId];
+        console.log('PULSE', amountElement);
         // Pulse effect
         gsap.fromTo(
           amountElement.parentElement,
@@ -235,6 +238,7 @@ const Leaderboard = ({ campaignId }) => {
         containerStyle={{
           top: 80,
         }}
+        gutter={10}
       />
 
       {/* Header */}

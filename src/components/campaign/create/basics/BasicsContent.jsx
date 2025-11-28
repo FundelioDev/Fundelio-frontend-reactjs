@@ -504,11 +504,6 @@ export default function BasicsContent({ campaignId, isEditMode = false, isReadOn
             Hình ảnh của bạn phải có kích thước ít nhất 1024×576 pixel.
             Nó sẽ được cắt theo tỷ lệ 16:9.
           </p>
-          <p className="text-sm text-primary font-medium">
-            Tránh <strong>hình ảnh</strong> có <strong>banner</strong>, <strong>huy hiệu</strong> hoặc <strong>văn bản</strong>—chúng khó đọc ở kích thước nhỏ hơn,
-            có thể bị phạt bởi <strong>thuật toán Facebook</strong> và giảm cơ hội có được các <strong>tính năng trang chủ</strong>
-            và <strong>bản tin</strong> của Kickstarter.
-          </p>
         </div>
 
         <div className="rounded-sm border border-border bg-white dark:bg-darker-2 p-6">

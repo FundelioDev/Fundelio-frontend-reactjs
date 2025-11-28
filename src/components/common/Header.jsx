@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   ChevronDown,
@@ -23,6 +23,8 @@ import { useCategories } from "../../hooks/useCategories";
 import { walletApi } from "@/api/walletApi";
 import { campaignApi } from "@/api/campaignApi";
 import { XCircle } from "lucide-react";
+import { WALLET_BALANCE_CHANGED_EVENT } from "@/utils/walletEvents";
+
 export const Header = ({
   variant = "transparent",
   isFixed = true,
@@ -69,25 +71,45 @@ export const Header = ({
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  useEffect(() => {
-    if (isLoggedIn && user) {
-      const fetchBalance = async () => {
-        try {
-          const res = await walletApi.getWalletInfo();
-          if (res?.data?.success) {
-            const rawBalance = res.data.data.balance;
-            const cleanBalance = Number(String(rawBalance).replace(/\./g, ""));
-            setHeaderBalance(cleanBalance);
-          }
-        } catch (error) {
-          console.error("Header: Lỗi tải số dư", error);
-        }
-      };
-      fetchBalance();
-    } else {
+  // Fetch balance helper function
+  const fetchBalance = useCallback(async () => {
+    if (!isLoggedIn || !user) {
       setHeaderBalance(0);
+      return;
     }
-  }, [isLoggedIn, user, location.pathname]);
+
+    try {
+      const res = await walletApi.getWalletInfo();
+      console.log("Header: Fetching balance...", res?.data?.success);
+      if (res?.data?.success) {
+        const rawBalance = res.data.data.balance;
+        const cleanBalance = Number(String(rawBalance).replace(/\./g, ""));
+        setHeaderBalance(cleanBalance);
+        console.log("Header: Số dư updated:", cleanBalance);
+      }
+    } catch (error) {
+      console.error("Header: Lỗi tải số dư", error);
+    }
+  }, [isLoggedIn, user]);
+
+  // Initial balance fetch
+  useEffect(() => {
+    fetchBalance();
+  }, [fetchBalance, location.pathname]);
+
+  // Listen for wallet balance changes
+  useEffect(() => {
+    const handleBalanceChanged = (event) => {
+      console.log("💰 [Header] Wallet balance changed, refetching...", event.detail);
+      fetchBalance();
+    };
+
+    window.addEventListener(WALLET_BALANCE_CHANGED_EVENT, handleBalanceChanged);
+
+    return () => {
+      window.removeEventListener(WALLET_BALANCE_CHANGED_EVENT, handleBalanceChanged);
+    };
+  }, [fetchBalance]);
 
   const formatPrice = (value) => {
     return new Intl.NumberFormat("vi-VN").format(value || 0);
@@ -548,16 +570,18 @@ export const Header = ({
                           <FolderOpen className="w-4 h-4 text-gray-500" />
                           <span>Dự án của tôi</span>
                         </Link>
-
-                        <Link
-                          to="/campaigns/create"
-                          onClick={() => setIsUserMenuOpen(false)}
-                          className="flex items-center gap-1.5 px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-primary font-medium"
-                        >
-                          <Plus className="w-4 h-4" />
-                          <span>Tạo chiến dịch</span>
-                        </Link>
-
+                        {user?.rolesSecured?.some(
+                          (role) => role.name === "FOUNDER" || role.name === "ADMIN"
+                        ) && (
+                            <Link
+                              to="/campaigns/create"
+                              onClick={() => setIsUserMenuOpen(false)}
+                              className="flex items-center gap-1.5 px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-primary font-medium"
+                            >
+                              <Plus className="w-4 h-4" />
+                              <span>Tạo chiến dịch</span>
+                            </Link>
+                          )}
                         <div className="h-px bg-gray-100 dark:bg-gray-700 my-1"></div>
 
                         <Link

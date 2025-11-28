@@ -16,6 +16,7 @@ import {
     Dialog,
     DialogContent,
 } from '@/components/ui/dialog';
+import { notifyWalletBalanceChanged } from '@/utils/walletEvents';
 
 export default function PledgeSummaryPage() {
     const location = useLocation();
@@ -49,6 +50,9 @@ export default function PledgeSummaryPage() {
 
         setIsSubmitting(false);
         setPledgeSuccess(data);
+
+        // Notify that wallet balance has changed
+        notifyWalletBalanceChanged();
     }, []);
 
     const handlePledgeError = useCallback((error) => {

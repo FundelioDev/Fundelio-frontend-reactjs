@@ -1,10 +1,47 @@
 import React from 'react';
-import { FaTimes, FaCheckCircle, FaTimesCircle, FaBan, FaHistory, FaClock, FaDollarSign, FaCreditCard, FaCodeBranch, FaUniversity } from 'react-icons/fa';
+import {
+    FaTimes,
+    FaCheckCircle,
+    FaTimesCircle,
+    FaBan,
+    FaHistory,
+    FaClock,
+    FaDollarSign,
+    FaCreditCard,
+    FaCodeBranch,
+    FaUniversity,
+    FaPercent
+} from 'react-icons/fa';
 
+const extractTransactionDetails = (description) => {
+    if (!description || !description.includes(':')) {
+        return { campaignName: null, platformFeeText: null, receivedAmountText: null };
+    }
+
+    const parts = description.split(': ');
+    const detailsPart = parts.slice(1).join(': ');
+    const detailsSplit = detailsPart.split(' | ');
+
+    const campaignName = detailsSplit[0]?.trim() || null;
+
+    const platformFeeItem = detailsSplit.find(item =>
+        item.includes('Phí nền tảng (5%)')
+    );
+    const platformFeeText = platformFeeItem ? platformFeeItem.trim() : null;
+
+    const receivedAmountItem = detailsSplit.find(item =>
+        item.includes('Số tiền nhận')
+    );
+    const receivedAmountText = receivedAmountItem
+        ? receivedAmountItem.split(':').pop().trim()
+        : null;
+
+    return { campaignName, platformFeeText, receivedAmountText };
+};
 
 const formatCurrency = (value) => {
     if (!value) return "0";
-    let stringVal = String(value).replace(/\./g, "");
+    const stringVal = String(value).replace(/\./g, "");
     const numberVal = Number(stringVal);
     return new Intl.NumberFormat("vi-VN", {
         style: "currency",
@@ -19,9 +56,14 @@ const formatDate = (dateString) => {
         const date = new Date(cleanDateStr);
         if (isNaN(date.getTime())) return dateString;
         return new Intl.DateTimeFormat('vi-VN', {
-            hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric', second: '2-digit'
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
         }).format(date).replace(' lúc', ' -');
-    } catch (e) {
+    } catch {
         return dateString;
     }
 };
@@ -52,12 +94,31 @@ const getTransactionTypeName = (type) => {
     }
 };
 
-
 const TransactionDetailModal = ({ isOpen, onClose, transaction }) => {
     if (!isOpen || !transaction) return null;
 
     const statusDetail = getStatusDetails(transaction.status);
-    const isIncome = transaction.transactionType === 'DEPOSIT' || transaction.transactionType === 'REFUND' || transaction.transactionType === 'TRANSFER';
+    const isIncome =
+        transaction.transactionType === 'DEPOSIT' ||
+        transaction.transactionType === 'REFUND' ||
+        transaction.transactionType === 'TRANSFER';
+
+    let extractedDetails = { campaignName: null, platformFeeText: null };
+
+    if (transaction.transactionType === 'TRANSFER' && transaction.description) {
+        extractedDetails = extractTransactionDetails(transaction.description);
+    }
+
+    const { campaignName, platformFeeText, receivedAmountText } = extractedDetails;
+
+    let feeLabel = null;
+    let feeValue = null;
+
+    if (platformFeeText) {
+        const parts = platformFeeText.split(':');
+        feeLabel = parts[0]?.trim() || 'Phí nền tảng (5%)';
+        feeValue = parts.length > 1 ? parts.slice(1).join(':').trim() : null;
+    }
 
     const DetailRow = ({ icon: Icon, label, value, valueColor = 'text-gray-800' }) => (
         <div className="flex justify-between items-center py-2 border-b border-gray-100">
@@ -71,25 +132,26 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction }) => {
 
     const DETAIL_FIELDS = [
         { key: 'createdAt', label: 'Thời gian giao dịch', icon: FaClock, format: 'date' },
-        { key: 'balanceAfter', label: 'Số dư sau GD', icon: FaDollarSign, color: 'text-blue-600', condition: (t) => t.status === 'SUCCESS', format: 'currency' },
-
+        {
+            key: 'balanceAfter',
+            label: 'Số dư sau GD',
+            icon: FaDollarSign,
+            color: 'text-blue-600',
+            condition: (t) => t.status === 'SUCCESS',
+            format: 'currency'
+        },
         { key: 'paymentMethod', label: 'Phương thức thanh toán', icon: FaCreditCard, default: 'Ví Fundelio' },
-        { key: 'vnpBankCode', label: 'Ngân hàng', icon: FaUniversity, formatValue: (val) => `${val} (VNPay)` },
+        { key: 'vnpBankCode', label: 'Ngân hàng', icon: FaUniversity, formatValue: (v) => `${v} (VNPay)` },
         { key: 'vnpTransactionNo', label: 'Mã tham chiếu VNPay', icon: FaCodeBranch, valueColor: 'text-xs font-mono' },
         { key: 'transactionId', label: 'Mã giao dịch nội bộ', icon: FaCodeBranch, valueColor: 'text-xs font-mono' },
         { key: 'vnpResponseCode', label: 'Mã phản hồi VNPay', icon: FaCodeBranch },
     ];
 
-
     return (
         <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
-            <div
-                className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-                onClick={onClose}
-            />
+            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
 
             <div className="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
-
                 <div className="p-6 bg-blue-50/70 rounded-t-2xl border-b border-blue-100">
                     <div className="flex justify-between items-start mb-4">
                         <div className="flex items-center gap-1.5">
@@ -97,17 +159,12 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction }) => {
                                 {isIncome ? <FaCheckCircle /> : <FaTimesCircle />}
                             </div>
                             <h2 className="text-xl font-bold text-gray-800">
-                                {
-                                    transaction.description
-                                        ? transaction.description.split(':')[0]
-                                        : getTransactionTypeName(transaction.transactionType)
-                                }
+                                {transaction.description
+                                    ? transaction.description.split(':')[0]
+                                    : getTransactionTypeName(transaction.transactionType)}
                             </h2>
                         </div>
-                        <button
-                            onClick={onClose}
-                            className="text-gray-400 hover:text-gray-700 transition-colors"
-                        >
+                        <button onClick={onClose} className="text-gray-400 hover:text-gray-700">
                             <FaTimes className="w-5 h-5" />
                         </button>
                     </div>
@@ -127,36 +184,44 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction }) => {
                 <div className="p-6 space-y-4">
                     <h3 className="text-base font-bold text-gray-700 mb-3">Chi tiết sao kê</h3>
 
+                    {campaignName && (
+                        <DetailRow
+                            icon={FaCodeBranch}
+                            label="Tên chiến dịch"
+                            value={campaignName}
+                            valueColor="text-blue-600"
+                        />
+                    )}
+
+                    {feeValue && (
+                        <DetailRow
+                            icon={FaPercent}
+                            label={feeLabel}
+                            value={feeValue}
+                            valueColor="text-red-500"
+                        />
+                    )}
+
+                    {receivedAmountText && (
+                        <DetailRow
+                            icon={FaDollarSign}
+                            label="Số tiền nhận"
+                            value={receivedAmountText}
+                            valueColor="text-green-700"
+                        />
+                    )}
+
                     {DETAIL_FIELDS.map((field) => {
                         const rawValue = transaction[field.key];
+                        const value = field.key === 'paymentMethod' && !rawValue ? field.default : rawValue;
+                        const isValid = field.condition ? field.condition(transaction) : true;
+                        if (!isValid || value === null || value === undefined || value === '') return null;
 
-                        const checkValue = field.key === 'paymentMethod' && !rawValue ? field.default : rawValue;
-
-                        const meetsCondition = field.condition ? field.condition(transaction) : true;
-
-                        if (!checkValue && checkValue !== 0 || !meetsCondition) {
-                            return null;
-                        }
-
-                        let displayValue = rawValue;
-
-                        if (field.key === 'paymentMethod' && !rawValue) {
-                            displayValue = field.default;
-                        }
-
-                        if (field.formatValue) {
-                            displayValue = field.formatValue(rawValue);
-                        }
-
-                        if (field.format === 'currency') {
-                            displayValue = formatCurrency(rawValue);
-                        } else if (field.format === 'date') {
-                            displayValue = formatDate(rawValue);
-                        }
-
-                        if (field.key === 'transactionId') {
-                            displayValue = String(transaction.transactionId);
-                        }
+                        let displayValue = value;
+                        if (field.formatValue) displayValue = field.formatValue(rawValue);
+                        if (field.format === 'currency') displayValue = formatCurrency(rawValue);
+                        if (field.format === 'date') displayValue = formatDate(rawValue);
+                        if (field.key === 'transactionId') displayValue = String(rawValue);
 
                         return (
                             <DetailRow
@@ -164,25 +229,16 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction }) => {
                                 icon={field.icon}
                                 label={field.label}
                                 value={displayValue}
-                                valueColor={field.color || field.valueColor || 'text-gray-800'}
+                                valueColor={field.color || field.valueColor}
                             />
                         );
                     })}
-
-                    {transaction.campaignName && (
-                        <DetailRow
-                            icon={FaDollarSign}
-                            label="Tên chiến dịch"
-                            value={transaction.campaignName}
-                            valueColor="text-blue-600"
-                        />
-                    )}
                 </div>
 
                 <div className="p-4 bg-gray-50 rounded-b-2xl text-center">
                     <button
                         onClick={onClose}
-                        className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors"
+                        className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg"
                     >
                         Đóng
                     </button>

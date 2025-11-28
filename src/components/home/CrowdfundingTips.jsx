@@ -7,7 +7,7 @@ const defaultTips = [
     title: '10 Chiến lược Marketing Hiệu quả cho Crowdfunding',
     excerpt:
       'Khám phá các phương pháp đã được chứng minh để tiếp cận và thu hút người ủng hộ tiềm năng cho dự án của bạn.',
-    href: '/blog/marketing-strategies',
+    href: '/marketing-strategies',
     imageUrl:
       'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80',
     category: 'Marketing',
@@ -18,7 +18,7 @@ const defaultTips = [
     title: 'Cách Viết Pitch Deck Thu Hút Nhà Đầu Tư',
     excerpt:
       'Hướng dẫn chi tiết về cách tạo một bản trình bày dự án ấn tượng và chuyên nghiệp thu hút sự chú ý.',
-    href: '/blog/pitch-deck-guide',
+    href: '/pitch-deck-guide',
     imageUrl:
       'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=800&q=80',
     category: 'Chiến lược',
@@ -29,7 +29,7 @@ const defaultTips = [
     title: 'Xây Dựng Cộng Đồng Trung Thành Trước Khi Launch',
     excerpt:
       'Tạo momentum và xây dựng base fan vững chắc trước ngày ra mắt để đảm bảo thành công ngay từ đầu.',
-    href: '/blog/build-community',
+    href: '/build-community-content',
     imageUrl:
       'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&q=80',
     category: 'Cộng đồng',
@@ -40,7 +40,7 @@ const defaultTips = [
     title: 'Tối Ưu Video Campaign để Tăng Conversion',
     excerpt:
       'Video là yếu tố then chốt trong crowdfunding. Học cách tạo video campaign chuyên nghiệp với ngân sách hạn chế.',
-    href: '/blog/video-optimization',
+    href: '/video-optimization',
     imageUrl:
       'https://images.unsplash.com/photo-1492619375914-88005aa9e8fb?w=800&q=80',
     category: 'Content',
@@ -51,7 +51,7 @@ const defaultTips = [
     title: 'Quản Lý Tài Chính và Fulfillment Hiệu Quả',
     excerpt:
       'Hướng dẫn quản lý ngân sách, thuế và giao hàng để đảm bảo dự án hoàn thành đúng hạn và ngân sách.',
-    href: '/blog/financial-management',
+    href: '/financial-management',
     imageUrl:
       'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&q=80',
     category: 'Quản lý',
@@ -62,7 +62,7 @@ const defaultTips = [
     title: 'Tâm Lý Học Đằng Sau Quyết Định Ủng Hộ',
     excerpt:
       'Hiểu rõ động lực và tâm lý người ủng hộ để tạo ra campaign có sức ảnh hưởng và kết nối cảm xúc.',
-    href: '/blog/backer-psychology',
+    href: '/backer-psychology',
     imageUrl:
       'https://images.unsplash.com/photo-1573164713988-8665fc963095?w=800&q=80',
     category: 'Tâm lý',

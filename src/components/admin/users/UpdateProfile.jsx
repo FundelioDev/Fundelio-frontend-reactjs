@@ -21,6 +21,23 @@ export default function UpdateProfile() {
   const [city, setCity] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  const [isDark, setIsDark] = useState(
+    document.documentElement.classList.contains("dark")
+  );
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDark(document.documentElement.classList.contains("dark"));
+    });
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
   const countryOptions = useMemo(
     () => Country.getAllCountries().map((c) => ({ value: c.isoCode, label: c.name })),
     []
@@ -45,21 +62,15 @@ export default function UpdateProfile() {
 
       if (user.nationality) {
         const foundCountry = Country.getAllCountries().find((c) => c.name === user.nationality);
-        if (foundCountry) setCountry({ value: foundCountry.isoCode, label: foundCountry.name });
-        else setCountry(null);
-      } else {
-        setCountry(null);
-      }
+        foundCountry
+          ? setCountry({ value: foundCountry.isoCode, label: foundCountry.name })
+          : setCountry(null);
+      } else setCountry(null);
 
       if (user.city) setCity({ value: user.city, label: user.city });
       else setCity(null);
     }
   }, [user]);
-  const extractCampaignName = (description) => {
-    if (!description) return '';
-    const match = description.match(/:\s*(.*?)\s*\| Tổng pledge/);
-    return match ? match[1] : '';
-  };
 
   const handleAvatarChange = (e) => {
     const file = e.target.files?.[0];
@@ -108,6 +119,7 @@ export default function UpdateProfile() {
         city: city?.label || undefined,
         nationality: country?.label || undefined,
       };
+
       if (avatarLink) payload.avatarUrl = avatarLink;
 
       const res = await userApi.updateProfile(payload);
@@ -132,33 +144,40 @@ export default function UpdateProfile() {
     }
   };
 
-  // Custom styles cho react-select dark mode
-  const customSelectStyles = {
+  const customSelectStyles = useMemo(() => ({
+    option: (provided, state) => ({
+      ...provided,
+      backgroundColor: state.isFocused
+        ? (isDark ? "#2a2d3a" : "#e5e7eb")
+        : (isDark ? "#1f2937" : "#fff"),
+      color: isDark ? "#e5e7eb" : "#000",
+    }),
+
     control: (provided, state) => ({
       ...provided,
-      backgroundColor: document.documentElement.classList.contains("dark") ? "#1f2937" : "#fff",
-      color: document.documentElement.classList.contains("dark") ? "#d1d5db" : "#000",
+      backgroundColor: isDark ? "#1f2937" : "#fff",
+      color: isDark ? "#d1d5db" : "#000",
       borderColor: state.isFocused
         ? "#6366f1"
-        : document.documentElement.classList.contains("dark")
+        : isDark
           ? "#374151"
           : "#d1d5db",
     }),
     menu: (provided) => ({
       ...provided,
-      backgroundColor: document.documentElement.classList.contains("dark") ? "#1f2937" : "#fff",
-      color: document.documentElement.classList.contains("dark") ? "#d1d5db" : "#000",
+      backgroundColor: isDark ? "#1f2937" : "#fff",
+      color: isDark ? "#d1d5db" : "#000",
       zIndex: 50,
     }),
     singleValue: (provided) => ({
       ...provided,
-      color: document.documentElement.classList.contains("dark") ? "#d1d5db" : "#000",
+      color: isDark ? "#d1d5db" : "#000",
     }),
     placeholder: (provided) => ({
       ...provided,
-      color: document.documentElement.classList.contains("dark") ? "#9ca3af" : "#6b7280",
+      color: isDark ? "#9ca3af" : "#6b7280",
     }),
-  };
+  }), [isDark]);
 
   return (
     <form
@@ -194,7 +213,7 @@ export default function UpdateProfile() {
           <label
             title="Change"
             className="absolute left-1/2 -translate-x-1/2 -bottom-10 inline-flex items-center justify-center px-3 py-1 text-sm rounded-md bg-white dark:bg-gray-800 text-primary border border-transparent shadow-sm opacity-95 cursor-pointer
-                      transform transition-all duration-150 hover:-translate-y-1 hover:shadow-md hover:border-gray-200 dark:hover:border-gray-600"
+                        transform transition-all duration-150 hover:-translate-y-1 hover:shadow-md hover:border-gray-200 dark:hover:border-gray-600"
           >
             Change
             <input type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />

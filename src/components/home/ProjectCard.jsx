@@ -1,5 +1,6 @@
 'use client';
 import { Clock, Bookmark, Heart, Users } from 'lucide-react';
+import { useId } from 'react';
 import expired from '/expired.svg';
 const placeholderImage = 'https://i.postimg.cc/HLJPXtZ4/logo-(3)-(1)-(1).png';
 export const ProjectCard = ({
@@ -19,8 +20,8 @@ export const ProjectCard = ({
     : 'Anonymous';
   const authorAvatarUrl = project.owner?.avatarUrl;
   const imageUrl = project.introImageUrl || project.imageUrl;
-  const pledgedAmount = project.pledgedAmount || project.pledged || 0;
-  const goalAmount = project.goalAmount || project.goal || 0;
+  const pledgedAmount = Number(project.pledgedAmount || project.pledged || 0);
+  const goalAmount = Number(project.goalAmount || project.goal || 0);
   const backersCount = project.backersCount || project.backerCount || 0;
   const likeCount = project.likeCount || 0;
   const campaignStatus = project.campaignStatus || project.status;
@@ -45,6 +46,8 @@ export const ProjectCard = ({
 
   const daysLeft = calculateDaysLeft(project.endDate);
   const progressPercent = calculateProgress();
+  const uniqueId = useId();
+  const gradientId = `circularGradient-${uniqueId}`;
 
   const handleBookmarkClick = (e) => {
     e.preventDefault();
@@ -69,8 +72,7 @@ export const ProjectCard = ({
         group relative bg-white dark:bg-darker-2 overflow-hidden
         transition-all duration-300 ease-out
         shadow-md
-        hover:-translate-y-2
-        hover:shadow-[0_8px_24px_4px_rgba(25,90,254,0.35)]
+        hover:shadow-lg
         break-inside-avoid mb-6 rounded-lg
         ${className}
       `}
@@ -179,7 +181,7 @@ export const ProjectCard = ({
                   cx="28"
                   cy="28"
                   r="24"
-                  stroke="url(#circularGradient)"
+                  stroke={`url(#${gradientId})`}
                   strokeWidth="2"
                   fill="none"
                   strokeLinecap="round"
@@ -189,7 +191,7 @@ export const ProjectCard = ({
                 />
                 {/* Gradient Definition - Using gradient-3 colors */}
                 <defs>
-                  <linearGradient id="circularGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" style={{ stopColor: 'hsl(228, 99%, 55%)' }} />
                     <stop offset="50%" style={{ stopColor: 'hsl(161, 73%, 45%)' }} />
                     <stop offset="100%" style={{ stopColor: 'hsl(161, 73%, 45%)' }} />

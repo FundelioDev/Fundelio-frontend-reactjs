@@ -14,6 +14,7 @@ import {
   Plus,
   Settings,
   ShieldCheck,
+  X
 } from "lucide-react";
 import Button from "./Button";
 import { useTheme } from "../../contexts/ThemeContext";
@@ -21,7 +22,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useCategories } from "../../hooks/useCategories";
 import { walletApi } from "@/api/walletApi";
 import { campaignApi } from "@/api/campaignApi";
-
+import { XCircle } from "lucide-react";
 export const Header = ({
   variant = "transparent",
   isFixed = true,
@@ -29,6 +30,7 @@ export const Header = ({
 }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -135,7 +137,7 @@ export const Header = ({
     setIsSearching(true);
     searchTimeoutRef.current = setTimeout(async () => {
       try {
-        const filter = `title ~~ '*${searchQuery.trim()}*'`;
+        const filter = `title ~~ '*${searchQuery.trim()}*' and (campaignStatus:'ACTIVE' or campaignStatus:'SUCCESSFUL')`;
         const response = await campaignApi.getAllCampaigns({
           filter,
           page: 0,
@@ -165,13 +167,13 @@ export const Header = ({
     transparent: {
       container: isScrolled
         ? "bg-white/95 dark:bg-background-header-dark backdrop-blur-md text-text-primary dark:text-white shadow-md transition-colors duration-300"
-        : "bg-transparent",
+        : "bg-white dark:bg-background-header-dark md:bg-transparent md:dark:bg-transparent text-text-primary dark:text-white md:text-text-white",
       title: isScrolled
         ? "text-text-primary dark:text-white"
         : "text-text-white",
       navLink: isScrolled
         ? "text-text-primary dark:text-white hover:text-primary dark:hover:text-primary-400"
-        : "text-text-white hover:text-secondary",
+        : "text-text-primary dark:text-white md:text-text-white hover:text-primary md:hover:text-secondary",
       dropdown:
         "bg-white dark:bg-darker border border-gray-200 dark:border-gray-700 text-text-primary dark:text-white",
       dropdownItem:
@@ -182,7 +184,7 @@ export const Header = ({
     },
     light: {
       container:
-        "bg-white dark:bg-background-header-dark text-text-primary dark:text-white shadow-md",
+        "bg-white dark:bg-background-header-dark text-text-primary dark:text-white shadow-md border-b border-gray-200 dark:border-gray-700",
       title: "text-text-primary dark:text-white",
       navLink: "text-text-primary dark:text-white hover:text-primary",
       dropdown:
@@ -274,9 +276,9 @@ export const Header = ({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onFocus={() => setIsSearchFocused(true)}
-                className={`w-full pl-10 pr-4 py-2 rounded-lg border bg-transparent ${isScrolled
+                className={`w-full pl-10 pr-4 py-2 rounded-lg border bg-transparent ${isScrolled || variant === 'light'
                   ? "text-text-primary dark:text-white border-gray-300 dark:border-gray-600 placeholder:text-gray-500 dark:placeholder:text-gray-400"
-                  : "text-text-primary dark:text-white border-border placeholder:text-gray-600 dark:placeholder:text-gray-300"
+                  : "text-white dark:text-white border-white/30 placeholder:text-gray-200 dark:placeholder:text-gray-300"
                   } focus:outline-none focus:ring-2 focus:ring-primary/50`}
               />
               {/* Search Results Dropdown */}
@@ -342,311 +344,278 @@ export const Header = ({
           </div>
         )}
 
-        <div className="flex items-center gap-2 sm:gap-3">
-          {isLoggedIn && user && (
+        {/* Mobile Search Input Overlay */}
+        {isMobileSearchOpen ? (
+          <div className="flex items-center w-full gap-2 md:hidden animate-in fade-in slide-in-from-top-2 duration-200">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+              <input
+                type="text"
+                placeholder="Tìm kiếm..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                autoFocus
+                className="w-full pl-9 pr-9 py-2 rounded-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-darker text-sm text-text-primary dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                >
+                  <XCircle className="w-4 h-4" />
+                </button>
+              )}
+            </div>
             <button
-              onClick={handleCoinClick}
-              className={`hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg ${Number(headerBalance) === 0
-                ? "hover:bg-red-100 dark:hover:bg-red-900/30"
-                : "bg-primary/10 hover:bg-primary/20"
-                } transition-all duration-200 hover:scale-105 coin-button relative`}
+              onClick={() => {
+                setIsMobileSearchOpen(false);
+                setSearchQuery("");
+                setSearchResults([]);
+              }}
+              className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
             >
-              <Wallet className="w-4 h-4 text-primary dark:text-primary-400" />
-              <span
-                className={`text-md font-bold ${Number(headerBalance) === 0
-                  ? "text-red-500 dark:text-red-400"
-                  : "text-primary dark:text-primary-400"
-                  }`}
-              >
-                {formatPrice(headerBalance)} VND
-              </span>
+              <X className="w-5 h-5" />
             </button>
-          )}
 
-          <button
-            onClick={toggleTheme}
-            className={`hidden md:block p-2 rounded-lg ${currentVariant.navLink}`}
-          >
-            {isDark ? (
-              <Sun className="w-5 h-5" />
-            ) : (
-              <Moon className="w-5 h-5" />
-            )}
-          </button>
-
-          {isLoggedIn && user ? (
-            <div className="relative user-menu-container">
-              <button onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}>
-                <img
-                  src={avatarUrl}
-                  className="w-9 h-9 rounded-full object-cover"
-                  alt="User"
-                />
-              </button>
-              {isUserMenuOpen && (
-                <div className="absolute right-0 top-full mt-2 w-[280px] max-w-[calc(100vw-2rem)] bg-white dark:bg-darker rounded-lg shadow-xl border border-border overflow-hidden z-50">
-                  <div className="p-4">
-                    <div className="space-y-1">
-                      {/* Admin link - only show if user has ADMIN role */}
-                      {user?.rolesSecured?.some(
-                        (role) => role.name === "ADMIN"
-                      ) && (
-                          <Link
-                            to="/admin"
-                            onClick={() => setIsUserMenuOpen(false)}
-                            className="flex items-center gap-3 px-3 py-2 text-sm text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors"
-                          >
-                            <ShieldCheck className="w-4 h-4" />
-                            <span>Quản trị hệ thống</span>
-                          </Link>
-                        )}
-                      {user?.rolesSecured?.some(
-                        (role) => role.name === "FOUNDER" || role.name === "ADMIN"
-                      ) && (
-                          <Link
-                            to="/dashboard"
-                            onClick={() => setIsUserMenuOpen(false)}
-                            className="flex items-center gap-3 px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 text-text-primary dark:text-white border-b border-amber-600 dark:border-amber-700"
-                          >
-                            <LayoutDashboard className="w-4 h-4 text-gray-500" />
-                            <span>Bảng điều khiển</span>
-                          </Link>
-                        )}
-                      <Link
-                        to="/profile"
-                        onClick={() => setIsUserMenuOpen(false)}
-                        className="flex items-center gap-3 px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-text-primary dark:text-white"
-                      >
-                        <User className="w-4 h-4 text-gray-500" />
-                        <span>Hồ sơ cá nhân</span>
-                      </Link>
-
-                      <Link
-                        to="/my-pledges"
-                        onClick={() => setIsUserMenuOpen(false)}
-                        className="flex items-center gap-3 px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-text-primary dark:text-white"
-                      >
-                        <FolderOpen className="w-4 h-4 text-gray-500" />
-                        <span>Dự án của tôi</span>
-                      </Link>
-
-                      <Link
-                        to="/campaigns/create"
-                        onClick={() => setIsUserMenuOpen(false)}
-                        className="flex items-center gap-3 px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-primary font-medium"
-                      >
-                        <Plus className="w-4 h-4" />
-                        <span>Tạo chiến dịch</span>
-                      </Link>
-
-                      <div className="h-px bg-gray-100 dark:bg-gray-700 my-1"></div>
-
-                      <Link
-                        to="/wallet"
-                        onClick={() => setIsUserMenuOpen(false)}
-                        className="flex items-center gap-3 px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-text-primary dark:text-white"
-                      >
-                        <Wallet className="w-4 h-4 text-gray-500" />
-                        <div className="flex justify-between w-full items-center">
-                          <span>Ví của tôi</span>
-                          <span className="text-xs font-bold text-primary">
-                            {formatPrice(headerBalance)} đ
-                          </span>
-                        </div>
-                      </Link>
-
-                      <button
-                        onClick={() => {
-                          logout();
-                          navigate("/auth");
+            {/* Mobile Search Results Dropdown */}
+            {searchQuery.trim() && (
+              <div className="absolute left-0 right-0 top-full mt-2 mx-4 bg-white dark:bg-darker rounded-lg shadow-xl border border-gray-100 dark:border-gray-700 z-50 max-h-[60vh] overflow-y-auto">
+                {isSearching ? (
+                  <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                    Đang tìm kiếm...
+                  </div>
+                ) : searchResults.length > 0 ? (
+                  <div className="py-2">
+                    {searchResults.map((campaign) => (
+                      <div
+                        key={campaign.campaignId || campaign.id}
+                        onMouseDown={(e) => {
+                          e.preventDefault(); // Prevent focus loss
+                          navigate(`/campaigns/${campaign.campaignId || campaign.id}`);
+                          setIsMobileSearchOpen(false);
+                          setSearchQuery("");
+                          setSearchResults([]);
                         }}
-                        className="flex items-center gap-3 px-3 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg w-full text-left transition-colors"
+                        className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 border-b border-gray-100 dark:border-gray-800 last:border-0 cursor-pointer"
                       >
-                        <LogOut className="w-4 h-4" />
-                        <span>Đăng xuất</span>
-                      </button>
+                        <img
+                          src={campaign.introImageUrl || campaign.thumbnailUrl || "/placeholder.png"}
+                          alt={campaign.title}
+                          className="w-10 h-10 rounded object-cover flex-shrink-0"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                            {campaign.title}
+                          </h4>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                    Không tìm thấy kết quả
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Mobile Search Trigger */}
+            <button
+              onClick={() => setIsMobileSearchOpen(true)}
+              className={`md:hidden p-2 rounded-lg ${currentVariant.navLink}`}
+            >
+              <Search className="w-5 h-5" />
+            </button>
+
+            {isLoggedIn && user && (
+              <button
+                onClick={handleCoinClick}
+                className={`hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg ${Number(headerBalance) === 0
+                  ? "hover:bg-red-100 dark:hover:bg-red-900/30"
+                  : "bg-primary/10 hover:bg-primary/20"
+                  } transition-all duration-200 hover:scale-105 coin-button relative`}
+              >
+                <Wallet className="w-4 h-4 text-primary dark:text-primary-400" />
+                <span
+                  className={`text-md font-bold ${Number(headerBalance) === 0
+                    ? "text-red-500 dark:text-red-400"
+                    : "text-primary dark:text-primary-400"
+                    }`}
+                >
+                  {formatPrice(headerBalance)} VND
+                </span>
+              </button>
+            )}
+
+            <button
+              onClick={toggleTheme}
+              className={`hidden md:block p-2 rounded-lg ${currentVariant.navLink}`}
+            >
+              {isDark ? (
+                <Sun className="w-5 h-5" />
+              ) : (
+                <Moon className="w-5 h-5" />
+              )}
+            </button>
+
+            {/* Wallet Balance - Mobile */}
+            {isLoggedIn && user && (
+              <button
+                onClick={handleCoinClick}
+                className={`md:hidden flex items-center gap-1.5 px-2 py-1.5 rounded-lg ${Number(headerBalance) === 0
+                  ? "hover:bg-red-100 dark:hover:bg-red-900/30"
+                  : "bg-primary/10 hover:bg-primary/20"
+                  } transition-all`}
+              >
+                <Wallet className="w-4 h-4 text-primary dark:text-primary-400" />
+                <span
+                  className={`text-xs font-bold ${Number(headerBalance) === 0
+                    ? "text-red-500 dark:text-red-400"
+                    : "text-primary dark:text-primary-400"
+                    }`}
+                >
+                  {formatPrice(headerBalance)}
+                </span>
+              </button>
+            )}
+
+            {/* Theme Toggle - Mobile */}
+            <button
+              onClick={toggleTheme}
+              className={`md:hidden p-2 rounded-lg ${currentVariant.navLink}`}
+            >
+              {isDark ? (
+                <Sun className="w-5 h-5" />
+              ) : (
+                <Moon className="w-5 h-5" />
+              )}
+            </button>
+
+            {isLoggedIn && user ? (
+              <div className="relative user-menu-container">
+                <button onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}>
+                  <img
+                    src={avatarUrl}
+                    className="w-9 h-9 rounded-full object-cover"
+                    alt="User"
+                  />
+                </button>
+                {isUserMenuOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-[280px] max-w-[calc(100vw-2rem)] bg-white dark:bg-darker rounded-lg shadow-xl border border-border overflow-hidden z-50">
+                    <div className="p-4">
+                      <div className="space-y-1">
+                        {/* Admin link - only show if user has ADMIN role */}
+                        {user?.rolesSecured?.some(
+                          (role) => role.name === "ADMIN"
+                        ) && (
+                            <Link
+                              to="/admin"
+                              onClick={() => setIsUserMenuOpen(false)}
+                              className="flex items-center gap-1.5 px-3 py-2 text-sm text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors"
+                            >
+                              <ShieldCheck className="w-4 h-4" />
+                              <span>Quản trị hệ thống</span>
+                            </Link>
+                          )}
+                        {user?.rolesSecured?.some(
+                          (role) => role.name === "FOUNDER" || role.name === "ADMIN"
+                        ) && (
+                            <Link
+                              to="/dashboard"
+                              onClick={() => setIsUserMenuOpen(false)}
+                              className="flex items-center gap-1.5 px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 text-text-primary dark:text-white border-b border-amber-600 dark:border-amber-700"
+                            >
+                              <LayoutDashboard className="w-4 h-4 text-gray-500" />
+                              <span>Bảng điều khiển</span>
+                            </Link>
+                          )}
+                        <Link
+                          to="/profile"
+                          onClick={() => setIsUserMenuOpen(false)}
+                          className="flex items-center gap-1.5 px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-text-primary dark:text-white"
+                        >
+                          <User className="w-4 h-4 text-gray-500" />
+                          <span>Hồ sơ cá nhân</span>
+                        </Link>
+
+                        <Link
+                          to="/my-pledges"
+                          onClick={() => setIsUserMenuOpen(false)}
+                          className="flex items-center gap-1.5 px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-text-primary dark:text-white"
+                        >
+                          <FolderOpen className="w-4 h-4 text-gray-500" />
+                          <span>Dự án của tôi</span>
+                        </Link>
+
+                        <Link
+                          to="/campaigns/create"
+                          onClick={() => setIsUserMenuOpen(false)}
+                          className="flex items-center gap-1.5 px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-primary font-medium"
+                        >
+                          <Plus className="w-4 h-4" />
+                          <span>Tạo chiến dịch</span>
+                        </Link>
+
+                        <div className="h-px bg-gray-100 dark:bg-gray-700 my-1"></div>
+
+                        <Link
+                          to="/wallet"
+                          onClick={() => setIsUserMenuOpen(false)}
+                          className="flex items-center gap-1.5 px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-text-primary dark:text-white"
+                        >
+                          <Wallet className="w-4 h-4 text-gray-500" />
+                          <div className="flex justify-between w-full items-center">
+                            <span>Ví của tôi</span>
+                            <span className="text-xs font-bold text-primary">
+                              {formatPrice(headerBalance)} đ
+                            </span>
+                          </div>
+                        </Link>
+
+                        <button
+                          onClick={() => {
+                            logout();
+                            navigate("/auth");
+                          }}
+                          className="flex items-center gap-1.5 px-3 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg w-full text-left transition-colors"
+                        >
+                          <LogOut className="w-4 h-4" />
+                          <span>Đăng xuất</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
-            </div>
-          ) : (
-            <>
-              <Button
-                size="sm"
-                className="!px-2 !py-1.5 !text-xs sm:!px-4 sm:!py-2 sm:!text-base"
-                onClick={() => {
-                  navigate("/auth", { state: { mode: "register" } });
-                }}
-              >
-                Đăng ký
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="!px-2 !py-1.5 !text-xs sm:!px-4 sm:!py-2 sm:!text-base border-current"
-                onClick={() => {
-                  navigate("/auth", { state: { mode: "login" } });
-                }}
-              >
-                Đăng nhập
-              </Button>
-            </>
-          )}
-
-          <button
-            className={`lg:hidden p-2 rounded-lg ${currentVariant.button}`}
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          >
-            <Menu className="w-6 h-6" />
-          </button>
-        </div>
+                )}
+              </div>
+            ) : (
+              <>
+                <Button
+                  size="sm"
+                  className="!px-2 !py-1.5 !text-xs sm:!px-4 sm:!py-2 sm:!text-base"
+                  onClick={() => {
+                    navigate("/auth", { state: { mode: "register" } });
+                  }}
+                >
+                  Đăng ký
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="!px-2 !py-1.5 !text-xs sm:!px-4 sm:!py-2 sm:!text-base border-current"
+                  onClick={() => {
+                    navigate("/auth", { state: { mode: "login" } });
+                  }}
+                >
+                  Đăng nhập
+                </Button>
+              </>
+            )}
+          </div>
+        )}
       </div>
 
-      {/* Mobile Menu */}
-      {isMobileMenuOpen && (
-        <div className="lg:hidden mt-4 py-4 border-t border-white/20 dark:border-gray-700 transition-colors duration-300">
-          <nav className="space-y-2">
-            {user?.rolesSecured?.some((role) => role.name === "FOUNDER" || role.name === "ADMIN") && (
-              <Link
-                to="/dashboard"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="flex items-center gap-3 px-3 py-2 text-sm text-text-primary dark:text-white hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-colors"
-              >
-                <LayoutDashboard className="w-4 h-4" />
-                <span>Bảng điều khiển</span>
-              </Link>
-            )}
-            {/* Admin link - only show if user has ADMIN role */}
-            {user?.rolesSecured?.some((role) => role.name === "ADMIN") && (
-              <Link
-                to="/admin"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="flex items-center gap-3 px-3 py-2 text-sm text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-lg transition-colors"
-              >
-                <ShieldCheck className="w-4 h-4" />
-                <span>Quản trị hệ thống</span>
-              </Link>
-            )}
-
-            <div className="border-t-2 border-border my-3"></div>
-            <Link
-              to="/home"
-              className={`block px-4 py-2 rounded-lg ${currentVariant.navLink
-                } hover:bg-white/10 dark:hover:bg-darker-2-light/40 transition-colors font-medium ${location.pathname === "/home"
-                  ? "text-primary dark:text-primary-400"
-                  : ""
-                }`}
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Trang chủ
-            </Link>
-            <Link
-              to="/campaigns/create"
-              className={`block px-4 py-2 rounded-lg ${currentVariant.navLink
-                } hover:bg-white/10 dark:hover:bg-darker-2-light/40 transition-colors font-medium ${location.pathname === "/campaigns/create"
-                  ? "text-primary dark:text-primary-400"
-                  : ""
-                }`}
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Tạo chiến dịch
-            </Link>
-            <a
-              href="#about"
-              className={`block px-4 py-2 rounded-lg ${currentVariant.navLink} hover:bg-white/10 dark:hover:bg-darker-2 transition-colors font-medium`}
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Về chúng tôi
-            </a>
-            <a
-              href="#contact"
-              className={`block px-4 py-2 rounded-lg ${currentVariant.navLink} hover:bg-white/10 dark:hover:bg-darker-2 transition-colors font-medium`}
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Liên hệ
-            </a>
-
-            {/* Categories in mobile */}
-            {/* <div className="pt-2 border-t border-white/20 dark:border-gray-700 mt-2 transition-colors duration-300">
-              <p
-                className={`px-4 py-2 text-sm font-semibold ${currentVariant.title}`}
-              >
-                Khám phá
-              </p>
-              {loadingCategories ? (
-                <div className="px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                  Đang tải danh mục...
-                </div>
-              ) : categories.length > 0 ? (
-                categories.map((category) => {
-                  const IconComponent = category.icon;
-                  return (
-                    <Link
-                      key={category.id}
-                      to={category.href}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className={`flex items-center space-x-3 px-4 py-2 rounded-lg ${currentVariant.navLink} hover:bg-white/10 dark:hover:bg-darker-2-light/40 transition-colors`}
-                    >
-                      <IconComponent className={`w-4 h-4 ${category.color}`} />
-                      <span className="text-sm">{category.name}</span>
-                    </Link>
-                  );
-                })
-              ) : (
-                <div className="px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                  Không có danh mục
-                </div>
-              )}
-            </div> */}
-
-            {/* Mobile Theme Toggle */}
-            <div className="px-4 py-2 border-t border-white/20 dark:border-gray-700 mt-2 transition-colors duration-300">
-              <button
-                onClick={toggleTheme}
-                className={`flex items-center space-x-3 w-full px-4 py-2 rounded-lg ${currentVariant.navLink} hover:bg-white/10 dark:hover:bg-darker-2-light/40 transition-colors`}
-              >
-                {isDark ? (
-                  <>
-                    <Sun className="w-4 h-4" />
-                    <span className="text-sm">Chế độ sáng</span>
-                  </>
-                ) : (
-                  <>
-                    <Moon className="w-4 h-4" />
-                    <span className="text-sm">Chế độ tối</span>
-                  </>
-                )}
-              </button>
-            </div>
-
-            {/* Mobile Auth Buttons */}
-            <div className="flex gap-2 px-4 pt-4 pb-2 sm:hidden">
-              <Button
-                size="sm"
-                className="flex-1 min-w-0 !px-2 !py-1.5 !text-xs"
-                onClick={() => {
-                  navigate("/auth", { state: { mode: "register" } });
-                  setIsMobileMenuOpen(false);
-                }}
-              >
-                Đăng ký
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex-1 min-w-0 !px-2 !py-1.5 !text-xs border-current dark:border-gray-600"
-                onClick={() => {
-                  navigate("/auth", { state: { mode: "login" } });
-                  setIsMobileMenuOpen(false);
-                }}
-              >
-                Đăng nhập
-              </Button>
-            </div>
-          </nav>
-        </div>
-      )}
     </header>
   );
 };

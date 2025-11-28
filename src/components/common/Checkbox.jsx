@@ -1,6 +1,6 @@
 export default function Checkbox({ checked, onChange, label, ...props }) {
   return (
-    <label className="flex items-center gap-3 cursor-pointer">
+    <label className="flex items-center gap-1.5 cursor-pointer">
       <input
         type="checkbox"
         checked={checked}

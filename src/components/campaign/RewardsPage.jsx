@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import TocMenu from './story/TocMenu';
 import { RewardDetailSection } from './rewards/reward-detail/RewardDetalSection';
-import { PledgeSummaryCard } from './rewards/reward-detail/PledgeSummaryCard';
 import { Info } from 'lucide-react';
 
 /**
@@ -147,13 +146,10 @@ const RewardsPage = ({ rewards = [], items = [], addOns = [], onPledge, campaign
     }
   };
 
-  console.log('RewardsPage render:', rewards);
-
-
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[minmax(180px,220px)_minmax(0,1fr)_minmax(180px,220px)] xl:grid-cols-[minmax(220px,260px)_minmax(0,1fr)_minmax(220px,260px)] 2xl:grid-cols-[minmax(240px,280px)_minmax(0,1fr)_minmax(240px,280px)] gap-4 md:gap-5 lg:gap-6 xl:gap-8">
+    <div className="grid grid-cols-1 lg:grid-cols-[minmax(180px,220px)_minmax(0,1fr)] xl:grid-cols-[minmax(220px,260px)_minmax(0,1fr)] gap-4 md:gap-5 lg:gap-6 xl:gap-8">
       {pledgeLocked && (
-        <div className="lg:col-span-3 order-first">
+        <div className="lg:col-span-2 order-first">
           <div className="flex items-start gap-3 rounded-sm border border-amber-300 bg-amber-50 text-amber-900 px-4 py-3 text-sm max-w-fit">
             <Info className="w-5 h-5 mt-0.5 flex-shrink-0" />
             <p>{lockedMessage}</p>
@@ -161,12 +157,12 @@ const RewardsPage = ({ rewards = [], items = [], addOns = [], onPledge, campaign
         </div>
       )}
       {/* Left Column - TOC Menu */}
-      <div className="order-2 lg:order-1 hidden lg:block">
+      <div className="order-2 lg:order-1 hidden lg:block sticky top-24 h-fit">
         <TocMenu blanks={rewardMenuItems} activeId={activeId} />
       </div>
 
       {/* Center Column - Reward Cards */}
-      <div className="order-1 lg:order-2" id="rewards-section">
+      <div className="order-1 lg:order-2 max-w-3xl" id="rewards-section">
         <RewardDetailSection
           rewards={rewards}
           items={items}
@@ -174,19 +170,6 @@ const RewardsPage = ({ rewards = [], items = [], addOns = [], onPledge, campaign
           onSelectReward={handleSelectReward}
           onSelectAddOn={handleSelectAddOn}
           campaignId={campaignId}
-          isPreview={isPreview}
-          isOwnerViewing={isOwnerViewing}
-        />
-      </div>
-
-      {/* Right Column - Pledge Summary */}
-      <div className="order-3 hidden lg:block">
-        <PledgeSummaryCard
-          selectedRewards={selectedRewards}
-          selectedAddOns={selectedAddOns}
-          onRemoveItem={handleRemoveItem}
-          onPickAddOns={handlePickAddOns}
-          onSubmit={handleSubmit}
           isPreview={isPreview}
           isOwnerViewing={isOwnerViewing}
         />

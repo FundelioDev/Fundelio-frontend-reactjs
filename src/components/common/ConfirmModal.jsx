@@ -70,7 +70,7 @@ export default function ConfirmModal({
             <div className="relative bg-white dark:bg-darker-2 rounded-lg shadow-2xl max-w-lg w-full mx-4 overflow-hidden">
                 {/* Header */}
                 <div className={`px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between ${type === 'danger' ? 'bg-red-50 dark:bg-red-900/10' : 'bg-orange-50 dark:bg-orange-900/10'}`}>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1.5">
                         <div className={`p-2 rounded-full ${type === 'danger' ? 'bg-red-100 dark:bg-red-900/30' : 'bg-orange-100 dark:bg-orange-900/30'}`}>
                             <AlertTriangle className={`w-5 h-5 ${type === 'danger' ? 'text-red-600 dark:text-red-500' : 'text-orange-600 dark:text-orange-400'}`} />
                         </div>

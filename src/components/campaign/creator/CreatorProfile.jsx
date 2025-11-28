@@ -52,8 +52,6 @@ const CreatorProfile = ({ creator = {}, otherProjects = [] }) => {
     console.log('Follow creator');
   };
 
-  console.log("y creator:", campaigns)
-
   const avatarUrl = useMemo(() => {
     // Priority: avatarUrl > avatar > generated avatar
     if (creator?.avatarUrl) {

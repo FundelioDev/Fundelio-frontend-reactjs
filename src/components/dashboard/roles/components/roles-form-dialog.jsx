@@ -426,7 +426,7 @@ export function RolesFormDialog({ open, onOpenChange, currentRow }) {
                                 >
                                   <div className='w-full rounded-t-lg border border-border bg-card hover:bg-accent transition-colors px-4 py-3'>
                                     <div className='flex items-center justify-between w-full'>
-                                      <CollapseTrigger className='flex items-center gap-3'>
+                                      <CollapseTrigger className='flex items-center gap-1.5'>
                                         <ChevronRight
                                           className={cn(
                                             'h-4 w-4 shrink-0 transition-transform duration-200 text-foreground',

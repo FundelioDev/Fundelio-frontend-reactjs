@@ -17,11 +17,10 @@ const PasswordInput = ({ label, value, onChange, show, setShow, error }) => (
         type={show ? "text" : "password"}
         value={value}
         onChange={onChange}
-        className={`w-full rounded-lg border px-3 py-2 text-sm pr-10 dark:bg-darker ${
-          error
+        className={`w-full rounded-lg border px-3 py-2 text-sm pr-10 dark:bg-darker ${error
             ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
             : "dark:border-gray-500"
-        }`}
+          }`}
       />
       <button
         type="button"
@@ -91,7 +90,7 @@ export default function UpdatePassword() {
         storageService.removeAccessToken();
         window.location.href = "/auth";
       }, 1500);
-      
+
     } catch (error) {
       console.error("Lỗi đổi mật khẩu:", error);
 
@@ -122,15 +121,15 @@ export default function UpdatePassword() {
         <div className="space-y-4 text-center">
           <div>
             <h3 className="text-xl font-semibold text-text-primary dark:text-white">
-              Password
+              Mật khẩu
             </h3>
             <p className="text-sm text-muted-foreground">
-              Update your password to protect your account
+              Cập nhật mật khẩu để bảo vệ tài khoản của bạn
             </p>
           </div>
 
           <PasswordInput
-            label="Current password"
+            label="Mật khẩu hiện tại"
             value={currentPassword}
             onChange={handleChange(setCurrentPassword, "currentPassword")}
             show={showCurrent}
@@ -139,7 +138,7 @@ export default function UpdatePassword() {
           />
 
           <PasswordInput
-            label="New password"
+            label="Mật khẩu mới"
             value={newPassword}
             onChange={handleChange(setNewPassword, "newPassword")}
             show={showNew}
@@ -147,10 +146,10 @@ export default function UpdatePassword() {
             error={errors.newPassword}
           />
 
-          <div className="pt-1">
+          <div className="">
             <PasswordStrengthIndicator password={newPassword} />
           </div>          <PasswordInput
-            label="Confirm new password"
+            label="Xác nhận mật khẩu mới"
             value={confirmPassword}
             onChange={handleChange(setConfirmPassword, "confirmPassword")}
             show={showConfirm}
@@ -170,7 +169,7 @@ export default function UpdatePassword() {
               disabled={loading}
               className="rounded-lg bg-gradient-to-r from-primary to-secondary px-5 py-2 text-sm font-semibold text-white disabled:opacity-70"
             >
-              {loading ? "Updating..." : "Update password"}
+              {loading ? "Đang cập nhật..." : "Cập nhật mật khẩu"}
             </button>
           </div>
         </div>

@@ -50,7 +50,7 @@ export default function BackerPledgesSection({ campaignId }) {
         <section className="mt-6">
             {/* Header with gradient accent */}
             <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1.5">
                     <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
                         <Package className="w-5 h-5 text-primary" />
                     </div>
@@ -80,7 +80,7 @@ export default function BackerPledgesSection({ campaignId }) {
                 {/* Summary Stats Bar */}
                 {!loading && pledges.length > 0 && (
                     <div className="grid grid-cols-2 divide-x divide-border/50 bg-gradient-to-r from-primary/5 to-secondary/5 dark:from-primary/10 dark:to-secondary/10">
-                        <div className="px-4 py-3 flex items-center gap-3">
+                        <div className="px-4 py-3 flex items-center gap-1.5">
                             <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
                                 <Users className="w-4 h-4 text-primary" />
                             </div>
@@ -93,7 +93,7 @@ export default function BackerPledgesSection({ campaignId }) {
                                 </p>
                             </div>
                         </div>
-                        <div className="px-4 py-3 flex items-center gap-3">
+                        <div className="px-4 py-3 flex items-center gap-1.5">
                             <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center">
                                 <TrendingUp className="w-4 h-4 text-emerald-500" />
                             </div>
@@ -114,7 +114,7 @@ export default function BackerPledgesSection({ campaignId }) {
                     {loading && (
                         <div className="space-y-3">
                             {[1, 2, 3].map((i) => (
-                                <div key={i} className="flex items-center gap-3 animate-pulse">
+                                <div key={i} className="flex items-center gap-1.5 animate-pulse">
                                     <div className="w-10 h-10 rounded-lg bg-muted" />
                                     <div className="flex-1 space-y-2">
                                         <div className="h-4 w-32 bg-muted rounded" />
@@ -153,13 +153,13 @@ export default function BackerPledgesSection({ campaignId }) {
                                 return (
                                     <div
                                         key={pledge.pledgeId}
-                                        className={`group flex items-center gap-3 py-3 px-2 -mx-2 rounded-md hover:bg-muted/30 transition-colors ${!isLast ? 'border-b border-border/30' : ''}`}
+                                        className={`group flex items-center gap-1.5 py-3 px-2 -mx-2 rounded-md hover:bg-muted/30 transition-colors ${!isLast ? 'border-b border-border/30' : ''}`}
                                     >
                                         {/* Rank indicator */}
                                         <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${index === 0 ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400' :
-                                                index === 1 ? 'bg-slate-100 text-slate-600 dark:bg-slate-500/20 dark:text-slate-400' :
-                                                    index === 2 ? 'bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-400' :
-                                                        'bg-muted text-muted-foreground'
+                                            index === 1 ? 'bg-slate-100 text-slate-600 dark:bg-slate-500/20 dark:text-slate-400' :
+                                                index === 2 ? 'bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-400' :
+                                                    'bg-muted text-muted-foreground'
                                             }`}>
                                             {index + 1}
                                         </div>

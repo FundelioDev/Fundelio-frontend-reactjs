@@ -6,10 +6,6 @@ import { Card } from './ui/Card';
 import { Sparkles as SparklesIcon, Users as UsersIcon, MapPin as MapPinIcon, Calendar as CalendarIcon } from 'lucide-react';
 import { RewardDetailModal } from './reward-detail/RewardDetailModal';
 
-/**
- * RewardCard Component
- * Displays a single reward option with Kickstarter-style UI
- */
 const RewardCard = ({ reward, layoutMode, onPledge, campaignId, isPreview = false, isOwnerViewing = false }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -39,7 +35,6 @@ const RewardCard = ({ reward, layoutMode, onPledge, campaignId, isPreview = fals
 
   // Format delivery date
   const eta = estimatedDelivery ? new Date(estimatedDelivery).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'TBD';
-  console.log("rewardddd", reward);
   return (
     <motion.div
       layout
@@ -142,20 +137,7 @@ const RewardCard = ({ reward, layoutMode, onPledge, campaignId, isPreview = fals
           // }}
           >
             <motion.div
-              className="flex items-center gap-3 text-sm text-foreground"
-              whileHover={{ x: 4 }}
-              transition={{ type: 'spring', stiffness: 300 }}
-            >
-              <div className="w-8 h-8 rounded-sm bg-primary/10 flex items-center justify-center">
-                <UsersIcon className="w-4 h-4 text-primary" strokeWidth={2} />
-              </div>
-              <span className="font-medium">
-                <strong className="font-bold text-primary">{backersCount || 0}</strong> người ủng hộ
-              </span>
-            </motion.div>
-
-            <motion.div
-              className="flex items-center gap-3 text-sm text-foreground"
+              className="flex items-center gap-1.5 text-sm text-foreground"
               whileHover={{ x: 4 }}
               transition={{ type: 'spring', stiffness: 300 }}
             >
@@ -166,12 +148,12 @@ const RewardCard = ({ reward, layoutMode, onPledge, campaignId, isPreview = fals
             </motion.div>
 
             <motion.div
-              className="flex items-center gap-3 text-sm text-foreground"
+              className="flex items-center gap-1.5 text-sm text-text-secondary dark:text-white"
               whileHover={{ x: 4 }}
               transition={{ type: 'spring', stiffness: 300 }}
             >
               <div className="w-8 h-8 rounded-sm bg-accent/10 flex items-center justify-center">
-                <CalendarIcon className="w-4 h-4 text-accent" strokeWidth={2} />
+                <CalendarIcon className="w-4 h-4 text-text-secondary dark:text-white" strokeWidth={2} />
               </div>
               <span className="font-medium">Giao hàng: {eta}</span>
             </motion.div>

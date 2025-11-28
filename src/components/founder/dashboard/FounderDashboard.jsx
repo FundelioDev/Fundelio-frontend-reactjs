@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { DollarSign, Users, Megaphone, TrendingUp } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { DollarSign, Users, Megaphone, TrendingUp, ArrowLeft } from 'lucide-react';
 import { dashboardApi } from '@/api/dashboardApi';
 import FounderStatCard from './FounderStatCard';
 import FundraisingProgressChart from './FundraisingProgressChart';
@@ -12,6 +13,7 @@ import RecentActivities from './RecentActivities';
  * Displays overview statistics and charts for founder's campaigns
  */
 export const FounderDashboard = () => {
+    const navigate = useNavigate();
     const [dashboardData, setDashboardData] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -20,7 +22,7 @@ export const FounderDashboard = () => {
             try {
                 setLoading(true);
                 const response = await dashboardApi.getFounderDashboardData();
-                
+
                 if (response?.data?.data) {
                     setDashboardData(response.data.data);
                 }
@@ -68,6 +70,13 @@ export const FounderDashboard = () => {
             <div className="max-w-container mx-auto">
                 {/* Header */}
                 <div className="mb-6">
+                    <button
+                        onClick={() => navigate('/dashboard')}
+                        className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-4 group"
+                    >
+                        <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                        <span>Quay lại Dashboard</span>
+                    </button>
                     <h1 className="text-2xl sm:text-3xl font-bold text-text-primary dark:text-white">
                         Dashboard Founder
                     </h1>

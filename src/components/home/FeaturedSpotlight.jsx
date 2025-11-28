@@ -5,6 +5,7 @@ import 'swiper/css';
 import ProjectCard from './ProjectCard';
 import ProjectLists from './ProjectLists';
 import { FaFire } from "react-icons/fa6";
+import { GoClockFill } from "react-icons/go";
 /**
  * @param {Object} campaigns - Object with featured and spotlight arrays
  * @param {boolean} loading - Loading state from parent
@@ -93,9 +94,9 @@ export const FeaturedSpotlight = ({ campaigns = { featured: [], spotlight: [] },
             <div className="xl:col-span-8">
               {/* Header with Navigation */}
               <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1.5">
                   <FaFire className="w-6 h-6 text-text-primary dark:text-white" />
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">
                     Nổi bật
                   </h2>
                 </div>
@@ -128,38 +129,58 @@ export const FeaturedSpotlight = ({ campaigns = { featured: [], spotlight: [] },
                 </div>
               </div>
 
-              {/* 2x2 Grid via Swiper */}
+              {/* 2x2 Grid via Swiper (Desktop) / Horizontal Scroll (Mobile) */}
               {chunkedFeatured.length === 0 ? (
                 <div className="py-12 text-center text-muted-foreground border border-dashed border-gray-200 dark:border-gray-700 rounded-lg">
                   Chưa có chiến dịch nổi bật để hiển thị.
                 </div>
               ) : (
-                <Swiper
-                  spaceBetween={24}
-                  allowTouchMove={hasMultipleSlides}
-                  onSwiper={(swiperInstance) => {
-                    setSwiperRef(swiperInstance);
-                    handleSlideChange(swiperInstance);
-                  }}
-                  onSlideChange={handleSlideChange}
-                >
-                  {chunkedFeatured.map((campaignGroup, index) => (
-                    <SwiperSlide key={`featured-slide-${index}`}>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        {campaignGroup.map((campaign) => (
-                          <ProjectCard
-                            key={campaign.campaignId}
-                            project={campaign}
-                            asLink={`/campaigns/${campaign.campaignId}`}
-                            onBookmarkToggle={(id, bookmarked) => {
-                              console.log('Bookmark toggled:', id, bookmarked);
-                            }}
-                          />
-                        ))}
+                <>
+                  {/* Mobile View: Horizontal Scroll */}
+                  <div className="md:hidden flex overflow-x-auto snap-x snap-mandatory scroll-pl-4 gap-4 pb-4 scrollbar-hide -mx-4 px-4">
+                    {featuredCampaigns.map((campaign) => (
+                      <div key={campaign.campaignId} className="min-w-[85vw] snap-start">
+                        <ProjectCard
+                          project={campaign}
+                          asLink={`/campaigns/${campaign.campaignId}`}
+                          onBookmarkToggle={(id, bookmarked) => {
+                            console.log('Bookmark toggled:', id, bookmarked);
+                          }}
+                        />
                       </div>
-                    </SwiperSlide>
-                  ))}
-                </Swiper>
+                    ))}
+                  </div>
+
+                  {/* Desktop View: Swiper Grid */}
+                  <div className="hidden md:block">
+                    <Swiper
+                      spaceBetween={24}
+                      allowTouchMove={hasMultipleSlides}
+                      onSwiper={(swiperInstance) => {
+                        setSwiperRef(swiperInstance);
+                        handleSlideChange(swiperInstance);
+                      }}
+                      onSlideChange={handleSlideChange}
+                    >
+                      {chunkedFeatured.map((campaignGroup, index) => (
+                        <SwiperSlide key={`featured-slide-${index}`}>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            {campaignGroup.map((campaign) => (
+                              <ProjectCard
+                                key={campaign.campaignId}
+                                project={campaign}
+                                asLink={`/campaigns/${campaign.campaignId}`}
+                                onBookmarkToggle={(id, bookmarked) => {
+                                  console.log('Bookmark toggled:', id, bookmarked);
+                                }}
+                              />
+                            ))}
+                          </div>
+                        </SwiperSlide>
+                      ))}
+                    </Swiper>
+                  </div>
+                </>
               )}
 
               {/* Page Indicators */}
@@ -180,13 +201,9 @@ export const FeaturedSpotlight = ({ campaigns = { featured: [], spotlight: [] },
 
             {/* Right Side: Spotlight */}
             <div className="xl:col-span-4">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-6 h-6 text-text-primary dark:text-white">
-                  <svg viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                </div>
-                <h2 className="text-2xl font-bold text-text-primary dark:text-white">
+              <div className="flex items-center gap-1.5 mb-6">
+                <GoClockFill className="w-6 h-6 text-text-primary dark:text-white" />
+                <h2 className="text-xl font-bold text-text-primary dark:text-white">
                   Gần đây
                 </h2>
               </div>
@@ -195,10 +212,13 @@ export const FeaturedSpotlight = ({ campaigns = { featured: [], spotlight: [] },
               <div className="relative">
                 {/* Scrollable Container */}
                 <div
-                  className="space-y-2 overflow-y-auto pr-2 pl-2 scrollbar-primary"
+                  className="flex md:block overflow-x-auto md:overflow-y-auto snap-x snap-mandatory scroll-pl-4 md:snap-none gap-4 md:space-y-2 pb-4 md:pb-0 pr-2 pl-2 scrollbar-primary -mx-4 px-4 md:mx-0 md:px-0"
                   style={{
-                    maxHeight: 'calc(2 * 526px + 1.5rem)', // Height of 2 cards + gap
-                    minHeight: 'calc(2 * 526px + 1.5rem)',
+                    // Only apply max-height on desktop
+                    ...(window.innerWidth >= 768 ? {
+                      maxHeight: 'calc(2 * 526px + 1.5rem)',
+                      minHeight: 'calc(2 * 526px + 1.5rem)',
+                    } : {})
                   }}
                 >
                   {spotlightCampaigns.map((campaign, index) => {
@@ -222,7 +242,7 @@ export const FeaturedSpotlight = ({ campaigns = { featured: [], spotlight: [] },
                       <a
                         key={campaign.campaignId}
                         href={`/campaigns/${campaign.campaignId}`}
-                        className="flex items-center gap-2 px-2.5 py-2 bg-white dark:bg-darker-2 inset-shadow-2xs shadow-md rounded-md hover:scale-[1.02] transition-all duration-200 group"
+                        className="flex items-center gap-2 px-2.5 py-2 bg-white dark:bg-darker-2 inset-shadow-2xs shadow-md rounded-md hover:scale-[1.02] transition-all duration-200 group min-w-[85vw] snap-start md:min-w-0 md:snap-align-none"
                       >
                         {/* Thumbnail */}
                         <div className="relative w-16 h-16 flex-shrink-0 rounded-md overflow-hidden">
@@ -270,9 +290,9 @@ export const FeaturedSpotlight = ({ campaigns = { featured: [], spotlight: [] },
                   })}
                 </div>
 
-                {/* Bottom Fade Overlay - chỉ hiện khi có scrollbar */}
+                {/* Bottom Fade Overlay - chỉ hiện khi có scrollbar (Desktop only) */}
                 <div
-                  className="absolute bottom-0 left-0 right-0 h-3 bg-gradient-to-t from-gray-50 dark:from-darker to-transparent pointer-events-none"
+                  className="hidden md:block absolute bottom-0 left-0 right-0 h-3 bg-gradient-to-t from-gray-50 dark:from-darker to-transparent pointer-events-none"
                   aria-hidden="true"
                 />
               </div>

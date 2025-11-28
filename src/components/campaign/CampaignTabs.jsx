@@ -67,7 +67,7 @@ const CampaignTabs = ({ initialTab = 'campaign', campaignProps = {}, onTabChange
 
       {/* Tab Content - Campaign có bg-white, còn lại bg-background-light-2 */}
       <div className={`${activeTab === 'campaign' ? 'bg-white dark:bg-darker' : 'bg-background-light-2 dark:bg-darker'}`}>
-        <div className="max-w-container mx-auto py-6 lg:py-8">
+        <div className="max-w-container mx-auto py-6 lg:py-8 px-3 lg:px-0">
           {/* Campaign Tab */}
           {activeTab === 'campaign' && (
             <div

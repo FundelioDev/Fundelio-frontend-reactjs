@@ -93,10 +93,6 @@ export function RewardDetailCard({ reward, items = [], addOns = [], onSelectRewa
               {/* Stats */}
               <div className="flex flex-wrap items-center gap-3 md:gap-6 mb-6 text-xs md:text-sm text-muted-foreground">
                 <div className="flex items-center gap-2 min-w-0">
-                  <Users className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
-                  <span className="font-semibold text-foreground truncate">{reward.backers || 0} lượt ủng hộ</span>
-                </div>
-                <div className="flex items-center gap-2 min-w-0">
                   <Calendar className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
                   <span className="truncate">{reward.shipsTo}</span>
                 </div>

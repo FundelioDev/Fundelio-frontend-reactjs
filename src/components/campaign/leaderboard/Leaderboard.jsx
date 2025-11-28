@@ -6,6 +6,7 @@ import { HeartHandshake } from 'lucide-react';
 import { useCampaignProgress } from '@/websocket/hooks';
 import { pledgeApi } from "@/api/pledgeApi";
 gsap.registerPlugin(Flip);
+import { IoMdTrophy } from "react-icons/io";
 
 const WreathLaurel = ({ rank, className = "" }) => {
   const colors = {
@@ -136,7 +137,7 @@ const Leaderboard = ({ campaignId }) => {
       toast.custom((t) => (
         <div
           className={`${t.visible ? 'animate-enter' : 'animate-leave'
-            } max-w-xs w-full bg-white dark:bg-darker-2 shadow-lg rounded-sm pointer-events-auto flex items-center gap-3 p-2 border border-border-light dark:border-border`}
+            } max-w-xs w-full bg-white dark:bg-darker-2 shadow-lg rounded-sm pointer-events-auto flex items-center gap-1.5 p-2 border border-border-light dark:border-border`}
         >
           <div className="flex-shrink-0 bg-indigo-200 p-2 rounded-full">
             <HeartHandshake className="w-6 h-6 text-indigo-700" />
@@ -238,9 +239,9 @@ const Leaderboard = ({ campaignId }) => {
 
       {/* Header */}
       <div className="mb-8">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="text-4xl">🏆</div>
-          <h2 className="text-3xl font-bold text-text-primary dark:text-white">
+        <div className="flex items-center gap-1.5 mb-3">
+          <IoMdTrophy className="text-3xl" />
+          <h2 className="text-2xl font-bold text-text-primary dark:text-white">
             Người ủng hộ hàng đầu
           </h2>
         </div>
@@ -286,18 +287,18 @@ const Leaderboard = ({ campaignId }) => {
                 `}
                 >
                   {/* Rank Number */}
-                  <div className="flex items-center justify-center w-14 h-14 relative flex-shrink-0">
+                  <div className="flex items-center justify-center w-11 h-11 relative flex-shrink-0">
                     {isTopThree ? (
                       <div className="relative w-full h-full flex items-center justify-center">
                         {/* Wreath Background */}
                         <WreathLaurel rank={rank} className="absolute inset-0 w-full h-full opacity-60 -mt-0.5" />
                         {/* Rank Number on top */}
-                        <span className="relative z-10 text-xl font-bold text-text-primary dark:text-white drop-shadow-lg">
+                        <span className="relative z-10 text-md font-bold text-text-primary dark:text-white drop-shadow-lg">
                           #{rank}
                         </span>
                       </div>
                     ) : (
-                      <span className="text-xl font-bold tabular-nums text-text-secondary dark:text-white/60">
+                      <span className="text-md font-bold tabular-nums text-text-secondary dark:text-white/60">
                         #{rank}
                       </span>
                     )}

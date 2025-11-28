@@ -501,7 +501,7 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">Giá (VND)</label>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5">
               <Input
                 type="number"
                 name="minPledgeAmount"
@@ -639,7 +639,7 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
         <div className="rounded-sm border border-border bg-white dark:bg-darker-2 p-6">
           <h3 className="text-lg font-semibold text-foreground mb-4">Vận chuyển<span className="text-lg font-bold text-primary">*</span></h3>
           <div className="space-y-3">
-            <label className="flex items-center gap-3 cursor-pointer">
+            <label className="flex items-center gap-1.5 cursor-pointer">
               <input
                 type="radio"
                 name="shipping"
@@ -650,7 +650,7 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
               />
               <span className="text-foreground">Ship toàn cầu</span>
             </label>
-            <label className="flex items-center gap-3 cursor-pointer">
+            <label className="flex items-center gap-1.5 cursor-pointer">
               <input
                 type="radio"
                 name="shipping"
@@ -703,7 +703,7 @@ const RewardForm = forwardRef(({ reward, items, rewards, onSave, onCancel, onCha
                               return (
                                 <label
                                   key={country.id}
-                                  className="flex items-center gap-3 p-2 hover:bg-muted rounded cursor-pointer transition-colors"
+                                  className="flex items-center gap-1.5 p-2 hover:bg-muted rounded cursor-pointer transition-colors"
                                   onClick={(e) => e.stopPropagation()}
                                 >
                                   <input

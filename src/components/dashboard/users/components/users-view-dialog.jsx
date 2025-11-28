@@ -56,7 +56,7 @@ export function UsersViewDialog({ currentRow, open, onOpenChange }) {
   // Group permissions by module for each role
   const getRolePermissionsByModule = (permissions) => {
     if (!permissions || permissions.length === 0) return {};
-    
+
     return permissions.reduce((acc, permission) => {
       const module = permission.module ?? 'Other';
       if (!acc[module]) {
@@ -246,7 +246,7 @@ export function UsersViewDialog({ currentRow, open, onOpenChange }) {
                                       onOpenChange={() => toggleModule(role.roleId, module)}
                                     >
                                       <div className='w-full rounded-t-lg border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-zinc-700 hover:bg-slate-100 dark:hover:bg-zinc-600 transition-colors px-4 py-2.5'>
-                                        <CollapseTrigger className='flex items-center gap-3 w-full'>
+                                        <CollapseTrigger className='flex items-center gap-1.5 w-full'>
                                           <ChevronRight
                                             className={cn(
                                               'h-4 w-4 shrink-0 transition-transform duration-200 text-slate-700 dark:text-slate-300',

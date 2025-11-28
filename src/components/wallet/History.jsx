@@ -239,7 +239,8 @@ export default function History() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-x-auto">
+        {/* Desktop Table View */}
+        <div className="hidden md:block bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead className="bg-gray-50 dark:bg-gray-700">
               <tr>
@@ -283,7 +284,7 @@ export default function History() {
                       onClick={() => handleRowClick(item)}
                     >
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-200">
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-1.5">
                           <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-blue-600 dark:text-blue-400 text-lg">
                             {item.transactionType === 'DEPOSIT' ? <FaWallet /> : item.transactionType === 'REFUND' ? <FaExchangeAlt /> : <FaShoppingBag />}
                           </div>
@@ -330,6 +331,84 @@ export default function History() {
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile Card View */}
+        <div className="md:hidden space-y-4">
+          {loading ? (
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 text-center text-gray-400 dark:text-gray-300">
+              Đang tải dữ liệu...
+            </div>
+          ) : transactions.length === 0 ? (
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 text-center text-gray-500 dark:text-gray-300">
+              <FaShoppingBag className="text-gray-300 dark:text-gray-500 text-3xl mx-auto mb-2" />
+              Không tìm thấy giao dịch nào phù hợp.
+            </div>
+          ) : (
+            transactions.map((item) => {
+              const amounts = renderAmount(item);
+              return (
+                <div
+                  key={item.transactionId}
+                  onClick={() => handleRowClick(item)}
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-100 dark:border-gray-700 p-4 hover:shadow-lg transition-all cursor-pointer"
+                >
+                  {/* Header */}
+                  <div className="flex items-start gap-3 mb-3">
+                    <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-blue-600 dark:text-blue-400 text-xl flex-shrink-0">
+                      {item.transactionType === 'DEPOSIT' ? <FaWallet /> : item.transactionType === 'REFUND' ? <FaExchangeAlt /> : <FaShoppingBag />}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 line-clamp-2 mb-1">
+                        {getShortDescription(item.description) || getTransactionTypeName(item.transactionType)}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 font-mono">
+                        {formatDate(item.createdAt)}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Details */}
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs text-gray-500 dark:text-gray-400">Loại GD:</span>
+                      {renderTypeBadge(item.transactionType)}
+                    </div>
+
+                    {amounts.withdrawal !== '---' && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs text-gray-500 dark:text-gray-400">Tiền ra:</span>
+                        <span className="text-sm font-bold text-gray-800 dark:text-gray-200">{amounts.withdrawal}</span>
+                      </div>
+                    )}
+
+                    {amounts.deposit !== '---' && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs text-gray-500 dark:text-gray-400">Tiền vào:</span>
+                        <span className="text-sm font-bold text-green-600 dark:text-green-400">{amounts.deposit}</span>
+                      </div>
+                    )}
+
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs text-gray-500 dark:text-gray-400">Trạng thái:</span>
+                      {renderStatusBadge(item.status)}
+                    </div>
+
+                    <div className="pt-2 border-t border-gray-100 dark:border-gray-700">
+                      <div className="flex items-center justify-between text-xs text-gray-400 dark:text-gray-500">
+                        <span>ID: #{item.transactionId?.slice(0, 8)}...</span>
+                        {item.vnpBankCode && (
+                          <span className="flex items-center gap-1 text-blue-500 dark:text-blue-400">
+                            <FaUniversity size={10} /> {item.vnpBankCode}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          )}
         </div>
       </div>
 

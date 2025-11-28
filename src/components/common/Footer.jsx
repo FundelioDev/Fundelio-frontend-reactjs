@@ -53,9 +53,9 @@ export const Footer = () => {
     <footer className="sticky top-[100vh] bg-white dark:bg-darker border-t border-gray-200 dark:border-gray-700 text-text-primary dark:text-white py-8 sm:py-10 lg:py-12 transition-colors duration-300">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-container">
         {/* Main Grid - sections */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 sm:gap-8 mb-6 sm:mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-6 sm:gap-8 mb-6 sm:mb-8">
           {/* Section 1 - Logo & Social */}
-          <div className="col-span-1">
+          <div className="col-span-2 lg:col-span-1">
             <h2 className="text-xl sm:text-2xl font-bold text-text-primary dark:text-white mb-3 sm:mb-4 transition-colors duration-300">
               Fundelio
             </h2>

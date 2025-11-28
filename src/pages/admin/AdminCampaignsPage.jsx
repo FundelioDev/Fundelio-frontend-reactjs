@@ -25,7 +25,7 @@ export default function AdminCampaignsPage() {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [pagination, setPagination] = useState({
     currentPage: 1,
-    pageSize: 20,
+    pageSize: 21,
     totalPages: 0,
     totalElements: 0,
   });

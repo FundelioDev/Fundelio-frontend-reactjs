@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import {
   Eye,
   Sun,
@@ -17,6 +17,7 @@ import {
 import { useTheme } from '../../contexts/ThemeContext';
 import Button from './Button';
 import { useAuth } from '../../contexts/AuthContext';
+import { walletApi } from '@/api/walletApi';
 /**
  * CreateCampaignHeader - Header for create campaign pages
  * @param {Object} props
@@ -35,7 +36,9 @@ export const CreateCampaignHeader = ({
 }) => {
   const { toggleTheme, isDark } = useTheme();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [headerBalance, setHeaderBalance] = useState(0);
   const { isLoggedIn, user, logout } = useAuth();
 
   const avatarUrl = useMemo(() => {
@@ -103,6 +106,33 @@ export const CreateCampaignHeader = ({
       navigate(`/campaigns/${campaignId}/dashboard`);
     }
   };
+
+  // Fetch wallet balance
+  useEffect(() => {
+    if (isLoggedIn && user) {
+      const fetchBalance = async () => {
+        try {
+          const res = await walletApi.getWalletInfo();
+          if (res?.data?.success) {
+            const rawBalance = res.data.data.balance;
+            const cleanBalance = Number(String(rawBalance).replace(/\./g, ''));
+            setHeaderBalance(cleanBalance);
+          }
+        } catch (error) {
+          console.error('CreateCampaignHeader: Lỗi tải số dư', error);
+        }
+      };
+      fetchBalance();
+    } else {
+      setHeaderBalance(0);
+    }
+  }, [isLoggedIn, user, location.pathname]);
+
+  const formatPrice = (value) => {
+    return new Intl.NumberFormat('vi-VN').format(value || 0);
+  };
+
+  const handleCoinClick = () => navigate('/wallet');
 
   return (
     <header className={`fixed top-0 left-0 right-0 z-50 bg-white dark:bg-background-header-dark border-b border-border dark:border-border transition-all duration-300 h-20`}>
@@ -203,7 +233,7 @@ export const CreateCampaignHeader = ({
                         <Link
                           to="/dashboard"
                           onClick={() => setIsUserMenuOpen(false)}
-                          className="flex items-center gap-3 px-3 py-2 text-sm text-text-primary dark:text-white hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-colors"
+                          className="flex items-center gap-1.5 px-3 py-2 text-sm text-text-primary dark:text-white hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-colors"
                         >
                           <LayoutDashboard className="w-4 h-4" />
                           <span>Bảng điều khiển</span>
@@ -214,7 +244,7 @@ export const CreateCampaignHeader = ({
                           <Link
                             to="/admin"
                             onClick={() => setIsUserMenuOpen(false)}
-                            className="flex items-center gap-3 px-3 py-2 text-sm text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-lg transition-colors"
+                            className="flex items-center gap-1.5 px-3 py-2 text-sm text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-lg transition-colors"
                           >
                             <ShieldCheck className="w-4 h-4" />
                             <span>Quản trị hệ thống</span>
@@ -224,14 +254,14 @@ export const CreateCampaignHeader = ({
                         <div className="border-t-2 border-border my-3"></div>
                         <a
                           href="#"
-                          className="flex items-center gap-3 px-3 py-2 text-sm text-text-primary dark:text-white hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-colors"
+                          className="flex items-center gap-1.5 px-3 py-2 text-sm text-text-primary dark:text-white hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-colors"
                         >
                           <User className="w-4 h-4" />
                           <span>Hồ sơ</span>
                         </a>
                         <a
                           href="#"
-                          className="flex items-center gap-3 px-3 py-2 text-sm text-text-primary dark:text-white hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-colors"
+                          className="flex items-center gap-1.5 px-3 py-2 text-sm text-text-primary dark:text-white hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-colors"
                         >
                           <Settings className="w-4 h-4" />
                           <span>Cài đặt</span>
@@ -239,7 +269,7 @@ export const CreateCampaignHeader = ({
                         <Link
                           to="/my-pledges"
                           onClick={() => setIsUserMenuOpen(false)}
-                          className="flex items-center gap-3 px-3 py-2 text-sm text-text-primary dark:text-white hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-colors"
+                          className="flex items-center gap-1.5 px-3 py-2 text-sm text-text-primary dark:text-white hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-colors"
                         >
                           <FolderOpen className="w-4 h-4" />
                           <span>Dự án của bạn</span>
@@ -247,7 +277,7 @@ export const CreateCampaignHeader = ({
                         <Link
                           to="/wallet"
                           onClick={() => setIsUserMenuOpen(false)}
-                          className="flex items-center gap-3 px-3 py-2 text-sm text-text-primary dark:text-white hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-colors"
+                          className="flex items-center gap-1.5 px-3 py-2 text-sm text-text-primary dark:text-white hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-colors"
                         >
                           <Wallet className="w-4 h-4" />
                           <span>Ví</span>
@@ -261,7 +291,7 @@ export const CreateCampaignHeader = ({
                       <Link
                         to="/campaigns/create"
                         onClick={() => setIsUserMenuOpen(false)}
-                        className="flex items-center gap-3 px-3 py-2 text-primary hover:bg-primary/10 rounded-lg transition-colors"
+                        className="flex items-center gap-1.5 px-3 py-2 text-primary hover:bg-primary/10 rounded-lg transition-colors"
                       >
                         <div className="w-10 h-10 flex-shrink-0 bg-primary/10 rounded flex items-center justify-center border-2 border-dashed border-primary">
                           <Plus className="w-5 h-5" />
@@ -277,7 +307,7 @@ export const CreateCampaignHeader = ({
                             setIsUserMenuOpen(false);
                             navigate('/auth', { state: { mode: 'login' } });
                           }}
-                          className="flex items-center gap-3 px-3 py-2 text-sm text-destructive hover:bg-destructive/10 rounded-lg transition-colors w-full"
+                          className="flex items-center gap-1.5 px-3 py-2 text-sm text-destructive hover:bg-destructive/10 rounded-lg transition-colors w-full"
                         >
                           <LogOut className="w-4 h-4" />
                           <span>Đăng xuất</span>
@@ -318,6 +348,27 @@ export const CreateCampaignHeader = ({
 
           {/* Right - Actions */}
           <div className="flex items-center gap-2">
+            {/* Wallet Balance - Mobile */}
+            {isLoggedIn && user && (
+              <button
+                onClick={handleCoinClick}
+                className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-primary/10 hover:bg-primary/20 transition-all"
+              >
+                <Wallet className="w-4 h-4 text-primary" />
+                <span className="text-xs font-bold text-primary">
+                  {formatPrice(headerBalance)}
+                </span>
+              </button>
+            )}
+
+            {/* Theme Toggle - Mobile */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-lg text-text-primary dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200"
+            >
+              {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
+
             {/* Preview Button */}
             <button
               onClick={onPreview}
@@ -329,28 +380,115 @@ export const CreateCampaignHeader = ({
 
             {/* User Avatar */}
             {isLoggedIn && user ? (
-              <button
-                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                className="flex-shrink-0"
-              >
-                <img
-                  src={avatarUrl}
-                  alt={displayName}
-                  className='w-9 h-9 rounded-full ring-2 ring-gray-200 dark:ring-gray-700 object-cover'
-                  onError={(e) => {
-                    // Fallback nếu avatar lỗi
-                    const firstName = user?.firstName || user?.first_name || '';
-                    const lastName = user?.lastName || user?.last_name || '';
-                    const fullName =
-                      `${firstName} ${lastName}`.trim() ||
-                      user?.email ||
-                      user?.name ||
-                      'User';
-                    const encodedName = encodeURIComponent(fullName);
-                    e.target.src = `https://ui-avatars.com/api/?name=${encodedName}&size=150&background=random`;
-                  }}
-                />
-              </button>
+              <div className="relative user-menu-container">
+                <button
+                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                  className="flex-shrink-0"
+                >
+                  <img
+                    src={avatarUrl}
+                    alt={displayName}
+                    className='w-9 h-9 rounded-full ring-2 ring-gray-200 dark:ring-gray-700 object-cover'
+                    onError={(e) => {
+                      const firstName = user?.firstName || user?.first_name || '';
+                      const lastName = user?.lastName || user?.last_name || '';
+                      const fullName =
+                        `${firstName} ${lastName}`.trim() ||
+                        user?.email ||
+                        user?.name ||
+                        'User';
+                      const encodedName = encodeURIComponent(fullName);
+                      e.target.src = `https://ui-avatars.com/api/?name=${encodedName}&size=150&background=random`;
+                    }}
+                  />
+                </button>
+
+                {/* Mobile User Dropdown Menu */}
+                {isUserMenuOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-[280px] max-w-[calc(100vw-2rem)] bg-white dark:bg-darker rounded-lg shadow-xl border border-border overflow-hidden z-50">
+                    <div className="p-4">
+                      <div className="space-y-1">
+                        {/* Admin link */}
+                        {user?.rolesSecured?.some((role) => role.name === 'ADMIN') && (
+                          <Link
+                            to="/admin"
+                            onClick={() => setIsUserMenuOpen(false)}
+                            className="flex items-center gap-1.5 px-3 py-2 text-sm text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-lg transition-colors"
+                          >
+                            <ShieldCheck className="w-4 h-4" />
+                            <span>Quản trị hệ thống</span>
+                          </Link>
+                        )}
+                        {user?.rolesSecured?.some(
+                          (role) => role.name === 'FOUNDER' || role.name === 'ADMIN'
+                        ) && (
+                            <Link
+                              to="/dashboard"
+                              onClick={() => setIsUserMenuOpen(false)}
+                              className="flex items-center gap-1.5 px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 text-text-primary dark:text-white border-b border-amber-600 dark:border-amber-700"
+                            >
+                              <LayoutDashboard className="w-4 h-4 text-gray-500" />
+                              <span>Bảng điều khiển</span>
+                            </Link>
+                          )}
+                        <Link
+                          to="/profile"
+                          onClick={() => setIsUserMenuOpen(false)}
+                          className="flex items-center gap-1.5 px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-text-primary dark:text-white"
+                        >
+                          <User className="w-4 h-4 text-gray-500" />
+                          <span>Hồ sơ cá nhân</span>
+                        </Link>
+
+                        <Link
+                          to="/my-pledges"
+                          onClick={() => setIsUserMenuOpen(false)}
+                          className="flex items-center gap-1.5 px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-text-primary dark:text-white"
+                        >
+                          <FolderOpen className="w-4 h-4 text-gray-500" />
+                          <span>Dự án của tôi</span>
+                        </Link>
+
+                        <Link
+                          to="/campaigns/create"
+                          onClick={() => setIsUserMenuOpen(false)}
+                          className="flex items-center gap-1.5 px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-primary font-medium"
+                        >
+                          <Plus className="w-4 h-4" />
+                          <span>Tạo chiến dịch</span>
+                        </Link>
+
+                        <div className="h-px bg-gray-100 dark:bg-gray-700 my-1"></div>
+
+                        <Link
+                          to="/wallet"
+                          onClick={() => setIsUserMenuOpen(false)}
+                          className="flex items-center gap-1.5 px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-text-primary dark:text-white"
+                        >
+                          <Wallet className="w-4 h-4 text-gray-500" />
+                          <div className="flex justify-between w-full items-center">
+                            <span>Ví của tôi</span>
+                            <span className="text-xs font-bold text-primary">
+                              {formatPrice(headerBalance)} đ
+                            </span>
+                          </div>
+                        </Link>
+
+                        <button
+                          onClick={() => {
+                            logout();
+                            navigate('/auth');
+                          }}
+                          className="flex items-center gap-1.5 px-3 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg w-full text-left transition-colors"
+                        >
+                          <LogOut className="w-4 h-4" />
+                          <span>Đăng xuất</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             ) : (
               <Button
                 size="sm"

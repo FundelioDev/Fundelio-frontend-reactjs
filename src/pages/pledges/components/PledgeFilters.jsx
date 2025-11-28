@@ -26,7 +26,7 @@ export default function PledgeFilters({ onFilterChange, currentFilter }) {
 
     return (
         <div className="mb-6">
-            <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center gap-1.5 mb-4">
                 <button
                     onClick={() => setShowFilters(!showFilters)}
                     className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-text-primary dark:text-white bg-white dark:bg-darker-2 border border-border rounded-sm hover:bg-muted transition-colors"
@@ -59,8 +59,8 @@ export default function PledgeFilters({ onFilterChange, currentFilter }) {
                                     key={idx}
                                     onClick={() => setTempFilter(template.value)}
                                     className={`px-3 py-1.5 text-xs font-medium rounded-sm transition-colors ${tempFilter === template.value
-                                            ? 'bg-primary text-white'
-                                            : 'bg-muted text-text-primary dark:text-white hover:bg-muted/80'
+                                        ? 'bg-primary text-white'
+                                        : 'bg-muted text-text-primary dark:text-white hover:bg-muted/80'
                                         }`}
                                 >
                                     {template.label}

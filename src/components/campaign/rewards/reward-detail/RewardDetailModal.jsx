@@ -148,10 +148,6 @@ export function RewardDetailModal({ isOpen, onClose, reward, items = [], addOns 
 
                             <div className="flex items-center gap-6 text-sm text-muted-foreground">
                                 <div className="flex items-center gap-2">
-                                    <Users className="w-4 h-4" />
-                                    <span>{reward.backersCount || 0} lượt ủng hộ</span>
-                                </div>
-                                <div className="flex items-center gap-2">
                                     <Truck className="w-4 h-4" />
                                     <span>
                                         {reward.estimatedDelivery
@@ -210,7 +206,7 @@ export function RewardDetailModal({ isOpen, onClose, reward, items = [], addOns 
                                             variant="addon"
                                             showQuantity={false}
                                             rightContent={
-                                                <div className="flex items-center gap-3">
+                                                <div className="flex items-center gap-1.5">
                                                     {isSelected ? (
                                                         <>
                                                             <div className="flex items-center border border-border dark:border-gray-600 rounded-lg bg-background dark:bg-darker overflow-hidden shadow-sm">
@@ -262,7 +258,7 @@ export function RewardDetailModal({ isOpen, onClose, reward, items = [], addOns 
                     {/* Quantity selector and total */}
                     <div className="border-t border-border/50 pt-6 mt-6">
                         {/* <div className="flex items-center justify-between mb-6">
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-1.5">
                                 <span className="text-sm font-semibold text-muted-foreground">SỐ LƯỢNG ỦNG HỘ</span>
                                 <div className="flex items-center gap-2">
                                     <Button
@@ -300,8 +296,8 @@ export function RewardDetailModal({ isOpen, onClose, reward, items = [], addOns 
                             <span>{isInteractionLocked ? lockedActionLabel : 'XÁC NHẬN ỦNG HỘ'}</span>
                             {!isInteractionLocked && (
                                 <>
-                            <span className="text-lg">•</span>
-                            <span className="font-bold">{formatPrice(calculateTotal())} VND</span>
+                                    <span className="text-lg">•</span>
+                                    <span className="font-bold">{formatPrice(calculateTotal())} VND</span>
                                 </>
                             )}
                         </Button>

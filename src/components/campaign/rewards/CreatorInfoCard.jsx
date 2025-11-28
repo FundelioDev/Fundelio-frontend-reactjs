@@ -21,7 +21,7 @@ const CreatorInfoCard = ({ creator }) => {
   return (
     <div className="border border-border rounded-sm p-4 bg-white dark:bg-darker-2 shadpw-sm">
       {/* Avatar & Name */}
-      <div className="flex items-center gap-3 mb-3">
+      <div className="flex items-center gap-1.5 mb-3">
         {displayAvatar ? (
           <div className="w-12 h-12 rounded-full overflow-hidden border border-border bg-muted flex-shrink-0">
             <img

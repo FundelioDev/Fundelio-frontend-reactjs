@@ -11,10 +11,10 @@ const SearchResults = ({ campaigns = [] }) => {
             return {
                 ...campaign,
                 campaignId,
-                pledgedAmount: campaign.currentAmount ?? campaign.pledgedAmount ?? 0,
-                goalAmount: campaign.fundingGoal ?? campaign.goalAmount ?? campaign.goal ?? 0,
-                introImageUrl: campaign.thumbnailUrl ?? campaign.introImageUrl ?? campaign.imageUrl,
-                campaignCategory: campaign.categoryName ?? campaign.campaignCategory,
+                pledgedAmount: campaign.pledgedAmount ?? 0,
+                goalAmount: campaign.goalAmount ?? campaign.goal ?? 0,
+                introImageUrl: campaign.introImageUrl ?? campaign.imageUrl,
+                campaignCategory: campaign.campaignCategory,
             };
         });
     }, [campaigns]);

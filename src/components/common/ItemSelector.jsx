@@ -133,7 +133,7 @@ export default function ItemSelector({ items, selectedItems, onConfirm, onClose,
                     </div>
 
                     {/* Right side: Quantity input (if selected) + Check icon */}
-                    <div className="flex items-center gap-3 ml-4 flex-shrink-0">
+                    <div className="flex items-center gap-1.5 ml-4 flex-shrink-0">
                       {isSelected && !isAddOnMode && (
                         <input
                           type="number"

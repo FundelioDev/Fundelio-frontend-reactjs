@@ -9,14 +9,14 @@ import { useAuth } from '@/contexts/AuthContext';
 const PaymentPage = () => {
     const navigate = useNavigate();
     const { isLoggedIn } = useAuth();
-    
+
     const [amount, setAmount] = useState(1000000);
     const [acceptedTerms, setAcceptedTerms] = useState(false);
     const [showTermsModal, setShowTermsModal] = useState(false);
-    
+
     const [balance, setBalance] = useState(0);
     const [initialBalance, setInitialBalance] = useState(0);
-    
+
     const [isProcessing, setIsProcessing] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
     const pollInterval = useRef(null);
@@ -29,24 +29,7 @@ const PaymentPage = () => {
         }
     }, [isLoggedIn, navigate]);
 
-    useEffect(() => {
-        if (isLoggedIn) {
-            const fetchDepositLimits = async () => {
-                try {
-                    const res = await walletApi.getDepositLimits(); // API từ BE trả về { minAmount, maxAmount }
-                    if (res?.data?.success && res.data.data) {
-                        setDepositLimits({
-                            min: res.data.data.minAmount || 10000,
-                            max: res.data.data.maxAmount || 50000000,
-                        });
-                    }
-                } catch (error) {
-                    console.error('Lấy giới hạn nạp tiền thất bại', error);
-                }
-            };
-            fetchDepositLimits();
-        }
-    }, [isLoggedIn]);
+
 
     const formatPrice = (value) => {
         const numberVal = Number(value);
@@ -89,20 +72,15 @@ const PaymentPage = () => {
         const numValue = value ? parseInt(value) : 0;
         setAmount(numValue);
 
-        if (numValue > depositLimits.max) {
-            toast.error(`Số tiền nạp tối đa là ${formatPrice(depositLimits.max)} VND`);
-        } else if (numValue < depositLimits.min && numValue !== 0) {
-            toast.error(`Số tiền nạp tối thiểu là ${formatPrice(depositLimits.min)} VND`);
+        if (numValue > 1000000000) {
+            // Giữ lại limit cứng rất lớn để tránh input quá dài gây lỗi UI nếu cần, hoặc bỏ luôn cũng được.
+            // Ở đây tôi bỏ validate min/max theo yêu cầu, chỉ giữ setAmount.
         }
     };
 
     const handleQuickAmount = (quickAmount) => {
         setAmount(quickAmount);
-        if (quickAmount > depositLimits.max) {
-            toast.error(`Số tiền nạp tối đa là ${formatPrice(depositLimits.max)} VND`);
-        } else if (quickAmount < depositLimits.min) {
-            toast.error(`Số tiền nạp tối thiểu là ${formatPrice(depositLimits.min)} VND`);
-        }
+
     };
 
     const startPolling = () => {
@@ -114,11 +92,11 @@ const PaymentPage = () => {
                 const res = await walletApi.getWalletInfo();
                 if (res?.data?.success) {
                     const newBalance = parseBackendNumber(res.data.data.balance);
-                    
+
                     if (newBalance > initialBalance) {
                         clearInterval(pollInterval.current);
                         setIsProcessing(false);
-                        setIsSuccess(true); 
+                        setIsSuccess(true);
                         toast.success(`Đã nhận được tiền!`);
                     }
                 }
@@ -135,12 +113,8 @@ const PaymentPage = () => {
             toast.error("Vui lòng đồng ý với Điều khoản và điều kiện.");
             return;
         }
-        if (!amount || amount < depositLimits.min) {
-            toast.error(`Số tiền nạp tối thiểu là ${formatPrice(depositLimits.min)} VND.`);
-            return;
-        }
-        if (amount > depositLimits.max) {
-            toast.error(`Số tiền nạp tối đa là ${formatPrice(depositLimits.max)} VND.`);
+        if (!amount || amount <= 0) {
+            toast.error(`Vui lòng nhập số tiền hợp lệ.`);
             return;
         }
 
@@ -148,8 +122,8 @@ const PaymentPage = () => {
             const currentOrigin = window.location.origin;
             const payload = {
                 amount: amount,
-                paymentMethod: "VNPay", 
-                returnUrl: `${currentOrigin}/payment/callback` 
+                paymentMethod: "VNPay",
+                returnUrl: `${currentOrigin}/payment/callback`
             };
 
             const response = await walletApi.initiateDeposit(payload);
@@ -163,7 +137,7 @@ const PaymentPage = () => {
             }
 
         } catch (error) {
-            const msg = error?.response?.data?.message || "Khởi tạo thanh toán thất bại.";
+            const msg = error?.errors?.[0]?.message || "Khởi tạo thanh toán thất bại.";
             toast.error(msg);
         }
     };
@@ -204,9 +178,9 @@ const PaymentPage = () => {
                                     Vui lòng hoàn tất giao dịch. Hệ thống sẽ tự động cập nhật ngay khi nhận được tiền.
                                 </p>
                             </div>
-                            <button 
+                            <button
                                 onClick={() => {
-                                    if(pollInterval.current) clearInterval(pollInterval.current);
+                                    if (pollInterval.current) clearInterval(pollInterval.current);
                                     setIsProcessing(false);
                                     toast.dismiss();
                                 }}
@@ -229,8 +203,8 @@ const PaymentPage = () => {
                             Số dư khả dụng: <span className="font-bold text-primary text-lg">{formatPrice(balance)} VND</span>
                         </p>
                     </div>
-                    <button 
-                        onClick={() => navigate('/wallet')} 
+                    <button
+                        onClick={() => navigate('/wallet')}
                         className="text-sm sm:text-base md:text-lg text-primary hover:text-primary/80 font-medium transition-colors whitespace-nowrap"
                     >
                         Quay lại Ví của tôi

@@ -404,10 +404,10 @@ export default function PledgeSummaryPage() {
                                                 <div key={addon.id}>
                                                     <hr className="border-border/50 mb-4" />
                                                     <div className="flex items-start gap-4">
-                                                        {addon.image && (
+                                                        {addon.imageUrl && (
                                                             <div className="w-20 h-20 rounded-sm overflow-hidden flex-shrink-0">
                                                                 <img
-                                                                    src={addon.image}
+                                                                    src={addon.imageUrl}
                                                                     alt={addon.title}
                                                                     className="w-full h-full object-cover"
                                                                 />

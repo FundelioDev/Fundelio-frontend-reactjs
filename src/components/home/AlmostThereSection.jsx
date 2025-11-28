@@ -51,7 +51,7 @@ export const AlmostThereSection = ({ campaigns = [], loading = false }) => {
             <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1.5">
                         <Target className="w-6 h-6 sm:w-7 sm:h-7 text-text-primary dark:text-white" />
                         <h2 className="text-xl sm:text-2xl font-bold text-text-primary dark:text-white transition-colors duration-300">
                             Gần đạt mục tiêu

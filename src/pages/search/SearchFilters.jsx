@@ -73,7 +73,7 @@ const SearchFilters = ({
                     {sortOptions.map(option => (
                         <label
                             key={option.value}
-                            className="flex items-center gap-3 cursor-pointer group"
+                            className="flex items-center gap-1.5 cursor-pointer group"
                         >
                             <input
                                 type="radio"
@@ -121,7 +121,7 @@ const SearchFilters = ({
                             return (
                                 <label
                                     key={category.id || category.key}
-                                    className="flex items-center gap-3 cursor-pointer group"
+                                    className="flex items-center gap-1.5 cursor-pointer group"
                                 >
                                     <input
                                         type="checkbox"
@@ -212,7 +212,7 @@ const SearchFilters = ({
                     {statusOptions.map(option => (
                         <label
                             key={option.value}
-                            className="flex items-center gap-3 cursor-pointer group"
+                            className="flex items-center gap-1.5 cursor-pointer group"
                         >
                             <input
                                 type="radio"

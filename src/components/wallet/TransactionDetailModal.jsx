@@ -61,7 +61,7 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction }) => {
 
     const DetailRow = ({ icon: Icon, label, value, valueColor = 'text-gray-800' }) => (
         <div className="flex justify-between items-center py-2 border-b border-gray-100">
-            <div className="flex items-center gap-3 text-gray-500">
+            <div className="flex items-center gap-1.5 text-gray-500">
                 <Icon className="w-4 h-4" />
                 <span className="text-sm font-medium">{label}</span>
             </div>
@@ -92,7 +92,7 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction }) => {
 
                 <div className="p-6 bg-blue-50/70 rounded-t-2xl border-b border-blue-100">
                     <div className="flex justify-between items-start mb-4">
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-1.5">
                             <div className={`w-12 h-12 rounded-full flex items-center justify-center text-xl shadow-md ${isIncome ? 'bg-green-500' : 'bg-gray-500'} text-white`}>
                                 {isIncome ? <FaCheckCircle /> : <FaTimesCircle />}
                             </div>

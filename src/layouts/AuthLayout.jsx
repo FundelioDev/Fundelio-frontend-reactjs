@@ -50,7 +50,7 @@ export const AuthLayout = ({ children }) => {
     <div className='relative w-screen max-w-[100vw] overflow-x-hidden'>
       {/* AuthHeader với z-index cao hơn để đảm bảo hiển thị trên cùng */}
       <div className='z-[100] relative'>
-        <Header variant='light' landing/>
+        <Header variant='light' landing />
       </div>
 
       <motion.div
@@ -93,13 +93,12 @@ export const AuthLayout = ({ children }) => {
         {/* Main content */}
         {isAuthRootPage ? (
           <motion.div
-            className={`rounded-2xl md:rounded-3xl overflow-hidden flex relative border transition-all duration-300 ${
-              isMobile
-                ? 'w-[calc(100vw-2rem)] mx-4 h-[85vh] max-h-[800px]'
+            className={`rounded-2xl md:rounded-3xl overflow-hidden flex relative border transition-all duration-300 ${isMobile
+                ? 'w-[calc(100vw-2rem)] mx-4 h-auto min-h-[85vh] my-8'
                 : isTablet
-                ? 'w-[90%] max-w-[800px] h-[600px]'
-                : 'w-[85%] max-w-[1150px] h-[680px] xl:h-[720px]'
-            }`}
+                  ? 'w-[90%] max-w-[800px] h-[600px]'
+                  : 'w-[85%] max-w-[1150px] h-[680px] xl:h-[720px]'
+              }`}
             style={{
               backgroundColor:
                 theme === 'dark'

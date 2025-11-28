@@ -45,9 +45,9 @@ export const AuthPage = () => {
   }, [location.state]);
 
   return (
-    <div className='relative w-full h-full flex'>
+    <div className='relative w-full min-h-screen flex'>
       {/* Mobile navigation tabs */}
-      {isMobile && (
+      {/* {isMobile && (
         <div className='max-w-[100vw] w-full fixed top-14 sm:top-16 left-0 right-0 z-40 flex justify-center py-3 px-4 bg-background/70 backdrop-blur-xl border-b border-border/30'>
           <div className='flex gap-1.5 p-1.5 rounded-2xl bg-muted/30 border border-border/20'>
             <Button
@@ -92,12 +92,12 @@ export const AuthPage = () => {
             </Button>
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Forms container */}
-      <div className='relative w-full flex flex-col lg:flex-row mt-28 lg:mt-0'>
+      <div className='relative w-full flex flex-col lg:flex-row mt-16 lg:mt-0'>
         {/* Left side - Forms */}
-        <div className='w-full lg:w-1/2 p-6 md:p-10 lg:p-14 xl:p-16 overflow-y-auto overflow-x-hidden'>
+        <div className='w-full lg:w-1/2 p-6 md:p-10 lg:p-14 xl:p-16 lg:overflow-y-auto overflow-x-hidden'>
           <AnimatePresence mode='wait'>
             {isLogin || !isMobile ? (
               <motion.div
@@ -132,7 +132,7 @@ export const AuthPage = () => {
         </div>
 
         {/* Right side - Forms */}
-        <div className='w-full lg:w-1/2 p-6 md:p-10 lg:p-14 xl:p-16 overflow-y-auto overflow-x-hidden'>
+        <div className='w-full lg:w-1/2 p-6 md:p-10 lg:p-14 xl:p-16 lg:overflow-y-auto overflow-x-hidden'>
           <AnimatePresence mode='wait'>
             {!isLogin || isMobile ? (
               <motion.div
@@ -217,11 +217,10 @@ export const AuthPage = () => {
                   <Button
                     variant='outline'
                     size='lg'
-                    className={`w-[200px] h-[56px] rounded-2xl backdrop-blur-sm transition-all duration-300 text-white text-base font-medium overflow-hidden shadow-lg ${
-                      theme === 'dark'
-                        ? 'border-white/70 bg-white/20 hover:border-white hover:bg-white/30 hover:shadow-2xl'
-                        : 'border-white/50 bg-white/15 hover:border-white/80 hover:bg-white/25 hover:shadow-2xl'
-                    }`}
+                    className={`w-[200px] h-[56px] rounded-2xl backdrop-blur-sm transition-all duration-300 text-white text-base font-medium overflow-hidden shadow-lg ${theme === 'dark'
+                      ? 'border-white/70 bg-white/20 hover:border-white hover:bg-white/30 hover:shadow-2xl'
+                      : 'border-white/50 bg-white/15 hover:border-white/80 hover:bg-white/25 hover:shadow-2xl'
+                      }`}
                     onClick={() => setIsLogin(!isLogin)}
                   >
                     <div className='relative w-full h-full flex items-center justify-center'>

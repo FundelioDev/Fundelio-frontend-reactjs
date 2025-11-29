@@ -99,12 +99,12 @@ export const EndingSoonSection = ({ campaigns = [], loading = false }) => {
                         prevEl: '.ending-prev',
                         nextEl: '.ending-next',
                     }}
-                    pagination={{
-                        clickable: true,
-                        el: '.ending-pagination',
-                        bulletClass: 'inline-block w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600 transition-all duration-300 cursor-pointer hover:bg-gray-400 dark:hover:bg-gray-500',
-                        bulletActiveClass: '!w-8 !bg-red-500',
-                    }}
+                    // pagination={{
+                    //     clickable: true,
+                    //     el: '.ending-pagination',
+                    //     bulletClass: 'inline-block w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600 transition-all duration-300 cursor-pointer hover:bg-gray-400 dark:hover:bg-gray-500',
+                    //     bulletActiveClass: '!w-8 !bg-red-500',
+                    // }}
                     breakpoints={{
                         640: {
                             slidesPerView: 2,

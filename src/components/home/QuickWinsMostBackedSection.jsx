@@ -112,12 +112,12 @@ export const QuickWinsMostBackedSection = ({ campaigns = [], loading = false }) 
                                 prevEl: '.hidden-gems-prev',
                                 nextEl: '.hidden-gems-next',
                             }}
-                            pagination={{
-                                clickable: true,
-                                el: '.hidden-gems-pagination',
-                                bulletClass: 'inline-block w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600 transition-all duration-300 cursor-pointer hover:bg-gray-400 dark:hover:bg-gray-500',
-                                bulletActiveClass: '!w-8 !bg-primary',
-                            }}
+                            // pagination={{
+                            //     clickable: true,
+                            //     el: '.hidden-gems-pagination',
+                            //     bulletClass: 'inline-block w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600 transition-all duration-300 cursor-pointer hover:bg-gray-400 dark:hover:bg-gray-500',
+                            //     bulletActiveClass: '!w-8 !bg-primary',
+                            // }}
                             breakpoints={{
                                 640: {
                                     slidesPerView: 2,
@@ -143,18 +143,18 @@ export const QuickWinsMostBackedSection = ({ campaigns = [], loading = false }) 
                         </Swiper>
 
                         {/* Pagination Dots */}
-                        {campaigns.length > 4 && (
+                        {/* {campaigns.length > 4 && (
                             <div className="hidden-gems-pagination flex justify-center gap-2 mt-8"></div>
-                        )}
-                         <div className="flex justify-end mt-1">
-                    <Link
-                        to="/search"
-                        className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary hover:text-primary-600 dark:text-primary-400 dark:hover:text-primary-300 transition-colors duration-200"
-                    >
-                        <span>Xem thêm chiến dịch</span>
-                        <ArrowRight className="w-4 h-4" />
-                    </Link>
-                </div>
+                        )} */}
+                        <div className="flex justify-end mt-1">
+                            <Link
+                                to="/search"
+                                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary hover:text-primary-600 dark:text-primary-400 dark:hover:text-primary-300 transition-colors duration-200"
+                            >
+                                <span>Xem thêm chiến dịch</span>
+                                <ArrowRight className="w-4 h-4" />
+                            </Link>
+                        </div>
                     </>
                 )}
             </div>

@@ -15,9 +15,10 @@ export const Footer = () => {
     {
       title: 'Giới thiệu',
       links: [
-        { name: 'Về chúng tôi', href: '#about' },
+        { name: 'Về chúng tôi', href: '/about' },
         { name: 'Tuyển dụng', href: '#careers' },
         { name: 'Báo chí', href: '#press' },
+        { name: 'Ra mắt', href: '/launch' }
       ],
     },
     {
@@ -33,7 +34,7 @@ export const Footer = () => {
     {
       title: 'Cộng đồng',
       links: [
-        { name: 'Blog', href: '#blog' },
+        { name: 'Blog', href: '/blog' },
         { name: 'Diễn đàn', href: '#forum' },
         { name: 'Sự kiện', href: '#events' },
       ],

@@ -218,7 +218,7 @@ const SearchPage = () => {
                 params.sort = sortParam;
             }
 
-            console.log('[SearchPage] API params:', params);
+            // console.log('[SearchPage] API params:', params);
 
             const response = await campaignApi.getAllCampaigns(params);
             const newCampaigns = response.data?.data?.content || [];
@@ -366,14 +366,14 @@ const SearchPage = () => {
         (pendingFilters.campaignStatus !== 'all' ? 1 : 0) +
         (pendingFilters.sortBy !== 'newest' ? 1 : 0);
 
-    console.log('campaigns', campaigns)
+    // console.log('campaigns', campaigns)
     return (
-        <main className="min-h-screen bg-background-light-2 dark:bg-darker text-white transition-colors">
+        <main className="min-h-screen bg-background-light-2 dark:bg-darker text-white transition-colors pt-16">
             {/* Search Header */}
             <header className="bg-transparent border-b border-white/10 dark:border-white/5">
                 <div className="max-w-container mx-auto px-4 lg:px-6 py-6">
                     {/* Search Bar */}
-                    <div className="relative max-w-2xl">
+                    {/* <div className="relative max-w-2xl">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                         <input
                             type="text"
@@ -382,10 +382,10 @@ const SearchPage = () => {
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="w-full h-12 pl-12 pr-4 rounded-lg border border-white/10 bg-white/5 text-white placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/60"
                         />
-                    </div>
+                    </div> */}
 
                     {/* Results count & filter toggle */}
-                    <div className="flex items-center justify-between mt-4">
+                    <div className="flex items-center justify-between mt-8">
                         <p className="text-sm text-muted-foreground">
                             {loading ? 'Đang tìm kiếm...' : `${totalResults} kết quả`}
                         </p>

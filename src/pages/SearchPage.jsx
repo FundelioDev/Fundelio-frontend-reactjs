@@ -194,7 +194,7 @@ const SearchPage = () => {
 
             const params = {
                 page: pageNum,
-                size: 20,
+                size: 200,
                 ...(filter && { filter }),
             };
 

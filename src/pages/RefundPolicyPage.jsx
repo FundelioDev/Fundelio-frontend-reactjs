@@ -4,12 +4,12 @@ import { ArrowLeft, DollarSign, Clock, CheckCircle, XCircle, AlertCircle, Refres
 
 const RefundPolicyPage = () => {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-dark">
+    <div className="min-h-screen bg-gray-50 dark:bg-darker">
       {/* Header */}
-      <div className="bg-white dark:bg-darker border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10">
+      <div className="bg-white dark:bg-background-header-dark border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <Link 
-            to="/" 
+          <Link
+            to="/"
             className="inline-flex items-center text-primary hover:text-primary-600 transition-colors"
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
@@ -36,8 +36,8 @@ const RefundPolicyPage = () => {
         </div>
 
         {/* Main Content */}
-        <div className="bg-white dark:bg-darker rounded-xl shadow-lg p-8 space-y-8">
-          
+        <div className="bg-white dark:bg-darker-2 rounded-xl shadow-lg p-8 space-y-8">
+
           {/* Introduction */}
           <section>
             <div className="flex items-start space-x-3 mb-4">
@@ -47,8 +47,8 @@ const RefundPolicyPage = () => {
                   1. Giới thiệu
                 </h2>
                 <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                  Tại <span className="font-semibold text-primary">Fundelio</span>, chúng tôi hiểu rằng đôi khi 
-                  bạn có thể cần hoàn tiền cho các khoản đóng góp của mình. Chính sách này giải thích các điều 
+                  Tại <span className="font-semibold text-primary">Fundelio</span>, chúng tôi hiểu rằng đôi khi
+                  bạn có thể cần hoàn tiền cho các khoản đóng góp của mình. Chính sách này giải thích các điều
                   kiện và quy trình hoàn tiền trên nền tảng của chúng tôi.
                 </p>
               </div>
@@ -65,8 +65,8 @@ const RefundPolicyPage = () => {
                     ⚠️ Lưu ý quan trọng
                   </h3>
                   <p className="text-yellow-800 dark:text-yellow-200">
-                    Gây quỹ cộng đồng trên Fundelio là hình thức ủng hộ dựa trên niềm tin. Khi bạn đóng góp 
-                    cho một chiến dịch, bạn đang hỗ trợ ý tưởng và người tạo chiến dịch, không phải mua sản phẩm. 
+                    Gây quỹ cộng đồng trên Fundelio là hình thức ủng hộ dựa trên niềm tin. Khi bạn đóng góp
+                    cho một chiến dịch, bạn đang hỗ trợ ý tưởng và người tạo chiến dịch, không phải mua sản phẩm.
                     Vì vậy, việc hoàn tiền có những hạn chế nhất định.
                   </p>
                 </div>
@@ -82,7 +82,7 @@ const RefundPolicyPage = () => {
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
                   2. Khi nào được hoàn tiền
                 </h2>
-                
+
                 <div className="space-y-4">
                   {/* Case 1 */}
                   <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-5 border border-green-200 dark:border-green-800">
@@ -95,8 +95,8 @@ const RefundPolicyPage = () => {
                           2.1. Chiến dịch không đạt mục tiêu
                         </h3>
                         <p className="text-gray-700 dark:text-gray-300 text-sm">
-                          Nếu chiến dịch sử dụng mô hình "Tất cả hoặc không gì" (All-or-Nothing) và không đạt 
-                          mục tiêu gây quỹ trong thời hạn, tất cả người ủng hộ sẽ được hoàn tiền đầy đủ tự động 
+                          Nếu chiến dịch sử dụng mô hình "Tất cả hoặc không gì" (All-or-Nothing) và không đạt
+                          mục tiêu gây quỹ trong thời hạn, tất cả người ủng hộ sẽ được hoàn tiền đầy đủ tự động
                           trong vòng 5-7 ngày làm việc.
                         </p>
                       </div>
@@ -114,7 +114,7 @@ const RefundPolicyPage = () => {
                           2.2. Giao dịch bị lỗi kỹ thuật
                         </h3>
                         <p className="text-gray-700 dark:text-gray-300 text-sm">
-                          Nếu bạn bị tính phí nhiều lần cho cùng một đóng góp do lỗi hệ thống, chúng tôi sẽ 
+                          Nếu bạn bị tính phí nhiều lần cho cùng một đóng góp do lỗi hệ thống, chúng tôi sẽ
                           hoàn lại các khoản phí trùng lặp ngay lập tức.
                         </p>
                       </div>
@@ -132,7 +132,7 @@ const RefundPolicyPage = () => {
                           2.3. Chiến dịch vi phạm điều khoản
                         </h3>
                         <p className="text-gray-700 dark:text-gray-300 text-sm">
-                          Nếu Fundelio xác định chiến dịch vi phạm điều khoản sử dụng (gian lận, lừa đảo, 
+                          Nếu Fundelio xác định chiến dịch vi phạm điều khoản sử dụng (gian lận, lừa đảo,
                           nội dung bất hợp pháp), chiến dịch sẽ bị đình chỉ và người ủng hộ được hoàn tiền.
                         </p>
                       </div>
@@ -150,7 +150,7 @@ const RefundPolicyPage = () => {
                           2.4. Trong vòng 24 giờ kể từ khi đóng góp
                         </h3>
                         <p className="text-gray-700 dark:text-gray-300 text-sm">
-                          Bạn có thể yêu cầu hoàn tiền trong vòng 24 giờ đầu tiên sau khi đóng góp, 
+                          Bạn có thể yêu cầu hoàn tiền trong vòng 24 giờ đầu tiên sau khi đóng góp,
                           với điều kiện chiến dịch chưa kết thúc. Vui lòng liên hệ bộ phận hỗ trợ khách hàng.
                         </p>
                       </div>
@@ -169,7 +169,7 @@ const RefundPolicyPage = () => {
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
                   3. Khi nào KHÔNG được hoàn tiền
                 </h2>
-                
+
                 <div className="space-y-4">
                   {/* Case 1 */}
                   <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-5 border border-red-200 dark:border-red-800">
@@ -182,8 +182,8 @@ const RefundPolicyPage = () => {
                           3.1. Chiến dịch đã thành công và nhận tiền
                         </h3>
                         <p className="text-gray-700 dark:text-gray-300 text-sm">
-                          Sau khi chiến dịch kết thúc thành công và tiền đã được chuyển cho người tạo chiến dịch, 
-                          Fundelio không thể hoàn tiền. Mọi vấn đề về phần thưởng hoặc thực hiện cam kết cần được 
+                          Sau khi chiến dịch kết thúc thành công và tiền đã được chuyển cho người tạo chiến dịch,
+                          Fundelio không thể hoàn tiền. Mọi vấn đề về phần thưởng hoặc thực hiện cam kết cần được
                           giải quyết trực tiếp với người tạo chiến dịch.
                         </p>
                       </div>
@@ -201,7 +201,7 @@ const RefundPolicyPage = () => {
                           3.2. Thay đổi ý định
                         </h3>
                         <p className="text-gray-700 dark:text-gray-300 text-sm">
-                          Nếu bạn đơn giản thay đổi ý định về việc ủng hộ sau 24 giờ hoặc không hài lòng 
+                          Nếu bạn đơn giản thay đổi ý định về việc ủng hộ sau 24 giờ hoặc không hài lòng
                           với cách chiến dịch phát triển (nhưng không có gian lận), hoàn tiền sẽ không được chấp nhận.
                         </p>
                       </div>
@@ -219,7 +219,7 @@ const RefundPolicyPage = () => {
                           3.3. Phần thưởng chậm trễ hoặc không như mong đợi
                         </h3>
                         <p className="text-gray-700 dark:text-gray-300 text-sm">
-                          Fundelio không chịu trách nhiệm về chất lượng, thời gian giao hàng hoặc sự khác biệt 
+                          Fundelio không chịu trách nhiệm về chất lượng, thời gian giao hàng hoặc sự khác biệt
                           giữa phần thưởng thực tế và mô tả. Vui lòng liên hệ trực tiếp với người tạo chiến dịch.
                         </p>
                       </div>
@@ -237,7 +237,7 @@ const RefundPolicyPage = () => {
                           3.4. Phí dịch vụ và phí giao dịch
                         </h3>
                         <p className="text-gray-700 dark:text-gray-300 text-sm">
-                          Các khoản phí dịch vụ của Fundelio và phí xử lý thanh toán từ cổng thanh toán 
+                          Các khoản phí dịch vụ của Fundelio và phí xử lý thanh toán từ cổng thanh toán
                           không được hoàn lại trong mọi trường hợp.
                         </p>
                       </div>
@@ -256,7 +256,7 @@ const RefundPolicyPage = () => {
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
                   4. Quy trình hoàn tiền
                 </h2>
-                
+
                 <div className="space-y-4">
                   <p className="text-gray-700 dark:text-gray-300">
                     Nếu bạn đủ điều kiện hoàn tiền, vui lòng làm theo các bước sau:
@@ -272,7 +272,7 @@ const RefundPolicyPage = () => {
                         Liên hệ hỗ trợ khách hàng
                       </h4>
                       <p className="text-gray-700 dark:text-gray-300 text-sm">
-                        Gửi email đến <span className="text-primary font-semibold">support@fundelio.com</span> với 
+                        Gửi email đến <span className="text-primary font-semibold">support@fundelio.com</span> với
                         tiêu đề "Yêu cầu hoàn tiền - [Mã đơn hàng]"
                       </p>
                     </div>
@@ -310,7 +310,7 @@ const RefundPolicyPage = () => {
                         Đợi xem xét
                       </h4>
                       <p className="text-gray-700 dark:text-gray-300 text-sm">
-                        Đội ngũ của chúng tôi sẽ xem xét yêu cầu trong vòng <span className="font-semibold">3-5 ngày làm việc</span> 
+                        Đội ngũ của chúng tôi sẽ xem xét yêu cầu trong vòng <span className="font-semibold">3-5 ngày làm việc</span>
                         và phản hồi qua email.
                       </p>
                     </div>
@@ -326,7 +326,7 @@ const RefundPolicyPage = () => {
                         Nhận hoàn tiền
                       </h4>
                       <p className="text-gray-700 dark:text-gray-300 text-sm">
-                        Nếu được chấp thuận, tiền sẽ được hoàn về phương thức thanh toán gốc trong vòng 
+                        Nếu được chấp thuận, tiền sẽ được hoàn về phương thức thanh toán gốc trong vòng
                         <span className="font-semibold"> 7-14 ngày làm việc</span> (tùy thuộc vào ngân hàng/cổng thanh toán).
                       </p>
                     </div>
@@ -376,7 +376,7 @@ const RefundPolicyPage = () => {
                 <AlertCircle className="w-6 h-6 text-orange-600 dark:text-orange-500 mt-1 flex-shrink-0" />
                 <div className="space-y-3">
                   <p className="text-gray-700 dark:text-gray-300">
-                    <span className="font-semibold">Lưu ý:</span> Việc yêu cầu chargeback trực tiếp với ngân hàng 
+                    <span className="font-semibold">Lưu ý:</span> Việc yêu cầu chargeback trực tiếp với ngân hàng
                     mà không liên hệ Fundelio trước có thể dẫn đến:
                   </p>
                   <ul className="text-gray-700 dark:text-gray-300 space-y-1 ml-4">
@@ -399,8 +399,8 @@ const RefundPolicyPage = () => {
             </h2>
             <div className="space-y-3 text-gray-700 dark:text-gray-300">
               <p className="leading-relaxed">
-                Fundelio có quyền thay đổi chính sách hoàn tiền này bất kỳ lúc nào. Các thay đổi sẽ 
-                có hiệu lực ngay khi được công bố trên trang web. Chúng tôi khuyến khích bạn xem xét 
+                Fundelio có quyền thay đổi chính sách hoàn tiền này bất kỳ lúc nào. Các thay đổi sẽ
+                có hiệu lực ngay khi được công bố trên trang web. Chúng tôi khuyến khích bạn xem xét
                 định kỳ để cập nhật thông tin mới nhất.
               </p>
             </div>
@@ -427,14 +427,14 @@ const RefundPolicyPage = () => {
 
         {/* Bottom Navigation */}
         <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
-          <Link 
-            to="/terms-of-service" 
+          <Link
+            to="/terms-of-service"
             className="px-6 py-3 bg-white dark:bg-darker border border-gray-300 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-center"
           >
             Điều khoản sử dụng
           </Link>
-          <Link 
-            to="/privacy-policy" 
+          <Link
+            to="/privacy-policy"
             className="px-6 py-3 bg-white dark:bg-darker border border-gray-300 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-center"
           >
             Chính sách riêng tư

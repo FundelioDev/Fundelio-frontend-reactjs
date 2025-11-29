@@ -891,7 +891,7 @@ export default function CampaignStatisticsPage() {
                         <div className="flex flex-wrap gap-2">
                             <Button
                                 variant="outline"
-                                onClick={() => navigate(fromAdmin ? '/admin/campaigns' : `/campaigns/${campaignId}/dashboard`)}
+                                onClick={() => navigate(fromAdmin ? '/admin/campaigns' : `/dashboard`)}
                                 className="gap-2"
                             >
                                 {fromAdmin ? 'Về Admin' : 'Quay lại'}

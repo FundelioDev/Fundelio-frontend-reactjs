@@ -16,6 +16,7 @@ import {
     Dialog,
     DialogContent,
 } from '@/components/ui/dialog';
+import { notifyWalletBalanceChanged } from '@/utils/walletEvents';
 
 export default function PledgeSummaryPage() {
     const location = useLocation();
@@ -49,6 +50,9 @@ export default function PledgeSummaryPage() {
 
         setIsSubmitting(false);
         setPledgeSuccess(data);
+
+        // Notify that wallet balance has changed
+        notifyWalletBalanceChanged();
     }, []);
 
     const handlePledgeError = useCallback((error) => {
@@ -590,7 +594,7 @@ export default function PledgeSummaryPage() {
                                     htmlFor="terms-checkbox"
                                     className="text-sm text-foreground leading-relaxed cursor-pointer"
                                 >
-                                    Tôi hiểu rằng Fundelio hoặc người sáng tạo không đảm bảo sẽ trao phần thưởng hoặc hoàn tiền.
+                                    Tôi đồng ý với Điều khoản sử dụng và Chính sách quyền riêng tư của Fundelio.
                                 </label>
                             </div>
 

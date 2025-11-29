@@ -105,7 +105,7 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction }) => {
 
     let extractedDetails = { campaignName: null, platformFeeText: null };
 
-    if (transaction.transactionType === 'TRANSFER' && transaction.description) {
+    if ((transaction.transactionType === 'TRANSFER' || transaction.transactionType === 'REFUND') && transaction.description) {
         extractedDetails = extractTransactionDetails(transaction.description);
     }
 

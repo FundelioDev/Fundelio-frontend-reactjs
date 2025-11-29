@@ -12,9 +12,9 @@ import {
 
 const PrivacyPolicyPage = () => {
   return (
-    <div className='min-h-screen bg-gray-50 dark:bg-dark'>
+    <div className='min-h-screen bg-gray-50 dark:bg-darker'>
       {/* Header */}
-      <div className='bg-white dark:bg-darker border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10'>
+      <div className='bg-white dark:bg-background-header-dark border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10'>
         <div className='container mx-auto px-4 sm:px-6 lg:px-8 py-4'>
           <Link
             to='/'
@@ -44,7 +44,7 @@ const PrivacyPolicyPage = () => {
         </div>
 
         {/* Main Content */}
-        <div className='bg-white dark:bg-darker rounded-xl shadow-lg p-8 space-y-8'>
+        <div className='bg-white dark:bg-darker-2 rounded-xl shadow-lg p-8 space-y-8'>
           {/* Introduction */}
           <section>
             <div className='flex items-start space-x-3 mb-4'>

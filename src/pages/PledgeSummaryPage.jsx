@@ -594,7 +594,7 @@ export default function PledgeSummaryPage() {
                                     htmlFor="terms-checkbox"
                                     className="text-sm text-foreground leading-relaxed cursor-pointer"
                                 >
-                                    Tôi hiểu rằng Fundelio hoặc người sáng tạo không đảm bảo sẽ trao phần thưởng hoặc hoàn tiền.
+                                    Tôi đồng ý với Điều khoản sử dụng và Chính sách quyền riêng tư của Fundelio.
                                 </label>
                             </div>
 

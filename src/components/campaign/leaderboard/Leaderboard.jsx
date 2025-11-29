@@ -257,9 +257,7 @@ const Leaderboard = ({ campaignId }) => {
     <div ref={componentRef} className="max-w-4xl mx-auto">
       <Toaster
         position="top-right"
-        containerStyle={{
-          top: 80,
-        }}
+        containerStyle={{ top: 80 }}
         gutter={10}
       />
 
@@ -380,4 +378,6 @@ const Leaderboard = ({ campaignId }) => {
       </div>
     </div>
   );
-}; export default Leaderboard;
+};
+
+export default Leaderboard;

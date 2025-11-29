@@ -99,12 +99,12 @@ export const SuccessStoriesSection = ({ campaigns = [], loading = false }) => {
                         prevEl: '.success-prev',
                         nextEl: '.success-next',
                     }}
-                    pagination={{
-                        clickable: true,
-                        el: '.success-pagination',
-                        bulletClass: 'inline-block w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600 transition-all duration-300 cursor-pointer hover:bg-gray-400 dark:hover:bg-gray-500',
-                        bulletActiveClass: '!w-8 !bg-yellow-500',
-                    }}
+                    // pagination={{
+                    //     clickable: true,
+                    //     el: '.success-pagination',
+                    //     bulletClass: 'inline-block w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600 transition-all duration-300 cursor-pointer hover:bg-gray-400 dark:hover:bg-gray-500',
+                    //     bulletActiveClass: '!w-8 !bg-yellow-500',
+                    // }}
                     breakpoints={{
                         640: {
                             slidesPerView: 2,
@@ -129,10 +129,10 @@ export const SuccessStoriesSection = ({ campaigns = [], loading = false }) => {
                     ))}
                 </Swiper>
 
-                {/* Pagination Dots */}
+                {/* Pagination Dots
                 {campaigns.length > 4 && (
                     <div className="success-pagination flex justify-center gap-2 mt-8"></div>
-                )}
+                )} */}
 
                 {/* View More Button */}
                 <div className="flex justify-end mt-1">

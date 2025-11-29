@@ -36,7 +36,7 @@ const SearchFilters = ({
     const statusOptions = [
         { value: 'all', label: 'Tất cả' },
         { value: 'active', label: 'Đang hoạt động' },
-        { value: 'upcoming', label: 'Sắp diễn ra' },
+        // { value: 'upcoming', label: 'Sắp diễn ra' },
         { value: 'ended', label: 'Đã kết thúc' },
     ];
 

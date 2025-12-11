@@ -58,7 +58,7 @@ export const LoginForm = () => {
         const userSecured = response.data.data.userSecured;
         if (accessToken) {
           login(accessToken, userSecured);
-          navigate('/home');
+          navigate('/');
         }
       }
     } catch (error) {

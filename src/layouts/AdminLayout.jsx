@@ -100,7 +100,7 @@ export default function AdminLayout() {
         {/* Logo */}
         <div className='h-16 flex items-center justify-between px-4 border-b border-gray-200 dark:border-gray-800'>
           {sidebarOpen && (
-            <Link to='/home' className='flex items-center space-x-2'>
+            <Link to='/' className='flex items-center space-x-2'>
               <img
                 src='https://i.postimg.cc/HLJPXtZ4/logo-(3)-(1)-(1).png'
                 alt='Fundelio'

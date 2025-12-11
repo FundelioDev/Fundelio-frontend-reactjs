@@ -92,7 +92,7 @@ const YourProjectsPage = () => {
             You can try different filtering criteria to find what you're looking for.
           </p>
           <Link
-            to="/home"
+            to="/"
             className="inline-block px-8 py-3 bg-gradient-to-r from-primary to-secondary text-white font-bold rounded-full hover:opacity-90 transition-opacity"
           >
             EXPLORE PROJECTS

@@ -76,7 +76,7 @@ const AboutFundelioPage = () => {
             </Link>
 
             <Link 
-              to="/home" 
+              to="/" 
               className="px-8 py-4 bg-slate-900 border border-slate-700 hover:border-slate-500 text-white rounded-xl font-bold transition-all inline-flex items-center justify-center"
             >
               Tìm Hiểu Thêm

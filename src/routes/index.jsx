@@ -67,8 +67,8 @@ export const router = createBrowserRouter([
     element: <RootLayout />,
     children: [
 
-      { index: true, element: <LandingPage /> },
-      { path: 'home', element: <HomePage /> },
+      // { index: true, element: <LandingPage /> },
+      { index: true, element: <HomePage /> },
       { path: 'search', element: <SearchPage /> },
       { path: 'terms-of-service', element: <TermsOfServicePage /> },
       { path: 'privacy-policy', element: <PrivacyPolicyPage /> },

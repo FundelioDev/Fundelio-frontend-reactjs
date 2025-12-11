@@ -212,7 +212,7 @@ export default function ForbiddenPage() {
                         <ArrowLeft className="w-5 h-5" />
                         <span>Quay lại</span>
                     </Button>
-                    <Link to="/home">
+                    <Link to="/">
                         <Button
                             variant="gradient"
                             size="lg"

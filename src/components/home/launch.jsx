@@ -178,7 +178,7 @@ const LaunchGuidePage = () => {
                 <BadgeDollarSign className="w-5 h-5 mr-2" /> Tạo chiến dịch ngay
               </Link>
               <Link 
-                to="/home"
+                to="/"
                 className="px-8 py-4 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-xl font-bold text-lg hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 transition-all flex items-center justify-center"
               >
                 Về trang chủ

@@ -6,7 +6,7 @@ import { useWebSocketConnection } from '@/websocket/hooks';
 
 export default function RootLayout() {
   const location = useLocation();
-  const headerVariant = location.pathname === '/home' ? 'transparent' : 'light';
+  const headerVariant = location.pathname === '/' ? 'transparent' : 'light';
 
   // Auto connect WebSocket khi user đăng nhập
   useWebSocketConnection();
@@ -26,14 +26,14 @@ export default function RootLayout() {
     <>
       <ScrollToTop />
       <div className={`flex flex-col min-h-screen ${!isCampaignDetail ? 'overflow-x-hidden' : ''}`}>
-        {location.pathname !== '/' && !isPreviewMode && <Header variant={headerVariant} isFixed={isHeaderFixed} />}
+        {!isPreviewMode && <Header variant={headerVariant} isFixed={isHeaderFixed} />}
         {/*  */}
         <main className={`flex-1 ${!isCampaignDetail ? 'overflow-x-hidden' : ''}`}>
           <Outlet />
         </main>
 
         {/* <Footer /> */}
-        {location.pathname !== '/' && !isPreviewMode && <Footer />}
+        {!isPreviewMode && <Footer />}
       </div>
     </>
   );

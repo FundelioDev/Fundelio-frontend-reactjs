@@ -236,7 +236,7 @@ export const Header = ({
       <div className="mx-auto max-w-container flex items-center justify-between gap-4">
         {/* Left */}
         <div className="flex items-center gap-2 sm:gap-4">
-          <Link to="/home">
+          <Link to="/">
             <img
               src="https://i.postimg.cc/HLJPXtZ4/logo-(3)-(1)-(1).png"
               alt="Fundelio"
